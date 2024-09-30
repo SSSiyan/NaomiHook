@@ -316,6 +316,7 @@ namespace gui {
                 draw_category(ctx, "COSMETICS", ModCategory::COSMETICS);
                 draw_category(ctx, "STAGE",     ModCategory::STAGE);
                 draw_category(ctx, "SOUND",     ModCategory::SOUND);
+                draw_category(ctx, "SYSTEM",    ModCategory::SYSTEM);
 
                 ImGui::PopStyleColor();
                 ImGui::PopFont();

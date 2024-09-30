@@ -53,7 +53,7 @@ private:
     bool m_first_frame{ true };
     bool m_valid{ false };
     bool m_initialized{ false };
-    bool m_draw_ui{ true };
+    bool m_draw_ui{ false };
     std::atomic<bool> m_game_data_initialized{ false };
 
     HWND m_wnd{ 0 };

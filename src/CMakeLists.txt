@@ -1,4 +1,8 @@
 set(MODS_SRC
+    mods/AcceptPadInputsTabbedOut.hpp
+    mods/AcceptPadInputsTabbedOut.cpp
+    mods/DisableCrashDumps.hpp
+    mods/DisableCrashDumps.cpp
     mods/HpColor.hpp
     mods/HpColor.cpp
     mods/BeamColor.hpp

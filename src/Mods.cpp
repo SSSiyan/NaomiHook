@@ -7,6 +7,8 @@
 #include "mods/SimpleMod.hpp"
 #include "mods/BeamColor.hpp"
 #include "mods/HpColor.hpp"
+#include "mods/DisableCrashDumps.hpp"
+#include "mods/AcceptPadInputsTabbedOut.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -23,7 +25,8 @@ Mods::Mods()
     ADD_MOD(SimpleMod);
     ADD_MOD(BeamColor);
     ADD_MOD(HpColor);
-
+    ADD_MOD(DisableCrashDumps);
+    ADD_MOD(AcceptPadInputsTabbedOut);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

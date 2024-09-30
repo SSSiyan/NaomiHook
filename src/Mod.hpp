@@ -7,6 +7,7 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include "utility/Patch.hpp"
 
 #include <imgui/imgui.h>
 
@@ -26,6 +27,7 @@ enum class ModCategory {
     COSMETICS,
     STAGE,
     SOUND,
+    SYSTEM,
     MAX
 };
 
