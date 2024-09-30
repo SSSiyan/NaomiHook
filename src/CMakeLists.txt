@@ -1,4 +1,6 @@
 set(MODS_SRC
+    mods/ForceFOV.hpp
+    mods/ForceFOV.cpp
     mods/AcceptPadInputsTabbedOut.hpp
     mods/AcceptPadInputsTabbedOut.cpp
     mods/DisableCrashDumps.hpp

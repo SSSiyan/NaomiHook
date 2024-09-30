@@ -191,6 +191,7 @@ namespace gui {
 
     // helpmarker function, to avoid typing it every time in the gui section
     void help_marker(const char* desc) {
+        ImGui::SameLine();
         ImGui::TextDisabled("(?)");
         if (ImGui::IsItemHovered()) {
             ImGui::BeginTooltip();
@@ -321,7 +322,17 @@ namespace gui {
                 ImGui::PopStyleColor();
                 ImGui::PopFont();
             }
+            static bool showImGuiDemoWindow = false;
+            ImGui::Checkbox("Show ImGui Demo Window", &showImGuiDemoWindow);
+            help_marker("Check out tools>style editor to play with changes to appearance.\n"
+                "Check out widgets to see if there's anything else you wanna use somewhere");
+            if (showImGuiDemoWindow) {
+                ImGui::ShowDemoWindow();
+            }
+            if (ImGui::Button("Save Config")) {
+                pmods->on_config_save();
+            }
             ImGui::End();
         }
     }
-    } // namespace gui
+} // namespace gui

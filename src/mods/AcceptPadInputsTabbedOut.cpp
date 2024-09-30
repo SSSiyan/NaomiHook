@@ -13,10 +13,10 @@ bool AcceptPadInputsTabbedOut::mod_enabled = false;
 
 void AcceptPadInputsTabbedOut::toggle(bool enable) {
     if (enable) {
-        install_patch_offset(0x1F4A38, patch, "\xE9\xA4\x00\x00\x00\x90", 6); // jne nmh.exe+20DD92
+        install_patch_offset(0x20DCE9, patch, "\xE9\xA4\x00\x00\x00\x90", 6); // jmp nmh.exe+20DD92 nop
     }
     else {
-        install_patch_offset(0x1F4A38, patch, "\x0F\x85\xA3\x00\x00\x00", 6); // jmp nmh.exe+20DD92 nop
+        install_patch_offset(0x20DCE9, patch, "\x0F\x85\xA3\x00\x00\x00", 6); // jne nmh.exe+20DD92
     }
 }
 

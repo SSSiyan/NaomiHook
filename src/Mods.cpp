@@ -9,6 +9,7 @@
 #include "mods/HpColor.hpp"
 #include "mods/DisableCrashDumps.hpp"
 #include "mods/AcceptPadInputsTabbedOut.hpp"
+#include "mods/ForceFOV.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -27,6 +28,7 @@ Mods::Mods()
     ADD_MOD(HpColor);
     ADD_MOD(DisableCrashDumps);
     ADD_MOD(AcceptPadInputsTabbedOut);
+    ADD_MOD(ForceFOV);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
