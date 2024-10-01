@@ -1,16 +1,18 @@
 set(MODS_SRC
-    mods/ForceFOV.hpp
-    mods/ForceFOV.cpp
-    mods/AcceptPadInputsTabbedOut.hpp
-    mods/AcceptPadInputsTabbedOut.cpp
-    mods/DisableCrashDumps.hpp
-    mods/DisableCrashDumps.cpp
     mods/HpColor.hpp
     mods/HpColor.cpp
     mods/BeamColor.hpp
     mods/BeamColor.cpp
     mods/SimpleMod.hpp
     mods/SimpleMod.cpp
+    mods/DisableCrashDumps.hpp
+    mods/DisableCrashDumps.cpp
+    mods/AcceptPadInputsTabbedOut.hpp
+    mods/AcceptPadInputsTabbedOut.cpp
+    mods/ForceFOV.hpp
+    mods/ForceFOV.cpp
+    mods/StageWarp.hpp
+    mods/StageWarp.cpp
 )
 
 set(HOOKS_SRC

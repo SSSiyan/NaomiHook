@@ -10,6 +10,7 @@
 #include "mods/DisableCrashDumps.hpp"
 #include "mods/AcceptPadInputsTabbedOut.hpp"
 #include "mods/ForceFOV.hpp"
+#include "mods/StageWarp.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -29,6 +30,7 @@ Mods::Mods()
     ADD_MOD(DisableCrashDumps);
     ADD_MOD(AcceptPadInputsTabbedOut);
     ADD_MOD(ForceFOV);
+    ADD_MOD(StageWarp);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
