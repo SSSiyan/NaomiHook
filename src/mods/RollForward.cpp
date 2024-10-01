@@ -65,18 +65,13 @@ naked void detour3() {
         cmp byte ptr [RollForward::mod_enabled], 0
         je originalcode
         xor edx,edx
-        push 0
         lea ecx, [edx+0x0F]
-        push eax
+        push 0
         // call dword ptr [RollForward::Offset_GetEdgeButton]
-        mov eax, [RollForward::Offset_GetEdgeButton]
-        mov eax, [eax]
-        call eax
-        pop eax
+        call dword ptr [RollForward::Offset_GetEdgeButton]
         add esp, 4
         test al, al
         jne jnecode
-        jmp dword ptr [RollForward::jmp_ret3]
 
         originalcode:
         xor edx,edx
@@ -95,6 +90,7 @@ std::optional<std::string> RollForward::on_initialize() {
     RollForward::Offset_JNE_1 = g_framework->get_module().as<uintptr_t>() + 0x3D2628;
     RollForward::Offset_LeftStickUp = g_framework->get_module().as<uintptr_t>() + 0x84B91A;
     RollForward::Offset_LeftStickLeft = g_framework->get_module().as<uintptr_t>() + 0x84B8F6;
+    
     if (!install_hook_offset(0x3D25F2, m_hook1, &detour1, &RollForward::jmp_ret1, 7)) {
         spdlog::error("Failed to init RollForward mod\n");
         return "Failed to init RollForward mod";
@@ -111,7 +107,7 @@ std::optional<std::string> RollForward::on_initialize() {
         spdlog::error("Failed to init RollForward mod\n");
         return "Failed to init RollForward mod";
     }
-
+    
     return Mod::on_initialize();
 }
 

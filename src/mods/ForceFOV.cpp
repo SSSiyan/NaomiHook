@@ -39,7 +39,6 @@ naked void detour2() { // used during attacks
 
 std::optional<std::string> ForceFOV::on_initialize() {
     default_fov = *(float*)(g_framework->get_module().as<uintptr_t>() + 0x7A44E0);
-
     if (!install_hook_offset(0x3C55B7, m_hook1, &detour1, &ForceFOV::jmp_ret1, 8)) {
         spdlog::error("Failed to init ForceFOV mod\n");
         return "Failed to init ForceFOV mod";

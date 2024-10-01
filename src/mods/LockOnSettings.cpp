@@ -18,16 +18,16 @@ void LockOnSettings::toggle_deathblow_lockon(bool enable) {
         install_patch_offset(0x3D08E5, patch2, "\x90\x90\x90\x90\x90", 5); // nop 5
     }
     else {
-        install_patch_offset(0x3D08E5, patch2, "\xE8\xF6\x44\xFF\xFF", 5); // call nmh.mHRPc::mInitLockOn
+        install_patch_offset(0x3D08E5, patch2, "\x0F\x84\x2E\x00\x00", 5); // call nmh.mHRPc::mInitLockOn
     }
 }
 
 void LockOnSettings::toggle_parry_qte_lockon(bool enable) {
     if (enable) {
-        install_patch_offset(0x3D08E5, patch3, "\xE9\x2F\x06\x00\x00\x90", 6); // jmp nmh.mHRPc::mUpdateLockOnTarget+66C
+        install_patch_offset(0x3C4268, patch3, "\xE9\x2F\x06\x00\x00\x90", 6); // jmp nmh.mHRPc::mUpdateLockOnTarget+66C
     }
     else {
-        install_patch_offset(0x3D08E5, patch3, "\x0F\x84\x2E\x06\x00\x00", 6); // je nmh.mHRPc::mUpdateLockOnTarget+66C
+        install_patch_offset(0x3C4268, patch3, "\x0F\x84\x2E\x06\x00\x00", 6); // je nmh.mHRPc::mUpdateLockOnTarget+66C
     }
 }
 
