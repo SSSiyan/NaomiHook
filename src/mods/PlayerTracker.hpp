@@ -1,16 +1,16 @@
 #pragma once
 #include "Mod.hpp"
 #include "sdk/ReClass.hpp"
-class StageWarp : public Mod {
+class PlayerTracker : public Mod {
 public:
-  StageWarp() = default;
+  PlayerTracker() = default;
   
-  ModCategory get_category() { return ModCategory::STAGE; };
+  ModCategory get_category() { return ModCategory::SYSTEM; };
 
   // mod name string for config
-  std::string get_mod_name() const override { return "StageWarp"; }
-  std::string get_human_readable_name() const { return "Stage Warp"; }
-  const char* get_description() const override { return R"(Stage Warp)"; };
+  std::string get_mod_name() const override { return "PlayerTracker"; }
+  std::string get_human_readable_name() const { return "Player Tracker"; }
+  const char* get_description() const override { return R"(View info about the player character)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

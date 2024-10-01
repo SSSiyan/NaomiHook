@@ -13,6 +13,13 @@ set(MODS_SRC
     mods/ForceFOV.cpp
     mods/StageWarp.hpp
     mods/StageWarp.cpp
+    mods/PlayerTracker.hpp
+    mods/PlayerTracker.cpp
+    mods/WeaponSwitcher.hpp 
+    mods/WeaponSwitcher.cpp 
+    mods/ClothesSwitcher.hpp 
+    mods/ClothesSwitcher.cpp 
+
 )
 
 set(HOOKS_SRC

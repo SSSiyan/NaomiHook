@@ -1,6 +1,5 @@
 #include "StageWarp.hpp"
 #if 1
-char* StageWarp::current_stage_name = NULL;
 
 struct Stage {
     const char* name;
@@ -92,14 +91,14 @@ static constexpr std::array<Stage, 78> stage_items = {
 typedef bool (__thiscall* setStageFunc)(
     uintptr_t* gp_CBgCtrl,
     const char* _StgName,
-    int _Arg,
-    int _Arg1,
-    int _Arg2,
+    int _Arg,              // added stages
+    int _Arg1,             // unkn
+    int _Arg2,             // unkn
     bool inBossInfoDisp,
     int inFadeType,
     __int64 inSetVolRate,
     bool inPause,
-    unsigned int a10);
+    unsigned int a10);     // unkn
 
 std::optional<std::string> StageWarp::on_initialize() {
     return Mod::on_initialize();
@@ -115,7 +114,7 @@ void StageWarp::on_draw_ui() {
             uintptr_t* gp_CBgCtrlBase = *(uintptr_t**)gp_CBgCtrl;
             if (gp_CBgCtrlBase) {
                 // ImGui::Text("gp_CBgCtrlBase = %p", (void*)gp_CBgCtrlBase);
-                uintptr_t* targetAddress = (uintptr_t*)((char*)gp_CBgCtrlBase + 0xab0); // // add as bytes
+                uintptr_t* targetAddress = (uintptr_t*)((char*)gp_CBgCtrlBase + 0xab0); // add as bytes
                 // ImGui::Text("gp_CBgCtrl+ab0 = %p", (void*)targetAddress);
                 const char* currentStage = (const char*)targetAddress;
                 if (currentStage && (strlen(currentStage) < 20)) { // can you tell I had trouble with this
@@ -126,12 +125,13 @@ void StageWarp::on_draw_ui() {
             }
         }
     }
+
     for (int i = 0; i < stage_items.size(); ++i) {
         char buttonLabel[64];
         snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", stage_items[i].name, stage_items[i].info);
         if (ImGui::Button(buttonLabel)) {
             uintptr_t setStageAddress = (g_framework->get_module().as<uintptr_t>() + 0x3FD690);
-            setStageFunc setStage = reinterpret_cast<setStageFunc>(setStageAddress);
+            setStageFunc setStage = (setStageFunc)setStageAddress;
             uintptr_t* gp_CBgCtrl = (uintptr_t*)gp_CBgCtrlAddr;
             if (gp_CBgCtrl) {
                 uintptr_t* gp_CBgCtrlBase = *(uintptr_t**)gp_CBgCtrl;
