@@ -14,6 +14,7 @@
 #include "mods/StageWarp.hpp"
 #include "mods/PlayerTracker.hpp"
 #include "mods/ClothesSwitcher.hpp"
+#include "mods/LockOnSettings.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -37,6 +38,7 @@ Mods::Mods()
     ADD_MOD(StageWarp);
     ADD_MOD(PlayerTracker);
     ADD_MOD(ClothesSwitcher);
+    ADD_MOD(LockOnSettings);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

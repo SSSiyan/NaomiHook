@@ -16,11 +16,9 @@ typedef bool(__thiscall* mCheckSideStepFunc)(uintptr_t* playerPtr, int unkn); //
 // check player is != 0 after calling this
 uintptr_t* WeaponSwitcher::GetPlayerPtr(void){
     uintptr_t gpBattleAddr = g_framework->get_module().as<uintptr_t>() + 0x843584;
-    uintptr_t* gpBattle = (uintptr_t*)gpBattleAddr;
-    if (gpBattle) {
-        uintptr_t* gpBattleBase = *(uintptr_t**)gpBattle;
-        if (gpBattleBase) {
-        uintptr_t* mHRPcAddr = (uintptr_t*)((char*)gpBattleBase + 0x164); // add as bytes
+    if (uintptr_t* gpBattle = (uintptr_t*)gpBattleAddr) {
+        if (uintptr_t* gpBattleBase = *(uintptr_t**)gpBattle) {
+            uintptr_t* mHRPcAddr = (uintptr_t*)((char*)gpBattleBase + 0x164); // add as bytes
             uintptr_t* mHRPc = *(uintptr_t**)mHRPcAddr;
             return mHRPc;
         }
@@ -132,8 +130,7 @@ bool IsNewWeaponActuallyNew(int dPadInput, int currentWeapon) {
 }
 
 bool WeaponSwitcher::CanWeaponSwitch(int dPadInput, int currentWeapon) {
-    uintptr_t* playerPtr = GetPlayerPtr();
-    if (playerPtr) {
+    if (uintptr_t* playerPtr = GetPlayerPtr()) {
         char* playerBaseChar = (char*)playerPtr;
         int* currentMoveIDAddress = (int*)(playerBaseChar + 0x18C);
         int currentMoveID = *currentMoveIDAddress;
@@ -185,8 +182,7 @@ void WeaponSwitcher::on_config_save(utility::Config &cfg) {
 void WeaponSwitcher::on_frame() {
     if (mod_enabled) {
         if (weaponSwitchCooldown > 20.0f) {
-            uintptr_t* playerPtr = GetPlayerPtr();
-            if (playerPtr) {
+            if (uintptr_t* playerPtr = GetPlayerPtr()) {
                 char* playerBaseChar = (char*)playerPtr;
                 uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
                 int8_t dPadInput = *(int8_t*)dPadInputsAddr;

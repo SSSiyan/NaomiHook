@@ -157,11 +157,9 @@ typedef char(__thiscall* mSetEquipFunc)(
 // check player is != 0 after calling this
 uintptr_t* ClothesSwitcher::GetPlayerPtr(void){
     uintptr_t gpBattleAddr = g_framework->get_module().as<uintptr_t>() + 0x843584;
-    uintptr_t* gpBattle = (uintptr_t*)gpBattleAddr;
-    if (gpBattle) {
-        uintptr_t* gpBattleBase = *(uintptr_t**)gpBattle;
-        if (gpBattleBase) {
-        uintptr_t* mHRPcAddr = (uintptr_t*)((char*)gpBattleBase + 0x164); // add as bytes
+    if (uintptr_t* gpBattle = (uintptr_t*)gpBattleAddr) {
+        if (uintptr_t* gpBattleBase = *(uintptr_t**)gpBattle) {
+            uintptr_t* mHRPcAddr = (uintptr_t*)((char*)gpBattleBase + 0x164); // add as bytes
             uintptr_t* mHRPc = *(uintptr_t**)mHRPcAddr;
             return mHRPc;
         }

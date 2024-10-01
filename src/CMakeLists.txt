@@ -19,6 +19,8 @@ set(MODS_SRC
     mods/WeaponSwitcher.cpp 
     mods/ClothesSwitcher.hpp 
     mods/ClothesSwitcher.cpp 
+    mods/LockOnSettings.hpp 
+    mods/LockOnSettings.cpp 
 
 )
 
