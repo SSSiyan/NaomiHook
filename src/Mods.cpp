@@ -15,6 +15,7 @@
 #include "mods/PlayerTracker.hpp"
 #include "mods/ClothesSwitcher.hpp"
 #include "mods/LockOnSettings.hpp"
+#include "mods/HitstopSettings.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -39,6 +40,7 @@ Mods::Mods()
     ADD_MOD(PlayerTracker);
     ADD_MOD(ClothesSwitcher);
     ADD_MOD(LockOnSettings);
+    ADD_MOD(HitstopSettings);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

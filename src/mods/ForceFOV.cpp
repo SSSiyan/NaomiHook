@@ -62,7 +62,7 @@ void ForceFOV::on_draw_ui() {
 
 // during load
 void ForceFOV::on_config_load(const utility::Config &cfg) {
-    mod_enabled = cfg.get<bool>("force_fov").value_or(true);
+    mod_enabled = cfg.get<bool>("force_fov").value_or(false);
     custom_fov = cfg.get<float>("custom_fov").value_or(55.0f);
 }
 // during save

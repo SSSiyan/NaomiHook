@@ -21,6 +21,8 @@ set(MODS_SRC
     mods/ClothesSwitcher.cpp 
     mods/LockOnSettings.hpp 
     mods/LockOnSettings.cpp 
+    mods/HitstopSettings.hpp 
+    mods/HitstopSettings.cpp 
 
 )
 
