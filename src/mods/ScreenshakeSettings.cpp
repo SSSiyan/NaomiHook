@@ -12,11 +12,11 @@ naked void detour1() { // basic attacks // player in edi
         je originalcode
 
         push 0
-        jmp qword ptr [ScreenshakeSettings::jmp_ret1]
+        jmp dword ptr [ScreenshakeSettings::jmp_ret1]
 
         originalcode:
             push 6
-            jmp qword ptr [ScreenshakeSettings::jmp_ret1]
+            jmp dword ptr [ScreenshakeSettings::jmp_ret1]
     }
 }
  
@@ -33,7 +33,7 @@ std::optional<std::string> ScreenshakeSettings::on_initialize() {
 }
 
 void ScreenshakeSettings::on_draw_ui() {
-    ImGui::Checkbox("Less Screenshake", &mod_enabled);
+    ImGui::Checkbox("Disable Screenshake On Normal Attacks", &mod_enabled);
 }
 
 // during load

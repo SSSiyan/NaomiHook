@@ -4,9 +4,9 @@
 #if 0
 static naked void detour() {
 	__asm {
-		mov qword ptr [BeamColor::variable], rbx
-		mov rax, 0xDEADBEEF
-		jmp qword ptr [jmp_ret]
+		mov dword ptr [BeamColor::variable], rbx
+		mov eax, 0xDEADBEEF
+		jmp dword ptr [jmp_ret]
 	}
 }
 #endif

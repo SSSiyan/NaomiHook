@@ -6,7 +6,7 @@ static naked void detour() {
     __asm {
         mov qword ptr [HpColor::variable], rbx
         mov rax, 0xDEADBEEF
-        jmp qword ptr [jmp_ret]
+        jmp dword ptr [jmp_ret]
     }
 }
 #endif

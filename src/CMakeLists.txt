@@ -25,6 +25,8 @@ set(MODS_SRC
     mods/HitstopSettings.cpp 
     mods/ScreenshakeSettings.hpp 
     mods/ScreenshakeSettings.cpp 
+    mods/RollForward.hpp 
+    mods/RollForward.cpp 
 
 )
 

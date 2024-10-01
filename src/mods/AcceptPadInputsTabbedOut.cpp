@@ -5,7 +5,7 @@ bool AcceptPadInputsTabbedOut::mod_enabled = false;
 // clang-format off
 /*naked void detour() {
     __asm {
-        jmp qword ptr [jmp_ret]
+        jmp dword ptr [jmp_ret]
     }
 }*/
 

@@ -19,11 +19,11 @@ naked void detour1() { // basic attacks // player in edi
 
         nohitstop:
         mov dword ptr  [edi+0x000029AC],3
-        jmp qword ptr [HitstopSettings::jmp_ret1]
+        jmp dword ptr [HitstopSettings::jmp_ret1]
 
         originalcode:
             mov dword ptr [edi+0x000029AC],8
-            jmp qword ptr [HitstopSettings::jmp_ret1]
+            jmp dword ptr [HitstopSettings::jmp_ret1]
     }
 }
  

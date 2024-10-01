@@ -17,6 +17,7 @@
 #include "mods/LockOnSettings.hpp"
 #include "mods/HitstopSettings.hpp"
 #include "mods/ScreenshakeSettings.hpp"
+#include "mods/RollForward.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -43,6 +44,7 @@ Mods::Mods()
     ADD_MOD(LockOnSettings);
     ADD_MOD(HitstopSettings);
     ADD_MOD(ScreenshakeSettings);
+    ADD_MOD(RollForward);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
