@@ -1,0 +1,53 @@
+#include "ScreenshakeSettings.hpp"
+#if 1
+bool ScreenshakeSettings::mod_enabled = false;
+uintptr_t ScreenshakeSettings::jmp_ret1 = NULL;
+uintptr_t ScreenshakeSettings::Offset_84BA18 = NULL;
+
+// clang-format off
+naked void detour1() { // basic attacks // player in edi
+    __asm {
+        mov dword ptr [ScreenshakeSettings::Offset_84BA18], 6
+        cmp byte ptr [ScreenshakeSettings::mod_enabled], 0
+        je originalcode
+
+        push 0
+        jmp qword ptr [ScreenshakeSettings::jmp_ret1]
+
+        originalcode:
+            push 6
+            jmp qword ptr [ScreenshakeSettings::jmp_ret1]
+    }
+}
+ 
+ // clang-format on
+
+std::optional<std::string> ScreenshakeSettings::on_initialize() {
+    ScreenshakeSettings::Offset_84BA18 = g_framework->get_module().as<uintptr_t>() + 0x84BA18;
+    if (!install_hook_offset(0x3C03BC, m_hook1, &detour1, &ScreenshakeSettings::jmp_ret1, 12)) {
+        spdlog::error("Failed to init ScreenshakeSettings mod\n");
+        return "Failed to init ScreenshakeSettings mod";
+    }
+
+    return Mod::on_initialize();
+}
+
+void ScreenshakeSettings::on_draw_ui() {
+    ImGui::Checkbox("Less Screenshake", &mod_enabled);
+}
+
+// during load
+void ScreenshakeSettings::on_config_load(const utility::Config &cfg) {
+    mod_enabled = cfg.get<bool>("less_screenshake").value_or(false);
+}
+// during save
+void ScreenshakeSettings::on_config_save(utility::Config &cfg) {
+    cfg.set<bool>("less_screenshake", mod_enabled);
+}
+
+// do something every frame
+//void ScreenshakeSettings::on_frame() {}
+// will show up in debug window, dump ImGui widgets you want here
+//void ScreenshakeSettings::on_draw_debug_ui() {}
+// will show up in main window, dump ImGui widgets you want here
+#endif

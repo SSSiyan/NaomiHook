@@ -16,6 +16,7 @@
 #include "mods/ClothesSwitcher.hpp"
 #include "mods/LockOnSettings.hpp"
 #include "mods/HitstopSettings.hpp"
+#include "mods/ScreenshakeSettings.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -41,6 +42,7 @@ Mods::Mods()
     ADD_MOD(ClothesSwitcher);
     ADD_MOD(LockOnSettings);
     ADD_MOD(HitstopSettings);
+    ADD_MOD(ScreenshakeSettings);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
