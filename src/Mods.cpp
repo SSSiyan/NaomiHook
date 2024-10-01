@@ -4,15 +4,15 @@
 #include "utility/Hash.hpp"
 
 //#inlcude "YourMod.hpp"
-#include "mods/SimpleMod.hpp"
-#include "mods/BeamColor.hpp"
-#include "mods/HpColor.hpp"
+// #include "mods/SimpleMod.hpp"
+// #include "mods/BeamColor.hpp"
+// #include "mods/HpColor.hpp"
 #include "mods/DisableCrashDumps.hpp"
 #include "mods/AcceptPadInputsTabbedOut.hpp"
+#include "mods/WeaponSwitcher.hpp"
 #include "mods/ForceFOV.hpp"
 #include "mods/StageWarp.hpp"
 #include "mods/PlayerTracker.hpp"
-#include "mods/WeaponSwitcher.hpp"
 #include "mods/ClothesSwitcher.hpp"
 
 #define ADD_MOD(name)                                  \
@@ -27,15 +27,15 @@ Mods::Mods()
 {
     g_mods = this;
 
-    ADD_MOD(SimpleMod);
-    ADD_MOD(BeamColor);
-    ADD_MOD(HpColor);
+    // ADD_MOD(SimpleMod);
+    // ADD_MOD(BeamColor);
+    // ADD_MOD(HpColor);
     ADD_MOD(DisableCrashDumps);
     ADD_MOD(AcceptPadInputsTabbedOut);
+    ADD_MOD(WeaponSwitcher);
     ADD_MOD(ForceFOV);
     ADD_MOD(StageWarp);
     ADD_MOD(PlayerTracker);
-    ADD_MOD(WeaponSwitcher);
     ADD_MOD(ClothesSwitcher);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 

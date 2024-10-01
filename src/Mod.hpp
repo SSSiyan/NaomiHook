@@ -337,6 +337,7 @@ public:
 };
 
 inline void help_marker(const char* desc) {
+    ImGui::SameLine();
     ImGui::TextDisabled("(?)");
     if (ImGui::IsItemHovered()) {
         ImGui::BeginTooltip();

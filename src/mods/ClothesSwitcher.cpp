@@ -149,23 +149,25 @@ ComboInfo combo_boxes[] = {
     {"##ShirtCombo", 100, 120}
 };
 
-uintptr_t* ClothesSwitcher::GetPlayerPtr(void){
-    uintptr_t gpBattleAddr = g_framework->get_module().as<uintptr_t>() + 0x843584;
-    uintptr_t* gpBattle = (uintptr_t*)gpBattleAddr;
-    uintptr_t* gpBattleBase = *(uintptr_t**)gpBattle;
-    uintptr_t* mHRPcAddr = (uintptr_t*)((char*)gpBattleBase + 0x164); // add as bytes
-    uintptr_t* mHRPc = *(uintptr_t**)mHRPcAddr;
-    return mHRPc;
-}
-
-std::optional<std::string> ClothesSwitcher::on_initialize() {
-    return Mod::on_initialize();
-}
-
 typedef char(__thiscall* mSetEquipFunc)(
     uintptr_t* playerPtr, 
     int inID,
     bool inPowUp);
+
+// check player is != 0 after calling this
+uintptr_t* ClothesSwitcher::GetPlayerPtr(void){
+    uintptr_t gpBattleAddr = g_framework->get_module().as<uintptr_t>() + 0x843584;
+    uintptr_t* gpBattle = (uintptr_t*)gpBattleAddr;
+    if (gpBattle) {
+        uintptr_t* gpBattleBase = *(uintptr_t**)gpBattle;
+        if (gpBattleBase) {
+        uintptr_t* mHRPcAddr = (uintptr_t*)((char*)gpBattleBase + 0x164); // add as bytes
+            uintptr_t* mHRPc = *(uintptr_t**)mHRPcAddr;
+            return mHRPc;
+        }
+    }
+    return NULL;
+}
 
 void ClothesSwitcher::SetEquip(int inID, bool inPowUp) {
     uintptr_t* mHRPc = ClothesSwitcher::GetPlayerPtr();
@@ -174,6 +176,10 @@ void ClothesSwitcher::SetEquip(int inID, bool inPowUp) {
     if (mHRPc) {
         setEquip(mHRPc, inID, inPowUp);
     }
+}
+
+std::optional<std::string> ClothesSwitcher::on_initialize() {
+    return Mod::on_initialize();
 }
 
 void ClothesSwitcher::on_draw_ui() {

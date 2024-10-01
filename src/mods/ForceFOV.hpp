@@ -5,7 +5,7 @@ class ForceFOV : public Mod {
 public:
   ForceFOV() = default;
   
-  ModCategory get_category() { return ModCategory::SYSTEM; };
+  ModCategory get_category() { return ModCategory::GAMEPLAY; };
   static bool mod_enabled;
   static float custom_fov;
   static float default_fov;
