@@ -12,6 +12,7 @@
 #include <imgui/imgui.h>
 
 #include "sdk/ReClass.hpp"
+#include "sdk/nmh.hpp"
 #include "utility/Config.hpp"
 
 #include "ModFramework.hpp"
