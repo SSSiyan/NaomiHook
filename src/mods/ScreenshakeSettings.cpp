@@ -3,20 +3,21 @@
 bool ScreenshakeSettings::mod_enabled = false;
 uintptr_t ScreenshakeSettings::jmp_ret1 = NULL;
 uintptr_t ScreenshakeSettings::Offset_84BA18 = NULL;
+int ScreenshakeSettings::customBasicScreenshakeAmount = 6;
 
 // clang-format off
 naked void detour1() { // basic attacks // player in edi
     __asm {
-        mov dword ptr [ScreenshakeSettings::Offset_84BA18], 6
+        mov dword ptr [ScreenshakeSettings::Offset_84BA18], 6 // probably pad rumble
         cmp byte ptr [ScreenshakeSettings::mod_enabled], 0
         je originalcode
 
-        push 0
+        push dword ptr [ScreenshakeSettings::customBasicScreenshakeAmount]
         jmp dword ptr [ScreenshakeSettings::jmp_ret1]
 
         originalcode:
-            push 6
-            jmp dword ptr [ScreenshakeSettings::jmp_ret1]
+        push 6
+        jmp dword ptr [ScreenshakeSettings::jmp_ret1]
     }
 }
  
@@ -33,16 +34,23 @@ std::optional<std::string> ScreenshakeSettings::on_initialize() {
 }
 
 void ScreenshakeSettings::on_draw_ui() {
-    ImGui::Checkbox("Disable Screenshake On Normal Attacks", &mod_enabled);
+    ImGui::Checkbox("Custom Screenshake On Normal Attacks", &mod_enabled);
+    if (mod_enabled) {
+        ImGui::Text("Custom Screenshake Amount");
+        ImGui::SliderInt("##CustomScreenshakeAmountSliderInt", &customBasicScreenshakeAmount, 0, 20);
+        help_marker("Default 6");
+    }
 }
 
 // during load
 void ScreenshakeSettings::on_config_load(const utility::Config &cfg) {
-    mod_enabled = cfg.get<bool>("less_screenshake").value_or(false);
+    mod_enabled = cfg.get<bool>("custom_screenshake").value_or(false);
+    customBasicScreenshakeAmount = cfg.get<int>("customBasicScreenshakeAmount").value_or(6);
 }
 // during save
 void ScreenshakeSettings::on_config_save(utility::Config &cfg) {
-    cfg.set<bool>("less_screenshake", mod_enabled);
+    cfg.set<bool>("custom_screenshake", mod_enabled);
+    cfg.set<int>("customBasicScreenshakeAmount", customBasicScreenshakeAmount);
 }
 
 // do something every frame

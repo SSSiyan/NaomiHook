@@ -9,6 +9,7 @@ public:
   static bool mod_enabled;
   static uintptr_t gpBattle;
   static uintptr_t jmp_ret1;
+  static int customBasicHitstopAmount;
 
   // mod name string for config
   std::string get_mod_name() const override { return "HitstopSettings"; }

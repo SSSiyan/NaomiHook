@@ -9,6 +9,7 @@ public:
   static bool mod_enabled;
   static uintptr_t Offset_84BA18;
   static uintptr_t jmp_ret1;
+  static int customBasicScreenshakeAmount;
 
   // mod name string for config
   std::string get_mod_name() const override { return "ScreenshakeSettings"; }

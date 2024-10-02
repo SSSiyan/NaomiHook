@@ -1,7 +1,7 @@
 #include "ForceFOV.hpp"
 #if 1
 bool ForceFOV::mod_enabled = false;
-float ForceFOV::custom_fov = 85.0f;
+float ForceFOV::custom_fov = 0.0f;
 float ForceFOV::default_fov = 0.0f;
 uintptr_t ForceFOV::jmp_ret1 = NULL;
 uintptr_t ForceFOV::jmp_ret2 = NULL;
@@ -53,21 +53,22 @@ std::optional<std::string> ForceFOV::on_initialize() {
 }
 
 void ForceFOV::on_draw_ui() {
-    ImGui::Checkbox("Force FOV", &mod_enabled);
-    ImGui::InputFloat("InputFloat Example", &ForceFOV::custom_fov, 1.0f, 180.0f, "%.0f");
-    ImGui::SliderFloat("SliderFloat Example", &ForceFOV::custom_fov, 1.0f, 180.0f, "%.0f");
-    ImGui::DragFloat("DragFloat Example", &ForceFOV::custom_fov, 1.0f, 1.0f, 180.0f, "%.0f");
+    ImGui::Checkbox("Custom FOV", &mod_enabled);
+    if (mod_enabled) {
+        ImGui::SliderFloat("##CustomFOVSliderFloat", &ForceFOV::custom_fov, 1.0f, 180.0f, "%.0f");
+        help_marker("Default 55");
+    }
 }
 
 // during load
 void ForceFOV::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("force_fov").value_or(false);
-    custom_fov = cfg.get<float>("custom_fov").value_or(55.0f);
+    custom_fov = cfg.get<float>("custom_fov_value").value_or(55.0f);
 }
 // during save
 void ForceFOV::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("force_fov", mod_enabled);
-    cfg.set<float>("custom_fov", custom_fov);
+    cfg.set<float>("custom_fov_value", custom_fov);
 }
 
 // do something every frame
