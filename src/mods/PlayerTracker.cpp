@@ -26,10 +26,21 @@ void PlayerTracker::on_draw_ui() {
             ImGui::InputInt("mKillNum", &mediator->mKillNum);
             ImGui::InputFloat("mNpcAttackRate", &mediator->mNpcAttackRate);
 
-            ImGui::Checkbox("battlePause", (bool*)&mediator->mFlag);
-            ImGui::Checkbox("tutoRun", (bool*)&mediator->mFlag + 1);
-            ImGui::Checkbox("dispStatusDisEnable", (bool*)&mediator->mFlag + 2);
-            ImGui::Checkbox("chargeDamage", (bool*)&mediator->mFlag + 3);
+            bool battlePause = getBit(mediator->mFlag, 0);
+            ImGui::Checkbox("battlePause", &battlePause);
+            setBit(mediator->mFlag, 0, battlePause);
+
+            bool tutoRun = getBit(mediator->tutoRun, 1);
+            ImGui::Checkbox("tutoRun", &tutoRun);
+            setBit(mediator->mFlag, 1, tutoRun);
+
+            bool dispStatusDisEnable = getBit(mediator->dispStatusDisEnable, 2);
+            ImGui::Checkbox("dispStatusDisEnable", &dispStatusDisEnable);
+            setBit(mediator->mFlag, 2, dispStatusDisEnable);
+
+            bool chargeDamage = getBit(mediator->chargeDamage, 3);
+            ImGui::Checkbox("chargeDamage", &chargeDamage);
+            setBit(mediator->mFlag, 3, chargeDamage);
         }
         if (ImGui::CollapsingHeader("HrScreenStatus")) {
             if (mediator->mBtEffect.pScreenStatus) {
@@ -493,6 +504,33 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &player->mCharaStatus.dmgInfo.m_BikeDeadRequest);
             }
             if (ImGui::CollapsingHeader("mHRPc stPcStatus")) {
+                if (ImGui::CollapsingHeader("Weapon Info")) {
+                    for (int i = 0; i < 16; i++) {
+                        ImGui::Text("Weapon Info %d", i);
+                        ImGui::InputInt(("Weapon ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.wepInfo[i].id);
+                        ImGui::InputScalar(("Battery ##" + std::to_string(i)).c_str(), ImGuiDataType_S16, &player->mPcStatus.wepInfo[i].battery);
+                        ImGui::InputScalar(("Battery Max ##" + std::to_string(i)).c_str(), ImGuiDataType_S16, &player->mPcStatus.wepInfo[i].batteryMax);
+                        ImGui::SliderFloat(("Power ##" + std::to_string(i)).c_str(), &player->mPcStatus.wepInfo[i].power, 0.0f, 100.0f);
+                        ImGui::Checkbox(("Combo Extend ##" + std::to_string(i)).c_str(), &player->mPcStatus.wepInfo[i].cmbExtend);
+                    }
+                }
+    
+                if (ImGui::CollapsingHeader("Locker Items")) {
+                    for (int i = 0; i < 200; i++) {
+                        ImGui::Text("Locker Item %d", i);
+                        ImGui::InputInt(("Locker Item ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.locker[i].id);
+                    }
+                }
+
+                if (ImGui::CollapsingHeader("Inventory Items")) {
+                    for (int i = 0; i < 300; i++) {
+                        ImGui::Text("Inventory Item %d", i);
+                        ImGui::InputInt(("Item ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.item[i].id);
+                        ImGui::InputScalar(("Item Quantity ##" + std::to_string(i)).c_str(), ImGuiDataType_S8, &player->mPcStatus.item[i].num);
+                        ImGui::Checkbox(("Item Use ##" + std::to_string(i)).c_str(), &player->mPcStatus.item[i].use);
+                    }
+                }
+
                 ImGui::SliderFloat("Strength", &player->mPcStatus.strength, 0.0f, 100.0f);
                 ImGui::SliderFloat("Stamina", &player->mPcStatus.stammina, 0.0f, 100.0f);
                 ImGui::SliderFloat("Vitality", &player->mPcStatus.vitality, 0.0f, 100.0f);
@@ -576,43 +614,6 @@ void PlayerTracker::on_draw_ui() {
             if (ImGui::CollapsingHeader("mHRPc mPcSaveData")) {
                 ImGui::SliderFloat("Max HP", &player->mPcSaveData.maxHp, 0.0f, 1000.0f);
                 ImGui::SliderFloat("HP", &player->mPcSaveData.hp, 0.0f, player->mPcSaveData.maxHp);
-
-                if (ImGui::CollapsingHeader("Weapon Info")) {
-                    for (int i = 0; i < 16; i++) {
-                        ImGui::Text("Weapon Info %d", i);
-                        ImGui::InputInt("Weapon ID", &player->mPcSaveData.wepInfo[i].id);
-                        ImGui::InputScalar("Battery", ImGuiDataType_S16, &player->mPcSaveData.wepInfo[i].battery);
-                        ImGui::InputScalar("Battery Max", ImGuiDataType_S16, &player->mPcSaveData.wepInfo[i].batteryMax);
-                        ImGui::SliderFloat("Power", &player->mPcSaveData.wepInfo[i].power, 0.0f, 100.0f);
-                        ImGui::Checkbox("Combo Extend", &player->mPcSaveData.wepInfo[i].cmbExtend);
-                    }
-                }
-
-                if (ImGui::CollapsingHeader("Equipment Items")) {
-                    for (int i = 0; i < 7; i++) {
-                        ImGui::Text("Equipment Item %d", i);
-                        ImGui::InputInt("Equipment ID", &player->mPcSaveData.equip[i].id);
-                        ImGui::Checkbox("Reverse Display", &player->mPcSaveData.equip[i].reverseDisp);
-                        ImGui::InputInt("Current Buffer Index", &player->mPcSaveData.equip[i].nowBufIndex);
-                    }
-                }
-
-                if (ImGui::CollapsingHeader("Locker Items")) {
-                    for (int i = 0; i < 200; i++) {
-                        ImGui::Text("Locker Item %d", i);
-                        ImGui::InputInt("Locker Item ID", &player->mPcSaveData.locker[i].id);
-                    }
-                }
-
-                if (ImGui::CollapsingHeader("Inventory Items")) {
-                    for (int i = 0; i < 300; i++) {
-                        ImGui::Text("Inventory Item %d", i);
-                        ImGui::InputInt("Item ID", &player->mPcSaveData.item[i].id);
-                        ImGui::InputScalar("Item Quantity", ImGuiDataType_S8, &player->mPcSaveData.item[i].num);
-                        ImGui::Checkbox("Item Use", &player->mPcSaveData.item[i].use);
-                    }
-                }
-
                 ImGui::SliderFloat("Strength", &player->mPcSaveData.strength, 0.0f, 100.0f);
                 ImGui::SliderFloat("Stamina", &player->mPcSaveData.stammina, 0.0f, 100.0f);
                 ImGui::SliderFloat("Vitality", &player->mPcSaveData.vitality, 0.0f, 100.0f);
@@ -840,33 +841,34 @@ void PlayerTracker::on_draw_ui() {
                     bool jpnDead = getBit(player->mpLockOnNpc->mStatus.flag2, 1);  // bit position: 1
                     ImGui::Checkbox("jpnDead", &jpnDead);
                     setBit(player->mpLockOnNpc->mStatus.flag2, 1, jpnDead);
-
-                    if (ImGui::CollapsingHeader("mHRPc mpLockOnNpc->dmgInfo")) {
-                        ImGui::SliderFloat("Damage", &player->mpLockOnNpc->mStatus.dmgInfo.dmg, 0.0f, 100.0f);
-                        ImGui::InputInt("Damage Motion", &player->mpLockOnNpc->mStatus.dmgInfo.dmgMot);
-                        ImGui::InputInt("Guard Motion", &player->mpLockOnNpc->mStatus.dmgInfo.grdMot);
-                        ImGui::InputInt("Attack Motion", &player->mpLockOnNpc->mStatus.dmgInfo.atkMot);
-                        ImGui::SliderFloat("Damage Direction", &player->mpLockOnNpc->mStatus.dmgInfo.dmgDirec, -360.0f, 360.0f);
-                        ImGui::SliderFloat("Knockback Distance", &player->mpLockOnNpc->mStatus.dmgInfo.nockBackDst, 0.0f, 100.0f);
-                        ImGui::SliderFloat("Upper Power", &player->mpLockOnNpc->mStatus.dmgInfo.upperPow, 0.0f, 100.0f);
-                        ImGui::SliderFloat("Upper Position Y", &player->mpLockOnNpc->mStatus.dmgInfo.upperPosY, -50.0f, 50.0f);
-                        ImGui::SliderFloat("Gravity", &player->mpLockOnNpc->mStatus.dmgInfo.grav, 0.0f, 20.0f);
-                        ImGui::Checkbox("Upper", &player->mpLockOnNpc->mStatus.dmgInfo.upper);
-                        ImGui::InputInt("Tick", &player->mpLockOnNpc->mStatus.dmgInfo.tick);
-                        //ImGui::SliderFloat("Fade", &player->mpLockOnNpc->mStatus.dmgInfo.fade.value, 0.0f, 1.0f);  // Assuming WAnimF is a float wrapper
-                        ImGui::SliderFloat("Air Blow Position X", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.x, -100.0f, 100.0f);
-                        ImGui::SliderFloat("Air Blow Position Y", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.y, -100.0f, 100.0f);
-                        ImGui::SliderFloat("Air Blow Position Z", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.z, -100.0f, 100.0f);
-                        ImGui::SliderFloat("Air Blow Power", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPower, 0.0f, 100.0f);
-                        ImGui::Checkbox("Air Flag", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirFlag);
-                        ImGui::SliderFloat("Gravity Acceleration", &player->mpLockOnNpc->mStatus.dmgInfo.m_GravAccele, 0.0f, 20.0f);
-                        ImGui::InputScalar("Piyo Request", ImGuiDataType_S8, &player->mpLockOnNpc->mStatus.dmgInfo.m_PiyoRequest);
-                        ImGui::SliderFloat("Stored Damage", &player->mpLockOnNpc->mStatus.dmgInfo.storeDamage, 0.0f, 100.0f);
-                        ImGui::SliderFloat("Stored Damage Distance", &player->mpLockOnNpc->mStatus.dmgInfo.storeDamageDst, 0.0f, 100.0f);
-                        ImGui::InputInt("Restore Damage Tick", &player->mpLockOnNpc->mStatus.dmgInfo.restoreDamegeTick);
-                        ImGui::InputInt("Restore Damage Basic Tick", &player->mpLockOnNpc->mStatus.dmgInfo.restoreDamegeBasicTick);
-                        ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &player->mpLockOnNpc->mStatus.dmgInfo.m_BikeDeadRequest);
-                    }
+                }
+            }
+            if (ImGui::CollapsingHeader("mpLockOnNpc mStatus.dmgInfo")) {
+                if (player->mpLockOnNpc) {
+                    ImGui::SliderFloat("Damage", &player->mpLockOnNpc->mStatus.dmgInfo.dmg, 0.0f, 100.0f);
+                    ImGui::InputInt("Damage Motion", &player->mpLockOnNpc->mStatus.dmgInfo.dmgMot);
+                    ImGui::InputInt("Guard Motion", &player->mpLockOnNpc->mStatus.dmgInfo.grdMot);
+                    ImGui::InputInt("Attack Motion", &player->mpLockOnNpc->mStatus.dmgInfo.atkMot);
+                    ImGui::SliderFloat("Damage Direction", &player->mpLockOnNpc->mStatus.dmgInfo.dmgDirec, -360.0f, 360.0f);
+                    ImGui::SliderFloat("Knockback Distance", &player->mpLockOnNpc->mStatus.dmgInfo.nockBackDst, 0.0f, 100.0f);
+                    ImGui::SliderFloat("Upper Power", &player->mpLockOnNpc->mStatus.dmgInfo.upperPow, 0.0f, 100.0f);
+                    ImGui::SliderFloat("Upper Position Y", &player->mpLockOnNpc->mStatus.dmgInfo.upperPosY, -50.0f, 50.0f);
+                    ImGui::SliderFloat("Gravity", &player->mpLockOnNpc->mStatus.dmgInfo.grav, 0.0f, 20.0f);
+                    ImGui::Checkbox("Upper", &player->mpLockOnNpc->mStatus.dmgInfo.upper);
+                    ImGui::InputInt("Tick", &player->mpLockOnNpc->mStatus.dmgInfo.tick);
+                    //ImGui::SliderFloat("Fade", &player->mpLockOnNpc->mStatus.dmgInfo.fade.value, 0.0f, 1.0f);  // Assuming WAnimF is a float wrapper
+                    ImGui::SliderFloat("Air Blow Position X", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.x, -100.0f, 100.0f);
+                    ImGui::SliderFloat("Air Blow Position Y", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.y, -100.0f, 100.0f);
+                    ImGui::SliderFloat("Air Blow Position Z", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.z, -100.0f, 100.0f);
+                    ImGui::SliderFloat("Air Blow Power", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPower, 0.0f, 100.0f);
+                    ImGui::Checkbox("Air Flag", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirFlag);
+                    ImGui::SliderFloat("Gravity Acceleration", &player->mpLockOnNpc->mStatus.dmgInfo.m_GravAccele, 0.0f, 20.0f);
+                    ImGui::InputScalar("Piyo Request", ImGuiDataType_S8, &player->mpLockOnNpc->mStatus.dmgInfo.m_PiyoRequest);
+                    ImGui::SliderFloat("Stored Damage", &player->mpLockOnNpc->mStatus.dmgInfo.storeDamage, 0.0f, 100.0f);
+                    ImGui::SliderFloat("Stored Damage Distance", &player->mpLockOnNpc->mStatus.dmgInfo.storeDamageDst, 0.0f, 100.0f);
+                    ImGui::InputInt("Restore Damage Tick", &player->mpLockOnNpc->mStatus.dmgInfo.restoreDamegeTick);
+                    ImGui::InputInt("Restore Damage Basic Tick", &player->mpLockOnNpc->mStatus.dmgInfo.restoreDamegeBasicTick);
+                    ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &player->mpLockOnNpc->mStatus.dmgInfo.m_BikeDeadRequest);
                 }
             }
         }

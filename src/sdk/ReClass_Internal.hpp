@@ -1087,7 +1087,8 @@ public: // edited
       }; /* bitfield */
       /* 0x1f5f4 */ unsigned int padding : 29; /* bit position: 0 */
     }; /* size: 0x0008 */
-    /* 0x1f5f0 */ unsigned int mFlag;
+    /* 0x1f5f0 */ unsigned short mFlag; // edited
+                  char padding_1f5f2[2]; // edited
   }; /* size: 0x0008 */
   /* 0x1f5f8 */ class WAnimF mBikeRotY;
 }; /* size: 0x1f618 */
