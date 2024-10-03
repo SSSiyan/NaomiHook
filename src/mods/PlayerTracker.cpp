@@ -5,18 +5,19 @@ std::optional<std::string> PlayerTracker::on_initialize() {
     return Mod::on_initialize();
 }
 
-// Function to get the bit value
-auto getBit = [](unsigned short flags, int bit) -> bool {
+template<typename T>
+bool getBit(T flags, int bit) {
     return (flags & (1 << bit)) != 0;
-};
+}
 
-// Function to set the bit value
-auto setBit = [](unsigned short& flags, int bit, bool value) {
-    if (value)
-        flags |= (1 << bit); // Set bit
-    else
-        flags &= ~(1 << bit); // Clear bit
-};
+template<typename T>
+void setBit(T& flags, int bit, bool value) {
+    if (value) {
+        flags |= (1 << bit);  // Set the bit
+    } else {
+        flags &= ~(1 << bit); // Clear the bit
+    }
+}
 
 void PlayerTracker::on_draw_ui() {
     if (mHRBattle* mediator = nmh_sdk::get_mediator()){
@@ -27,24 +28,19 @@ void PlayerTracker::on_draw_ui() {
             ImGui::InputFloat("mNpcAttackRate", &mediator->mNpcAttackRate);
 
             bool battlePause = getBit(mediator->mFlag, 0);
-            ImGui::Checkbox("battlePause", &battlePause);
-            setBit(mediator->mFlag, 0, battlePause);
+            if (ImGui::Checkbox("battlePause", &battlePause)) setBit(mediator->mFlag, 0, battlePause);
 
             bool tutoRun = getBit(mediator->tutoRun, 1);
-            ImGui::Checkbox("tutoRun", &tutoRun);
-            setBit(mediator->mFlag, 1, tutoRun);
+            if (ImGui::Checkbox("tutoRun", &tutoRun)) setBit(mediator->mFlag, 1, tutoRun);
 
             bool dispStatusDisEnable = getBit(mediator->dispStatusDisEnable, 2);
-            ImGui::Checkbox("dispStatusDisEnable", &dispStatusDisEnable);
-            setBit(mediator->mFlag, 2, dispStatusDisEnable);
+            if (ImGui::Checkbox("dispStatusDisEnable", &dispStatusDisEnable)) setBit(mediator->mFlag, 2, dispStatusDisEnable);
 
             bool chargeDamage = getBit(mediator->chargeDamage, 3);
-            ImGui::Checkbox("chargeDamage", &chargeDamage);
-            setBit(mediator->mFlag, 3, chargeDamage);
+            if (ImGui::Checkbox("chargeDamage", &chargeDamage)) setBit(mediator->mFlag, 3, chargeDamage);
         }
         if (ImGui::CollapsingHeader("HrScreenStatus")) {
             if (mediator->mBtEffect.pScreenStatus) {
-
                 uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mediator->mBtEffect.pScreenStatus->Padding_0[0]);
                 ImGui::Text("Base Address: 0x%08X", baseAddress);
                 uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&mediator->mBtEffect.pScreenStatus->m_StatusProcFlag);
@@ -115,24 +111,18 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputInt("Slot Zoro Leave Wait Cnt", &mediator->mBtEffect.pScreenStatus->m_SlotZoroLeaveWaitCnt);
                 ImGui::Checkbox("Slot Zorome Sorotta Start To End Flag", &mediator->mBtEffect.pScreenStatus->m_SlotZoromeStartToEndFlag);
                 ImGui::Checkbox("BlueHeartFlag", &mediator->mBtEffect.pScreenStatus->m_BlueHeartFlag);
-                bool lmode_seven = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 0);      // bit position: 0
-                ImGui::Checkbox("lmode_seven", &lmode_seven);
-                setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 0, lmode_seven);
-                bool lmode_melon = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 1);      // bit position: 1
-                ImGui::Checkbox("lmode_melon", &lmode_melon);
-                setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 1, lmode_melon);
-                bool lmode_bel = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 2);        // bit position: 2
-                ImGui::Checkbox("lmode_bel", &lmode_bel);
-                setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 2, lmode_bel);
-                bool lmode_cherry = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 3);     // bit position: 3
-                ImGui::Checkbox("lmode_cherry", &lmode_cherry);
-                setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 3, lmode_cherry);
-                bool lmode_ber = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 4);        // bit position: 4
-                ImGui::Checkbox("lmode_ber", &lmode_ber);
-                setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 4, lmode_ber);
-                bool lmode_hopperman = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 5);  // bit position: 5
-                ImGui::Checkbox("lmode_hopperman", &lmode_hopperman);
-                setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 5, lmode_hopperman);
+                bool lmode_seven = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 0);
+                if (ImGui::Checkbox("lmode_seven", &lmode_seven)) setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 0, lmode_seven);
+                bool lmode_melon = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 1);
+                if (ImGui::Checkbox("lmode_melon", &lmode_melon)) setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 1, lmode_melon);
+                bool lmode_bel = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 2);
+                if (ImGui::Checkbox("lmode_bel", &lmode_bel)) setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 2, lmode_bel);
+                bool lmode_cherry = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 3);
+                if (ImGui::Checkbox("lmode_cherry", &lmode_cherry)) setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 3, lmode_cherry);
+                bool lmode_ber = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 4);
+                if (ImGui::Checkbox("lmode_ber", &lmode_ber)) setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 4, lmode_ber);
+                bool lmode_hopperman = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 5);
+                if (ImGui::Checkbox("lmode_hopperman", &lmode_hopperman)) setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 5, lmode_hopperman);
                 ImGui::InputInt("m_SMMesPosX", &mediator->mBtEffect.pScreenStatus->m_SMMesPosX);
                 ImGui::InputInt("m_SMMesPosY", &mediator->mBtEffect.pScreenStatus->m_SMMesPosY);
                 ImGui::InputScalar("m_TigerProc", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_TigerProc);
@@ -144,100 +134,58 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputScalar("m_TigerGoalLength", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_TigerGoalLength);
                 ImGui::Checkbox("m_TigerSPReturnFlag", &mediator->mBtEffect.pScreenStatus->m_TigerSPReturnFlag);
                 ImGui::Text("Union 1");
-                // Handling the draw flags as checkboxes
                 bool drawbpber = getBit(mediator->mBtEffect.pScreenStatus->flag, 0);
-                ImGui::Checkbox("drawbpber", &drawbpber);
-                setBit(mediator->mBtEffect.pScreenStatus->flag, 0, drawbpber);
-
+                if (ImGui::Checkbox("drawbpber", &drawbpber)) setBit(mediator->mBtEffect.pScreenStatus->flag, 0, drawbpber);
                 bool drawhber = getBit(mediator->mBtEffect.pScreenStatus->flag, 1);
-                ImGui::Checkbox("drawhber", &drawhber);
-                setBit(mediator->mBtEffect.pScreenStatus->flag, 1, drawhber);
-
+                if (ImGui::Checkbox("drawhber", &drawhber)) setBit(mediator->mBtEffect.pScreenStatus->flag, 1, drawhber);
                 bool drawbattery = getBit(mediator->mBtEffect.pScreenStatus->flag, 2);
-                ImGui::Checkbox("drawbattery", &drawbattery);
-                setBit(mediator->mBtEffect.pScreenStatus->flag, 2, drawbattery);
-
+                if (ImGui::Checkbox("drawbattery", &drawbattery)) setBit(mediator->mBtEffect.pScreenStatus->flag, 2, drawbattery);
                 bool drawmoney = getBit(mediator->mBtEffect.pScreenStatus->flag, 3);
-                ImGui::Checkbox("drawmoney", &drawmoney);
-                setBit(mediator->mBtEffect.pScreenStatus->flag, 3, drawmoney);
-
+                if (ImGui::Checkbox("drawmoney", &drawmoney)) setBit(mediator->mBtEffect.pScreenStatus->flag, 3, drawmoney);
                 bool drawtension = getBit(mediator->mBtEffect.pScreenStatus->flag, 4);
-                ImGui::Checkbox("drawtension", &drawtension);
-                setBit(mediator->mBtEffect.pScreenStatus->flag, 4, drawtension);
-
+                if (ImGui::Checkbox("drawtension", &drawtension)) setBit(mediator->mBtEffect.pScreenStatus->flag, 4, drawtension);
                 bool drawkamae = getBit(mediator->mBtEffect.pScreenStatus->flag, 5);
-                ImGui::Checkbox("drawkamae", &drawkamae);
-                setBit(mediator->mBtEffect.pScreenStatus->flag, 5, drawkamae);
-
+                if (ImGui::Checkbox("drawkamae", &drawkamae)) setBit(mediator->mBtEffect.pScreenStatus->flag, 5, drawkamae);
                 bool drawspeedmeter = getBit(mediator->mBtEffect.pScreenStatus->flag, 6);
-                ImGui::Checkbox("drawspeedmeter", &drawspeedmeter);
-                setBit(mediator->mBtEffect.pScreenStatus->flag, 6, drawspeedmeter);
-
+                if (ImGui::Checkbox("drawspeedmeter", &drawspeedmeter)) setBit(mediator->mBtEffect.pScreenStatus->flag, 6, drawspeedmeter);
                 bool drawmap = getBit(mediator->mBtEffect.pScreenStatus->flag, 7);
-                ImGui::Checkbox("drawmap", &drawmap);
-                setBit(mediator->mBtEffect.pScreenStatus->flag, 7, drawmap);
-
+                if (ImGui::Checkbox("drawmap", &drawmap)) setBit(mediator->mBtEffect.pScreenStatus->flag, 7, drawmap);
                 bool drawsilvia = getBit(mediator->mBtEffect.pScreenStatus->flag, 8);
-                ImGui::Checkbox("drawsilvia", &drawsilvia);
-                setBit(mediator->mBtEffect.pScreenStatus->flag, 8, drawsilvia);
-
+                if (ImGui::Checkbox("drawsilvia", &drawsilvia)) setBit(mediator->mBtEffect.pScreenStatus->flag, 8, drawsilvia);
                 bool drawlmode = getBit(mediator->mBtEffect.pScreenStatus->flag, 9);
-                ImGui::Checkbox("drawlmode", &drawlmode);
-                setBit(mediator->mBtEffect.pScreenStatus->flag, 9, drawlmode);
-
+                if (ImGui::Checkbox("drawlmode", &drawlmode)) setBit(mediator->mBtEffect.pScreenStatus->flag, 9, drawlmode);
                 bool drawkeyguide = getBit(mediator->mBtEffect.pScreenStatus->flag, 10);
-                ImGui::Checkbox("drawkeyguide", &drawkeyguide);
-                setBit(mediator->mBtEffect.pScreenStatus->flag, 10, drawkeyguide);
-
+                if (ImGui::Checkbox("drawkeyguide", &drawkeyguide)) setBit(mediator->mBtEffect.pScreenStatus->flag, 10, drawkeyguide);
                 bool drawcheckpo = getBit(mediator->mBtEffect.pScreenStatus->flag, 11);
-                ImGui::Checkbox("drawcheckpo", &drawcheckpo);
-                setBit(mediator->mBtEffect.pScreenStatus->flag, 11, drawcheckpo);
-
-
-
+                if (ImGui::Checkbox("drawcheckpo", &drawcheckpo)) setBit(mediator->mBtEffect.pScreenStatus->flag, 11, drawcheckpo);
                 ImGui::Text("Union 2");
-                bool reqlmodedel = getBit(mediator->mBtEffect.pScreenStatus->flag2, 0);      // bit position: 0
-                ImGui::Checkbox("reqlmodedel", &reqlmodedel);
-                setBit(mediator->mBtEffect.pScreenStatus->flag2, 0, reqlmodedel);
-
-                bool tigerdirect = getBit(mediator->mBtEffect.pScreenStatus->flag2, 1);       // bit position: 1
-                ImGui::Checkbox("tigerdirect", &tigerdirect);
-                setBit(mediator->mBtEffect.pScreenStatus->flag2, 1, tigerdirect);
-
-                bool tigerfire = getBit(mediator->mBtEffect.pScreenStatus->flag2, 2);         // bit position: 2
-                ImGui::Checkbox("tigerfire", &tigerfire);
-                setBit(mediator->mBtEffect.pScreenStatus->flag2, 2, tigerfire);
-
+                bool reqlmodedel = getBit(mediator->mBtEffect.pScreenStatus->flag2, 0);
+                if (ImGui::Checkbox("reqlmodedel", &reqlmodedel)) setBit(mediator->mBtEffect.pScreenStatus->flag2, 0, reqlmodedel);
+                bool tigerdirect = getBit(mediator->mBtEffect.pScreenStatus->flag2, 1);
+                if (ImGui::Checkbox("tigerdirect", &tigerdirect)) setBit(mediator->mBtEffect.pScreenStatus->flag2, 1, tigerdirect);
+                bool tigerfire = getBit(mediator->mBtEffect.pScreenStatus->flag2, 2);
+                if (ImGui::Checkbox("tigerfire", &tigerfire)) setBit(mediator->mBtEffect.pScreenStatus->flag2, 2, tigerfire);
                 ImGui::Text("Union 3");
+                bool checkpo_Checkpoint = getBit(mediator->mBtEffect.pScreenStatus->flag4, 0);
+                if (ImGui::Checkbox("checkpo_Checkpoint", &checkpo_Checkpoint)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 0, checkpo_Checkpoint);
 
-                // Handling checkpoint flags from the third union (flag4)
-                bool checkpo_Checkpoint = getBit(mediator->mBtEffect.pScreenStatus->flag4, 0); // bit position: 0
-                ImGui::Checkbox("checkpo_Checkpoint", &checkpo_Checkpoint);
-                setBit(mediator->mBtEffect.pScreenStatus->flag4, 0, checkpo_Checkpoint);
+                bool checkpo_Standby = getBit(mediator->mBtEffect.pScreenStatus->flag4, 1);
+                if (ImGui::Checkbox("checkpo_Standby", &checkpo_Standby)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 1, checkpo_Standby);
 
-                bool checkpo_Standby = getBit(mediator->mBtEffect.pScreenStatus->flag4, 1);   // bit position: 1
-                ImGui::Checkbox("checkpo_Standby", &checkpo_Standby);
-                setBit(mediator->mBtEffect.pScreenStatus->flag4, 1, checkpo_Standby);
+                bool checkpo_Zenmetu = getBit(mediator->mBtEffect.pScreenStatus->flag4, 2);
+                if (ImGui::Checkbox("checkpo_Zenmetu", &checkpo_Zenmetu)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 2, checkpo_Zenmetu);
 
-                bool checkpo_Zenmetu = getBit(mediator->mBtEffect.pScreenStatus->flag4, 2);   // bit position: 2
-                ImGui::Checkbox("checkpo_Zenmetu", &checkpo_Zenmetu);
-                setBit(mediator->mBtEffect.pScreenStatus->flag4, 2, checkpo_Zenmetu);
+                bool checkpo_CantRide = getBit(mediator->mBtEffect.pScreenStatus->flag4, 3);
+                if (ImGui::Checkbox("checkpo_CantRide", &checkpo_CantRide)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 3, checkpo_CantRide);
 
-                bool checkpo_CantRide = getBit(mediator->mBtEffect.pScreenStatus->flag4, 3);   // bit position: 3
-                ImGui::Checkbox("checkpo_CantRide", &checkpo_CantRide);
-                setBit(mediator->mBtEffect.pScreenStatus->flag4, 3, checkpo_CantRide);
+                bool checkpo_Phone = getBit(mediator->mBtEffect.pScreenStatus->flag4, 4);
+                if (ImGui::Checkbox("checkpo_Phone", &checkpo_Phone)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 4, checkpo_Phone);
 
-                bool checkpo_Phone = getBit(mediator->mBtEffect.pScreenStatus->flag4, 4);      // bit position: 4
-                ImGui::Checkbox("checkpo_Phone", &checkpo_Phone);
-                setBit(mediator->mBtEffect.pScreenStatus->flag4, 4, checkpo_Phone);
+                bool checkpo_NewMask = getBit(mediator->mBtEffect.pScreenStatus->flag4, 5);
+                if (ImGui::Checkbox("checkpo_NewMask", &checkpo_NewMask)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 5, checkpo_NewMask);
 
-                bool checkpo_NewMask = getBit(mediator->mBtEffect.pScreenStatus->flag4, 5);    // bit position: 5
-                ImGui::Checkbox("checkpo_NewMask", &checkpo_NewMask);
-                setBit(mediator->mBtEffect.pScreenStatus->flag4, 5, checkpo_NewMask);
-
-                bool checkpo_Senrihin = getBit(mediator->mBtEffect.pScreenStatus->flag4, 6);   // bit position: 6
-                ImGui::Checkbox("checkpo_Senrihin", &checkpo_Senrihin);
-                setBit(mediator->mBtEffect.pScreenStatus->flag4, 6, checkpo_Senrihin);
+                bool checkpo_Senrihin = getBit(mediator->mBtEffect.pScreenStatus->flag4, 6);
+                if (ImGui::Checkbox("checkpo_Senrihin", &checkpo_Senrihin)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 6, checkpo_Senrihin);
 
                 ImGui::InputScalar("m_BatteyArram", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_BatteyArram);
                 ImGui::InputInt("m_AlarmSound", &mediator->mBtEffect.pScreenStatus->m_AlarmSound);
@@ -254,6 +202,118 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::Checkbox("m_StatusProcFlag", &mediator->mBtEffect.pScreenStatus->m_StatusProcFlag);
                 ImGui::Checkbox("m_fPC_BatteryCharge[0]", &mediator->mBtEffect.pScreenStatus->m_fPC_BatteryCharge[0]);
                 ImGui::Checkbox("m_fPC_BatteryCharge[1]", &mediator->mBtEffect.pScreenStatus->m_fPC_BatteryCharge[1]);
+            }
+        }
+        if (ImGui::CollapsingHeader("HrInGameMenu")) {
+            if (mediator->mBtEffect.pScreenStatus->m_pInGameMenu) {
+                uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mediator->mBtEffect.pScreenStatus->m_pInGameMenu->Padding_1054[0]);
+                ImGui::Text("Base Address: 0x%08X", baseAddress);
+                uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&mediator->mBtEffect.pScreenStatus->m_pInGameMenu->pad_3c78[0]);
+                ImGui::Text("Target Address: 0x%08X", targetAddress);
+                uintptr_t offsetDifference = targetAddress - baseAddress;
+                ImGui::Text("Offset difference: 0x%08X", offsetDifference);
+
+                ImGui::InputScalar("File Count", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_fileCount);
+                ImGui::InputScalar("Handle", ImGuiDataType_U32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Handl);
+                ImGui::InputScalar("DEMO Jimaku Handle", ImGuiDataType_U32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_DEMOJimaku_Handl);
+                ImGui::InputScalar("Menu Mode", ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuMode);
+                ImGui::InputScalar("Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Counter);
+                ImGui::InputScalar("Start Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_StartCounter);
+                ImGui::InputScalar("Start Anim Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_StartAnimCounter);
+                ImGui::InputScalar("Line Anim Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_LineAnimCounter);
+                ImGui::InputScalar("Title Line Anim Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_TitleLineAnimCounter);
+                ImGui::SliderFloat("Info Scroll Counter", &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_InfoScrollCounter, 0.0f, 100.0f);
+                ImGui::InputScalar("Leave Menu Fade Count", ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_LeaveMenuFadeCnt);
+                for (int i = 0; i < 6; i++) {
+                    ImGui::InputScalar(("Select Menu Word Num " + std::to_string(i)).c_str(), ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_SelectMenuWordNum[i]);
+                }
+                for (int i = 0; i < 4; i++) {
+                    ImGui::InputScalar(("Push Cross Btn Count " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_PushCrossBtnCnt[i]);
+                }
+                for (int i = 0; i < 4; i++) {
+                    ImGui::InputScalar(("Pushing Cross Btn Flag " + std::to_string(i)).c_str(), ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_PusshingCrossBtnFlag[i]);
+                }
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 4; j++) {
+                        ImGui::InputScalar(("Pull Cross Btn Stat " + std::to_string(i) + "," + std::to_string(j)).c_str(), ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_PullCrossBtnStat[i][j]);
+                    }
+                }
+                for (int i = 0; i < 4; i++) {
+                    ImGui::InputScalar(("Pull Cross Btn Flag " + std::to_string(i)).c_str(), ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_PullCrossBtnFlag[i]);
+                }
+                for (int i = 0; i < 2; i++) {
+                    ImGui::InputScalar(("Sec Temp " + std::to_string(i)).c_str(), ImGuiDataType_S64, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_SecTemp[i]);
+                }
+                ImGui::Checkbox("Start WB Flag", &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_StartWBFlag);
+                ImGui::Checkbox("Title WB Flag", &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_TitleWBFlag);
+                for (int i = 0; i < 4; i++) {
+                    ImGui::Checkbox(("Load Yes No WB Flag " + std::to_string(i)).c_str(), &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_LoadYesNoWBFlag[i]);
+                }
+                ImGui::InputScalar("Line Mode", ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_LineMode);
+                ImGui::InputScalar("Line SubJob Mode", ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_LineSubJobMode);
+                ImGui::Checkbox("Draw V Line Flag", &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_DrawVLineFlag);
+                ImGui::Checkbox("Draw H Line Flag", &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_DrawHLineFlag);
+                ImGui::Checkbox("Debug Draw Flag", &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_DebugDrawFlag);
+                for (int i = 0; i < 2; i++) {
+                    ImGui::InputScalar(("Select Menu " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_SelectMenu[i]);
+                }
+                for (int i = 0; i < 3; i++) {
+                    ImGui::InputScalar(("Stat Wariai " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_StatWariai[i]);
+                }
+                for (int i = 0; i < 3; i++) {
+                    ImGui::InputScalar(("Before Stat Wariai " + std::to_string(i)).c_str(), ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Before_StatWariai[i]);
+                }
+                for (int i = 0; i < 3; i++) {
+                    ImGui::InputScalar(("Wariai Sa " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_WariaiSa[i]);
+                }
+                bool freturnmain = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 0);
+                if (ImGui::Checkbox("Return Main", &freturnmain)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 0, freturnmain);
+                bool fendmenu = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 1);
+                if (ImGui::Checkbox("End Menu", &fendmenu)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 1, fendmenu);
+                bool fdrawgraph = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 2);
+                if (ImGui::Checkbox("Draw Graph", &fdrawgraph)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 2, fdrawgraph);
+                bool fmainstartend = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 3);
+                if (ImGui::Checkbox("Main Start End", &fmainstartend)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 3, fmainstartend);
+                bool fmainmenu = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 4);
+                if (ImGui::Checkbox("Main Menu", &fmainmenu)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 4, fmainmenu);
+                bool fsubmissionend = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 5);
+                if (ImGui::Checkbox("Submission End", &fsubmissionend)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 5, fsubmissionend);
+                bool fFadeOutExit = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 6);
+                if (ImGui::Checkbox("Fade Out Exit", &fFadeOutExit)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 6, fFadeOutExit);
+                ImGui::InputScalar("Menu Info Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuInfoCounter);
+                ImGui::InputScalar("Menu Info Length", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuInfoLenght);
+                for (int i = 0; i < 7; i++) {
+                    ImGui::InputScalar(("Menu Icon Shift X " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuIconShift_X[i]);
+                }
+                for (int i = 0; i < 6; i++) {
+                    ImGui::InputScalar(("Menu Icon Shift Counter " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuIconShift_COUNTER[i]);
+                }
+                if (ImGui::TreeNode("Dot Circle XY Grid")) {
+                    for (int i = 0; i < 23; i++) {
+                        for (int j = 0; j < 23; j++) {
+                            for (int k = 0; k < 2; k++) {
+                                ImGui::InputScalar(("Grid[" + std::to_string(i) + "][" + std::to_string(j) + "][" + std::to_string(k) + "]").c_str(), ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_DotCircleXY_Grid[i][j][k]);
+                            }
+                        }
+                    }
+                    ImGui::TreePop();
+                }
+                bool m_Jimaku = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimaku, 0);
+                if (ImGui::Checkbox("Jimaku", &m_Jimaku)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimakuflag, 0, m_Jimaku);
+                bool m_JimakuTMP = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_JimakuTMP, 1);
+                if (ImGui::Checkbox("Jimaku TMP", &m_JimakuTMP)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimakuflag, 1, m_JimakuTMP);
+                bool m_MotionFlag = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MotionFlag, 2);
+                if (ImGui::Checkbox("Motion Flag", &m_MotionFlag)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimakuflag, 2, m_MotionFlag);
+                bool m_MotionFlagTMP = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MotionFlagTMP, 3);
+                if (ImGui::Checkbox("Motion Flag TMP", &m_MotionFlagTMP)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimakuflag, 3, m_MotionFlagTMP);
+                bool m_CamAxisXFlag = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 4);
+                if (ImGui::Checkbox("Cam Axis X Flag", &m_CamAxisXFlag)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 4, m_CamAxisXFlag);
+                bool m_CamAxisXFlagTMP = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 5);
+                if (ImGui::Checkbox("Cam Axis X Flag TMP", &m_CamAxisXFlagTMP)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 5, m_CamAxisXFlagTMP);
+                bool m_CamAxisYFlag = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 6);
+                if (ImGui::Checkbox("Cam Axis Y Flag", &m_CamAxisYFlag)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 6, m_CamAxisYFlag);
+                bool m_CamAxisYFlagTMP = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 7);
+                if (ImGui::Checkbox("Cam Axis Y Flag TMP", &m_CamAxisYFlagTMP)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 7, m_CamAxisYFlagTMP);
             }
         }
 
@@ -334,149 +394,74 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputInt("renderSkipCounter", &player->mCharaStatus.renderSkipCounter);
                 ImGui::InputFloat("renderSkipMotSpd", &player->mCharaStatus.renderSkipMotSpd);
                 ImGui::InputInt("frameStop", &player->mCharaStatus.frameStop);
-
-                bool checkpo_Senrihin = getBit(mediator->mBtEffect.pScreenStatus->flag4, 6);   // bit position: 6
-                ImGui::Checkbox("checkpo_Senrihin", &checkpo_Senrihin);
-                setBit(mediator->mBtEffect.pScreenStatus->flag4, 6, checkpo_Senrihin);
-
-                // Accessing flags from mCharaStatus
-                bool visible = getBit(player->mCharaStatus.flag, 0);  // bit position: 0
-                ImGui::Checkbox("visible", &visible);
-                setBit(player->mCharaStatus.flag, 0, visible);
-
-                bool visibleWep = getBit(player->mCharaStatus.flag, 1);  // bit position: 1
-                ImGui::Checkbox("visibleWep", &visibleWep);
-                setBit(player->mCharaStatus.flag, 1, visibleWep);
-
-                bool visibleWepEffect = getBit(player->mCharaStatus.flag, 2);  // bit position: 2
-                ImGui::Checkbox("visibleWepEffect", &visibleWepEffect);
-                setBit(player->mCharaStatus.flag, 2, visibleWepEffect);
-
-                bool visibleDismember = getBit(player->mCharaStatus.flag, 3);  // bit position: 3
-                ImGui::Checkbox("visibleDismember", &visibleDismember);
-                setBit(player->mCharaStatus.flag, 3, visibleDismember);
-
-                bool visibleDist = getBit(player->mCharaStatus.flag, 4);  // bit position: 4
-                ImGui::Checkbox("visibleDist", &visibleDist);
-                setBit(player->mCharaStatus.flag, 4, visibleDist);
-
-                bool lockOn = getBit(player->mCharaStatus.flag, 5);  // bit position: 5
-                ImGui::Checkbox("lockOn", &lockOn);
-                setBit(player->mCharaStatus.flag, 5, lockOn);
-
-                bool hitChara = getBit(player->mCharaStatus.flag, 6);  // bit position: 6
-                ImGui::Checkbox("hitChara", &hitChara);
-                setBit(player->mCharaStatus.flag, 6, hitChara);
-
-                bool hitAttack = getBit(player->mCharaStatus.flag, 7);  // bit position: 7
-                ImGui::Checkbox("hitAttack", &hitAttack);
-                setBit(player->mCharaStatus.flag, 7, hitAttack);
-
-                bool hitStage = getBit(player->mCharaStatus.flag, 8);  // bit position: 8
-                ImGui::Checkbox("hitStage", &hitStage);
-                setBit(player->mCharaStatus.flag, 8, hitStage);
-
-                bool downShockWave = getBit(player->mCharaStatus.flag, 9);  // bit position: 9
-                ImGui::Checkbox("downShockWave", &downShockWave);
-                setBit(player->mCharaStatus.flag, 9, downShockWave);
-
-                bool hitStageDisEnable = getBit(player->mCharaStatus.flag, 10);  // bit position: 10
-                ImGui::Checkbox("hitStageDisEnable", &hitStageDisEnable);
-                setBit(player->mCharaStatus.flag, 10, hitStageDisEnable);
-
-                bool hitStageDisEnableReq = getBit(player->mCharaStatus.flag, 11);  // bit position: 11
-                ImGui::Checkbox("hitStageDisEnableReq", &hitStageDisEnableReq);
-                setBit(player->mCharaStatus.flag, 11, hitStageDisEnableReq);
-
-                bool hitOidashiDisEnable = getBit(player->mCharaStatus.flag, 12);  // bit position: 12
-                ImGui::Checkbox("hitOidashiDisEnable", &hitOidashiDisEnable);
-                setBit(player->mCharaStatus.flag, 12, hitOidashiDisEnable);
-
-                bool operateDisEnable = getBit(player->mCharaStatus.flag, 13);  // bit position: 13
-                ImGui::Checkbox("operateDisEnable", &operateDisEnable);
-                setBit(player->mCharaStatus.flag, 13, operateDisEnable);
-
-                bool drawPriority = getBit(player->mCharaStatus.flag, 14);  // bit position: 14
-                ImGui::Checkbox("drawPriority", &drawPriority);
-                setBit(player->mCharaStatus.flag, 14, drawPriority);
-
-                bool charaPause = getBit(player->mCharaStatus.flag, 15);  // bit position: 15
-                ImGui::Checkbox("charaPause", &charaPause);
-                setBit(player->mCharaStatus.flag, 15, charaPause);
-
-                bool initPlayMotion = getBit(player->mCharaStatus.flag, 16);  // bit position: 16
-                ImGui::Checkbox("initPlayMotion", &initPlayMotion);
-                setBit(player->mCharaStatus.flag, 16, initPlayMotion);
-
-                bool slowBlow = getBit(player->mCharaStatus.flag, 17);  // bit position: 17
-                ImGui::Checkbox("slowBlow", &slowBlow);
-                setBit(player->mCharaStatus.flag, 17, slowBlow);
-
-                bool dontCountKill = getBit(player->mCharaStatus.flag, 18);  // bit position: 18
-                ImGui::Checkbox("dontCountKill", &dontCountKill);
-                setBit(player->mCharaStatus.flag, 18, dontCountKill);
-
-                bool dontSubRepop = getBit(player->mCharaStatus.flag, 19);  // bit position: 19
-                ImGui::Checkbox("dontSubRepop", &dontSubRepop);
-                setBit(player->mCharaStatus.flag, 19, dontSubRepop);
-
-                bool dontStandUp = getBit(player->mCharaStatus.flag, 20);  // bit position: 20
-                ImGui::Checkbox("dontStandUp", &dontStandUp);
-                setBit(player->mCharaStatus.flag, 20, dontStandUp);
-
-                bool lowDamage = getBit(player->mCharaStatus.flag, 21);  // bit position: 21
-                ImGui::Checkbox("lowDamage", &lowDamage);
-                setBit(player->mCharaStatus.flag, 21, lowDamage);
-
-                bool dontHitStageWall = getBit(player->mCharaStatus.flag, 22);  // bit position: 22
-                ImGui::Checkbox("dontHitStageWall", &dontHitStageWall);
-                setBit(player->mCharaStatus.flag, 22, dontHitStageWall);
-
-                bool ikari = getBit(player->mCharaStatus.flag, 23);  // bit position: 23
-                ImGui::Checkbox("ikari", &ikari);
-                setBit(player->mCharaStatus.flag, 23, ikari);
-
-                bool motSpeedControl = getBit(player->mCharaStatus.flag, 24);  // bit position: 24
-                ImGui::Checkbox("motSpeedControl", &motSpeedControl);
-                setBit(player->mCharaStatus.flag, 24, motSpeedControl);
-
-                bool bossDeadFlag = getBit(player->mCharaStatus.flag, 25);  // bit position: 25
-                ImGui::Checkbox("bossDeadFlag", &bossDeadFlag);
-                setBit(player->mCharaStatus.flag, 25, bossDeadFlag);
-
-                bool successThrow = getBit(player->mCharaStatus.flag, 26);  // bit position: 26
-                ImGui::Checkbox("successThrow", &successThrow);
-                setBit(player->mCharaStatus.flag, 26, successThrow);
-
-                bool loseTsubazeri = getBit(player->mCharaStatus.flag, 27);  // bit position: 27
-                ImGui::Checkbox("loseTsubazeri", &loseTsubazeri);
-                setBit(player->mCharaStatus.flag, 27, loseTsubazeri);
-
-                bool chargeDamage = getBit(player->mCharaStatus.flag, 28);  // bit position: 28
-                ImGui::Checkbox("chargeDamage", &chargeDamage);
-                setBit(player->mCharaStatus.flag, 28, chargeDamage);
-
-                bool motionProcessDisEnable = getBit(player->mCharaStatus.flag, 29);  // bit position: 29
-                ImGui::Checkbox("motionProcessDisEnable", &motionProcessDisEnable);
-                setBit(player->mCharaStatus.flag, 29, motionProcessDisEnable);
-
-                bool downWaitStart = getBit(player->mCharaStatus.flag, 30);  // bit position: 30
-                ImGui::Checkbox("downWaitStart", &downWaitStart);
-                setBit(player->mCharaStatus.flag, 30, downWaitStart);
-
-                bool miniMapRender = getBit(player->mCharaStatus.flag, 31);  // bit position: 31
-                ImGui::Checkbox("miniMapRender", &miniMapRender);
-                setBit(player->mCharaStatus.flag, 31, miniMapRender);
-
-                bool normalClip = getBit(player->mCharaStatus.flag2, 0);  // bit position: 0
-                ImGui::Checkbox("normalClip", &normalClip);
-                setBit(player->mCharaStatus.flag2, 0, normalClip);
-
-                bool jpnDead = getBit(player->mCharaStatus.flag2, 1);  // bit position: 1
-                ImGui::Checkbox("jpnDead", &jpnDead);
-                setBit(player->mCharaStatus.flag2, 1, normalClip);
-
-                ImGui::Checkbox("JPN Dead", (bool*)&player->mCharaStatus.flag2 + 1);
+                bool visible = getBit(player->mCharaStatus.flag, 0);
+                if (ImGui::Checkbox("visible", &visible)) setBit(player->mCharaStatus.flag, 0, visible);
+                bool visibleWep = getBit(player->mCharaStatus.flag, 1);
+                if (ImGui::Checkbox("visibleWep", &visibleWep)) setBit(player->mCharaStatus.flag, 1, visibleWep);
+                bool visibleWepEffect = getBit(player->mCharaStatus.flag, 2);
+                if (ImGui::Checkbox("visibleWepEffect", &visibleWepEffect)) setBit(player->mCharaStatus.flag, 2, visibleWepEffect);
+                bool visibleDismember = getBit(player->mCharaStatus.flag, 3);
+                if (ImGui::Checkbox("visibleDismember", &visibleDismember)) setBit(player->mCharaStatus.flag, 3, visibleDismember);
+                bool visibleDist = getBit(player->mCharaStatus.flag, 4);
+                if (ImGui::Checkbox("visibleDist", &visibleDist)) setBit(player->mCharaStatus.flag, 4, visibleDist);
+                bool lockOn = getBit(player->mCharaStatus.flag, 5);
+                if (ImGui::Checkbox("lockOn", &lockOn)) setBit(player->mCharaStatus.flag, 5, lockOn);
+                bool hitChara = getBit(player->mCharaStatus.flag, 6);
+                if (ImGui::Checkbox("hitChara", &hitChara)) setBit(player->mCharaStatus.flag, 6, hitChara);
+                bool hitAttack = getBit(player->mCharaStatus.flag, 7);
+                if (ImGui::Checkbox("hitAttack", &hitAttack)) setBit(player->mCharaStatus.flag, 7, hitAttack);
+                bool hitStage = getBit(player->mCharaStatus.flag, 8);
+                if (ImGui::Checkbox("hitStage", &hitStage)) setBit(player->mCharaStatus.flag, 8, hitStage);
+                bool downShockWave = getBit(player->mCharaStatus.flag, 9);
+                if (ImGui::Checkbox("downShockWave", &downShockWave)) setBit(player->mCharaStatus.flag, 9, downShockWave);
+                bool hitStageDisEnable = getBit(player->mCharaStatus.flag, 10);
+                if (ImGui::Checkbox("hitStageDisEnable", &hitStageDisEnable)) setBit(player->mCharaStatus.flag, 10, hitStageDisEnable);
+                bool hitStageDisEnableReq = getBit(player->mCharaStatus.flag, 11);
+                if (ImGui::Checkbox("hitStageDisEnableReq", &hitStageDisEnableReq)) setBit(player->mCharaStatus.flag, 11, hitStageDisEnableReq);
+                bool hitOidashiDisEnable = getBit(player->mCharaStatus.flag, 12);
+                if (ImGui::Checkbox("hitOidashiDisEnable", &hitOidashiDisEnable)) setBit(player->mCharaStatus.flag, 12, hitOidashiDisEnable);
+                bool operateDisEnable = getBit(player->mCharaStatus.flag, 13);
+                if (ImGui::Checkbox("operateDisEnable", &operateDisEnable)) setBit(player->mCharaStatus.flag, 13, operateDisEnable);
+                bool drawPriority = getBit(player->mCharaStatus.flag, 14);
+                if (ImGui::Checkbox("drawPriority", &drawPriority)) setBit(player->mCharaStatus.flag, 14, drawPriority);
+                bool charaPause = getBit(player->mCharaStatus.flag, 15);
+                if (ImGui::Checkbox("charaPause", &charaPause)) setBit(player->mCharaStatus.flag, 15, charaPause);
+                bool initPlayMotion = getBit(player->mCharaStatus.flag, 16);
+                if (ImGui::Checkbox("initPlayMotion", &initPlayMotion)) setBit(player->mCharaStatus.flag, 16, initPlayMotion);
+                bool slowBlow = getBit(player->mCharaStatus.flag, 17);
+                if (ImGui::Checkbox("slowBlow", &slowBlow)) setBit(player->mCharaStatus.flag, 17, slowBlow);
+                bool dontCountKill = getBit(player->mCharaStatus.flag, 18);
+                if (ImGui::Checkbox("dontCountKill", &dontCountKill)) setBit(player->mCharaStatus.flag, 18, dontCountKill);
+                bool dontSubRepop = getBit(player->mCharaStatus.flag, 19);
+                if (ImGui::Checkbox("dontSubRepop", &dontSubRepop)) setBit(player->mCharaStatus.flag, 19, dontSubRepop);
+                bool dontStandUp = getBit(player->mCharaStatus.flag, 20);
+                if (ImGui::Checkbox("dontStandUp", &dontStandUp)) setBit(player->mCharaStatus.flag, 20, dontStandUp);
+                bool lowDamage = getBit(player->mCharaStatus.flag, 21);
+                if (ImGui::Checkbox("lowDamage", &lowDamage)) setBit(player->mCharaStatus.flag, 21, lowDamage);
+                bool dontHitStageWall = getBit(player->mCharaStatus.flag, 22);
+                if (ImGui::Checkbox("dontHitStageWall", &dontHitStageWall)) setBit(player->mCharaStatus.flag, 22, dontHitStageWall);
+                bool ikari = getBit(player->mCharaStatus.flag, 23);
+                if (ImGui::Checkbox("ikari", &ikari)) setBit(player->mCharaStatus.flag, 23, ikari);
+                bool motSpeedControl = getBit(player->mCharaStatus.flag, 24);
+                if (ImGui::Checkbox("motSpeedControl", &motSpeedControl)) setBit(player->mCharaStatus.flag, 24, motSpeedControl);
+                bool bossDeadFlag = getBit(player->mCharaStatus.flag, 25);
+                if (ImGui::Checkbox("bossDeadFlag", &bossDeadFlag)) setBit(player->mCharaStatus.flag, 25, bossDeadFlag);
+                bool successThrow = getBit(player->mCharaStatus.flag, 26);
+                if (ImGui::Checkbox("successThrow", &successThrow)) setBit(player->mCharaStatus.flag, 26, successThrow);
+                bool loseTsubazeri = getBit(player->mCharaStatus.flag, 27);
+                if (ImGui::Checkbox("loseTsubazeri", &loseTsubazeri)) setBit(player->mCharaStatus.flag, 27, loseTsubazeri);
+                bool chargeDamage = getBit(player->mCharaStatus.flag, 28);
+                if (ImGui::Checkbox("chargeDamage", &chargeDamage)) setBit(player->mCharaStatus.flag, 28, chargeDamage);
+                bool motionProcessDisEnable = getBit(player->mCharaStatus.flag, 29);
+                if (ImGui::Checkbox("motionProcessDisEnable", &motionProcessDisEnable)) setBit(player->mCharaStatus.flag, 29, motionProcessDisEnable);
+                bool downWaitStart = getBit(player->mCharaStatus.flag, 30);
+                if (ImGui::Checkbox("downWaitStart", &downWaitStart)) setBit(player->mCharaStatus.flag, 30, downWaitStart);
+                bool miniMapRender = getBit(player->mCharaStatus.flag, 31);
+                if (ImGui::Checkbox("miniMapRender", &miniMapRender)) setBit(player->mCharaStatus.flag, 31, miniMapRender);
+                bool normalClip = getBit(player->mCharaStatus.flag2, 0);
+                if (ImGui::Checkbox("normalClip", &normalClip)) setBit(player->mCharaStatus.flag2, 0, normalClip);
+                bool jpnDead = getBit(player->mCharaStatus.flag2, 1);
+                if (ImGui::Checkbox("jpnDead", &jpnDead)) setBit(player->mCharaStatus.flag2, 1, jpnDead);
             }
             if (ImGui::CollapsingHeader("mHRPc mCharaStatus.dmgInfo")) {
                 ImGui::SliderFloat("Damage", &player->mCharaStatus.dmgInfo.dmg, 0.0f, 100.0f);
@@ -700,147 +685,74 @@ void PlayerTracker::on_draw_ui() {
                     ImGui::InputInt("renderSkipCounter", &player->mpLockOnNpc->mStatus.renderSkipCounter);
                     ImGui::InputFloat("renderSkipMotSpd", &player->mpLockOnNpc->mStatus.renderSkipMotSpd);
                     ImGui::InputInt("frameStop", &player->mpLockOnNpc->mStatus.frameStop);
-
-                    bool checkpo_Senrihin = getBit(mediator->mBtEffect.pScreenStatus->flag4, 6);   // bit position: 6
-                    ImGui::Checkbox("checkpo_Senrihin", &checkpo_Senrihin);
-                    setBit(mediator->mBtEffect.pScreenStatus->flag4, 6, checkpo_Senrihin);
-
-                    // Accessing flags from mCharaStatus
-                    bool visible = getBit(player->mpLockOnNpc->mStatus.flag, 0);  // bit position: 0
-                    ImGui::Checkbox("visible", &visible);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 0, visible);
-
-                    bool visibleWep = getBit(player->mpLockOnNpc->mStatus.flag, 1);  // bit position: 1
-                    ImGui::Checkbox("visibleWep", &visibleWep);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 1, visibleWep);
-
-                    bool visibleWepEffect = getBit(player->mpLockOnNpc->mStatus.flag, 2);  // bit position: 2
-                    ImGui::Checkbox("visibleWepEffect", &visibleWepEffect);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 2, visibleWepEffect);
-
-                    bool visibleDismember = getBit(player->mpLockOnNpc->mStatus.flag, 3);  // bit position: 3
-                    ImGui::Checkbox("visibleDismember", &visibleDismember);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 3, visibleDismember);
-
-                    bool visibleDist = getBit(player->mpLockOnNpc->mStatus.flag, 4);  // bit position: 4
-                    ImGui::Checkbox("visibleDist", &visibleDist);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 4, visibleDist);
-
-                    bool lockOn = getBit(player->mpLockOnNpc->mStatus.flag, 5);  // bit position: 5
-                    ImGui::Checkbox("lockOn", &lockOn);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 5, lockOn);
-
-                    bool hitChara = getBit(player->mpLockOnNpc->mStatus.flag, 6);  // bit position: 6
-                    ImGui::Checkbox("hitChara", &hitChara);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 6, hitChara);
-
-                    bool hitAttack = getBit(player->mpLockOnNpc->mStatus.flag, 7);  // bit position: 7
-                    ImGui::Checkbox("hitAttack", &hitAttack);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 7, hitAttack);
-
-                    bool hitStage = getBit(player->mpLockOnNpc->mStatus.flag, 8);  // bit position: 8
-                    ImGui::Checkbox("hitStage", &hitStage);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 8, hitStage);
-
-                    bool downShockWave = getBit(player->mpLockOnNpc->mStatus.flag, 9);  // bit position: 9
-                    ImGui::Checkbox("downShockWave", &downShockWave);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 9, downShockWave);
-
-                    bool hitStageDisEnable = getBit(player->mpLockOnNpc->mStatus.flag, 10);  // bit position: 10
-                    ImGui::Checkbox("hitStageDisEnable", &hitStageDisEnable);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 10, hitStageDisEnable);
-
-                    bool hitStageDisEnableReq = getBit(player->mpLockOnNpc->mStatus.flag, 11);  // bit position: 11
-                    ImGui::Checkbox("hitStageDisEnableReq", &hitStageDisEnableReq);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 11, hitStageDisEnableReq);
-
-                    bool hitOidashiDisEnable = getBit(player->mpLockOnNpc->mStatus.flag, 12);  // bit position: 12
-                    ImGui::Checkbox("hitOidashiDisEnable", &hitOidashiDisEnable);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 12, hitOidashiDisEnable);
-
-                    bool operateDisEnable = getBit(player->mpLockOnNpc->mStatus.flag, 13);  // bit position: 13
-                    ImGui::Checkbox("operateDisEnable", &operateDisEnable);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 13, operateDisEnable);
-
-                    bool drawPriority = getBit(player->mpLockOnNpc->mStatus.flag, 14);  // bit position: 14
-                    ImGui::Checkbox("drawPriority", &drawPriority);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 14, drawPriority);
-
-                    bool charaPause = getBit(player->mpLockOnNpc->mStatus.flag, 15);  // bit position: 15
-                    ImGui::Checkbox("charaPause", &charaPause);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 15, charaPause);
-
-                    bool initPlayMotion = getBit(player->mpLockOnNpc->mStatus.flag, 16);  // bit position: 16
-                    ImGui::Checkbox("initPlayMotion", &initPlayMotion);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 16, initPlayMotion);
-
-                    bool slowBlow = getBit(player->mpLockOnNpc->mStatus.flag, 17);  // bit position: 17
-                    ImGui::Checkbox("slowBlow", &slowBlow);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 17, slowBlow);
-
-                    bool dontCountKill = getBit(player->mpLockOnNpc->mStatus.flag, 18);  // bit position: 18
-                    ImGui::Checkbox("dontCountKill", &dontCountKill);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 18, dontCountKill);
-
-                    bool dontSubRepop = getBit(player->mpLockOnNpc->mStatus.flag, 19);  // bit position: 19
-                    ImGui::Checkbox("dontSubRepop", &dontSubRepop);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 19, dontSubRepop);
-
-                    bool dontStandUp = getBit(player->mpLockOnNpc->mStatus.flag, 20);  // bit position: 20
-                    ImGui::Checkbox("dontStandUp", &dontStandUp);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 20, dontStandUp);
-
-                    bool lowDamage = getBit(player->mpLockOnNpc->mStatus.flag, 21);  // bit position: 21
-                    ImGui::Checkbox("lowDamage", &lowDamage);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 21, lowDamage);
-
-                    bool dontHitStageWall = getBit(player->mpLockOnNpc->mStatus.flag, 22);  // bit position: 22
-                    ImGui::Checkbox("dontHitStageWall", &dontHitStageWall);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 22, dontHitStageWall);
-
-                    bool ikari = getBit(player->mpLockOnNpc->mStatus.flag, 23);  // bit position: 23
-                    ImGui::Checkbox("ikari", &ikari);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 23, ikari);
-
-                    bool motSpeedControl = getBit(player->mpLockOnNpc->mStatus.flag, 24);  // bit position: 24
-                    ImGui::Checkbox("motSpeedControl", &motSpeedControl);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 24, motSpeedControl);
-
-                    bool bossDeadFlag = getBit(player->mpLockOnNpc->mStatus.flag, 25);  // bit position: 25
-                    ImGui::Checkbox("bossDeadFlag", &bossDeadFlag);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 25, bossDeadFlag);
-
-                    bool successThrow = getBit(player->mpLockOnNpc->mStatus.flag, 26);  // bit position: 26
-                    ImGui::Checkbox("successThrow", &successThrow);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 26, successThrow);
-
-                    bool loseTsubazeri = getBit(player->mpLockOnNpc->mStatus.flag, 27);  // bit position: 27
-                    ImGui::Checkbox("loseTsubazeri", &loseTsubazeri);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 27, loseTsubazeri);
-
-                    bool chargeDamage = getBit(player->mpLockOnNpc->mStatus.flag, 28);  // bit position: 28
-                    ImGui::Checkbox("chargeDamage", &chargeDamage);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 28, chargeDamage);
-
-                    bool motionProcessDisEnable = getBit(player->mpLockOnNpc->mStatus.flag, 29);  // bit position: 29
-                    ImGui::Checkbox("motionProcessDisEnable", &motionProcessDisEnable);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 29, motionProcessDisEnable);
-
-                    bool downWaitStart = getBit(player->mpLockOnNpc->mStatus.flag, 30);  // bit position: 30
-                    ImGui::Checkbox("downWaitStart", &downWaitStart);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 30, downWaitStart);
-
-                    bool miniMapRender = getBit(player->mpLockOnNpc->mStatus.flag, 31);  // bit position: 31
-                    ImGui::Checkbox("miniMapRender", &miniMapRender);
-                    setBit(player->mpLockOnNpc->mStatus.flag, 31, miniMapRender);
-
-                    bool normalClip = getBit(player->mpLockOnNpc->mStatus.flag2, 0);  // bit position: 0
-                    ImGui::Checkbox("normalClip", &normalClip);
-                    setBit(player->mpLockOnNpc->mStatus.flag2, 0, normalClip);
-
-                    bool jpnDead = getBit(player->mpLockOnNpc->mStatus.flag2, 1);  // bit position: 1
-                    ImGui::Checkbox("jpnDead", &jpnDead);
-                    setBit(player->mpLockOnNpc->mStatus.flag2, 1, jpnDead);
+                    bool visible = getBit(player->mpLockOnNpc->mStatus.flag, 0);
+                    if (ImGui::Checkbox("visible", &visible)) setBit(player->mpLockOnNpc->mStatus.flag, 0, visible);
+                    bool visibleWep = getBit(player->mpLockOnNpc->mStatus.flag, 1);
+                    if (ImGui::Checkbox("visibleWep", &visibleWep)) setBit(player->mpLockOnNpc->mStatus.flag, 1, visibleWep);
+                    bool visibleWepEffect = getBit(player->mpLockOnNpc->mStatus.flag, 2);
+                    if (ImGui::Checkbox("visibleWepEffect", &visibleWepEffect)) setBit(player->mpLockOnNpc->mStatus.flag, 2, visibleWepEffect);
+                    bool visibleDismember = getBit(player->mpLockOnNpc->mStatus.flag, 3);
+                    if (ImGui::Checkbox("visibleDismember", &visibleDismember)) setBit(player->mpLockOnNpc->mStatus.flag, 3, visibleDismember);
+                    bool visibleDist = getBit(player->mpLockOnNpc->mStatus.flag, 4);
+                    if (ImGui::Checkbox("visibleDist", &visibleDist)) setBit(player->mpLockOnNpc->mStatus.flag, 4, visibleDist);
+                    bool lockOn = getBit(player->mpLockOnNpc->mStatus.flag, 5);
+                    if (ImGui::Checkbox("lockOn", &lockOn)) setBit(player->mpLockOnNpc->mStatus.flag, 5, lockOn);
+                    bool hitChara = getBit(player->mpLockOnNpc->mStatus.flag, 6);
+                    if (ImGui::Checkbox("hitChara", &hitChara)) setBit(player->mpLockOnNpc->mStatus.flag, 6, hitChara);
+                    bool hitAttack = getBit(player->mpLockOnNpc->mStatus.flag, 7);
+                    if (ImGui::Checkbox("hitAttack", &hitAttack)) setBit(player->mpLockOnNpc->mStatus.flag, 7, hitAttack);
+                    bool hitStage = getBit(player->mpLockOnNpc->mStatus.flag, 8);
+                    if (ImGui::Checkbox("hitStage", &hitStage)) setBit(player->mpLockOnNpc->mStatus.flag, 8, hitStage);
+                    bool downShockWave = getBit(player->mpLockOnNpc->mStatus.flag, 9);
+                    if (ImGui::Checkbox("downShockWave", &downShockWave)) setBit(player->mpLockOnNpc->mStatus.flag, 9, downShockWave);
+                    bool hitStageDisEnable = getBit(player->mpLockOnNpc->mStatus.flag, 10);
+                    if (ImGui::Checkbox("hitStageDisEnable", &hitStageDisEnable)) setBit(player->mpLockOnNpc->mStatus.flag, 10, hitStageDisEnable);
+                    bool hitStageDisEnableReq = getBit(player->mpLockOnNpc->mStatus.flag, 11);
+                    if (ImGui::Checkbox("hitStageDisEnableReq", &hitStageDisEnableReq)) setBit(player->mpLockOnNpc->mStatus.flag, 11, hitStageDisEnableReq);
+                    bool hitOidashiDisEnable = getBit(player->mpLockOnNpc->mStatus.flag, 12);
+                    if (ImGui::Checkbox("hitOidashiDisEnable", &hitOidashiDisEnable)) setBit(player->mpLockOnNpc->mStatus.flag, 12, hitOidashiDisEnable);
+                    bool operateDisEnable = getBit(player->mpLockOnNpc->mStatus.flag, 13);
+                    if (ImGui::Checkbox("operateDisEnable", &operateDisEnable)) setBit(player->mpLockOnNpc->mStatus.flag, 13, operateDisEnable);
+                    bool drawPriority = getBit(player->mpLockOnNpc->mStatus.flag, 14);
+                    if (ImGui::Checkbox("drawPriority", &drawPriority)) setBit(player->mpLockOnNpc->mStatus.flag, 14, drawPriority);
+                    bool charaPause = getBit(player->mpLockOnNpc->mStatus.flag, 15);
+                    if (ImGui::Checkbox("charaPause", &charaPause)) setBit(player->mpLockOnNpc->mStatus.flag, 15, charaPause);
+                    bool initPlayMotion = getBit(player->mpLockOnNpc->mStatus.flag, 16);
+                    if (ImGui::Checkbox("initPlayMotion", &initPlayMotion)) setBit(player->mpLockOnNpc->mStatus.flag, 16, initPlayMotion);
+                    bool slowBlow = getBit(player->mpLockOnNpc->mStatus.flag, 17);
+                    if (ImGui::Checkbox("slowBlow", &slowBlow)) setBit(player->mpLockOnNpc->mStatus.flag, 17, slowBlow);
+                    bool dontCountKill = getBit(player->mpLockOnNpc->mStatus.flag, 18);
+                    if (ImGui::Checkbox("dontCountKill", &dontCountKill)) setBit(player->mpLockOnNpc->mStatus.flag, 18, dontCountKill);
+                    bool dontSubRepop = getBit(player->mpLockOnNpc->mStatus.flag, 19);
+                    if (ImGui::Checkbox("dontSubRepop", &dontSubRepop)) setBit(player->mpLockOnNpc->mStatus.flag, 19, dontSubRepop);
+                    bool dontStandUp = getBit(player->mpLockOnNpc->mStatus.flag, 20);
+                    if (ImGui::Checkbox("dontStandUp", &dontStandUp)) setBit(player->mpLockOnNpc->mStatus.flag, 20, dontStandUp);
+                    bool lowDamage = getBit(player->mpLockOnNpc->mStatus.flag, 21);
+                    if (ImGui::Checkbox("lowDamage", &lowDamage)) setBit(player->mpLockOnNpc->mStatus.flag, 21, lowDamage);
+                    bool dontHitStageWall = getBit(player->mpLockOnNpc->mStatus.flag, 22);
+                    if (ImGui::Checkbox("dontHitStageWall", &dontHitStageWall)) setBit(player->mpLockOnNpc->mStatus.flag, 22, dontHitStageWall);
+                    bool ikari = getBit(player->mpLockOnNpc->mStatus.flag, 23);
+                    if (ImGui::Checkbox("ikari", &ikari)) setBit(player->mpLockOnNpc->mStatus.flag, 23, ikari);
+                    bool motSpeedControl = getBit(player->mpLockOnNpc->mStatus.flag, 24);
+                    if (ImGui::Checkbox("motSpeedControl", &motSpeedControl)) setBit(player->mpLockOnNpc->mStatus.flag, 24, motSpeedControl);
+                    bool bossDeadFlag = getBit(player->mpLockOnNpc->mStatus.flag, 25);
+                    if (ImGui::Checkbox("bossDeadFlag", &bossDeadFlag)) setBit(player->mpLockOnNpc->mStatus.flag, 25, bossDeadFlag);
+                    bool successThrow = getBit(player->mpLockOnNpc->mStatus.flag, 26);
+                    if (ImGui::Checkbox("successThrow", &successThrow)) setBit(player->mpLockOnNpc->mStatus.flag, 26, successThrow);
+                    bool loseTsubazeri = getBit(player->mpLockOnNpc->mStatus.flag, 27);
+                    if (ImGui::Checkbox("loseTsubazeri", &loseTsubazeri)) setBit(player->mpLockOnNpc->mStatus.flag, 27, loseTsubazeri);
+                    bool chargeDamage = getBit(player->mpLockOnNpc->mStatus.flag, 28);
+                    if (ImGui::Checkbox("chargeDamage", &chargeDamage)) setBit(player->mpLockOnNpc->mStatus.flag, 28, chargeDamage);
+                    bool motionProcessDisEnable = getBit(player->mpLockOnNpc->mStatus.flag, 29);
+                    if (ImGui::Checkbox("motionProcessDisEnable", &motionProcessDisEnable)) setBit(player->mpLockOnNpc->mStatus.flag, 29, motionProcessDisEnable);
+                    bool downWaitStart = getBit(player->mpLockOnNpc->mStatus.flag, 30);
+                    if (ImGui::Checkbox("downWaitStart", &downWaitStart)) setBit(player->mpLockOnNpc->mStatus.flag, 30, downWaitStart);
+                    bool miniMapRender = getBit(player->mpLockOnNpc->mStatus.flag, 31);
+                    if (ImGui::Checkbox("miniMapRender", &miniMapRender)) setBit(player->mpLockOnNpc->mStatus.flag, 31, miniMapRender);
+                    bool normalClip = getBit(player->mpLockOnNpc->mStatus.flag2, 0);
+                    if (ImGui::Checkbox("normalClip", &normalClip)) setBit(player->mpLockOnNpc->mStatus.flag2, 0, normalClip);
+                    bool jpnDead = getBit(player->mpLockOnNpc->mStatus.flag2, 1);
+                    if (ImGui::Checkbox("jpnDead", &jpnDead)) setBit(player->mpLockOnNpc->mStatus.flag2, 1, jpnDead);
                 }
             }
             if (ImGui::CollapsingHeader("mpLockOnNpc mStatus.dmgInfo")) {
@@ -856,7 +768,6 @@ void PlayerTracker::on_draw_ui() {
                     ImGui::SliderFloat("Gravity", &player->mpLockOnNpc->mStatus.dmgInfo.grav, 0.0f, 20.0f);
                     ImGui::Checkbox("Upper", &player->mpLockOnNpc->mStatus.dmgInfo.upper);
                     ImGui::InputInt("Tick", &player->mpLockOnNpc->mStatus.dmgInfo.tick);
-                    //ImGui::SliderFloat("Fade", &player->mpLockOnNpc->mStatus.dmgInfo.fade.value, 0.0f, 1.0f);  // Assuming WAnimF is a float wrapper
                     ImGui::SliderFloat("Air Blow Position X", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.x, -100.0f, 100.0f);
                     ImGui::SliderFloat("Air Blow Position Y", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.y, -100.0f, 100.0f);
                     ImGui::SliderFloat("Air Blow Position Z", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.z, -100.0f, 100.0f);

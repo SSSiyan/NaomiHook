@@ -1093,6 +1093,256 @@ public: // edited
   /* 0x1f5f8 */ class WAnimF mBikeRotY;
 }; /* size: 0x1f618 */
 
+class HsMessage
+{
+  /* 0x0000 */ long Padding_1049[8];
+  /* 0x0020 */ unsigned int m_MesHndl[2];
+  /* 0x0028 */ unsigned int m_ItemAtt;
+  /* 0x002c */ unsigned int m_Item_Endian_No;
+  /* 0x0030 */ int m_Price;
+  /* 0x0034 */ unsigned int m_Disp_Flag_No;
+  /* 0x0038 */ enum HS_MES_TYPE m_MesType;
+  /* 0x003c */ enum HS_MES_CONDITION m_Condition;
+  /* 0x0040 */ unsigned int m_Genre_No;
+}; /* size: 0x0044 */
+
+class HrMenuCurBox
+{
+  /* 0x0000 */ float m_BoxPosX;
+  /* 0x0004 */ float m_BoxPosY;
+  /* 0x0008 */ float m_BoxWidth;
+  /* 0x000c */ float m_BoxHeight;
+  /* 0x0010 */ unsigned int m_TriCurColor;
+  /* 0x0014 */ unsigned int m_BoxColor;
+  /* 0x0018 */ unsigned char m_Alpha;
+  /* 0x0019 */ bool m_selectingFlag;
+  /* 0x001a */ bool m_settingFlag;
+  /* 0x001b */ char Padding_1050;
+  /* 0x001c */ int m_ColorCnt;
+  /* 0x0020 */ int m_FadeCnt;
+}; /* size: 0x0024 */
+
+class HrInGameMenu
+{
+public: // edited
+  // union // edited
+  // { // edited
+    /* 0x0000 */ // struct HrInGameMenu::UNION uni; // edited
+    /* 0x0000 */ // char** ParamName /* zero-length array */; // edited
+    struct
+    {
+      ///* 0x0000 */ int* Param /* zero-length array */; // edited
+      /* 0x0001 */ char Padding_1054[0x50]; // edited
+      /* 0x0050 */ class HrSave* m_pHrSave;
+      /* 0x0054 */ short m_fileCount;
+      /* 0x0056 */ char Padding_1055[2];
+      /* 0x0058 */ class ghmGcFile* m_fp;
+      /* 0x005c */ void* m_pRsl;
+      /* 0x0060 */ unsigned int m_Handl;
+      /* 0x0064 */ unsigned int m_DEMOJimaku_Handl;
+      /* 0x0068 */ struct tagGHMR_TEX m_Line_Tex[2];
+      /* 0x00b8 */ void* m_ItemRsl;
+      /* 0x00bc */ void* m_WeaponRsl;
+      /* 0x00c0 */ int m_MenuMode;
+      /* 0x00c4 */ short m_Counter;
+      /* 0x00c6 */ short m_StartCounter;
+      /* 0x00c8 */ short m_StartAnimCounter;
+      /* 0x00ca */ short m_LineAnimCounter;
+      /* 0x00cc */ short m_TitleLineAnimCounter;
+      /* 0x00ce */ char Padding_1056[2];
+      /* 0x00d0 */ float m_InfoScrollCounter;
+      /* 0x00d4 */ int m_LeaveMenuFadeCnt;
+      /* 0x00d8 */ class HsMessage m_WeaponInfoMes;
+      /* 0x011c */ int m_SelectMenuWordNum[6];
+      /* 0x0134 */ short m_PushCrossBtnCnt[4];
+      /* 0x013c */ int m_PusshingCrossBtnFlag[4];
+      /* 0x014c */ int m_PullCrossBtnStat[2][4];
+      /* 0x016c */ int m_PullCrossBtnFlag[4];
+      /* 0x017c */ class HrMenuCurBox m_CurBox[7];
+      /* 0x0278 */ class HrMenuCurBox m_CurBoxConfig[2][4];
+      /* 0x0398 */ const int layoutOffset;
+      /* 0x039c */ long Padding_1057;
+      /* 0x03a0 */ __int64 m_SecTemp[2];
+      /* 0x03b0 */ bool m_StartWBFlag;
+      /* 0x03b1 */ bool m_TitleWBFlag;
+      /* 0x03b2 */ bool m_LoadYesNoWBFlag[4];
+      /* 0x03b6 */ char Padding_1058[2];
+      /* 0x03b8 */ char pad_03b8[0x40];// struct HrInGameMenu::WORD_BOX_KANRI m_WB_EXPLAIN[4];          // edited
+      /* 0x03f8 */ char pad_03f8[0x40];// struct HrInGameMenu::WORD_BOX_KANRI m_WB_TIMER[4];            // edited
+      /* 0x0438 */ char pad_0438[0x10];// struct HrInGameMenu::WORD_BOX_KANRI m_WB_TITLE;               // edited
+      /* 0x0448 */ char pad_0448[0x10];// struct HrInGameMenu::WORD_BOX_KANRI m_WB_OTHER_LOAD;          // edited
+      /* 0x0458 */ char pad_0458[0x40];// struct HrInGameMenu::WORD_BOX_KANRI m_WB_OTHER_LOAD_YESNO[4]; // edited
+      /* 0x0498 */ char pad_0498[0x1A0];// struct HrInGameMenu::WORD_BOX_KANRI m_WB[26];                // edited
+      /* 0x0638 */ int m_LineMode;
+      /* 0x063c */ int m_LineSubJobMode;
+      /* 0x0640 */ bool m_DrawVLineFlag;
+      /* 0x0641 */ bool m_DrawHLineFlag;
+      /* 0x0642 */ bool m_DebugDrawFlag;
+      /* 0x0643 */ char Padding_1059;
+      /* 0x0644 */ char pad_644[0xF00]; // struct HrInGameMenu::RANDH_LINE RandHLine[12];  // edited
+      /* 0x1544 */ char pad_1544[0x2154];// struct HrInGameMenu::RANDV_LINE RandVLine[27]; // edited
+      /* 0x3698 */ short m_SelectMenu[2];
+      /* 0x369c */ short m_StatWariai[3];
+      /* 0x36a2 */ char m_Before_StatWariai[3];
+      /* 0x36a5 */ char Padding_1060;
+      /* 0x36a6 */ short m_WariaiSa[3];
+      union
+      {
+        struct /* bitfield */
+        {
+          /* 0x36ac */ unsigned char freturnmain : 1; /* bit position: 0 */
+          /* 0x36ac */ unsigned char fendmenu : 1; /* bit position: 1 */
+          /* 0x36ac */ unsigned char fdrawgraph : 1; /* bit position: 2 */
+          /* 0x36ac */ unsigned char fmainstartend : 1; /* bit position: 3 */
+          /* 0x36ac */ unsigned char fmainmenu : 1; /* bit position: 4 */
+          /* 0x36ac */ unsigned char fsubmissionend : 1; /* bit position: 5 */
+          /* 0x36ac */ unsigned char fFadeOutExit : 1; /* bit position: 6 */
+          /* 0x36ac */ unsigned char pad1 : 1; /* bit position: 7 */
+        }; /* bitfield */
+        /* 0x36ac */ unsigned char m_Mainflag;
+      }; /* size: 0x0001 */
+      /* 0x36ad */ // char Padding_1061; // edited
+      /* 0x36ae */ short m_MenuInfoCounter;
+      /* 0x36b0 */ short m_MenuInfoLenght;
+      /* 0x36b2 */ short m_MenuIconShift_X[7];
+      /* 0x36c0 */ short m_MenuIconShift_COUNTER[6];
+      /* 0x36cc */ char m_DotCircleXY_Grid[23][23][2];
+      struct /* bitfield */
+      {
+        /* 0x3aee */ unsigned char m_Jimaku : 1; /* bit position: 0 */
+        /* 0x3aee */ unsigned char m_JimakuTMP : 1; /* bit position: 1 */
+        /* 0x3aee */ unsigned char m_MotionFlag : 1; /* bit position: 2 */
+        /* 0x3aee */ unsigned char m_MotionFlagTMP : 1; /* bit position: 3 */
+        /* 0x3aee */ unsigned char m_CamAxisXFlag : 1; /* bit position: 4 */
+        /* 0x3aee */ unsigned char m_CamAxisXFlagTMP : 1; /* bit position: 5 */
+        /* 0x3aee */ unsigned char m_CamAxisYFlag : 1; /* bit position: 6 */
+        /* 0x3aee */ unsigned char m_CamAxisYFlagTMP : 1; /* bit position: 7 */
+      }; /* bitfield */
+      /* 0x3aee */ unsigned char m_Jimakuflag;
+      /* 0x3aef */ bool m_MotionFlagNowOld[2];
+      /* 0x3af1 */ char Padding_1062[3];
+      /* 0x3af4 */ struct tagGHMR_TEX m_ItemImage;
+      /* 0x3b1c */ short m_SelectItemId[2];
+      /* 0x3b20 */ short m_ItemKeyPos[2];
+      /* 0x3b24 */ short m_ItemKeyStat[2];
+      /* 0x3b28 */ short m_ItemCursorCounter;
+      /* 0x3b2a */ short m_LoadItemID;
+      /* 0x3b2c */ short m_ItemWordNum[2];
+      /* 0x3b30 */ short m_ScrollCounter;
+      /* 0x3b32 */ short m_UseBoxCounter[2];
+      /* 0x3b36 */ short m_ItemImageCounter;
+      union
+      {
+        struct /* bitfield */
+        {
+          /* 0x3b38 */ unsigned char fitemload : 2; /* bit position: 0 */
+          /* 0x3b38 */ unsigned char floadimage : 1; /* bit position: 2 */
+          /* 0x3b38 */ unsigned char pad2 : 5; /* bit position: 3 */
+        }; /* bitfield */
+        /* 0x3b38 */ unsigned char m_Itemflag;
+      }; /* size: 0x0001 */
+      /* 0x3b39 */ char Padding_1063;
+      /* 0x3b3a */ short m_OptionKeyStat[2];
+      /* 0x3b3e */ short m_TempVolume[2];
+      /* 0x3b42 */ short m_Volume_Real[2];
+      /* 0x3b46 */ short m_Volume_Wariai[2];
+      /* 0x3b4a */ short m_Volume_WariaiTMP[2];
+      /* 0x3b4e */ short m_BikeTypeCounter;
+      /* 0x3b50 */ bool m_OptionSettingFlag;
+      /* 0x3b51 */ bool m_OptionSettingFlagOld;
+      union
+      {
+        struct /* bitfield */
+        {
+          /* 0x3b52 */ unsigned char fste_mono : 2; /* bit position: 0 */
+          /* 0x3b52 */ unsigned char fsoundtype : 2; /* bit position: 2 */
+          /* 0x3b52 */ unsigned char pad3 : 4; /* bit position: 4 */
+        }; /* bitfield */
+        /* 0x3b52 */ unsigned char m_Optionflag;
+      }; /* size: 0x0001 */
+      /* 0x3b53 */ char Padding_1064;
+      /* 0x3b54 */ class HrMap* m_pMap;
+      /* 0x3b58 */ char m_MapScale;
+      /* 0x3b59 */ char Padding_1065;
+      /* 0x3b5a */ short m_MapInfoCounter;
+      /* 0x3b5c */ char m_SelectWeapon;
+      /* 0x3b5d */ char Padding_1066[3];
+      /* 0x3b60 */ int m_WeaponWordLength;
+      /* 0x3b64 */ char m_SelectSubjob[2];
+      /* 0x3b66 */ char m_SubjobMode;
+      /* 0x3b67 */ char m_WB_SubjobMode;
+      /* 0x3b68 */ char m_InfoScrollVec;
+      /* 0x3b69 */ char m_CancelAnimCounter;
+      /* 0x3b6a */ char m_CancelCursol[2];
+      /* 0x3b6c */ char m_CancelMode;
+      /* 0x3b6d */ char Padding_1067[3];
+      /* 0x3b70 */ unsigned int m_NonMissionMesHandl;
+      /* 0x3b74 */ short m_CursorAnimCounter;
+      /* 0x3b76 */ short m_SubjobCounter;
+      /* 0x3b78 */ bool m_SubMissionFlag;
+      /* 0x3b79 */ bool m_SMCantdrawFlag;
+      /* 0x3b7a */ char Padding_1068[2];
+      /* 0x3b7c */ int m_SMCantdrawCnt;
+      /* 0x3b80 */ bool freturnSubJob;
+      /* 0x3b81 */ char Padding_1069[3];
+      /* 0x3b84 */ unsigned int m_SMC_YN_WordColor[2];
+      /* 0x3b8c */ unsigned int m_SMC_YN_WakuColor[2];
+      /* 0x3b94 */ char m_SelectLovikov[2];
+      /* 0x3b96 */ char m_LovikovMode;
+      /* 0x3b97 */ char Padding_1070;
+      /* 0x3b98 */ short m_LovikovCounter;
+      /* 0x3b9a */ char m_SelectOther[2];
+      /* 0x3b9c */ char m_SelectOtherLoad[2];
+      /* 0x3b9e */ char m_OtherMode;
+      /* 0x3b9f */ char m_DemoStatus;
+      /* 0x3ba0 */ bool m_NewGameFlag;
+      /* 0x3ba1 */ char Padding_1071[3];
+      /* 0x3ba4 */ unsigned int m_NewGameYesNoColor[2];
+      /* 0x3bac */ char m_SelecNewGameYesNo[2];
+      /* 0x3bae */ bool m_NewGameYesNoSelectFlag;
+      /* 0x3baf */ unsigned char m_selectedOptionQuitGame;
+      /* 0x3bb0 */ bool m_QuitGameYesNoSelectFlag;
+      /* 0x3bb1 */ char m_SelectLoadData[2];
+      /* 0x3bb3 */ char m_SelectLoadYesNo[2];
+      /* 0x3bb5 */ unsigned char fcheckload;
+      /* 0x3bb6 */ unsigned char m_YesNoWakuAlpha[2];
+      /* 0x3bb8 */ unsigned int m_YesNoWakuColor[2];
+      /* 0x3bc0 */ unsigned int m_YesNoWakuInnerColor[2];
+      /* 0x3bc8 */ short m_OtherCounter;
+      /* 0x3bca */ short m_LoadEndChkFlag[2];
+      /* 0x3bce */ bool m_LoadEndFlag;
+      /* 0x3bcf */ bool m_OtherLoadMode;
+      /* 0x3bd0 */ bool freturnOther;
+      /* 0x3bd1 */ bool m_DataLoadFlag;
+      /* 0x3bd2 */ char Padding_1072[2];
+      /* 0x3bd4 */ unsigned int m_LoadDataColor[5];
+      /* 0x3be8 */ unsigned int m_LoadYesNoColor[2];
+      /* 0x3bf0 */ unsigned char m_Alpha;
+      /* 0x3bf1 */ char Padding_1073[3];
+      /* 0x3bf4 */ struct tagHRTASKCHECK m_CheckStaffRoll;
+      /* 0x3bfc */ int m_Soundid[2];
+      /* 0x3c04 */ class ghmGcFont* m_pMessFont;
+      /* 0x3c08 */ int m_Language;
+      /* 0x3c0c */ int mainMenuSelectedMouseInteraction;
+      /* 0x3c10 */ char pad_3c10[0xC]; // class MouseDeltaTracker mouseDeltaTracker; // edited
+      /* 0x3c1c */ const int MouseInteractionsCount[11];
+      /* 0x3c48 */ class NMH1MouseInteractionObject* MouseInteractions[11];
+      /* 0x3c74 */ long Padding_1074;
+      /* 0x3c78 */ char pad_3c78[0x1DCE]; // class NMH1MouseInteractionObject miMain[8];                 // edited
+      /* 0x4138 */ // class NMH1MouseInteractionObject miMap[3];                  // edited
+      /* 0x4300 */ // class NMH1MouseInteractionObject miRanking[1];              // edited
+      /* 0x4398 */ // class NMH1MouseInteractionObject miSide_Job[5];             // edited
+      /* 0x4690 */ // class NMH1MouseInteractionObject miSide_Job_WorkDetails[1]; // edited
+      /* 0x4728 */ // class NMH1MouseInteractionObject miSide_Job_Cancel_1[4];    // edited
+      /* 0x4988 */ // class NMH1MouseInteractionObject miSide_Job_Cancel_2[4];    // edited
+      /* 0x4be8 */ // class NMH1MouseInteractionObject miConfig[8];               // edited
+      /* 0x50a8 */ // class NMH1MouseInteractionObject miData[8];                 // edited
+      /* 0x5568 */ // class NMH1MouseInteractionObject miData_Load[9];            // edited
+    }; /* size: 0x5a46 */
+  // }; /* size: 0x5a46 */
+}; /* size: 0x5ac0 */
+
+
 class HrScreenStatus
 {
 public: // edited
