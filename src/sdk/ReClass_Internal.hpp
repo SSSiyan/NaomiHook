@@ -811,7 +811,10 @@ struct stCharaStatus
         /* 0x0300 */ unsigned int jpnDead : 1; /* bit position: 1 */
       }; /* bitfield */
     }; /* size: 0x0008 */
-    /* 0x02fc */ unsigned int flag[2];
+    /* 0x02fc */ unsigned short flag;  // 0x2fc
+                 char pad_2fe[2];
+                 unsigned short flag2; // 0x300
+                 char pad_302[2];
   }; /* size: 0x0008 */
 }; /* size: 0x0304 */
 
@@ -1088,3 +1091,191 @@ public: // edited
   }; /* size: 0x0008 */
   /* 0x1f5f8 */ class WAnimF mBikeRotY;
 }; /* size: 0x1f618 */
+
+class HrScreenStatus
+{
+public: // edited
+  /* 0x0000 */ //long Padding_1031[20]; // edited
+  /* 0x0050 */ //enum D_CLASS_STAT m_Stat; // edited
+  //union { // edited
+    /* 0x0000 */ // struct HrScreenStatus::UNION uni; // edited
+    /* 0x0000 */ // char** ParamName /* zero-length array */; // edited
+    struct
+    {
+      /* 0x0000 */ //int* Param /* zero-length array */;
+      /* 0x0001 */ char Padding_0[0x54]; // edited
+      /* 0x0054 */ /*class HrMap m_Map;*/ char padding_54[0x3a5dc];
+      /* 0x3a630 */ class HrMissionResult* m_pMissionResult;
+      /* 0x3a634 */ struct tagHRTASKCHECK m_CheckMissionResult;
+      /* 0x3a63c */ class HrInGameMenu* m_pInGameMenu;
+      /* 0x3a640 */ struct tagHRTASKCHECK m_CheckInGameMenu;
+      /* 0x3a648 */ class HrKeyGuide* m_pKeyGuide;
+      /* 0x3a64c */ struct tagHRTASKCHECK m_CheckKeyGuide;
+      /* 0x3a654 */ int m_SoundID[3];
+      /* 0x3a660 */ int m_SprLchSoundID;
+      /* 0x3a664 */ short m_Herose;
+      /* 0x3a666 */ char Padding_1033[2];
+      /* 0x3a668 */ float m_HP;
+      /* 0x3a66c */ float m_Battery;
+      /* 0x3a670 */ float m_Stamina;
+      /* 0x3a674 */ float m_Tension[2];
+      /* 0x3a67c */ int m_Money[2];
+      /* 0x3a684 */ int m_MoneyCompSoundWait;
+      /* 0x3a688 */ int m_FlagAnimCounter;
+      /* 0x3a68c */ int m_GearAnimCounter;
+      /* 0x3a690 */ int m_GearAnimFrame[2];
+      /* 0x3a698 */ int m_GearFadeCnt;
+      /* 0x3a69c */ int m_GearMaxAnimFrame;
+      /* 0x3a6a0 */ short m_GearRandCounter[2];
+      /* 0x3a6a4 */ short m_GearRandFlag;
+      /* 0x3a6a6 */ short m_Gear;
+      /* 0x3a6a8 */ short m_Counter[18];
+      /* 0x3a6cc */ short m_MoneyAppearCounter;
+      /* 0x3a6ce */ char Padding_1034[2];
+      /* 0x3a6d0 */ float m_MoneySpeed;
+      /* 0x3a6d4 */ float m_MoneyDeltaSpeed;
+      /* 0x3a6d8 */ short m_DelayCounter[18];
+      /* 0x3a6fc */ int m_GlobalCounter;
+      /* 0x3a700 */ short m_Counter_TigerGoal;
+      /* 0x3a702 */ short m_ChangeCounter;
+      /* 0x3a704 */ short m_HpAnimCounter;
+      /* 0x3a706 */ char Padding_1035[2];
+      /* 0x3a708 */ float m_HpScale;
+      /* 0x3a70c */ short m_BikeInOutCounter;
+      /* 0x3a70e */ bool m_Touring2NaturalFlag;
+      /* 0x3a70f */ bool m_Battle2NaturalFlag;
+      /* 0x3a710 */ bool m_Natural2BattleFlag;
+      /* 0x3a711 */ char Padding_1036[3];
+      /* 0x3a714 */ int m_LoadMesStat; // edited
+      /* 0x3a718 */ void* m_pMesRSL;
+      /* 0x3a71c */ int m_LogId[2][10];
+      /* 0x3a76c */ int m_LogCounter[10];
+      /* 0x3a794 */ short m_LogLineCounter;
+      /* 0x3a796 */ short m_Log_W[3];
+      /* 0x3a79c */ bool m_Log_tenmetuFlag[10];
+      /* 0x3a7a6 */ char m_Log_tenmetuCnt[32][10];
+      /* 0x3a8e6 */ char m_Log_tenmetuTmp[32][10];
+      /* 0x3aa26 */ char m_Log_tenmetuNowProgress[10];
+      /* 0x3aa30 */ unsigned char m_Log_alpha[10];
+      /* 0x3aa3a */ char m_ComboNum[2];
+      /* 0x3aa3c */ int m_ComboCounter;
+      /* 0x3aa40 */ int m_ComboDelayCounter;
+      /* 0x3aa44 */ char m_SlotDan;
+      /* 0x3aa45 */ char m_SlotDeme[3][3];
+      /* 0x3aa4e */ short m_SlotDemeCounter[3][3];
+      /* 0x3aa60 */ short m_SlotCounter;
+      /* 0x3aa62 */ bool m_PlayZoroSound;
+      /* 0x3aa63 */ bool m_LeachHazure;
+      /* 0x3aa64 */ bool m_PlayCherryZoro;
+      /* 0x3aa65 */ bool m_PlayLeachSound;
+      /* 0x3aa66 */ char Padding_1037[2];
+      /* 0x3aa68 */ int m_SlotZoromeEnshutuCounter;
+      /* 0x3aa6c */ bool m_SlotZoromeEnshutuFlag;
+      /* 0x3aa6d */ bool m_SlotSPAttackStartFlag;
+      /* 0x3aa6e */ unsigned char m_SlotZoromeAlpha;
+      /* 0x3aa6f */ unsigned char m_SlotZoromeFlashAlpha;
+      /* 0x3aa70 */ unsigned char m_SlotZoroBackAlpha;
+      /* 0x3aa71 */ char Padding_1038;
+      /* 0x3aa72 */ short m_SlotZoromeZOROME;
+      /* 0x3aa74 */ bool m_bZoromeSorotta;
+      /* 0x3aa75 */ char Padding_1039[3];
+      /* 0x3aa78 */ int m_SlotZoroBackCnt;
+      /* 0x3aa7c */ int m_SlotZoroLeaveWaitCnt;
+      /* 0x3aa80 */ bool m_SlotZoromeStartToEndFlag;
+      /* 0x3aa81 */ char Padding_1040[3];
+      /* 0x3aa84 */ char pad_3aa84[0x10][27]; // struct HrScreenStatus::HEART_BIT m_DefHeartBit[27]; // edited
+      /* 0x3ac34 */ char pad_3ac34[0x10][27]; // struct HrScreenStatus::HEART_BIT m_AmpHeartBit[27]; // edited
+      /* 0x3ade4 */ bool m_BlueHeartFlag;
+      /* 0x3ade5 */ char Padding_1041;
+      union
+      {
+        struct /* bitfield */
+        {
+          /* 0x3ade6 */ unsigned short lmode_seven : 1; /* bit position: 0 */
+          /* 0x3ade6 */ unsigned short lmode_melon : 1; /* bit position: 1 */
+          /* 0x3ade6 */ unsigned short lmode_bel : 1; /* bit position: 2 */
+          /* 0x3ade6 */ unsigned short lmode_cherry : 1; /* bit position: 3 */
+          /* 0x3ade6 */ unsigned short lmode_ber : 1; /* bit position: 4 */
+          /* 0x3ade6 */ unsigned short lmode_hopperman : 1; /* bit position: 5 */
+          /* 0x3ade6 */ unsigned short pad3 : 10; /* bit position: 6 */
+        }; /* bitfield */
+        /* 0x3ade6 */ unsigned short flaglmode;
+      }; /* size: 0x0002 */
+      /* 0x3ade8 */ unsigned char m_KeyGuideButtonID[8];
+      /* 0x3adf0 */ int m_SMMesPosX;
+      /* 0x3adf4 */ int m_SMMesPosY;
+      /* 0x3adf8 */ short m_TigerProc;
+      /* 0x3adfa */ short m_TigerCounter;
+      /* 0x3adfc */ short m_TigerTexId;
+      /* 0x3adfe */ short m_FireTexId;
+      /* 0x3ae00 */ float m_TigerXpos;
+      /* 0x3ae04 */ int m_WalkStartTick;
+      /* 0x3ae08 */ short m_TigerGoalLength;
+      /* 0x3ae0a */ bool m_TigerSPReturnFlag;
+      /* 0x3ae0b */ char Padding_1042;
+      union
+      {
+        struct /* bitfield */
+        {
+          /* 0x3ae0c */ unsigned short drawbpber : 1; /* bit position: 0 */
+          /* 0x3ae0c */ unsigned short drawhber : 1; /* bit position: 1 */
+          /* 0x3ae0c */ unsigned short drawbattery : 1; /* bit position: 2 */
+          /* 0x3ae0c */ unsigned short drawmoney : 1; /* bit position: 3 */
+          /* 0x3ae0c */ unsigned short drawtension : 1; /* bit position: 4 */
+          /* 0x3ae0c */ unsigned short drawkamae : 1; /* bit position: 5 */
+          /* 0x3ae0c */ unsigned short drawspeedmeter : 1; /* bit position: 6 */
+          /* 0x3ae0c */ unsigned short drawmap : 1; /* bit position: 7 */
+          /* 0x3ae0c */ unsigned short drawsilvia : 1; /* bit position: 8 */
+          /* 0x3ae0c */ unsigned short drawlmode : 1; /* bit position: 9 */
+          /* 0x3ae0c */ unsigned short drawkeyguide : 1; /* bit position: 10 */
+          /* 0x3ae0c */ unsigned short drawcheckpo : 1; /* bit position: 11 */
+          /* 0x3ae0c */ unsigned short pad : 4; /* bit position: 12 */
+        }; /* bitfield */
+        /* 0x3ae0c */ unsigned short flag;
+      }; /* size: 0x0002 */
+      union
+      {
+        struct /* bitfield */
+        {
+          /* 0x3ae0e */ unsigned short reqlmodedel : 1; /* bit position: 0 */
+          /* 0x3ae0e */ unsigned short tigerdirect : 1; /* bit position: 1 */
+          /* 0x3ae0e */ unsigned short tigerfire : 2; /* bit position: 2 */
+          /* 0x3ae0e */ unsigned short pad2 : 12; /* bit position: 4 */
+        }; /* bitfield */
+        /* 0x3ae0e */ unsigned short flag2;
+      }; /* size: 0x0002 */
+      union
+      {
+        struct
+        {
+          struct /* bitfield */
+          {
+            /* 0x3ae10 */ unsigned char checkpo_Checkpoint : 1; /* bit position: 0 */
+            /* 0x3ae10 */ unsigned char checkpo_Standby : 1; /* bit position: 1 */
+            /* 0x3ae10 */ unsigned char checkpo_Zenmetu : 1; /* bit position: 2 */
+            /* 0x3ae10 */ unsigned char checkpo_CantRide : 1; /* bit position: 3 */
+            /* 0x3ae10 */ unsigned char checkpo_Phone : 1; /* bit position: 4 */
+            /* 0x3ae10 */ unsigned char checkpo_NewMask : 1; /* bit position: 5 */
+            /* 0x3ae10 */ unsigned char checkpo_Senrihin : 1; /* bit position: 6 */
+          }; /* bitfield */
+          /* 0x3ae11 */ // unsigned short pad4; /* bit position: 0 */
+        }; /* size: 0x0002 */
+        /* 0x3ae10 */ unsigned short flag4;
+      }; /* size: 0x0002 */
+      /* 0x3ae12 */ short m_BatteyArram;
+      /* 0x3ae14 */ int m_AlarmSound;
+      /* 0x3ae18 */ int m_DrawType; // HrScreenStatus::STAT_DRAW_TYPE m_DrawType; // edited
+      /* 0x3ae1c */ int m_DrawTypeOld; // HrScreenStatus::STAT_DRAW_TYPE m_DrawTypeOld; // edited
+      /* 0x3ae20 */ bool m_ChargeMaxFlag;
+      /* 0x3ae21 */ bool m_ChargeMaxFlag2;
+      /* 0x3ae22 */ bool m_ChargeSEStopFlag;
+      /* 0x3ae23 */ bool m_BusFightFlag;
+      /* 0x3ae24 */ int m_ChangeMinimapIndex;
+      /* 0x3ae28 */ bool m_Flag_BatterySE;
+      /* 0x3ae29 */ bool m_Flag_StatusDataLoad;
+      /* 0x3ae2a */ bool m_Flag_StatusNewGame;
+      /* 0x3ae2b */ bool m_StatusProcFlag;
+      /* 0x3ae2c */ bool m_fPC_BatteryCharge[2];
+    }; /* size: 0x3adc7 */
+  //}; /* size: 0x3adc7 */ // edited
+}; /* size: 0x3ae30 */
