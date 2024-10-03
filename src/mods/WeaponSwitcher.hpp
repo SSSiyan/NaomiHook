@@ -9,18 +9,10 @@ public:
   static bool mod_enabled;
   static float weaponSwitchCooldown;
 
-  static uintptr_t* GetPlayerPtr(void);
-  static void PlayMotion(int inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate);
-  static void SetEquip(int inID, bool inPowUp);
-  static void SetMk3Equip();
-  static bool CheckCanAttack();
-  static bool CheckGuardMotion(bool inDefGuardNoChk);
-  static bool CheckHajikare();
-  static bool CheckTsubazering();
-  static bool CheckSideStep(int unkn);
+
 
   void toggleForceMap(bool enable);
-  static bool CanWeaponSwitch(int currentWeapon, int dPadInput);
+  static bool CanWeaponSwitch(int newWeapon);
 
   // mod name string for config
   std::string get_mod_name() const override { return "WeaponSwitcher"; }

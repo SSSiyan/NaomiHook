@@ -1530,3 +1530,180 @@ public: // edited
     }; /* size: 0x3adc7 */
   //}; /* size: 0x3adc7 */ // edited
 }; /* size: 0x3ae30 */
+
+struct GXColor
+{
+  union
+  {
+    struct
+    {
+      /* 0x0000 */ unsigned char r;
+      /* 0x0001 */ unsigned char g;
+      /* 0x0002 */ unsigned char b;
+      /* 0x0003 */ unsigned char a;
+    }; /* size: 0x0004 */
+    /* 0x0000 */ unsigned int PackedValue;
+  }; /* size: 0x0004 */
+}; /* size: 0x0004 */
+
+class CBgCtrl
+{
+public:
+enum CBGCTRL_STATUS
+{
+  CBGCTRL_STATUS_NO_DATA = 0,
+  CBGCTRL_STATUS_LOAD = 1,
+  CBGCTRL_STATUS_INIT = 2,
+  CBGCTRL_STATUS_IDLE = 3,
+  CBGCTRL_STATUS_RELEASESETUP = 4,
+  CBGCTRL_STATUS_NPCRELEASE = 5,
+  CBGCTRL_STATUS_RELEASE = 6,
+  CBGCTRL_STATUS_SNDGROUPRELEASE = 7,
+  CBGCTRL_STATUS_TESTDEMO = 8,
+  CBGCTRL_STATUS_DEMOSETUP = 9,
+  CBGCTRL_STATUS_DEMOPLAY = 10,
+  CBGCTRL_STATUS_BOSSRESULTWAIT = 11,
+  CBGCTRL_STATUS_STAFF1WAIT = 12,
+  CBGCTRL_STATUS_STAFF2WAIT = 13,
+  CBGCTRL_STATUS_SHOOTINGWAIT = 14,
+  CBGCTRL_STATUS_CHANGESTAGE = 15,
+  CBGCTRL_STATUS_NPCRSLLOAD = 16,
+  CBGCTRL_STATUS_MAX = 17,
+};
+enum CBGCTRL_LOADSTATUS
+{
+  CBGCTRL_LOADSTATUS_SETUP = 0,
+  CBGCTRL_LOADSTATUS_LOADING = 1,
+  CBGCTRL_LOADSTATUS_SCR_POOL = 2,
+  CBGCTRL_LOADSTATUS_SUBMISSIONSTATICSOUND_SET = 3,
+  CBGCTRL_LOADSTATUS_SUBMISSIONSTATICSOUND_POOL = 4,
+  CBGCTRL_LOADSTATUS_RESULTSOUND_SET = 5,
+  CBGCTRL_LOADSTATUS_RESULTSOUND_POOL = 6,
+  CBGCTRL_LOADSTATUS_SUBMISSIONSOUND_SET = 7,
+  CBGCTRL_LOADSTATUS_SUBMISSIONSOUND_POOL = 8,
+  CBGCTRL_LOADSTATUS_SOUND_SET = 9,
+  CBGCTRL_LOADSTATUS_SOUND_POOL = 10,
+  CBGCTRL_LOADSTATUS_SUB_SOUND_SET = 11,
+  CBGCTRL_LOADSTATUS_SUB_SOUND_POOL = 12,
+  CBGCTRL_LOADSTATUS_ENB_SOUND_SET = 13,
+  CBGCTRL_LOADSTATUS_ENB_SOUND_POOL = 14,
+  CBGCTRL_LOADSTATUS_SOUND_SETOK = 15,
+  CBGCTRL_LOADSTATUS_READY = 16,
+  CBGCTRL_LOADSTATUS_REQUEST = 17,
+  CBGCTRL_LOADSTATUS_NPCLOADREQUEST = 18,
+  CBGCTRL_LOADSTATUS_NPCLOADING = 19,
+  CBGCTRL_LOADSTATUS_MAX = 20,
+};
+
+  /* 0x0000 */ int Padding_1372; // edited
+  /* 0x0004 */ class ghmGcFile* m_pFile;
+  union
+  {
+    struct /* bitfield */
+    {
+      /* 0x0008 */ unsigned int m_DISABLEUPDATE : 1; /* bit position: 0 */
+      /* 0x0008 */ unsigned int m_VISIBLE : 1; /* bit position: 1 */
+      /* 0x0008 */ unsigned int m_NPCRSLREAD : 1; /* bit position: 2 */
+      /* 0x0008 */ unsigned int pad : 29; /* bit position: 3 */
+    }; /* bitfield */
+    /* 0x0008 */ unsigned int m_Flag;
+  }; /* size: 0x0004 */
+  /* 0x000c */ unsigned int m_BgScrHndl;
+  /* 0x0010 */ unsigned int m_MesHndl;
+  /* 0x0014 */ unsigned int m_SpecialStgIdx;
+  /* 0x0018 */ int m_CurrentBgX;
+  /* 0x001c */ int m_CurrentBgY;
+  /* 0x0020 */ class TGmf* mpAirGmf;
+  /* 0x0024 */ class TGmf* mpReceiveShadowGmf;
+  /* 0x0028 */ class HrStageDraw* mp_StageDraw;
+  /* 0x002c */ struct Vec m_CamPos;
+  /* 0x0038 */ bool m_ResultTex;
+  /* 0x0039 */ char Padding_1373[3];
+  /* 0x003c */ unsigned int m_ResultTexAlpha;
+  /* 0x0040 */ char pad_0x40[0xa30]; // class ghmGcFont m_ResultFont; // size = 0x0a30 // edited
+  /* 0x0a70 */ unsigned int m_ResultFontColor[2];
+  /* 0x0a78 */ int m_ResultFontTenmetuNum;
+  /* 0x0a7c */ int m_ResultFontDispTick;
+  /* 0x0a80 */ int m_ResultFontDispMaxTick;
+  /* 0x0a84 */ int m_ResultCmnTick;
+  /* 0x0a88 */ class WAnimF m_ResultPauseTileAlpha;
+  /* 0x0aa8 */ short m_DarkSideModeColor;
+  /* 0x0aaa */ bool m_DarkStageReq;
+  /* 0x0aab */ char Padding_1374;
+  /* 0x0aac */ struct STAGE_INFO* m_Stage_Info;
+  /* 0x0ab0 */ char m_NowStageName[32];
+  /* 0x0ad0 */ char m_RequestStageName[32];
+  /* 0x0af0 */ char m_NpcRslName[32];
+  /* 0x0b10 */ class ghmResGroup* m_pRsl;
+  /* 0x0b14 */ void* m_pRslData;
+  /* 0x0b18 */ bool m_IsPressData;
+  /* 0x0b19 */ char Padding_1375[3];
+  /* 0x0b1c */ class ghmResGroup* mpNpcRsl;
+  /* 0x0b20 */ void* mpNpcRslData;
+  /* 0x0b24 */ bool m_NpcVisible;
+  /* 0x0b25 */ char Padding_1376[3];
+  /* 0x0b28 */ int mPathCounter;
+  /* 0x0b2c */ class hPathManager* mp_CPathManager;
+  /* 0x0b30 */ class hPathManager* mp_MPathManager;
+  /* 0x0b34 */ class hNPCManager* mp_NpcManager;
+  /* 0x0b38 */ class hNpcInvisible* mp_NpcPlayer;
+  /* 0x0b3c */ class hNpcBike* mp_NpcBike;
+  /* 0x0b40 */ class hNpcCat* mp_NpcCat;
+  /* 0x0b44 */ class hNpcObjMan* mp_NpcObjMan;
+  /* 0x0b48 */ class TGmf* mp_NpcPhone;
+  /* 0x0b4c */ int m_CallBikeState;
+  /* 0x0b50 */ int m_CallBikeCnt;
+  /* 0x0b54 */ float m_CallBikeDist;
+  /* 0x0b58 */ int m_CallBikeSndHandle;
+  /* 0x0b5c */ int m_CallBikeSndHandle2;
+  /* 0x0b60 */ int m_CallBikeTailEndNum;
+  /* 0x0b64 */ bool m_BikeHitCarFlag;
+  /* 0x0b65 */ bool m_RankingUpGo;
+  /* 0x0b66 */ bool m_BossResultGo;
+  /* 0x0b67 */ char Padding_1377;
+  /* 0x0b68 */ int m_BossResultAfterDemoNo;
+  /* 0x0b6c */ bool m_StaffRoll1Go;
+  /* 0x0b6d */ bool m_StaffRoll2Go;
+  /* 0x0b6e */ bool m_ShootingGo;
+  /* 0x0b6f */ char Padding_1378;
+  /* 0x0b70 */ int m_TutoResultProc;
+  /* 0x0b74 */ int m_TutoResultType;
+  /* 0x0b78 */ enum _GXFogType m_FogType;
+  /* 0x0b7c */ struct GXColor m_FogColor;
+  /* 0x0b80 */ float m_FogNear;
+  /* 0x0b84 */ float m_FogFar;
+  /* 0x0b88 */ unsigned int m_DenCount;
+  /* 0x0b8c */ bool m_EventPaintData;
+  /* 0x0b8d */ char Padding_1379[0x3];
+  /* 0x0b90 */ char pad_0xb90[0x6C];// class WGcl m_CamGcl; // size = 0x6C // edited
+  /* 0x0bfc */ char pad_bfc[0x30];//class ghmGcCollObjHitResult m_CamColResult; // edited
+  /* 0x0c2c */ char pad_c2c[0x30];//class ghmGcCollObjHitResult m_CamColResultBak; // edited
+  /* 0x0c5c */ struct WGclMaterialSpec* mp_Material;
+  /* 0x0c60 */ int m_CamStatus;
+  /* 0x0c64 */ int m_CamStatusBak;
+  /* 0x0c68 */ float m_CamFov;
+  /* 0x0c6c */ int m_CamWait;
+  /* 0x0c70 */ bool m_Charge;
+  /* 0x0c71 */ char Padding_1380[3];
+  /* 0x0c74 */ struct Vec m_CamHOKAN_c;
+  /* 0x0c80 */ struct Vec m_CamHOKAN_t;
+  /* 0x0c8c */ float m_CamHOKANcount;
+  /* 0x0c90 */ int m_LocID;
+  /* 0x0c94 */ enum HRCAMERA_MODE m_CamModeBack;
+  /* 0x0c98 */ int m_ScriptArg;
+  /* 0x0c9c */ int m_ScriptMainScenarioID;
+  /* 0x0ca0 */ int m_ScriptSubMissionID;
+  /* 0x0ca4 */ int m_SubMissionSndGroupID;
+  /* 0x0ca8 */ int m_StageSndGroupID;
+  /* 0x0cac */ int m_StageSubSndGroupID;
+  /* 0x0cb0 */ int m_StageGayaID;
+  /* 0x0cb4 */ bool m_bChanged;
+  /* 0x0cb5 */ char Padding_1381[3];
+  /* 0x0cb8 */ enum CBgCtrl::CBGCTRL_STATUS m_Status;
+  /* 0x0cbc */ enum CBgCtrl::CBGCTRL_LOADSTATUS m_LDstatus;
+  /* 0x0cc0 */ bool m_RequestChangeStage;
+  /* 0x0cc1 */ bool m_DisEnableLoadingEffect;
+  /* 0x0cc2 */ bool m_BgRenderOK;
+  /* 0x0cc3 */ char Padding_1382;
+  /* 0x0cc4 */ int mReleaseWaitCount;
+}; /* size: 0x0cc8 */

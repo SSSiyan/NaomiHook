@@ -20,311 +20,409 @@ void setBit(T& flags, int bit, bool value) {
 }
 
 void PlayerTracker::on_draw_ui() {
-    if (mHRBattle* mediator = nmh_sdk::get_mediator()){
-        if (ImGui::CollapsingHeader("mHRBattle")) {
-            ImGui::InputInt("mTotalNpcNum", &mediator->mTotalNpcNum);
-            ImGui::InputInt("mTotalKillNum", &mediator->mTotalKillNum);
-            ImGui::InputInt("mKillNum", &mediator->mKillNum);
-            ImGui::InputFloat("mNpcAttackRate", &mediator->mNpcAttackRate);
+    if (CBgCtrl* CBgCtrl = nmh_sdk::get_CBgCtrl()) {
+        if (ImGui::CollapsingHeader("CBgCtrl")) {
+            uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&CBgCtrl->Padding_1372);
+            ImGui::Text("Base Address: 0x%08X", baseAddress);
+            uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&CBgCtrl->mReleaseWaitCount);
+            ImGui::Text("Target Address: 0x%08X", targetAddress);
+            uintptr_t offsetDifference = targetAddress - baseAddress;
+            ImGui::Text("Offset difference: 0x%08X", offsetDifference);
 
-            bool battlePause = getBit(mediator->mFlag, 0);
-            if (ImGui::Checkbox("battlePause", &battlePause)) setBit(mediator->mFlag, 0, battlePause);
-
-            bool tutoRun = getBit(mediator->tutoRun, 1);
-            if (ImGui::Checkbox("tutoRun", &tutoRun)) setBit(mediator->mFlag, 1, tutoRun);
-
-            bool dispStatusDisEnable = getBit(mediator->dispStatusDisEnable, 2);
-            if (ImGui::Checkbox("dispStatusDisEnable", &dispStatusDisEnable)) setBit(mediator->mFlag, 2, dispStatusDisEnable);
-
-            bool chargeDamage = getBit(mediator->chargeDamage, 3);
-            if (ImGui::Checkbox("chargeDamage", &chargeDamage)) setBit(mediator->mFlag, 3, chargeDamage);
+            bool disableUpdate = getBit(CBgCtrl->m_Flag, 0);
+            if (ImGui::Checkbox("m_DISABLEUPDATE", &disableUpdate)) setBit(CBgCtrl->m_Flag, 0, disableUpdate);
+            bool visible = getBit(CBgCtrl->m_Flag, 1);
+            if (ImGui::Checkbox("m_VISIBLE", &visible)) setBit(CBgCtrl->m_Flag, 1, visible);
+            bool npcrslRead = getBit(CBgCtrl->m_Flag, 2);
+            if (ImGui::Checkbox("m_NPCRSLREAD", &npcrslRead)) setBit(CBgCtrl->m_Flag, 2, npcrslRead);
+            ImGui::InputInt("m_BgScrHndl", (int*)&CBgCtrl->m_BgScrHndl);
+            ImGui::InputInt("m_MesHndl", (int*)&CBgCtrl->m_MesHndl);
+            ImGui::InputInt("m_SpecialStgIdx", (int*)&CBgCtrl->m_SpecialStgIdx);
+            ImGui::InputInt("m_CurrentBgX", &CBgCtrl->m_CurrentBgX);
+            ImGui::InputInt("m_CurrentBgY", &CBgCtrl->m_CurrentBgY);
+            ImGui::Text("mpAirGmf Address: 0x%08X", (uintptr_t)CBgCtrl->mpAirGmf);
+            ImGui::Text("mpReceiveShadowGmf Address: 0x%08X", (uintptr_t)CBgCtrl->mpReceiveShadowGmf);
+            ImGui::Text("mp_StageDraw Address: 0x%08X", (uintptr_t)CBgCtrl->mp_StageDraw);
+            ImGui::InputFloat3("m_CamPos", (float*)&CBgCtrl->m_CamPos);
+            ImGui::Checkbox("m_ResultTex", &CBgCtrl->m_ResultTex);
+            ImGui::InputInt("m_ResultTexAlpha", (int*)&CBgCtrl->m_ResultTexAlpha);
+            ImGui::InputInt2("m_ResultFontColor", (int*)&CBgCtrl->m_ResultFontColor);
+            ImGui::InputInt("m_ResultFontTenmetuNum", &CBgCtrl->m_ResultFontTenmetuNum);
+            ImGui::InputInt("m_ResultFontDispTick", &CBgCtrl->m_ResultFontDispTick);
+            ImGui::InputInt("m_ResultFontDispMaxTick", &CBgCtrl->m_ResultFontDispMaxTick);
+            ImGui::InputInt("m_ResultCmnTick", &CBgCtrl->m_ResultCmnTick);
+            ImGui::Text("m_ResultPauseTileAlpha Address: 0x%08X", (uintptr_t)&CBgCtrl->m_ResultPauseTileAlpha);
+            ImGui::InputScalar("m_DarkSideModeColor", ImGuiDataType_S16, &CBgCtrl->m_DarkSideModeColor);
+            ImGui::Checkbox("m_DarkStageReq", &CBgCtrl->m_DarkStageReq);
+            ImGui::Text("m_Stage_Info Address: 0x%08X", (uintptr_t)CBgCtrl->m_Stage_Info);
+            ImGui::InputText("m_NowStageName", CBgCtrl->m_NowStageName, IM_ARRAYSIZE(CBgCtrl->m_NowStageName));
+            ImGui::InputText("m_RequestStageName", CBgCtrl->m_RequestStageName, IM_ARRAYSIZE(CBgCtrl->m_RequestStageName));
+            ImGui::InputText("m_NpcRslName", CBgCtrl->m_NpcRslName, IM_ARRAYSIZE(CBgCtrl->m_NpcRslName));
+            ImGui::Text("m_pRsl Address: 0x%08X", (uintptr_t)CBgCtrl->m_pRsl);
+            ImGui::Text("m_pRslData Address: 0x%08X", (uintptr_t)CBgCtrl->m_pRslData);
+            ImGui::Checkbox("m_IsPressData", &CBgCtrl->m_IsPressData);
+            ImGui::Text("mpNpcRsl Address: 0x%08X", (uintptr_t)CBgCtrl->mpNpcRsl);
+            ImGui::Text("mpNpcRslData Address: 0x%08X", (uintptr_t)CBgCtrl->mpNpcRslData);
+            ImGui::Checkbox("m_NpcVisible", &CBgCtrl->m_NpcVisible);
+            ImGui::InputInt("mPathCounter", &CBgCtrl->mPathCounter);
+            ImGui::Text("mp_CPathManager Address: 0x%08X", (uintptr_t)CBgCtrl->mp_CPathManager);
+            ImGui::Text("mp_MPathManager Address: 0x%08X", (uintptr_t)CBgCtrl->mp_MPathManager);
+            ImGui::Text("mp_NpcManager Address: 0x%08X", (uintptr_t)CBgCtrl->mp_NpcManager);
+            ImGui::Text("mp_NpcPlayer Address: 0x%08X", (uintptr_t)CBgCtrl->mp_NpcPlayer);
+            ImGui::Text("mp_NpcBike Address: 0x%08X", (uintptr_t)CBgCtrl->mp_NpcBike);
+            ImGui::Text("mp_NpcCat Address: 0x%08X", (uintptr_t)CBgCtrl->mp_NpcCat);
+            ImGui::Text("mp_NpcObjMan Address: 0x%08X", (uintptr_t)CBgCtrl->mp_NpcObjMan);
+            ImGui::Text("mp_NpcPhone Address: 0x%08X", (uintptr_t)CBgCtrl->mp_NpcPhone);
+            ImGui::InputInt("m_CallBikeState", &CBgCtrl->m_CallBikeState);
+            ImGui::InputInt("m_CallBikeCnt", &CBgCtrl->m_CallBikeCnt);
+            ImGui::InputFloat("m_CallBikeDist", &CBgCtrl->m_CallBikeDist);
+            ImGui::InputInt("m_CallBikeSndHandle", &CBgCtrl->m_CallBikeSndHandle);
+            ImGui::InputInt("m_CallBikeSndHandle2", &CBgCtrl->m_CallBikeSndHandle2);
+            ImGui::InputInt("m_CallBikeTailEndNum", &CBgCtrl->m_CallBikeTailEndNum);
+            ImGui::Checkbox("m_BikeHitCarFlag", &CBgCtrl->m_BikeHitCarFlag);
+            ImGui::Checkbox("m_RankingUpGo", &CBgCtrl->m_RankingUpGo);
+            ImGui::Checkbox("m_BossResultGo", &CBgCtrl->m_BossResultGo);
+            ImGui::InputInt("m_BossResultAfterDemoNo", &CBgCtrl->m_BossResultAfterDemoNo);
+            ImGui::Checkbox("m_StaffRoll1Go", &CBgCtrl->m_StaffRoll1Go);
+            ImGui::Checkbox("m_StaffRoll2Go", &CBgCtrl->m_StaffRoll2Go);
+            ImGui::Checkbox("m_ShootingGo", &CBgCtrl->m_ShootingGo);
+            ImGui::InputInt("m_TutoResultProc", &CBgCtrl->m_TutoResultProc);
+            ImGui::InputInt("m_TutoResultType", &CBgCtrl->m_TutoResultType);
+            ImGui::InputInt("m_FogType", (int*)&CBgCtrl->m_FogType);
+            ImGui::ColorEdit4("m_FogColor", (float*)&CBgCtrl->m_FogColor);
+            ImGui::InputFloat("m_FogNear", &CBgCtrl->m_FogNear);
+            ImGui::InputFloat("m_FogFar", &CBgCtrl->m_FogFar);
+            ImGui::InputInt("m_DenCount", (int*)&CBgCtrl->m_DenCount);
+            ImGui::Checkbox("m_EventPaintData", &CBgCtrl->m_EventPaintData);
+            ImGui::InputInt("m_CamStatus", &CBgCtrl->m_CamStatus);
+            ImGui::InputInt("m_CamStatusBak", &CBgCtrl->m_CamStatusBak);
+            ImGui::InputFloat("m_CamFov", &CBgCtrl->m_CamFov);
+            ImGui::InputInt("m_CamWait", &CBgCtrl->m_CamWait);
+            ImGui::Checkbox("m_Charge", &CBgCtrl->m_Charge);
+            ImGui::InputFloat3("m_CamHOKAN_c", (float*)&CBgCtrl->m_CamHOKAN_c);
+            ImGui::InputFloat3("m_CamHOKAN_t", (float*)&CBgCtrl->m_CamHOKAN_t);
+            ImGui::InputFloat("m_CamHOKANcount", &CBgCtrl->m_CamHOKANcount);
+            ImGui::InputInt("m_LocID", &CBgCtrl->m_LocID);
+            ImGui::InputInt("m_CamModeBack", (int*)&CBgCtrl->m_CamModeBack);
+            ImGui::InputInt("m_ScriptArg", &CBgCtrl->m_ScriptArg);
+            ImGui::InputInt("m_ScriptMainScenarioID", &CBgCtrl->m_ScriptMainScenarioID);
+            ImGui::InputInt("m_ScriptSubMissionID", &CBgCtrl->m_ScriptSubMissionID);
+            ImGui::InputInt("m_SubMissionSndGroupID", &CBgCtrl->m_SubMissionSndGroupID);
+            ImGui::InputInt("m_StageSndGroupID", &CBgCtrl->m_StageSndGroupID);
+            ImGui::InputInt("m_StageSubSndGroupID", &CBgCtrl->m_StageSubSndGroupID);
+            ImGui::InputInt("m_StageGayaID", &CBgCtrl->m_StageGayaID);
+            ImGui::Checkbox("m_bChanged", &CBgCtrl->m_bChanged);
+            ImGui::InputInt("m_Status", (int*)&CBgCtrl->m_Status);
+            ImGui::InputInt("m_LDstatus", (int*)&CBgCtrl->m_LDstatus);
+            ImGui::Checkbox("m_RequestChangeStage", &CBgCtrl->m_RequestChangeStage);
+            ImGui::Checkbox("m_DisEnableLoadingEffect", &CBgCtrl->m_DisEnableLoadingEffect);
+            ImGui::Checkbox("m_BgRenderOK", &CBgCtrl->m_BgRenderOK);
+            ImGui::InputInt("mReleaseWaitCount", &CBgCtrl->mReleaseWaitCount);
         }
-        if (ImGui::CollapsingHeader("HrScreenStatus")) {
-            if (mediator->mBtEffect.pScreenStatus) {
-                uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mediator->mBtEffect.pScreenStatus->Padding_0[0]);
-                ImGui::Text("Base Address: 0x%08X", baseAddress);
-                uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&mediator->mBtEffect.pScreenStatus->m_StatusProcFlag);
-                ImGui::Text("Target Address: 0x%08X", targetAddress);
-                uintptr_t offsetDifference = targetAddress - baseAddress;
-                ImGui::Text("Offset difference: 0x%08X", offsetDifference);
-                ImGui::Text("Param Section");
-                ImGui::InputInt3("Sound IDs", mediator->mBtEffect.pScreenStatus->m_SoundID);
-                ImGui::InputInt("SprLch Sound ID", &mediator->mBtEffect.pScreenStatus->m_SprLchSoundID);
-                ImGui::InputScalar("Herose", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_Herose);
-                ImGui::SliderFloat("HP", &mediator->mBtEffect.pScreenStatus->m_HP, 0.0f, 100.0f); // Assuming ranges
-                ImGui::SliderFloat("Battery", &mediator->mBtEffect.pScreenStatus->m_Battery, 0.0f, 100.0f);
-                ImGui::SliderFloat("Stamina", &mediator->mBtEffect.pScreenStatus->m_Stamina, 0.0f, 100.0f);
-                ImGui::SliderFloat2("Tension", mediator->mBtEffect.pScreenStatus->m_Tension, 0.0f, 100.0f);
-                ImGui::InputInt2("Money", mediator->mBtEffect.pScreenStatus->m_Money);
-                ImGui::InputInt("Money Comp Sound Wait", &mediator->mBtEffect.pScreenStatus->m_MoneyCompSoundWait);
-                ImGui::InputInt("Flag Anim Counter", &mediator->mBtEffect.pScreenStatus->m_FlagAnimCounter);
-                ImGui::InputInt("Gear Anim Counter", &mediator->mBtEffect.pScreenStatus->m_GearAnimCounter);
-                ImGui::InputInt2("Gear Anim Frame", mediator->mBtEffect.pScreenStatus->m_GearAnimFrame);
-                ImGui::InputInt("Gear Fade Count", &mediator->mBtEffect.pScreenStatus->m_GearFadeCnt);
-                ImGui::InputInt("Gear Max Anim Frame", &mediator->mBtEffect.pScreenStatus->m_GearMaxAnimFrame);
-                ImGui::InputScalar("Gear Rand Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_GearRandCounter[0]);
-                ImGui::InputScalar("Gear Rand Counter 2", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_GearRandCounter[1]);
-                ImGui::InputScalar("Gear Rand Flag", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_GearRandFlag);
-                ImGui::InputScalar("Gear", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_Gear);
-                ImGui::InputScalar("Counters", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_Counter);
-                ImGui::InputScalar("Money Appear Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_MoneyAppearCounter);
-                ImGui::SliderFloat("Money Speed", &mediator->mBtEffect.pScreenStatus->m_MoneySpeed, 0.0f, 100.0f);
-                ImGui::SliderFloat("Money Delta Speed", &mediator->mBtEffect.pScreenStatus->m_MoneyDeltaSpeed, -100.0f, 100.0f);
-                ImGui::InputScalar("Delay Counters", ImGuiDataType_S16, mediator->mBtEffect.pScreenStatus->m_DelayCounter);
-                ImGui::InputInt("Global Counter", &mediator->mBtEffect.pScreenStatus->m_GlobalCounter);
-                ImGui::InputScalar("Counter Tiger Goal", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_Counter_TigerGoal);
-                ImGui::InputScalar("Change Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_ChangeCounter);
-                ImGui::InputScalar("Hp Anim Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_HpAnimCounter);
-                ImGui::SliderFloat("Hp Scale", &mediator->mBtEffect.pScreenStatus->m_HpScale, 0.0f, 10.0f);
-                ImGui::InputScalar("Bike In/Out Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_BikeInOutCounter);
-                ImGui::Checkbox("Touring2 Natural Flag", &mediator->mBtEffect.pScreenStatus->m_Touring2NaturalFlag);
-                ImGui::Checkbox("Battle2 Natural Flag", &mediator->mBtEffect.pScreenStatus->m_Battle2NaturalFlag);
-                ImGui::Checkbox("Natural2 Battle Flag", &mediator->mBtEffect.pScreenStatus->m_Natural2BattleFlag);
-                ImGui::InputInt("Load Mes Stat", &mediator->mBtEffect.pScreenStatus->m_LoadMesStat);
-                ImGui::InputScalar("Log W", ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_Log_W);
-                ImGui::InputScalar("Log Tenmetu Now Progress", ImGuiDataType_S8, mediator->mBtEffect.pScreenStatus->m_Log_tenmetuNowProgress);
-                ImGui::InputScalar("Log Alpha", ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_Log_alpha);
-                ImGui::InputScalar("Combo Num", ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_ComboNum[0]);
-                ImGui::InputScalar("Combo Num 2", ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_ComboNum[1]);
-                ImGui::InputInt("Combo Counter", &mediator->mBtEffect.pScreenStatus->m_ComboCounter);
-                ImGui::InputInt("Combo Delay Counter", &mediator->mBtEffect.pScreenStatus->m_ComboDelayCounter);
-                ImGui::InputScalar("Slot Dan", ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_SlotDan);
+    }
+    if (mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle()) {
+        if (ImGui::CollapsingHeader("mHRBattle")) {
+            ImGui::InputInt("mBtlInitProc", (int*)&mHRBattle->mBtlInitProc);
+            ImGui::InputInt("mBtlFrameProc", (int*)&mHRBattle->mBtlFrameProc);
+            ImGui::Text("struct mCamStatus Address: 0x%08X", ((uintptr_t)(&mHRBattle->mCamStatus)));
+            ImGui::InputInt("mTotalNpcNum", &mHRBattle->mTotalNpcNum); 
+            ImGui::InputInt("mTotalKillNum", &mHRBattle->mTotalKillNum);
+            ImGui::InputInt("mKillNum", &mHRBattle->mKillNum);
+            ImGui::InputFloat("mNpcAttackRate", &mHRBattle->mNpcAttackRate);
+            bool battlePause = getBit(mHRBattle->mFlag, 0);
+            if (ImGui::Checkbox("battlePause", &battlePause)) setBit(mHRBattle->mFlag, 0, battlePause);
+            bool tutoRun = getBit(mHRBattle->tutoRun, 1);
+            if (ImGui::Checkbox("tutoRun", &tutoRun)) setBit(mHRBattle->mFlag, 1, tutoRun);
+            bool dispStatusDisEnable = getBit(mHRBattle->dispStatusDisEnable, 2);
+            if (ImGui::Checkbox("dispStatusDisEnable", &dispStatusDisEnable)) setBit(mHRBattle->mFlag, 2, dispStatusDisEnable);
+            bool chargeDamage = getBit(mHRBattle->chargeDamage, 3);
+            if (ImGui::Checkbox("chargeDamage", &chargeDamage)) setBit(mHRBattle->mFlag, 3, chargeDamage);
+        }
+        if (ImGui::CollapsingHeader("stBtEffect")) {
+            ImGui::InputInt("slowMotTotalTick", &mHRBattle->mBtEffect.slowMotTotalTick);
+            ImGui::InputInt("slowMotTick", &mHRBattle->mBtEffect.slowMotTick);
+            ImGui::InputInt("bulletSlowTick", &mHRBattle->mBtEffect.bulletSlowTick);
+            ImGui::InputInt("bossBreakSlowTick", &mHRBattle->mBtEffect.bossBreakSlowTick);
+        }
+        if (ImGui::CollapsingHeader("mHRBattle HrScreenStatus")) {
+            if (mHRBattle->mBtEffect.pScreenStatus) {
+                // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mHRBattle->mBtEffect.pScreenStatus->Padding_0[0]);
+                // ImGui::Text("Base Address: 0x%08X", baseAddress);
+                // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&mHRBattle->mBtEffect.pScreenStatus->m_StatusProcFlag);
+                // ImGui::Text("Target Address: 0x%08X", targetAddress);
+                // uintptr_t offsetDifference = targetAddress - baseAddress;
+                // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
+
+                ImGui::InputInt3("Sound IDs", mHRBattle->mBtEffect.pScreenStatus->m_SoundID);
+                ImGui::InputInt("SprLch Sound ID", &mHRBattle->mBtEffect.pScreenStatus->m_SprLchSoundID);
+                ImGui::InputScalar("Herose", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_Herose);
+                ImGui::SliderFloat("HP", &mHRBattle->mBtEffect.pScreenStatus->m_HP, 0.0f, 100.0f); // Assuming ranges
+                ImGui::SliderFloat("Battery", &mHRBattle->mBtEffect.pScreenStatus->m_Battery, 0.0f, 100.0f);
+                ImGui::SliderFloat("Stamina", &mHRBattle->mBtEffect.pScreenStatus->m_Stamina, 0.0f, 100.0f);
+                ImGui::SliderFloat2("Tension", mHRBattle->mBtEffect.pScreenStatus->m_Tension, 0.0f, 100.0f);
+                ImGui::InputInt2("Money", mHRBattle->mBtEffect.pScreenStatus->m_Money);
+                ImGui::InputInt("Money Comp Sound Wait", &mHRBattle->mBtEffect.pScreenStatus->m_MoneyCompSoundWait);
+                ImGui::InputInt("Flag Anim Counter", &mHRBattle->mBtEffect.pScreenStatus->m_FlagAnimCounter);
+                ImGui::InputInt("Gear Anim Counter", &mHRBattle->mBtEffect.pScreenStatus->m_GearAnimCounter);
+                ImGui::InputInt2("Gear Anim Frame", mHRBattle->mBtEffect.pScreenStatus->m_GearAnimFrame);
+                ImGui::InputInt("Gear Fade Count", &mHRBattle->mBtEffect.pScreenStatus->m_GearFadeCnt);
+                ImGui::InputInt("Gear Max Anim Frame", &mHRBattle->mBtEffect.pScreenStatus->m_GearMaxAnimFrame);
+                ImGui::InputScalar("Gear Rand Counter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_GearRandCounter[0]);
+                ImGui::InputScalar("Gear Rand Counter 2", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_GearRandCounter[1]);
+                ImGui::InputScalar("Gear Rand Flag", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_GearRandFlag);
+                ImGui::InputScalar("Gear", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_Gear);
+                ImGui::InputScalar("Counters", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_Counter);
+                ImGui::InputScalar("Money Appear Counter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_MoneyAppearCounter);
+                ImGui::SliderFloat("Money Speed", &mHRBattle->mBtEffect.pScreenStatus->m_MoneySpeed, 0.0f, 100.0f);
+                ImGui::SliderFloat("Money Delta Speed", &mHRBattle->mBtEffect.pScreenStatus->m_MoneyDeltaSpeed, -100.0f, 100.0f);
+                ImGui::InputScalar("Delay Counters", ImGuiDataType_S16, mHRBattle->mBtEffect.pScreenStatus->m_DelayCounter);
+                ImGui::InputInt("Global Counter", &mHRBattle->mBtEffect.pScreenStatus->m_GlobalCounter);
+                ImGui::InputScalar("Counter Tiger Goal", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_Counter_TigerGoal);
+                ImGui::InputScalar("Change Counter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_ChangeCounter);
+                ImGui::InputScalar("Hp Anim Counter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_HpAnimCounter);
+                ImGui::SliderFloat("Hp Scale", &mHRBattle->mBtEffect.pScreenStatus->m_HpScale, 0.0f, 10.0f);
+                ImGui::InputScalar("Bike In/Out Counter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_BikeInOutCounter);
+                ImGui::Checkbox("Touring2 Natural Flag", &mHRBattle->mBtEffect.pScreenStatus->m_Touring2NaturalFlag);
+                ImGui::Checkbox("Battle2 Natural Flag", &mHRBattle->mBtEffect.pScreenStatus->m_Battle2NaturalFlag);
+                ImGui::Checkbox("Natural2 Battle Flag", &mHRBattle->mBtEffect.pScreenStatus->m_Natural2BattleFlag);
+                ImGui::InputInt("Load Mes Stat", &mHRBattle->mBtEffect.pScreenStatus->m_LoadMesStat);
+                ImGui::InputScalar("Log W", ImGuiDataType_S32, &mHRBattle->mBtEffect.pScreenStatus->m_Log_W);
+                ImGui::InputScalar("Log Tenmetu Now Progress", ImGuiDataType_S8, mHRBattle->mBtEffect.pScreenStatus->m_Log_tenmetuNowProgress);
+                ImGui::InputScalar("Log Alpha", ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_Log_alpha);
+                ImGui::InputScalar("Combo Num", ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_ComboNum[0]);
+                ImGui::InputScalar("Combo Num 2", ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_ComboNum[1]);
+                ImGui::InputInt("Combo Counter", &mHRBattle->mBtEffect.pScreenStatus->m_ComboCounter);
+                ImGui::InputInt("Combo Delay Counter", &mHRBattle->mBtEffect.pScreenStatus->m_ComboDelayCounter);
+                ImGui::InputScalar("Slot Dan", ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_SlotDan);
                 for (int i = 0; i < 3; i++) {
-                    ImGui::InputScalar(fmt::format("Slot Deme [{}]", i).c_str(), ImGuiDataType_S8, mediator->mBtEffect.pScreenStatus->m_SlotDeme[i]);
-                    ImGui::InputScalar(fmt::format("Slot Deme Counter [{}]", i).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_SlotDemeCounter[i]);
+                    ImGui::InputScalar(fmt::format("Slot Deme [{}]", i).c_str(), ImGuiDataType_S8, mHRBattle->mBtEffect.pScreenStatus->m_SlotDeme[i]);
+                    ImGui::InputScalar(fmt::format("Slot Deme Counter [{}]", i).c_str(), ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_SlotDemeCounter[i]);
                 }
-                ImGui::InputScalar("Slot Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_SlotCounter);
-                ImGui::Checkbox("Play Zoro Sound", &mediator->mBtEffect.pScreenStatus->m_PlayZoroSound);
-                ImGui::Checkbox("Leach Hazure", &mediator->mBtEffect.pScreenStatus->m_LeachHazure);
-                ImGui::Checkbox("Play Cherry Zoro", &mediator->mBtEffect.pScreenStatus->m_PlayCherryZoro);
-                ImGui::Checkbox("Play Leach Sound", &mediator->mBtEffect.pScreenStatus->m_PlayLeachSound);
-                ImGui::InputInt("Slot Zorome Enshutu Counter", &mediator->mBtEffect.pScreenStatus->m_SlotZoromeEnshutuCounter);
-                ImGui::Checkbox("Slot Zorome Enshutu Flag", &mediator->mBtEffect.pScreenStatus->m_SlotZoromeEnshutuFlag);
-                ImGui::Checkbox("Slot SP Attack Start Flag", &mediator->mBtEffect.pScreenStatus->m_SlotSPAttackStartFlag);
-                ImGui::InputScalar("Slot Zorome Alpha", ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_SlotZoromeAlpha);
-                ImGui::InputScalar("Slot Zorome Flash Alpha", ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_SlotZoromeFlashAlpha);
-                ImGui::InputScalar("Slot Zoro Back Alpha", ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_SlotZoroBackAlpha);
-                ImGui::InputScalar("Slot Zorome ZOROME", ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_SlotZoromeZOROME);
+                ImGui::InputScalar("Slot Counter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_SlotCounter);
+                ImGui::Checkbox("Play Zoro Sound", &mHRBattle->mBtEffect.pScreenStatus->m_PlayZoroSound);
+                ImGui::Checkbox("Leach Hazure", &mHRBattle->mBtEffect.pScreenStatus->m_LeachHazure);
+                ImGui::Checkbox("Play Cherry Zoro", &mHRBattle->mBtEffect.pScreenStatus->m_PlayCherryZoro);
+                ImGui::Checkbox("Play Leach Sound", &mHRBattle->mBtEffect.pScreenStatus->m_PlayLeachSound);
+                ImGui::InputInt("Slot Zorome Enshutu Counter", &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoromeEnshutuCounter);
+                ImGui::Checkbox("Slot Zorome Enshutu Flag", &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoromeEnshutuFlag);
+                ImGui::Checkbox("Slot SP Attack Start Flag", &mHRBattle->mBtEffect.pScreenStatus->m_SlotSPAttackStartFlag);
+                ImGui::InputScalar("Slot Zorome Alpha", ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoromeAlpha);
+                ImGui::InputScalar("Slot Zorome Flash Alpha", ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoromeFlashAlpha);
+                ImGui::InputScalar("Slot Zoro Back Alpha", ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoroBackAlpha);
+                ImGui::InputScalar("Slot Zorome ZOROME", ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoromeZOROME);
 
-                ImGui::Checkbox("Zorome Sorotta", &mediator->mBtEffect.pScreenStatus->m_bZoromeSorotta);
-                ImGui::InputInt("Slot Zoro Back Cnt", &mediator->mBtEffect.pScreenStatus->m_SlotZoroBackCnt);
-                ImGui::InputInt("Slot Zoro Leave Wait Cnt", &mediator->mBtEffect.pScreenStatus->m_SlotZoroLeaveWaitCnt);
-                ImGui::Checkbox("Slot Zorome Sorotta Start To End Flag", &mediator->mBtEffect.pScreenStatus->m_SlotZoromeStartToEndFlag);
-                ImGui::Checkbox("BlueHeartFlag", &mediator->mBtEffect.pScreenStatus->m_BlueHeartFlag);
-                bool lmode_seven = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 0);
-                if (ImGui::Checkbox("lmode_seven", &lmode_seven)) setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 0, lmode_seven);
-                bool lmode_melon = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 1);
-                if (ImGui::Checkbox("lmode_melon", &lmode_melon)) setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 1, lmode_melon);
-                bool lmode_bel = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 2);
-                if (ImGui::Checkbox("lmode_bel", &lmode_bel)) setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 2, lmode_bel);
-                bool lmode_cherry = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 3);
-                if (ImGui::Checkbox("lmode_cherry", &lmode_cherry)) setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 3, lmode_cherry);
-                bool lmode_ber = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 4);
-                if (ImGui::Checkbox("lmode_ber", &lmode_ber)) setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 4, lmode_ber);
-                bool lmode_hopperman = getBit(mediator->mBtEffect.pScreenStatus->flaglmode, 5);
-                if (ImGui::Checkbox("lmode_hopperman", &lmode_hopperman)) setBit(mediator->mBtEffect.pScreenStatus->flaglmode, 5, lmode_hopperman);
-                ImGui::InputInt("m_SMMesPosX", &mediator->mBtEffect.pScreenStatus->m_SMMesPosX);
-                ImGui::InputInt("m_SMMesPosY", &mediator->mBtEffect.pScreenStatus->m_SMMesPosY);
-                ImGui::InputScalar("m_TigerProc", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_TigerProc);
-                ImGui::InputScalar("m_TigerCounter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_TigerCounter);
-                ImGui::InputScalar("m_TigerTexId", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_TigerTexId);
-                ImGui::InputScalar("m_FireTexId", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_FireTexId);
-                ImGui::InputFloat("m_TigerXpos", &mediator->mBtEffect.pScreenStatus->m_TigerXpos);
-                ImGui::InputInt("m_WalkStartTick", &mediator->mBtEffect.pScreenStatus->m_WalkStartTick);
-                ImGui::InputScalar("m_TigerGoalLength", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_TigerGoalLength);
-                ImGui::Checkbox("m_TigerSPReturnFlag", &mediator->mBtEffect.pScreenStatus->m_TigerSPReturnFlag);
+                ImGui::Checkbox("Zorome Sorotta", &mHRBattle->mBtEffect.pScreenStatus->m_bZoromeSorotta);
+                ImGui::InputInt("Slot Zoro Back Cnt", &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoroBackCnt);
+                ImGui::InputInt("Slot Zoro Leave Wait Cnt", &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoroLeaveWaitCnt);
+                ImGui::Checkbox("Slot Zorome Sorotta Start To End Flag", &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoromeStartToEndFlag);
+                ImGui::Checkbox("BlueHeartFlag", &mHRBattle->mBtEffect.pScreenStatus->m_BlueHeartFlag);
+                bool lmode_seven = getBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 0);
+                if (ImGui::Checkbox("lmode_seven", &lmode_seven)) setBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 0, lmode_seven);
+                bool lmode_melon = getBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 1);
+                if (ImGui::Checkbox("lmode_melon", &lmode_melon)) setBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 1, lmode_melon);
+                bool lmode_bel = getBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 2);
+                if (ImGui::Checkbox("lmode_bel", &lmode_bel)) setBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 2, lmode_bel);
+                bool lmode_cherry = getBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 3);
+                if (ImGui::Checkbox("lmode_cherry", &lmode_cherry)) setBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 3, lmode_cherry);
+                bool lmode_ber = getBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 4);
+                if (ImGui::Checkbox("lmode_ber", &lmode_ber)) setBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 4, lmode_ber);
+                bool lmode_hopperman = getBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 5);
+                if (ImGui::Checkbox("lmode_hopperman", &lmode_hopperman)) setBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 5, lmode_hopperman);
+                ImGui::InputInt("m_SMMesPosX", &mHRBattle->mBtEffect.pScreenStatus->m_SMMesPosX);
+                ImGui::InputInt("m_SMMesPosY", &mHRBattle->mBtEffect.pScreenStatus->m_SMMesPosY);
+                ImGui::InputScalar("m_TigerProc", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_TigerProc);
+                ImGui::InputScalar("m_TigerCounter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_TigerCounter);
+                ImGui::InputScalar("m_TigerTexId", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_TigerTexId);
+                ImGui::InputScalar("m_FireTexId", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_FireTexId);
+                ImGui::InputFloat("m_TigerXpos", &mHRBattle->mBtEffect.pScreenStatus->m_TigerXpos);
+                ImGui::InputInt("m_WalkStartTick", &mHRBattle->mBtEffect.pScreenStatus->m_WalkStartTick);
+                ImGui::InputScalar("m_TigerGoalLength", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_TigerGoalLength);
+                ImGui::Checkbox("m_TigerSPReturnFlag", &mHRBattle->mBtEffect.pScreenStatus->m_TigerSPReturnFlag);
                 ImGui::Text("Union 1");
-                bool drawbpber = getBit(mediator->mBtEffect.pScreenStatus->flag, 0);
-                if (ImGui::Checkbox("drawbpber", &drawbpber)) setBit(mediator->mBtEffect.pScreenStatus->flag, 0, drawbpber);
-                bool drawhber = getBit(mediator->mBtEffect.pScreenStatus->flag, 1);
-                if (ImGui::Checkbox("drawhber", &drawhber)) setBit(mediator->mBtEffect.pScreenStatus->flag, 1, drawhber);
-                bool drawbattery = getBit(mediator->mBtEffect.pScreenStatus->flag, 2);
-                if (ImGui::Checkbox("drawbattery", &drawbattery)) setBit(mediator->mBtEffect.pScreenStatus->flag, 2, drawbattery);
-                bool drawmoney = getBit(mediator->mBtEffect.pScreenStatus->flag, 3);
-                if (ImGui::Checkbox("drawmoney", &drawmoney)) setBit(mediator->mBtEffect.pScreenStatus->flag, 3, drawmoney);
-                bool drawtension = getBit(mediator->mBtEffect.pScreenStatus->flag, 4);
-                if (ImGui::Checkbox("drawtension", &drawtension)) setBit(mediator->mBtEffect.pScreenStatus->flag, 4, drawtension);
-                bool drawkamae = getBit(mediator->mBtEffect.pScreenStatus->flag, 5);
-                if (ImGui::Checkbox("drawkamae", &drawkamae)) setBit(mediator->mBtEffect.pScreenStatus->flag, 5, drawkamae);
-                bool drawspeedmeter = getBit(mediator->mBtEffect.pScreenStatus->flag, 6);
-                if (ImGui::Checkbox("drawspeedmeter", &drawspeedmeter)) setBit(mediator->mBtEffect.pScreenStatus->flag, 6, drawspeedmeter);
-                bool drawmap = getBit(mediator->mBtEffect.pScreenStatus->flag, 7);
-                if (ImGui::Checkbox("drawmap", &drawmap)) setBit(mediator->mBtEffect.pScreenStatus->flag, 7, drawmap);
-                bool drawsilvia = getBit(mediator->mBtEffect.pScreenStatus->flag, 8);
-                if (ImGui::Checkbox("drawsilvia", &drawsilvia)) setBit(mediator->mBtEffect.pScreenStatus->flag, 8, drawsilvia);
-                bool drawlmode = getBit(mediator->mBtEffect.pScreenStatus->flag, 9);
-                if (ImGui::Checkbox("drawlmode", &drawlmode)) setBit(mediator->mBtEffect.pScreenStatus->flag, 9, drawlmode);
-                bool drawkeyguide = getBit(mediator->mBtEffect.pScreenStatus->flag, 10);
-                if (ImGui::Checkbox("drawkeyguide", &drawkeyguide)) setBit(mediator->mBtEffect.pScreenStatus->flag, 10, drawkeyguide);
-                bool drawcheckpo = getBit(mediator->mBtEffect.pScreenStatus->flag, 11);
-                if (ImGui::Checkbox("drawcheckpo", &drawcheckpo)) setBit(mediator->mBtEffect.pScreenStatus->flag, 11, drawcheckpo);
+                bool drawbpber = getBit(mHRBattle->mBtEffect.pScreenStatus->flag, 0);
+                if (ImGui::Checkbox("drawbpber", &drawbpber)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag, 0, drawbpber);
+                bool drawhber = getBit(mHRBattle->mBtEffect.pScreenStatus->flag, 1);
+                if (ImGui::Checkbox("drawhber", &drawhber)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag, 1, drawhber);
+                bool drawbattery = getBit(mHRBattle->mBtEffect.pScreenStatus->flag, 2);
+                if (ImGui::Checkbox("drawbattery", &drawbattery)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag, 2, drawbattery);
+                bool drawmoney = getBit(mHRBattle->mBtEffect.pScreenStatus->flag, 3);
+                if (ImGui::Checkbox("drawmoney", &drawmoney)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag, 3, drawmoney);
+                bool drawtension = getBit(mHRBattle->mBtEffect.pScreenStatus->flag, 4);
+                if (ImGui::Checkbox("drawtension", &drawtension)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag, 4, drawtension);
+                bool drawkamae = getBit(mHRBattle->mBtEffect.pScreenStatus->flag, 5);
+                if (ImGui::Checkbox("drawkamae", &drawkamae)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag, 5, drawkamae);
+                bool drawspeedmeter = getBit(mHRBattle->mBtEffect.pScreenStatus->flag, 6);
+                if (ImGui::Checkbox("drawspeedmeter", &drawspeedmeter)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag, 6, drawspeedmeter);
+                bool drawmap = getBit(mHRBattle->mBtEffect.pScreenStatus->flag, 7);
+                if (ImGui::Checkbox("drawmap", &drawmap)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag, 7, drawmap);
+                bool drawsilvia = getBit(mHRBattle->mBtEffect.pScreenStatus->flag, 8);
+                if (ImGui::Checkbox("drawsilvia", &drawsilvia)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag, 8, drawsilvia);
+                bool drawlmode = getBit(mHRBattle->mBtEffect.pScreenStatus->flag, 9);
+                if (ImGui::Checkbox("drawlmode", &drawlmode)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag, 9, drawlmode);
+                bool drawkeyguide = getBit(mHRBattle->mBtEffect.pScreenStatus->flag, 10);
+                if (ImGui::Checkbox("drawkeyguide", &drawkeyguide)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag, 10, drawkeyguide);
+                bool drawcheckpo = getBit(mHRBattle->mBtEffect.pScreenStatus->flag, 11);
+                if (ImGui::Checkbox("drawcheckpo", &drawcheckpo)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag, 11, drawcheckpo);
                 ImGui::Text("Union 2");
-                bool reqlmodedel = getBit(mediator->mBtEffect.pScreenStatus->flag2, 0);
-                if (ImGui::Checkbox("reqlmodedel", &reqlmodedel)) setBit(mediator->mBtEffect.pScreenStatus->flag2, 0, reqlmodedel);
-                bool tigerdirect = getBit(mediator->mBtEffect.pScreenStatus->flag2, 1);
-                if (ImGui::Checkbox("tigerdirect", &tigerdirect)) setBit(mediator->mBtEffect.pScreenStatus->flag2, 1, tigerdirect);
-                bool tigerfire = getBit(mediator->mBtEffect.pScreenStatus->flag2, 2);
-                if (ImGui::Checkbox("tigerfire", &tigerfire)) setBit(mediator->mBtEffect.pScreenStatus->flag2, 2, tigerfire);
+                bool reqlmodedel = getBit(mHRBattle->mBtEffect.pScreenStatus->flag2, 0);
+                if (ImGui::Checkbox("reqlmodedel", &reqlmodedel)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag2, 0, reqlmodedel);
+                bool tigerdirect = getBit(mHRBattle->mBtEffect.pScreenStatus->flag2, 1);
+                if (ImGui::Checkbox("tigerdirect", &tigerdirect)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag2, 1, tigerdirect);
+                bool tigerfire = getBit(mHRBattle->mBtEffect.pScreenStatus->flag2, 2);
+                if (ImGui::Checkbox("tigerfire", &tigerfire)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag2, 2, tigerfire);
                 ImGui::Text("Union 3");
-                bool checkpo_Checkpoint = getBit(mediator->mBtEffect.pScreenStatus->flag4, 0);
-                if (ImGui::Checkbox("checkpo_Checkpoint", &checkpo_Checkpoint)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 0, checkpo_Checkpoint);
-
-                bool checkpo_Standby = getBit(mediator->mBtEffect.pScreenStatus->flag4, 1);
-                if (ImGui::Checkbox("checkpo_Standby", &checkpo_Standby)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 1, checkpo_Standby);
-
-                bool checkpo_Zenmetu = getBit(mediator->mBtEffect.pScreenStatus->flag4, 2);
-                if (ImGui::Checkbox("checkpo_Zenmetu", &checkpo_Zenmetu)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 2, checkpo_Zenmetu);
-
-                bool checkpo_CantRide = getBit(mediator->mBtEffect.pScreenStatus->flag4, 3);
-                if (ImGui::Checkbox("checkpo_CantRide", &checkpo_CantRide)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 3, checkpo_CantRide);
-
-                bool checkpo_Phone = getBit(mediator->mBtEffect.pScreenStatus->flag4, 4);
-                if (ImGui::Checkbox("checkpo_Phone", &checkpo_Phone)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 4, checkpo_Phone);
-
-                bool checkpo_NewMask = getBit(mediator->mBtEffect.pScreenStatus->flag4, 5);
-                if (ImGui::Checkbox("checkpo_NewMask", &checkpo_NewMask)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 5, checkpo_NewMask);
-
-                bool checkpo_Senrihin = getBit(mediator->mBtEffect.pScreenStatus->flag4, 6);
-                if (ImGui::Checkbox("checkpo_Senrihin", &checkpo_Senrihin)) setBit(mediator->mBtEffect.pScreenStatus->flag4, 6, checkpo_Senrihin);
-
-                ImGui::InputScalar("m_BatteyArram", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_BatteyArram);
-                ImGui::InputInt("m_AlarmSound", &mediator->mBtEffect.pScreenStatus->m_AlarmSound);
-                ImGui::InputInt("m_DrawType", &mediator->mBtEffect.pScreenStatus->m_DrawType);
-                ImGui::InputInt("m_DrawTypeOld", &mediator->mBtEffect.pScreenStatus->m_DrawTypeOld);
-                ImGui::Checkbox("m_ChargeMaxFlag", &mediator->mBtEffect.pScreenStatus->m_ChargeMaxFlag);
-                ImGui::Checkbox("m_ChargeMaxFlag2", &mediator->mBtEffect.pScreenStatus->m_ChargeMaxFlag2);
-                ImGui::Checkbox("m_ChargeSEStopFlag", &mediator->mBtEffect.pScreenStatus->m_ChargeSEStopFlag);
-                ImGui::Checkbox("m_BusFightFlag", &mediator->mBtEffect.pScreenStatus->m_BusFightFlag);
-                ImGui::InputInt("m_ChangeMinimapIndex", &mediator->mBtEffect.pScreenStatus->m_ChangeMinimapIndex);
-                ImGui::Checkbox("m_Flag_BatterySE", &mediator->mBtEffect.pScreenStatus->m_Flag_BatterySE);
-                ImGui::Checkbox("m_Flag_StatusDataLoad", &mediator->mBtEffect.pScreenStatus->m_Flag_StatusDataLoad);
-                ImGui::Checkbox("m_Flag_StatusNewGame", &mediator->mBtEffect.pScreenStatus->m_Flag_StatusNewGame);
-                ImGui::Checkbox("m_StatusProcFlag", &mediator->mBtEffect.pScreenStatus->m_StatusProcFlag);
-                ImGui::Checkbox("m_fPC_BatteryCharge[0]", &mediator->mBtEffect.pScreenStatus->m_fPC_BatteryCharge[0]);
-                ImGui::Checkbox("m_fPC_BatteryCharge[1]", &mediator->mBtEffect.pScreenStatus->m_fPC_BatteryCharge[1]);
+                bool checkpo_Checkpoint = getBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 0);
+                if (ImGui::Checkbox("checkpo_Checkpoint", &checkpo_Checkpoint)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 0, checkpo_Checkpoint);
+                bool checkpo_Standby = getBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 1);
+                if (ImGui::Checkbox("checkpo_Standby", &checkpo_Standby)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 1, checkpo_Standby);
+                bool checkpo_Zenmetu = getBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 2);
+                if (ImGui::Checkbox("checkpo_Zenmetu", &checkpo_Zenmetu)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 2, checkpo_Zenmetu);
+                bool checkpo_CantRide = getBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 3);
+                if (ImGui::Checkbox("checkpo_CantRide", &checkpo_CantRide)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 3, checkpo_CantRide);
+                bool checkpo_Phone = getBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 4);
+                if (ImGui::Checkbox("checkpo_Phone", &checkpo_Phone)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 4, checkpo_Phone);
+                bool checkpo_NewMask = getBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 5);
+                if (ImGui::Checkbox("checkpo_NewMask", &checkpo_NewMask)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 5, checkpo_NewMask);
+                bool checkpo_Senrihin = getBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 6);
+                if (ImGui::Checkbox("checkpo_Senrihin", &checkpo_Senrihin)) setBit(mHRBattle->mBtEffect.pScreenStatus->flag4, 6, checkpo_Senrihin);
+                ImGui::InputScalar("m_BatteyArram", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_BatteyArram);
+                ImGui::InputInt("m_AlarmSound", &mHRBattle->mBtEffect.pScreenStatus->m_AlarmSound);
+                ImGui::InputInt("m_DrawType", &mHRBattle->mBtEffect.pScreenStatus->m_DrawType);
+                ImGui::InputInt("m_DrawTypeOld", &mHRBattle->mBtEffect.pScreenStatus->m_DrawTypeOld);
+                ImGui::Checkbox("m_ChargeMaxFlag", &mHRBattle->mBtEffect.pScreenStatus->m_ChargeMaxFlag);
+                ImGui::Checkbox("m_ChargeMaxFlag2", &mHRBattle->mBtEffect.pScreenStatus->m_ChargeMaxFlag2);
+                ImGui::Checkbox("m_ChargeSEStopFlag", &mHRBattle->mBtEffect.pScreenStatus->m_ChargeSEStopFlag);
+                ImGui::Checkbox("m_BusFightFlag", &mHRBattle->mBtEffect.pScreenStatus->m_BusFightFlag);
+                ImGui::InputInt("m_ChangeMinimapIndex", &mHRBattle->mBtEffect.pScreenStatus->m_ChangeMinimapIndex);
+                ImGui::Checkbox("m_Flag_BatterySE", &mHRBattle->mBtEffect.pScreenStatus->m_Flag_BatterySE);
+                ImGui::Checkbox("m_Flag_StatusDataLoad", &mHRBattle->mBtEffect.pScreenStatus->m_Flag_StatusDataLoad);
+                ImGui::Checkbox("m_Flag_StatusNewGame", &mHRBattle->mBtEffect.pScreenStatus->m_Flag_StatusNewGame);
+                ImGui::Checkbox("m_StatusProcFlag", &mHRBattle->mBtEffect.pScreenStatus->m_StatusProcFlag);
+                ImGui::Checkbox("m_fPC_BatteryCharge[0]", &mHRBattle->mBtEffect.pScreenStatus->m_fPC_BatteryCharge[0]);
+                ImGui::Checkbox("m_fPC_BatteryCharge[1]", &mHRBattle->mBtEffect.pScreenStatus->m_fPC_BatteryCharge[1]);
             }
         }
         if (ImGui::CollapsingHeader("HrInGameMenu")) {
-            if (mediator->mBtEffect.pScreenStatus->m_pInGameMenu) {
-                uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mediator->mBtEffect.pScreenStatus->m_pInGameMenu->Padding_1054[0]);
-                ImGui::Text("Base Address: 0x%08X", baseAddress);
-                uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&mediator->mBtEffect.pScreenStatus->m_pInGameMenu->pad_3c78[0]);
-                ImGui::Text("Target Address: 0x%08X", targetAddress);
-                uintptr_t offsetDifference = targetAddress - baseAddress;
-                ImGui::Text("Offset difference: 0x%08X", offsetDifference);
+            if (mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu) {
+                // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->Padding_1054[0]);
+                // ImGui::Text("Base Address: 0x%08X", baseAddress);
+                // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->pad_3c78[0]);
+                // ImGui::Text("Target Address: 0x%08X", targetAddress);
+                // uintptr_t offsetDifference = targetAddress - baseAddress;
+                // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
 
-                ImGui::InputScalar("File Count", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_fileCount);
-                ImGui::InputScalar("Handle", ImGuiDataType_U32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Handl);
-                ImGui::InputScalar("DEMO Jimaku Handle", ImGuiDataType_U32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_DEMOJimaku_Handl);
-                ImGui::InputScalar("Menu Mode", ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuMode);
-                ImGui::InputScalar("Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Counter);
-                ImGui::InputScalar("Start Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_StartCounter);
-                ImGui::InputScalar("Start Anim Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_StartAnimCounter);
-                ImGui::InputScalar("Line Anim Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_LineAnimCounter);
-                ImGui::InputScalar("Title Line Anim Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_TitleLineAnimCounter);
-                ImGui::SliderFloat("Info Scroll Counter", &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_InfoScrollCounter, 0.0f, 100.0f);
-                ImGui::InputScalar("Leave Menu Fade Count", ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_LeaveMenuFadeCnt);
+                ImGui::InputScalar("File Count", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_fileCount);
+                ImGui::InputScalar("Handle", ImGuiDataType_U32, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Handl);
+                ImGui::InputScalar("DEMO Jimaku Handle", ImGuiDataType_U32, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_DEMOJimaku_Handl);
+                ImGui::InputScalar("Menu Mode", ImGuiDataType_S32, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuMode);
+                ImGui::InputScalar("Counter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Counter);
+                ImGui::InputScalar("Start Counter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_StartCounter);
+                ImGui::InputScalar("Start Anim Counter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_StartAnimCounter);
+                ImGui::InputScalar("Line Anim Counter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_LineAnimCounter);
+                ImGui::InputScalar("Title Line Anim Counter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_TitleLineAnimCounter);
+                ImGui::SliderFloat("Info Scroll Counter", &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_InfoScrollCounter, 0.0f, 100.0f);
+                ImGui::InputScalar("Leave Menu Fade Count", ImGuiDataType_S32, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_LeaveMenuFadeCnt);
                 for (int i = 0; i < 6; i++) {
-                    ImGui::InputScalar(("Select Menu Word Num " + std::to_string(i)).c_str(), ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_SelectMenuWordNum[i]);
+                    ImGui::InputScalar(("Select Menu Word Num " + std::to_string(i)).c_str(), ImGuiDataType_S32, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_SelectMenuWordNum[i]);
                 }
                 for (int i = 0; i < 4; i++) {
-                    ImGui::InputScalar(("Push Cross Btn Count " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_PushCrossBtnCnt[i]);
+                    ImGui::InputScalar(("Push Cross Btn Count " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_PushCrossBtnCnt[i]);
                 }
                 for (int i = 0; i < 4; i++) {
-                    ImGui::InputScalar(("Pushing Cross Btn Flag " + std::to_string(i)).c_str(), ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_PusshingCrossBtnFlag[i]);
+                    ImGui::InputScalar(("Pushing Cross Btn Flag " + std::to_string(i)).c_str(), ImGuiDataType_S32, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_PusshingCrossBtnFlag[i]);
                 }
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < 4; j++) {
-                        ImGui::InputScalar(("Pull Cross Btn Stat " + std::to_string(i) + "," + std::to_string(j)).c_str(), ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_PullCrossBtnStat[i][j]);
+                        ImGui::InputScalar(("Pull Cross Btn Stat " + std::to_string(i) + "," + std::to_string(j)).c_str(), ImGuiDataType_S32, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_PullCrossBtnStat[i][j]);
                     }
                 }
                 for (int i = 0; i < 4; i++) {
-                    ImGui::InputScalar(("Pull Cross Btn Flag " + std::to_string(i)).c_str(), ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_PullCrossBtnFlag[i]);
+                    ImGui::InputScalar(("Pull Cross Btn Flag " + std::to_string(i)).c_str(), ImGuiDataType_S32, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_PullCrossBtnFlag[i]);
                 }
                 for (int i = 0; i < 2; i++) {
-                    ImGui::InputScalar(("Sec Temp " + std::to_string(i)).c_str(), ImGuiDataType_S64, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_SecTemp[i]);
+                    ImGui::InputScalar(("Sec Temp " + std::to_string(i)).c_str(), ImGuiDataType_S64, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_SecTemp[i]);
                 }
-                ImGui::Checkbox("Start WB Flag", &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_StartWBFlag);
-                ImGui::Checkbox("Title WB Flag", &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_TitleWBFlag);
+                ImGui::Checkbox("Start WB Flag", &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_StartWBFlag);
+                ImGui::Checkbox("Title WB Flag", &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_TitleWBFlag);
                 for (int i = 0; i < 4; i++) {
-                    ImGui::Checkbox(("Load Yes No WB Flag " + std::to_string(i)).c_str(), &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_LoadYesNoWBFlag[i]);
+                    ImGui::Checkbox(("Load Yes No WB Flag " + std::to_string(i)).c_str(), &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_LoadYesNoWBFlag[i]);
                 }
-                ImGui::InputScalar("Line Mode", ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_LineMode);
-                ImGui::InputScalar("Line SubJob Mode", ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_LineSubJobMode);
-                ImGui::Checkbox("Draw V Line Flag", &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_DrawVLineFlag);
-                ImGui::Checkbox("Draw H Line Flag", &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_DrawHLineFlag);
-                ImGui::Checkbox("Debug Draw Flag", &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_DebugDrawFlag);
+                ImGui::InputScalar("Line Mode", ImGuiDataType_S32, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_LineMode);
+                ImGui::InputScalar("Line SubJob Mode", ImGuiDataType_S32, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_LineSubJobMode);
+                ImGui::Checkbox("Draw V Line Flag", &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_DrawVLineFlag);
+                ImGui::Checkbox("Draw H Line Flag", &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_DrawHLineFlag);
+                ImGui::Checkbox("Debug Draw Flag", &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_DebugDrawFlag);
                 for (int i = 0; i < 2; i++) {
-                    ImGui::InputScalar(("Select Menu " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_SelectMenu[i]);
+                    ImGui::InputScalar(("Select Menu " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_SelectMenu[i]);
                 }
                 for (int i = 0; i < 3; i++) {
-                    ImGui::InputScalar(("Stat Wariai " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_StatWariai[i]);
+                    ImGui::InputScalar(("Stat Wariai " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_StatWariai[i]);
                 }
                 for (int i = 0; i < 3; i++) {
-                    ImGui::InputScalar(("Before Stat Wariai " + std::to_string(i)).c_str(), ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Before_StatWariai[i]);
+                    ImGui::InputScalar(("Before Stat Wariai " + std::to_string(i)).c_str(), ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Before_StatWariai[i]);
                 }
                 for (int i = 0; i < 3; i++) {
-                    ImGui::InputScalar(("Wariai Sa " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_WariaiSa[i]);
+                    ImGui::InputScalar(("Wariai Sa " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_WariaiSa[i]);
                 }
-                bool freturnmain = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 0);
-                if (ImGui::Checkbox("Return Main", &freturnmain)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 0, freturnmain);
-                bool fendmenu = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 1);
-                if (ImGui::Checkbox("End Menu", &fendmenu)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 1, fendmenu);
-                bool fdrawgraph = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 2);
-                if (ImGui::Checkbox("Draw Graph", &fdrawgraph)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 2, fdrawgraph);
-                bool fmainstartend = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 3);
-                if (ImGui::Checkbox("Main Start End", &fmainstartend)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 3, fmainstartend);
-                bool fmainmenu = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 4);
-                if (ImGui::Checkbox("Main Menu", &fmainmenu)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 4, fmainmenu);
-                bool fsubmissionend = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 5);
-                if (ImGui::Checkbox("Submission End", &fsubmissionend)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 5, fsubmissionend);
-                bool fFadeOutExit = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 6);
-                if (ImGui::Checkbox("Fade Out Exit", &fFadeOutExit)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 6, fFadeOutExit);
-                ImGui::InputScalar("Menu Info Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuInfoCounter);
-                ImGui::InputScalar("Menu Info Length", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuInfoLenght);
+                bool freturnmain = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 0);
+                if (ImGui::Checkbox("Return Main", &freturnmain)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 0, freturnmain);
+                bool fendmenu = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 1);
+                if (ImGui::Checkbox("End Menu", &fendmenu)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 1, fendmenu);
+                bool fdrawgraph = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 2);
+                if (ImGui::Checkbox("Draw Graph", &fdrawgraph)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 2, fdrawgraph);
+                bool fmainstartend = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 3);
+                if (ImGui::Checkbox("Main Start End", &fmainstartend)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 3, fmainstartend);
+                bool fmainmenu = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 4);
+                if (ImGui::Checkbox("Main Menu", &fmainmenu)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 4, fmainmenu);
+                bool fsubmissionend = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 5);
+                if (ImGui::Checkbox("Submission End", &fsubmissionend)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 5, fsubmissionend);
+                bool fFadeOutExit = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 6);
+                if (ImGui::Checkbox("Fade Out Exit", &fFadeOutExit)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 6, fFadeOutExit);
+                ImGui::InputScalar("Menu Info Counter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuInfoCounter);
+                ImGui::InputScalar("Menu Info Length", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuInfoLenght);
                 for (int i = 0; i < 7; i++) {
-                    ImGui::InputScalar(("Menu Icon Shift X " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuIconShift_X[i]);
+                    ImGui::InputScalar(("Menu Icon Shift X " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuIconShift_X[i]);
                 }
                 for (int i = 0; i < 6; i++) {
-                    ImGui::InputScalar(("Menu Icon Shift Counter " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuIconShift_COUNTER[i]);
+                    ImGui::InputScalar(("Menu Icon Shift Counter " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuIconShift_COUNTER[i]);
                 }
                 if (ImGui::TreeNode("Dot Circle XY Grid")) {
                     for (int i = 0; i < 23; i++) {
                         for (int j = 0; j < 23; j++) {
                             for (int k = 0; k < 2; k++) {
-                                ImGui::InputScalar(("Grid[" + std::to_string(i) + "][" + std::to_string(j) + "][" + std::to_string(k) + "]").c_str(), ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_DotCircleXY_Grid[i][j][k]);
+                                ImGui::InputScalar(("Grid[" + std::to_string(i) + "][" + std::to_string(j) + "][" + std::to_string(k) + "]").c_str(), ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_DotCircleXY_Grid[i][j][k]);
                             }
                         }
                     }
                     ImGui::TreePop();
                 }
-                bool m_Jimaku = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimaku, 0);
-                if (ImGui::Checkbox("Jimaku", &m_Jimaku)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimakuflag, 0, m_Jimaku);
-                bool m_JimakuTMP = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_JimakuTMP, 1);
-                if (ImGui::Checkbox("Jimaku TMP", &m_JimakuTMP)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimakuflag, 1, m_JimakuTMP);
-                bool m_MotionFlag = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MotionFlag, 2);
-                if (ImGui::Checkbox("Motion Flag", &m_MotionFlag)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimakuflag, 2, m_MotionFlag);
-                bool m_MotionFlagTMP = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_MotionFlagTMP, 3);
-                if (ImGui::Checkbox("Motion Flag TMP", &m_MotionFlagTMP)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimakuflag, 3, m_MotionFlagTMP);
-                bool m_CamAxisXFlag = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 4);
-                if (ImGui::Checkbox("Cam Axis X Flag", &m_CamAxisXFlag)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 4, m_CamAxisXFlag);
-                bool m_CamAxisXFlagTMP = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 5);
-                if (ImGui::Checkbox("Cam Axis X Flag TMP", &m_CamAxisXFlagTMP)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 5, m_CamAxisXFlagTMP);
-                bool m_CamAxisYFlag = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 6);
-                if (ImGui::Checkbox("Cam Axis Y Flag", &m_CamAxisYFlag)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 6, m_CamAxisYFlag);
-                bool m_CamAxisYFlagTMP = getBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 7);
-                if (ImGui::Checkbox("Cam Axis Y Flag TMP", &m_CamAxisYFlagTMP)) setBit(mediator->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 7, m_CamAxisYFlagTMP);
+                bool m_Jimaku = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimaku, 0);
+                if (ImGui::Checkbox("Jimaku", &m_Jimaku)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimakuflag, 0, m_Jimaku);
+                bool m_JimakuTMP = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_JimakuTMP, 1);
+                if (ImGui::Checkbox("Jimaku TMP", &m_JimakuTMP)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimakuflag, 1, m_JimakuTMP);
+                bool m_MotionFlag = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_MotionFlag, 2);
+                if (ImGui::Checkbox("Motion Flag", &m_MotionFlag)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimakuflag, 2, m_MotionFlag);
+                bool m_MotionFlagTMP = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_MotionFlagTMP, 3);
+                if (ImGui::Checkbox("Motion Flag TMP", &m_MotionFlagTMP)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Jimakuflag, 3, m_MotionFlagTMP);
+                bool m_CamAxisXFlag = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 4);
+                if (ImGui::Checkbox("Cam Axis X Flag", &m_CamAxisXFlag)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 4, m_CamAxisXFlag);
+                bool m_CamAxisXFlagTMP = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 5);
+                if (ImGui::Checkbox("Cam Axis X Flag TMP", &m_CamAxisXFlagTMP)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 5, m_CamAxisXFlagTMP);
+                bool m_CamAxisYFlag = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 6);
+                if (ImGui::Checkbox("Cam Axis Y Flag", &m_CamAxisYFlag)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 6, m_CamAxisYFlag);
+                bool m_CamAxisYFlagTMP = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 7);
+                if (ImGui::Checkbox("Cam Axis Y Flag TMP", &m_CamAxisYFlagTMP)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 7, m_CamAxisYFlagTMP);
             }
         }
 
-        if (mHRPc* player = nmh_sdk::get_local_player()) {
+        if (mHRPc* player = nmh_sdk::get_mHRPc()) {
             if (ImGui::CollapsingHeader("mHRPc")) {
-                uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->pad_00);
-                ImGui::Text("Base Address: 0x%08X", baseAddress);
-                uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&player->mOperate);
-                ImGui::Text("Target Address: 0x%08X", targetAddress);
-                uintptr_t offsetDifference = targetAddress - baseAddress;
-                ImGui::Text("Offset difference: 0x%08X", offsetDifference);
+                // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->pad_00);
+                // ImGui::Text("Base Address: 0x%08X", baseAddress);
+                // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&player->mOperate);
+                // ImGui::Text("Target Address: 0x%08X", targetAddress);
+                // uintptr_t offsetDifference = targetAddress - baseAddress;
+                // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
 
                 ImGui::Checkbox("mPauseAll", &player->mPauseAll);
                 ImGui::Checkbox("mPauseNpc", &player->mPauseNpc);
@@ -341,12 +439,12 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::Checkbox("mBanStatusScreen", &player->mBanStatusScreen);
             }
             if (ImGui::CollapsingHeader("mHRPc mCharaStatus")) {
-                uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->mCharaStatus.resNo);
-                ImGui::Text("Base Address: 0x%08X", baseAddress);
-                uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&player->mCharaStatus.flag2);
-                ImGui::Text("Target Address: 0x%08X", targetAddress);
-                uintptr_t offsetDifference = targetAddress - baseAddress;
-                ImGui::Text("Offset difference: 0x%08X", offsetDifference);
+                // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->mCharaStatus.resNo);
+                // ImGui::Text("Base Address: 0x%08X", baseAddress);
+                // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&player->mCharaStatus.flag2);
+                // ImGui::Text("Target Address: 0x%08X", targetAddress);
+                // uintptr_t offsetDifference = targetAddress - baseAddress;
+                // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
 
                 ImGui::InputInt("resNo", &player->mCharaStatus.resNo);
                 ImGui::InputInt("datNo", &player->mCharaStatus.datNo);

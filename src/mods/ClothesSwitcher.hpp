@@ -7,9 +7,6 @@ public:
   
   ModCategory get_category() { return ModCategory::COSMETICS; };
 
-  static uintptr_t* GetPlayerPtr(void);
-  static void SetEquip(int inID, bool inPowUp);
-
   // mod name string for config
   std::string get_mod_name() const override { return "ClothesSwitcher"; }
   std::string get_human_readable_name() const { return "Clothes Switcher"; }

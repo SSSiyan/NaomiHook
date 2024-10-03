@@ -149,33 +149,6 @@ ComboInfo combo_boxes[] = {
     {"##ShirtCombo", 100, 120}
 };
 
-typedef char(__thiscall* mSetEquipFunc)(
-    uintptr_t* playerPtr, 
-    int inID,
-    bool inPowUp);
-
-// check player is != 0 after calling this
-uintptr_t* ClothesSwitcher::GetPlayerPtr(void){
-    uintptr_t gpBattleAddr = g_framework->get_module().as<uintptr_t>() + 0x843584;
-    if (uintptr_t* gpBattle = (uintptr_t*)gpBattleAddr) {
-        if (uintptr_t* gpBattleBase = *(uintptr_t**)gpBattle) {
-            uintptr_t* mHRPcAddr = (uintptr_t*)((char*)gpBattleBase + 0x164); // add as bytes
-            uintptr_t* mHRPc = *(uintptr_t**)mHRPcAddr;
-            return mHRPc;
-        }
-    }
-    return NULL;
-}
-
-void ClothesSwitcher::SetEquip(int inID, bool inPowUp) {
-    uintptr_t* mHRPc = ClothesSwitcher::GetPlayerPtr();
-    uintptr_t setEquipAddress = (g_framework->get_module().as<uintptr_t>() + 0x3E2240);
-    mSetEquipFunc setEquip = (mSetEquipFunc)setEquipAddress;
-    if (mHRPc) {
-        setEquip(mHRPc, inID, inPowUp);
-    }
-}
-
 std::optional<std::string> ClothesSwitcher::on_initialize() {
     return Mod::on_initialize();
 }
@@ -189,8 +162,8 @@ void ClothesSwitcher::on_draw_ui() {
             for (size_t n = combo.start_idx; n < combo.end_idx; n++) {
                 const bool is_selected = (selected_indices[i] == n - combo.start_idx);
                 if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
-                    selected_indices[i] = n - combo.start_idx;  
-                    SetEquip(clothing_items[n].id, 0);
+                    selected_indices[i] = n - combo.start_idx;
+                    nmh_sdk::SetEquip(clothing_items[n].id, 0);
                 }
                 if (is_selected) {
                     ImGui::SetItemDefaultFocus();
