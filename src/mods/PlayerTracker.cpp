@@ -21,8 +21,6 @@ auto setBit = [](unsigned short& flags, int bit, bool value) {
 void PlayerTracker::on_draw_ui() {
     if (mHRBattle* mediator = nmh_sdk::get_mediator()){
         if (ImGui::CollapsingHeader("mHRBattle")) {
-            ImGui::InputInt("mBtlInitProc", (int*)&mediator->mBtlInitProc);
-            ImGui::InputInt("mBtlFrameProc", (int*)&mediator->mBtlFrameProc);
             ImGui::InputInt("mTotalNpcNum", &mediator->mTotalNpcNum);
             ImGui::InputInt("mTotalKillNum", &mediator->mTotalKillNum);
             ImGui::InputInt("mKillNum", &mediator->mKillNum);
@@ -43,14 +41,9 @@ void PlayerTracker::on_draw_ui() {
                 uintptr_t offsetDifference = targetAddress - baseAddress;
                 ImGui::Text("Offset difference: 0x%08X", offsetDifference);
                 ImGui::Text("Param Section");
-                ImGui::InputInt("Mission Result Check", (int*)&mediator->mBtEffect.pScreenStatus->m_CheckMissionResult);
-                ImGui::InputInt("InGameMenu Pointer", (int*)&mediator->mBtEffect.pScreenStatus->m_pInGameMenu);
-                ImGui::InputInt("InGameMenu Check", (int*)&mediator->mBtEffect.pScreenStatus->m_CheckInGameMenu);
-                ImGui::InputInt("Key Guide Pointer", (int*)&mediator->mBtEffect.pScreenStatus->m_pKeyGuide);
-                ImGui::InputInt("Key Guide Check", (int*)&mediator->mBtEffect.pScreenStatus->m_CheckKeyGuide);
                 ImGui::InputInt3("Sound IDs", mediator->mBtEffect.pScreenStatus->m_SoundID);
                 ImGui::InputInt("SprLch Sound ID", &mediator->mBtEffect.pScreenStatus->m_SprLchSoundID);
-                ImGui::InputInt("Herose", (int*)&mediator->mBtEffect.pScreenStatus->m_Herose);
+                ImGui::InputScalar("Herose", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_Herose);
                 ImGui::SliderFloat("HP", &mediator->mBtEffect.pScreenStatus->m_HP, 0.0f, 100.0f); // Assuming ranges
                 ImGui::SliderFloat("Battery", &mediator->mBtEffect.pScreenStatus->m_Battery, 0.0f, 100.0f);
                 ImGui::SliderFloat("Stamina", &mediator->mBtEffect.pScreenStatus->m_Stamina, 0.0f, 100.0f);
@@ -62,31 +55,33 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputInt2("Gear Anim Frame", mediator->mBtEffect.pScreenStatus->m_GearAnimFrame);
                 ImGui::InputInt("Gear Fade Count", &mediator->mBtEffect.pScreenStatus->m_GearFadeCnt);
                 ImGui::InputInt("Gear Max Anim Frame", &mediator->mBtEffect.pScreenStatus->m_GearMaxAnimFrame);
-                ImGui::InputInt2("Gear Rand Counter", (int*)mediator->mBtEffect.pScreenStatus->m_GearRandCounter);
-                ImGui::InputInt("Gear Rand Flag", (int*)&mediator->mBtEffect.pScreenStatus->m_GearRandFlag);
-                ImGui::InputInt("Gear", (int*)&mediator->mBtEffect.pScreenStatus->m_Gear);
+                ImGui::InputScalar("Gear Rand Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_GearRandCounter[0]);
+                ImGui::InputScalar("Gear Rand Counter 2", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_GearRandCounter[1]);
+                ImGui::InputScalar("Gear Rand Flag", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_GearRandFlag);
+                ImGui::InputScalar("Gear", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_Gear);
                 ImGui::InputScalar("Counters", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_Counter);
-                ImGui::InputInt("Money Appear Counter", (int*)&mediator->mBtEffect.pScreenStatus->m_MoneyAppearCounter);
+                ImGui::InputScalar("Money Appear Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_MoneyAppearCounter);
                 ImGui::SliderFloat("Money Speed", &mediator->mBtEffect.pScreenStatus->m_MoneySpeed, 0.0f, 100.0f);
                 ImGui::SliderFloat("Money Delta Speed", &mediator->mBtEffect.pScreenStatus->m_MoneyDeltaSpeed, -100.0f, 100.0f);
                 ImGui::InputScalar("Delay Counters", ImGuiDataType_S16, mediator->mBtEffect.pScreenStatus->m_DelayCounter);
                 ImGui::InputInt("Global Counter", &mediator->mBtEffect.pScreenStatus->m_GlobalCounter);
-                ImGui::InputInt("Counter Tiger Goal", (int*)&mediator->mBtEffect.pScreenStatus->m_Counter_TigerGoal);
-                ImGui::InputInt("Change Counter", (int*)&mediator->mBtEffect.pScreenStatus->m_ChangeCounter);
-                ImGui::InputInt("Hp Anim Counter", (int*)&mediator->mBtEffect.pScreenStatus->m_HpAnimCounter);
+                ImGui::InputScalar("Counter Tiger Goal", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_Counter_TigerGoal);
+                ImGui::InputScalar("Change Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_ChangeCounter);
+                ImGui::InputScalar("Hp Anim Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_HpAnimCounter);
                 ImGui::SliderFloat("Hp Scale", &mediator->mBtEffect.pScreenStatus->m_HpScale, 0.0f, 10.0f);
-                ImGui::InputInt("Bike In/Out Counter", (int*)&mediator->mBtEffect.pScreenStatus->m_BikeInOutCounter);
+                ImGui::InputScalar("Bike In/Out Counter", ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_BikeInOutCounter);
                 ImGui::Checkbox("Touring2 Natural Flag", &mediator->mBtEffect.pScreenStatus->m_Touring2NaturalFlag);
                 ImGui::Checkbox("Battle2 Natural Flag", &mediator->mBtEffect.pScreenStatus->m_Battle2NaturalFlag);
                 ImGui::Checkbox("Natural2 Battle Flag", &mediator->mBtEffect.pScreenStatus->m_Natural2BattleFlag);
                 ImGui::InputInt("Load Mes Stat", &mediator->mBtEffect.pScreenStatus->m_LoadMesStat);
                 ImGui::InputScalar("Log W", ImGuiDataType_S32, &mediator->mBtEffect.pScreenStatus->m_Log_W);
                 ImGui::InputScalar("Log Tenmetu Now Progress", ImGuiDataType_S8, mediator->mBtEffect.pScreenStatus->m_Log_tenmetuNowProgress);
-                ImGui::InputScalar("Log Alpha", ImGuiDataType_S8, (char*)mediator->mBtEffect.pScreenStatus->m_Log_alpha);
-                ImGui::InputInt("Combo Num", (int*)mediator->mBtEffect.pScreenStatus->m_ComboNum, 1);
+                ImGui::InputScalar("Log Alpha", ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_Log_alpha);
+                ImGui::InputScalar("Combo Num", ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_ComboNum[0]);
+                ImGui::InputScalar("Combo Num 2", ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_ComboNum[1]);
                 ImGui::InputInt("Combo Counter", &mediator->mBtEffect.pScreenStatus->m_ComboCounter);
                 ImGui::InputInt("Combo Delay Counter", &mediator->mBtEffect.pScreenStatus->m_ComboDelayCounter);
-                ImGui::InputScalar("Slot Dan", ImGuiDataType_S8, (char*)&mediator->mBtEffect.pScreenStatus->m_SlotDan);
+                ImGui::InputScalar("Slot Dan", ImGuiDataType_S8, &mediator->mBtEffect.pScreenStatus->m_SlotDan);
                 for (int i = 0; i < 3; i++) {
                     ImGui::InputScalar(fmt::format("Slot Deme [{}]", i).c_str(), ImGuiDataType_S8, mediator->mBtEffect.pScreenStatus->m_SlotDeme[i]);
                     ImGui::InputScalar(fmt::format("Slot Deme Counter [{}]", i).c_str(), ImGuiDataType_S16, &mediator->mBtEffect.pScreenStatus->m_SlotDemeCounter[i]);
@@ -317,8 +312,6 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputInt("motionNo", &player->mCharaStatus.motionNo);
                 ImGui::InputScalar("motionBrendNum", ImGuiDataType_S8, &player->mCharaStatus.motionBrendNum);
                 ImGui::InputFloat("motSpd", &player->mCharaStatus.motSpd);
-                ImGui::InputInt("condition", (int*)&player->mCharaStatus.condition);
-                ImGui::InputInt("dmgInfo", (int*)&player->mCharaStatus.dmgInfo);
                 ImGui::InputFloat3("mYukaNormal", &player->mCharaStatus.mYukaNormal.x);
                 ImGui::InputInt("movTick", &player->mCharaStatus.movTick);
                 ImGui::InputScalar("hitNum", ImGuiDataType_S16, &player->mCharaStatus.hitNum);
@@ -492,12 +485,12 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::SliderFloat("Air Blow Power", &player->mCharaStatus.dmgInfo.m_AirBlowPower, 0.0f, 100.0f);
                 ImGui::Checkbox("Air Flag", &player->mCharaStatus.dmgInfo.m_AirFlag);
                 ImGui::SliderFloat("Gravity Acceleration", &player->mCharaStatus.dmgInfo.m_GravAccele, 0.0f, 20.0f);
-                ImGui::InputInt("Piyo Request", (int*)&player->mCharaStatus.dmgInfo.m_PiyoRequest);
+                ImGui::InputScalar("Piyo Request", ImGuiDataType_S8, &player->mCharaStatus.dmgInfo.m_PiyoRequest);
                 ImGui::SliderFloat("Stored Damage", &player->mCharaStatus.dmgInfo.storeDamage, 0.0f, 100.0f);
                 ImGui::SliderFloat("Stored Damage Distance", &player->mCharaStatus.dmgInfo.storeDamageDst, 0.0f, 100.0f);
                 ImGui::InputInt("Restore Damage Tick", &player->mCharaStatus.dmgInfo.restoreDamegeTick);
                 ImGui::InputInt("Restore Damage Basic Tick", &player->mCharaStatus.dmgInfo.restoreDamegeBasicTick);
-                ImGui::InputInt("Bike Dead Request", (int*)&player->mCharaStatus.dmgInfo.m_BikeDeadRequest);
+                ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &player->mCharaStatus.dmgInfo.m_BikeDeadRequest);
             }
             if (ImGui::CollapsingHeader("mHRPc stPcStatus")) {
                 ImGui::SliderFloat("Strength", &player->mPcStatus.strength, 0.0f, 100.0f);
@@ -588,8 +581,8 @@ void PlayerTracker::on_draw_ui() {
                     for (int i = 0; i < 16; i++) {
                         ImGui::Text("Weapon Info %d", i);
                         ImGui::InputInt("Weapon ID", &player->mPcSaveData.wepInfo[i].id);
-                        ImGui::SliderInt("Battery", (int*)&player->mPcSaveData.wepInfo[i].battery, 0, player->mPcSaveData.wepInfo[i].batteryMax);
-                        ImGui::InputInt("Battery Max", (int*)&player->mPcSaveData.wepInfo[i].batteryMax);
+                        ImGui::InputScalar("Battery", ImGuiDataType_S16, &player->mPcSaveData.wepInfo[i].battery);
+                        ImGui::InputScalar("Battery Max", ImGuiDataType_S16, &player->mPcSaveData.wepInfo[i].batteryMax);
                         ImGui::SliderFloat("Power", &player->mPcSaveData.wepInfo[i].power, 0.0f, 100.0f);
                         ImGui::Checkbox("Combo Extend", &player->mPcSaveData.wepInfo[i].cmbExtend);
                     }
@@ -598,8 +591,6 @@ void PlayerTracker::on_draw_ui() {
                 if (ImGui::CollapsingHeader("Equipment Items")) {
                     for (int i = 0; i < 7; i++) {
                         ImGui::Text("Equipment Item %d", i);
-                        ImGui::InputInt("Read Process", (int*)&player->mPcSaveData.equip[i].readProc);
-                        ImGui::InputInt("Data Pointer 2", (int*)&player->mPcSaveData.equip[i].pDat[1]);
                         ImGui::InputInt("Equipment ID", &player->mPcSaveData.equip[i].id);
                         ImGui::Checkbox("Reverse Display", &player->mPcSaveData.equip[i].reverseDisp);
                         ImGui::InputInt("Current Buffer Index", &player->mPcSaveData.equip[i].nowBufIndex);
@@ -627,7 +618,7 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::SliderFloat("Vitality", &player->mPcSaveData.vitality, 0.0f, 100.0f);
                 ImGui::InputInt("Money", &player->mPcSaveData.money);
                 ImGui::InputInt("Dark Side Use Count", &player->mPcSaveData.darkSideUseNum);
-                ImGui::InputInt("Kill Combo", (int*)&player->mPcSaveData.killCmb);
+                ImGui::InputScalar("Kill Combo", ImGuiDataType_S8, &player->mPcSaveData.killCmb);
                 ImGui::SliderFloat("Bike Position X", &player->mPcSaveData.bikePos.x, -1000.0f, 1000.0f);
                 ImGui::SliderFloat("Bike Position Y", &player->mPcSaveData.bikePos.y, -1000.0f, 1000.0f);
                 ImGui::SliderFloat("Bike Position Z", &player->mPcSaveData.bikePos.z, -1000.0f, 1000.0f);
@@ -653,7 +644,6 @@ void PlayerTracker::on_draw_ui() {
                 if (player->mpLockOnNpc) {
                     ImGui::InputFloat("mDistFromPc", &player->mpLockOnNpc->mDistFromPc);
                     ImGui::InputFloat("mDirecYFromPc", &player->mpLockOnNpc->mDirecYFromPc);
-                    ImGui::InputInt("mInitProc", (int*)&player->mpLockOnNpc->mInitProc);
                 }
             }
             if (ImGui::CollapsingHeader("mpLockOnNpc mStatus")) {
@@ -698,12 +688,6 @@ void PlayerTracker::on_draw_ui() {
                     ImGui::InputInt("motionNo", &player->mpLockOnNpc->mStatus.motionNo);
                     ImGui::InputScalar("motionBrendNum", ImGuiDataType_S8, &player->mpLockOnNpc->mStatus.motionBrendNum);
                     ImGui::InputFloat("motSpd", &player->mpLockOnNpc->mStatus.motSpd);
-                    ImGui::InputInt("condition", (int*)&player->mpLockOnNpc->mStatus.condition);
-                    ImGui::InputInt("footHitResultObj", (int*)&player->mpLockOnNpc->mStatus.footHitResultObj);
-                    ImGui::InputInt("footHitResult", (int*)&player->mpLockOnNpc->mStatus.footHitResult);
-                    ImGui::InputInt("footHitResultObj2", (int*)&player->mpLockOnNpc->mStatus.footHitResultObj2);
-                    ImGui::InputInt("hitWallMaterial", (int*)&player->mpLockOnNpc->mStatus.hitWallMaterial);
-                    ImGui::InputInt("dmgInfo", (int*)&player->mpLockOnNpc->mStatus.dmgInfo);
                     ImGui::InputFloat3("mYukaNormal", &player->mpLockOnNpc->mStatus.mYukaNormal.x);
                     ImGui::InputInt("movTick", &player->mpLockOnNpc->mStatus.movTick);
                     ImGui::InputScalar("hitNum", ImGuiDataType_S16, &player->mpLockOnNpc->mStatus.hitNum);
@@ -857,32 +841,32 @@ void PlayerTracker::on_draw_ui() {
                     ImGui::Checkbox("jpnDead", &jpnDead);
                     setBit(player->mpLockOnNpc->mStatus.flag2, 1, jpnDead);
 
-                if (ImGui::CollapsingHeader("mHRPc mpLockOnNpc->dmgInfo")) {
-                    ImGui::SliderFloat("Damage", &player->mpLockOnNpc->mStatus.dmgInfo.dmg, 0.0f, 100.0f);
-                    ImGui::InputInt("Damage Motion", &player->mpLockOnNpc->mStatus.dmgInfo.dmgMot);
-                    ImGui::InputInt("Guard Motion", &player->mpLockOnNpc->mStatus.dmgInfo.grdMot);
-                    ImGui::InputInt("Attack Motion", &player->mpLockOnNpc->mStatus.dmgInfo.atkMot);
-                    ImGui::SliderFloat("Damage Direction", &player->mpLockOnNpc->mStatus.dmgInfo.dmgDirec, -360.0f, 360.0f);
-                    ImGui::SliderFloat("Knockback Distance", &player->mpLockOnNpc->mStatus.dmgInfo.nockBackDst, 0.0f, 100.0f);
-                    ImGui::SliderFloat("Upper Power", &player->mpLockOnNpc->mStatus.dmgInfo.upperPow, 0.0f, 100.0f);
-                    ImGui::SliderFloat("Upper Position Y", &player->mpLockOnNpc->mStatus.dmgInfo.upperPosY, -50.0f, 50.0f);
-                    ImGui::SliderFloat("Gravity", &player->mpLockOnNpc->mStatus.dmgInfo.grav, 0.0f, 20.0f);
-                    ImGui::Checkbox("Upper", &player->mpLockOnNpc->mStatus.dmgInfo.upper);
-                    ImGui::InputInt("Tick", &player->mpLockOnNpc->mStatus.dmgInfo.tick);
-                    //ImGui::SliderFloat("Fade", &player->mpLockOnNpc->mStatus.dmgInfo.fade.value, 0.0f, 1.0f);  // Assuming WAnimF is a float wrapper
-                    ImGui::SliderFloat("Air Blow Position X", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.x, -100.0f, 100.0f);
-                    ImGui::SliderFloat("Air Blow Position Y", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.y, -100.0f, 100.0f);
-                    ImGui::SliderFloat("Air Blow Position Z", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.z, -100.0f, 100.0f);
-                    ImGui::SliderFloat("Air Blow Power", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPower, 0.0f, 100.0f);
-                    ImGui::Checkbox("Air Flag", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirFlag);
-                    ImGui::SliderFloat("Gravity Acceleration", &player->mpLockOnNpc->mStatus.dmgInfo.m_GravAccele, 0.0f, 20.0f);
-                    ImGui::InputInt("Piyo Request", (int*)&player->mpLockOnNpc->mStatus.dmgInfo.m_PiyoRequest);
-                    ImGui::SliderFloat("Stored Damage", &player->mpLockOnNpc->mStatus.dmgInfo.storeDamage, 0.0f, 100.0f);
-                    ImGui::SliderFloat("Stored Damage Distance", &player->mpLockOnNpc->mStatus.dmgInfo.storeDamageDst, 0.0f, 100.0f);
-                    ImGui::InputInt("Restore Damage Tick", &player->mpLockOnNpc->mStatus.dmgInfo.restoreDamegeTick);
-                    ImGui::InputInt("Restore Damage Basic Tick", &player->mpLockOnNpc->mStatus.dmgInfo.restoreDamegeBasicTick);
-                    ImGui::InputInt("Bike Dead Request", (int*)&player->mpLockOnNpc->mStatus.dmgInfo.m_BikeDeadRequest);
-                }
+                    if (ImGui::CollapsingHeader("mHRPc mpLockOnNpc->dmgInfo")) {
+                        ImGui::SliderFloat("Damage", &player->mpLockOnNpc->mStatus.dmgInfo.dmg, 0.0f, 100.0f);
+                        ImGui::InputInt("Damage Motion", &player->mpLockOnNpc->mStatus.dmgInfo.dmgMot);
+                        ImGui::InputInt("Guard Motion", &player->mpLockOnNpc->mStatus.dmgInfo.grdMot);
+                        ImGui::InputInt("Attack Motion", &player->mpLockOnNpc->mStatus.dmgInfo.atkMot);
+                        ImGui::SliderFloat("Damage Direction", &player->mpLockOnNpc->mStatus.dmgInfo.dmgDirec, -360.0f, 360.0f);
+                        ImGui::SliderFloat("Knockback Distance", &player->mpLockOnNpc->mStatus.dmgInfo.nockBackDst, 0.0f, 100.0f);
+                        ImGui::SliderFloat("Upper Power", &player->mpLockOnNpc->mStatus.dmgInfo.upperPow, 0.0f, 100.0f);
+                        ImGui::SliderFloat("Upper Position Y", &player->mpLockOnNpc->mStatus.dmgInfo.upperPosY, -50.0f, 50.0f);
+                        ImGui::SliderFloat("Gravity", &player->mpLockOnNpc->mStatus.dmgInfo.grav, 0.0f, 20.0f);
+                        ImGui::Checkbox("Upper", &player->mpLockOnNpc->mStatus.dmgInfo.upper);
+                        ImGui::InputInt("Tick", &player->mpLockOnNpc->mStatus.dmgInfo.tick);
+                        //ImGui::SliderFloat("Fade", &player->mpLockOnNpc->mStatus.dmgInfo.fade.value, 0.0f, 1.0f);  // Assuming WAnimF is a float wrapper
+                        ImGui::SliderFloat("Air Blow Position X", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.x, -100.0f, 100.0f);
+                        ImGui::SliderFloat("Air Blow Position Y", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.y, -100.0f, 100.0f);
+                        ImGui::SliderFloat("Air Blow Position Z", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPos.z, -100.0f, 100.0f);
+                        ImGui::SliderFloat("Air Blow Power", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirBlowPower, 0.0f, 100.0f);
+                        ImGui::Checkbox("Air Flag", &player->mpLockOnNpc->mStatus.dmgInfo.m_AirFlag);
+                        ImGui::SliderFloat("Gravity Acceleration", &player->mpLockOnNpc->mStatus.dmgInfo.m_GravAccele, 0.0f, 20.0f);
+                        ImGui::InputScalar("Piyo Request", ImGuiDataType_S8, &player->mpLockOnNpc->mStatus.dmgInfo.m_PiyoRequest);
+                        ImGui::SliderFloat("Stored Damage", &player->mpLockOnNpc->mStatus.dmgInfo.storeDamage, 0.0f, 100.0f);
+                        ImGui::SliderFloat("Stored Damage Distance", &player->mpLockOnNpc->mStatus.dmgInfo.storeDamageDst, 0.0f, 100.0f);
+                        ImGui::InputInt("Restore Damage Tick", &player->mpLockOnNpc->mStatus.dmgInfo.restoreDamegeTick);
+                        ImGui::InputInt("Restore Damage Basic Tick", &player->mpLockOnNpc->mStatus.dmgInfo.restoreDamegeBasicTick);
+                        ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &player->mpLockOnNpc->mStatus.dmgInfo.m_BikeDeadRequest);
+                    }
                 }
             }
         }
