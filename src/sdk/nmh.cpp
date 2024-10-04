@@ -25,6 +25,20 @@ namespace nmh_sdk {
 		return NULL;
 	}
 
+    HrGameTask* get_HrGameTask() {
+        static uintptr_t HrGameTaskPtr = g_framework->get_module().as<uintptr_t>() + 0x841414;
+        if (HrGameTask* hrGameTask = (HrGameTask*)*(uintptr_t*)HrGameTaskPtr)
+			return hrGameTask;
+		return NULL;
+    }
+
+    HrMenuTask* get_HrMenuTask() {
+        static uintptr_t hrMenuTaskPtr = g_framework->get_module().as<uintptr_t>() + 0x8447D4;
+        if (HrMenuTask* hrMenuTask = (HrMenuTask*)*(uintptr_t*)hrMenuTaskPtr)
+            return hrMenuTask;
+		return NULL;
+    }
+
     // Set stage
     void SetStage(const char* _StgName, int _StgAdd, int _Arg1, int _Arg2, bool inBossInfoDisp, int inFadeType, __int64 inSetVolRate, bool inPause, unsigned int a10) {
         uintptr_t setStageAddress = (g_framework->get_module().as<uintptr_t>() + 0x3FD690);

@@ -5,6 +5,8 @@ namespace nmh_sdk {
 	mHRPc* get_mHRPc();
 	mHRBattle* get_mHRBattle();
 	CBgCtrl* get_CBgCtrl();
+	HrMenuTask* get_HrMenuTask();
+	HrGameTask* get_HrGameTask();
 
 	typedef bool(__thiscall* setStageFunc)(CBgCtrl* CBgCtrl, const char* _StgName, int _StgAdd, int _Arg1, int _Arg2, bool inBossInfoDisp, int inFadeType, __int64 inSetVolRate, bool inPause, unsigned int a10);
 	typedef bool(__thiscall* mPlayMotionFunc)(mHRPc* mHRPc, pcMotion inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate); // 0x402CF0 // ida says __userpurge

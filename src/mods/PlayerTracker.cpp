@@ -20,6 +20,216 @@ void setBit(T& flags, int bit, bool value) {
 }
 
 void PlayerTracker::on_draw_ui() {
+    if (ImGui::CollapsingHeader("HrGameTask")) {
+        if (HrGameTask* hrGameTask = nmh_sdk::get_HrGameTask()) {
+            // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrGameTask->mAllClearHikitugi);
+            // ImGui::Text("Base Address: 0x%08X", baseAddress);
+            // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&hrGameTask->m_pSubTask); 
+            // ImGui::Text("Target Address: 0x%08X", targetAddress);
+            // uintptr_t offsetDifference = targetAddress - baseAddress;
+            // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
+
+            ImGui::InputScalar("mLoadSts", ImGuiDataType_S32, &hrGameTask->mLoadSts);
+            ImGui::Text("mpRankingUp: %p", hrGameTask->mpRankingUp);
+            ImGui::InputInt("mDebugScenarioID", &hrGameTask->mDebugScenarioID);
+            ImGui::InputScalar("mDebugScenarioInputKeta", ImGuiDataType_S8, &hrGameTask->mDebugScenarioInputKeta);
+            ImGui::InputScalar("mDebugScenarioMenu", ImGuiDataType_S8, &hrGameTask->mDebugScenarioMenu);
+            ImGui::InputScalar("mDebugLogoSkip", ImGuiDataType_S8, &hrGameTask->mDebugLogoSkip);
+            ImGui::Text("m_pDebug: %p", hrGameTask->m_pDebug);
+            ImGui::InputInt("mDebugSubMissionID", &hrGameTask->mDebugSubMissionID);
+            ImGui::InputScalar("mDebugSubMissionInputKeta", ImGuiDataType_S8, &hrGameTask->mDebugSubMissionInputKeta);
+            ImGui::Text("mLoading: %p", &hrGameTask->mLoading);
+            ImGui::Text("mpBossResult: %p", hrGameTask->mpBossResult);
+            ImGui::Text("mStaffRoll: %p", hrGameTask->mStaffRoll);
+            ImGui::Text("mStaffRoll2: %p", hrGameTask->mStaffRoll2);
+            ImGui::Text("mpShooting: %p", hrGameTask->mpShooting);
+            ImGui::InputInt("mLastLogoSndGroupID", &hrGameTask->mLastLogoSndGroupID);
+            ImGui::InputInt("mLastSaveSndGroupID", &hrGameTask->mLastSaveSndGroupID);
+            ImGui::InputInt("TerminateCnt", &hrGameTask->TerminateCnt);
+            ImGui::Text("Union");
+            ImGui::InputScalar("m_TotalStartPlayTime", ImGuiDataType_S64, &hrGameTask->m_TotalStartPlayTime);
+            ImGui::Checkbox("mNewGameRequestForTitle", &hrGameTask->mNewGameRequestForTitle);
+            ImGui::Checkbox("mAllClearHikitugi", &hrGameTask->mAllClearHikitugi);
+            ImGui::Checkbox("mInitStageLoad", &hrGameTask->mInitStageLoad);
+            ImGui::Checkbox("mOpeningMovieRequest", &hrGameTask->mOpeningMovieRequest);
+            ImGui::Checkbox("mNewGameRequest", &hrGameTask->mNewGameRequest);
+            ImGui::Checkbox("mGotoTitleRequest", &hrGameTask->mGotoTitleRequest);
+            ImGui::InputInt("mGameExit", &hrGameTask->mGameExit);
+            ImGui::InputInt("mGameExitProcess", &hrGameTask->mGameExitProcess);
+            ImGui::Checkbox("mAllClearDataLoadFlag", &hrGameTask->mAllClearDataLoadFlag);
+            ImGui::Checkbox("mMainScenarioRun", &hrGameTask->mMainScenarioRun);
+            ImGui::Checkbox("mSubMissionRun", &hrGameTask->mSubMissionRun);
+            ImGui::InputInt("mSetSubMissionID", &hrGameTask->mSetSubMissionID);
+            ImGui::InputInt("mGameLevel", &hrGameTask->mGameLevel);
+            ImGui::Checkbox("mHomeButtonDisEnable", &hrGameTask->mHomeButtonDisEnable);
+            ImGui::InputScalar("m_Process_id", ImGuiDataType_S32, &hrGameTask->m_Process_id);
+            ImGui::InputScalar("m_Pro_Sts", ImGuiDataType_S32, &hrGameTask->m_Pro_Sts);
+            ImGui::Text("mp_SaveData: %p", hrGameTask->mp_SaveData);
+            ImGui::Text("mp_CheckPoint: %p", hrGameTask->mp_CheckPoint);
+            ImGui::Text("mp_HikitugiSaveData: %p", hrGameTask->mp_HikitugiSaveData);
+            for (int i = 0; i < 60; ++i)
+            {
+                ImGui::InputInt(("mSmRunflag[" + std::to_string(i) + "]").c_str(), &hrGameTask->m_SmRunflag[i]);
+            }
+            ImGui::Separator();
+            ImGui::Text("mpGameScrTask: %p", hrGameTask->mpGameScrTask);
+            ImGui::Text("m_pDemo: %p", hrGameTask->m_pDemo);
+            ImGui::Text("mpGameOver: %p", hrGameTask->mpGameOver);
+            ImGui::Checkbox("mBossResultRequest", &hrGameTask->mBossResultRequest);
+            ImGui::Checkbox("mRankingUpRequest", &hrGameTask->mRankingUpRequest);
+            ImGui::InputInt("mStageChangeFadeType", &hrGameTask->mStageChangeFadeType);
+            ImGui::Checkbox("mStaffRollRequest", &hrGameTask->mStaffRollRequest);
+            ImGui::Checkbox("mStaffRoll2Request", &hrGameTask->mStaffRoll2Request);
+            ImGui::Checkbox("mShootingRequest", &hrGameTask->mShootingRequest);
+            ImGui::Checkbox("mLastLogoRequest", &hrGameTask->mLastLogoRequest);
+            ImGui::Checkbox("mLastSaveRequest", &hrGameTask->mLastSaveRequest);
+            ImGui::InputInt("mLastSaveProcess", &hrGameTask->mLastSaveProcess);
+            ImGui::Text("mLastSaveResource: %p", &hrGameTask->mLastSaveResource);
+            ImGui::Text("mpLastSave: %p", hrGameTask->mpLastSave);
+            ImGui::InputInt("mLastLogoProcess", &hrGameTask->mLastLogoProcess);
+            for (int i = 0; i < 4; ++i)
+            {
+                ImGui::Text("mLastLogoTex[%d]: %p", i, &hrGameTask->mLastLogoTex[i]);
+            }
+            ImGui::Separator();
+            ImGui::InputInt("mLastLogoTexDispNum", &hrGameTask->mLastLogoTexDispNum);
+            ImGui::Text("mLastLogoAlpha: %p", &hrGameTask->mLastLogoAlpha);
+            ImGui::InputInt("mLastLogoDispTick", &hrGameTask->mLastLogoDispTick);
+            ImGui::Text("mLastLogoMoveX: %p", &hrGameTask->mLastLogoMoveX);
+            ImGui::InputInt("mGameSaveProcess", &hrGameTask->mGameSaveProcess);
+            ImGui::Text("mGameSaveResource: %p", &hrGameTask->mGameSaveResource);
+            ImGui::Text("mpGameSave: %p", hrGameTask->mpGameSave);
+            ImGui::InputInt("mGameSaveSetUpWait", &hrGameTask->mGameSaveSetUpWait);
+            ImGui::InputInt("mGameSaveMode", &hrGameTask->mGameSaveMode);
+            ImGui::Text("mpGameSavePcNode: %p", hrGameTask->mpGameSavePcNode);
+            ImGui::Checkbox("mGameSaveCopyLightFadeOutReq", &hrGameTask->mGameSaveCopyLightFadeOutReq);
+            ImGui::InputInt("mLoadingWallType", &hrGameTask->mLoadingWallType);
+            ImGui::InputInt("mBossResultAfterDemoNo", &hrGameTask->mBossResultAfterDemoNo);
+            ImGui::Checkbox("m_STG_Feed_f", &hrGameTask->m_STG_Feed_f);
+            ImGui::Text("m_pSubTask: %p", hrGameTask->m_pSubTask);
+        }
+    }
+
+    if (ImGui::CollapsingHeader("m_pHrMenuTask")) {
+        if (HrMenuTask* HrMenuTask = nmh_sdk::get_HrMenuTask()) {
+            // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&HrMenuTask->m_pHrMenuTask);
+            // ImGui::Text("Base Address: 0x%08X", baseAddress);
+            // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&HrMenuTask->m_pHsMenu);
+            // ImGui::Text("Target Address: 0x%08X", targetAddress);
+            // uintptr_t offsetDifference = targetAddress - baseAddress;
+            // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
+
+            ImGui::Text("m_pHrMenuTask: %p", HrMenuTask->m_pHrMenuTask);
+            ImGui::Text("m_pHsMenu: %p", HrMenuTask->m_pHsMenu);
+            ImGui::Text("m_pdEmployment: %p", HrMenuTask->m_pdEmployment);
+            ImGui::Text("m_pdK_Entertainment: %p", HrMenuTask->m_pdK_Entertainment);
+            ImGui::Text("m_Weapon: %p", &HrMenuTask->m_Weapon);
+            ImGui::InputInt("m_Dag_Counter", &HrMenuTask->m_Dag_Counter);
+            ImGui::Checkbox("m_Dag_LockFlag", &HrMenuTask->m_Dag_LockFlag);
+        }
+    }   
+    if (ImGui::CollapsingHeader("HrMenuTask->hsSourceBase")) {
+        if (hsSourceBase* hsMenu = nmh_sdk::get_HrMenuTask()->m_pHsMenu) {
+            // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&HrMenuTask->m_pHsMenu->Padding_1229[0]);
+            // ImGui::Text("Base Address: 0x%08X", baseAddress);
+            // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&HrMenuTask->m_pHsMenu->mouseDeltaTracker);
+            // ImGui::Text("Target Address: 0x%08X", targetAddress);
+            // uintptr_t offsetDifference = targetAddress - baseAddress;
+            // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
+
+            ImGui::Checkbox("m_Access_f", &hsMenu->m_Access_f);
+            ImGui::InputScalar("m_Access_No", ImGuiDataType_U32, &hsMenu->m_Access_No);
+            ImGui::InputScalar("m_Task", ImGuiDataType_S32, &hsMenu->m_Task);
+            ImGui::InputScalar("m_hsLoadState", ImGuiDataType_S32, &hsMenu->m_hsLoadState);
+            ImGui::InputScalar("m_hsfileState", ImGuiDataType_S32, &hsMenu->m_hsfileState);
+            ImGui::InputScalar("m_SaveSound_No", ImGuiDataType_U16, &hsMenu->m_SaveSound_No);
+            ImGui::InputFloat("m_StartMotion_frame_Num", &hsMenu->m_StartMotion_frame_Num);
+            ImGui::InputScalar("m_Model_Alpha_Type", ImGuiDataType_S32, &hsMenu->m_Model_Alpha_Type);
+            ImGui::InputInt("m_Model_Alpha_Num", &hsMenu->m_Model_Alpha_Num);
+            ImGui::InputInt("m_Alpha_1F_Num", &hsMenu->m_Alpha_1F_Num);
+            ImGui::InputInt("m_Info_x", &hsMenu->m_Info_x);
+            ImGui::InputFloat("m_InfoLength", &hsMenu->m_InfoLength);
+            ImGui::InputFloat("m_Most_ItemName_Length", &hsMenu->m_Most_ItemName_Length);
+            for (int i = 0; i < 2; ++i)
+            {
+                ImGui::InputInt(("m_CurNum[" + std::to_string(i) + "]").c_str(), &hsMenu->m_CurNum[i]);
+            }
+            ImGui::Separator();
+            ImGui::Text("m_HsMoveBase: %p", &hsMenu->m_HsMoveBase);
+            ImGui::InputScalar("m_Cnt", ImGuiDataType_U32, &hsMenu->m_Cnt);
+            ImGui::InputScalar("m_Cnt2", ImGuiDataType_U32, &hsMenu->m_Cnt2);
+            ImGui::Text("m_pGmf: %p", hsMenu->m_pGmf);
+            ImGui::Checkbox("updatesMouseSelf", &hsMenu->updatesMouseSelf);
+            ImGui::InputScalar("chosenMouseInteraction", ImGuiDataType_S32, &hsMenu->chosenMouseInteraction);
+            for (int i = 0; i < 12; ++i)
+            {
+                ImGui::Text("MouseInteractions[%d]: %p", i, hsMenu->MouseInteractions[i]);
+            }
+            for (int i = 0; i < 12; ++i)
+            {
+                ImGui::Text("SubMenuInteractions[%d]: %p", i, hsMenu->SubMenuInteractions[i]);
+            }
+            for (int i = 0; i < 12; ++i)
+            {
+                ImGui::InputInt(("MouseInteractionCounts[" + std::to_string(i) + "]").c_str(), (int*)&hsMenu->MouseInteractionCounts[i]);
+            }
+            for (int i = 0; i < 12; ++i)
+            {
+                ImGui::InputInt(("SubMenuMouseInteractionCounts[" + std::to_string(i) + "]").c_str(), (int*)&hsMenu->SubMenuMouseInteractionCounts[i]);
+            }
+            ImGui::Text("mi_Cat: %p", &hsMenu->mi_Cat);
+            for (int i = 0; i < 11; ++i)
+            {
+                ImGui::Text("mi_Closet[%d]: %p", i, &hsMenu->mi_Closet[i]);
+            }
+            for (int i = 0; i < 8; ++i)
+            {
+                ImGui::Text("mi_Drawer[%d]: %p", i, &hsMenu->mi_Drawer[i]);
+            }
+            for (int i = 0; i < 10; ++i)
+            {
+                ImGui::Text("mi_TV[%d]: %p", i, &hsMenu->mi_TV[i]);
+            }
+            for (int i = 0; i < 7; ++i)
+            {
+                ImGui::Text("mi_Naomi[%d]: %p", i, &hsMenu->mi_Naomi[i]);
+            }
+            for (int i = 0; i < 6; ++i)
+            {
+                ImGui::Text("mi_Gym[%d]: %p", i, &hsMenu->mi_Gym[i]);
+            }
+            for (int i = 0; i < 6; ++i)
+            {
+                ImGui::Text("mi_VideoStore[%d]: %p", i, &hsMenu->mi_VideoStore[i]);
+            }
+            for (int i = 0; i < 6; ++i)
+            {
+                ImGui::Text("mi_Lovikov[%d]: %p", i, &hsMenu->mi_Lovikov[i]);
+            }
+            for (int i = 0; i < 15; ++i)
+            {
+                ImGui::Text("mi_Closet_Sub[%d]: %p", i, &hsMenu->mi_Closet_Sub[i]);
+            }
+            for (int i = 0; i < 7; ++i)
+            {
+                ImGui::Text("mi_Naomi_Sub[%d]: %p", i, &hsMenu->mi_Naomi_Sub[i]);
+            }
+            for (int i = 0; i < 3; ++i)
+            {
+                ImGui::Text("mi_Gym_Sub[%d]: %p", i, &hsMenu->mi_Gym_Sub[i]);
+            }
+            for (int i = 0; i < 4; ++i)
+            {
+                ImGui::Text("mi_VideoStore_Sub[%d]: %p", i, &hsMenu->mi_VideoStore_Sub[i]);
+            }
+            for (int i = 0; i < 7; ++i)
+            {
+                ImGui::Text("mi_Lovikov_Sub[%d]: %p", i, &hsMenu->mi_Lovikov_Sub[i]);
+            }
+            ImGui::Text("mouseDeltaTracker: %p", &hsMenu->mouseDeltaTracker);
+        }
+    }
+
     if (CBgCtrl* CBgCtrl = nmh_sdk::get_CBgCtrl()) {
         if (ImGui::CollapsingHeader("CBgCtrl")) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&CBgCtrl->Padding_1372);

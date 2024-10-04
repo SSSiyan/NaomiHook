@@ -2544,3 +2544,298 @@ enum CBGCTRL_LOADSTATUS
   /* 0x0cc3 */ char Padding_1382;
   /* 0x0cc4 */ int mReleaseWaitCount;
 }; /* size: 0x0cc8 */
+
+struct LOADING
+{
+  /* 0x0000 */ bool mFadeOnly;
+  /* 0x0001 */ bool mVisible;
+  /* 0x0002 */ unsigned char mRunType;
+}; /* size: 0x0003 */
+
+struct GAMESAVERESOURCE
+{
+  /* 0x0000 */ class ghmGcFile* file;
+  /* 0x0004 */ void* pData;
+  /* 0x0008 */ class ghmResGroup* pRsl;
+}; /* size: 0x000c */
+
+class WAnimLinearF
+{
+  /* 0x0000 */ int Padding_119; // edited
+  /* 0x0004 */ float mCurValue;
+  /* 0x0008 */ float mDstValue;
+  /* 0x000c */ float mSrcValue;
+  /* 0x0010 */ unsigned int mCount;
+  /* 0x0014 */ unsigned int mTime;
+}; /* size: 0x0018 */
+
+class HsMoveBase
+{
+  /* 0x0000 */ int m_Move_Cnt;
+  /* 0x0004 */ bool m_Move_f;
+  /* 0x0005 */ char Padding_912[3];
+  /* 0x0008 */ int m_HiSpd_Cnt;
+  /* 0x000c */ bool m_HiSpd_f;
+  /* 0x000d */ char Padding_913[3];
+  /* 0x0010 */ enum HS_INPUT_VEC m_InputVec[2];
+}; /* size: 0x0018 */
+
+class NMH1MouseInteractionObject
+{
+    char pad_00[0x98]; // edited
+}; /* size: 0x0098 */
+
+class MouseDeltaTracker
+{
+  /* 0x0000 */ int _oldMousePointerPosition[2]; // edited
+  /* 0x0008 */ float _sqrMouseDelta;
+}; /* size: 0x000c */
+
+class hsSourceBase
+{
+public:
+    enum MouseInteractionType
+    {
+      None = 0,
+      Main = 1,
+      Map = 2,
+      Ranking = 3,
+      Side_Job = 4,
+      Side_Job_WorkDetails = 5,
+      Side_Job_Cancel_1 = 6,
+      Side_Job_Cancel_2 = 7,
+      Config = 8,
+      Data = 9,
+      Data_Load = 10,
+      Num = 11,
+    };
+  /* 0x0000 */ long Padding_1229[2];
+  /* 0x0008 */ bool m_Access_f;
+  /* 0x0009 */ char Padding_1230[3];
+  /* 0x000c */ unsigned int m_Access_No;
+  /* 0x0010 */ enum HS_CLASS_TASK m_Task;
+  /* 0x0014 */ enum HS_PROC_LOAD_STATE m_hsLoadState;
+  /* 0x0018 */ enum HS_FILE_LOAD_STATE m_hsfileState;
+  /* 0x001c */ unsigned short m_SaveSound_No;
+  /* 0x001e */ char Padding_1231[2];
+  /* 0x0020 */ float m_StartMotion_frame_Num;
+  /* 0x0024 */ enum HS_MODEL_ALPHA_TYPE m_Model_Alpha_Type;
+  /* 0x0028 */ int m_Model_Alpha_Num;
+  /* 0x002c */ int m_Alpha_1F_Num;
+  /* 0x0030 */ int m_Info_x;
+  /* 0x0034 */ float m_InfoLength;
+  /* 0x0038 */ float m_Most_ItemName_Length;
+  /* 0x003c */ int m_CurNum[2];
+  /* 0x0044 */ class HsMoveBase m_HsMoveBase;
+  /* 0x005c */ unsigned int m_Cnt;
+  /* 0x0060 */ unsigned int m_Cnt2;
+  /* 0x0064 */ class TGmf* m_pGmf;
+  /* 0x0068 */ bool updatesMouseSelf;
+  /* 0x0069 */ char Padding_1232[3];
+  /* 0x006c */ enum MouseInteractionType chosenMouseInteraction;
+  /* 0x0070 */ class NMH1MouseInteractionObject* const MouseInteractions[12];
+  /* 0x00a0 */ class NMH1MouseInteractionObject* const SubMenuInteractions[12];
+  /* 0x00d0 */ const int MouseInteractionCounts[12];
+  /* 0x0100 */ const int SubMenuMouseInteractionCounts[12];
+  /* 0x0130 */ class NMH1MouseInteractionObject mi_Cat[1];
+  /* 0x01c8 */ class NMH1MouseInteractionObject mi_Closet[11];
+  /* 0x0850 */ class NMH1MouseInteractionObject mi_Drawer[8];
+  /* 0x0d10 */ class NMH1MouseInteractionObject mi_TV[10];
+  /* 0x1300 */ class NMH1MouseInteractionObject mi_Naomi[7];
+  /* 0x1728 */ class NMH1MouseInteractionObject mi_Gym[6];
+  /* 0x1ab8 */ class NMH1MouseInteractionObject mi_VideoStore[6];
+  /* 0x1e48 */ class NMH1MouseInteractionObject mi_Lovikov[6];
+  /* 0x21d8 */ class NMH1MouseInteractionObject mi_Closet_Sub[15];
+  /* 0x2ac0 */ class NMH1MouseInteractionObject mi_Naomi_Sub[7];
+  /* 0x2ee8 */ class NMH1MouseInteractionObject mi_Gym_Sub[3];
+  /* 0x30b0 */ class NMH1MouseInteractionObject mi_VideoStore_Sub[4];
+  /* 0x3310 */ class NMH1MouseInteractionObject mi_Lovikov_Sub[7];
+  /* 0x3738 */ class MouseDeltaTracker mouseDeltaTracker;
+}; /* size: 0x3748 */
+
+struct WEAPONCOUNT
+{
+    /* 0x0000 */ int m_WeaponCounter;
+    /* 0x0004 */ int m_ID;
+}; /* size: 0x0008 */
+
+class HrMenuTask
+{
+public:
+  /* 0x0000 */ class HrMenuTask* m_pHrMenuTask;
+  /* 0x0004 */ char Padding_1228[0x4C];
+  /* 0x0050 */ class hsSourceBase* m_pHsMenu;
+  /* 0x0054 */ class HrEmployment* m_pdEmployment;
+  /* 0x0058 */ class HrK_Entertainment* m_pdK_Entertainment;
+  /* 0x005c */ struct WEAPONCOUNT m_Weapon;
+  /* 0x0064 */ int m_Dag_Counter;
+  /* 0x0068 */ bool m_Dag_LockFlag;
+}; /* size: 0x006c */
+
+class HrGameTask
+{
+public:
+    enum HR_LOAD_STS
+    {
+        HR_LOAD_NONE = 0,
+        HR_LOAD_NEW = 1,
+        HR_LOAD_CONTINUE = 2,
+        HR_LOAD_CHECKPOINT = 3,
+        HR_LOAD_RETURNHOME = 4,
+        HR_LOAD_DEBUG = 5,
+        HR_LOAD_ALLCLEAR = 6,
+        HR_LOAD_MAX = 7,
+    };
+
+    enum HRGAME_ID
+    {
+      HR_INIT_ID = 0,
+      HR_OPMOVIE_ID = 1,
+      HR_TITLE_ID = 2,
+      HR_LOAD_ID = 3,
+      HR_OPTION_ID = 4,
+      HR_GAME_ID = 5,
+      HR_SUBMENU_ID = 6,
+      HR_GAMEOVER_ID = 7,
+      HR_ENDING_ID = 8,
+      HR_STAFFROLL_ID = 9,
+      HR_MAX = 10,
+    };
+
+    enum HR_PROCESS_STS
+    {
+      HR_PROCESS_INIT = 0,
+      HR_PROCESS_INITWAIT = 1,
+      HR_PROCESS_SCENARIOSELECT = 2,
+      HR_PROCESS_SCENARIOSCRIPTLOADING = 3,
+      HR_PROCESS_INITSTAGE_LOADING = 4,
+      HR_PROCESS_TITLEPROCESS = 5,
+      HR_PROCESS_TITLETERM = 6,
+      HR_PROCESS_INIT_NEW_OR_LOAD = 7,
+      HR_PROCESS_INGAMEINITSTAGE_LOADING = 8,
+      HR_PROCESS_INGAMEINITSTAGE_LOADINGWAIT = 9,
+      HR_PROCESS_IDLE = 10,
+      HR_PROCESS_IDLE2 = 11,
+      HR_PROCESS_GAMEOVER_WAIT = 12,
+      HR_PROCESS_GAMEOVER = 13,
+      HR_PROCESS_GAMEOVER_LOADSTAGE = 14,
+      HR_PROCESS_GAMEOVER_ENDWAIT = 15,
+      HR_PROCESS_BOSSRESULT_SETUP = 16,
+      HR_PROCESS_BOSSRESULT_TO_DEMO = 17,
+      HR_PROCESS_BOSSRESULT_TO_DEMO_WAIT = 18,
+      HR_PROCESS_RANKUP_SETUP = 19,
+      HR_PROCESS_RANKUP = 20,
+      HR_PROCESS_RANKUP_TO_STAGECHANGE = 21,
+      HR_PROCESS_STAFF1_SETUP = 22,
+      HR_PROCESS_STAFF1 = 23,
+      HR_PROCESS_STAFF2_SETUP = 24,
+      HR_PROCESS_STAFF2 = 25,
+      HR_PROCESS_SHOOTING_SETUP = 26,
+      HR_PROCESS_SHOOTING = 27,
+      HR_PROCESS_LAST_LOGO_DISP_SETUP = 28,
+      HR_PROCESS_LAST_LOGO_DISP = 29,
+      HR_PROCESS_LAST_LOGO_DISP_TERM = 30,
+      HR_PROCESS_FADEOUT = 31,
+      HR_PROCESS_STAGECHANGE = 32,
+      HR_PROCESS_RELEASE = 33,
+      HR_PROCESS_END = 34,
+      HR_PROCESS_EXIT = 35,
+      HR_PROCESS_LOADSUBMISSION = 36,
+      HR_PROCESS_LOADSUBMISSIONREQUEST = 37,
+      HR_PROCESS_LOADSUBMISSIONREQUEST_WAIT = 38,
+      HR_PROCESS_LOADSUBMISSIONREQUEST_RELEASEWAIT = 39,
+      HR_PROCESS_ENDSAVE_SETUP = 40,
+      HR_PROCESS_MAX = 41,
+    };
+
+  /* 0x0000 */ char Padding_972[0x50];
+  /* 0x0050 */ enum HrGameTask::HR_LOAD_STS mLoadSts;
+  /* 0x0054 */ class HrRankingUp* mpRankingUp;
+  /* 0x0058 */ int mDebugScenarioID;
+  /* 0x005c */ char mDebugScenarioInputKeta;
+  /* 0x005d */ char mDebugScenarioMenu;
+  /* 0x005e */ char mDebugLogoSkip;
+  /* 0x005f */ char Padding_973;
+  /* 0x0060 */ class CDEBUGINFO* m_pDebug;
+  /* 0x0064 */ int mDebugSubMissionID;
+  /* 0x0068 */ char mDebugSubMissionInputKeta;
+  /* 0x0069 */ struct LOADING mLoading;
+  /* 0x006c */ class HrBossResult* mpBossResult;
+  /* 0x0070 */ class HrStaffRoll* mStaffRoll;
+  /* 0x0074 */ class HrStaffRoll2* mStaffRoll2;
+  /* 0x0078 */ class HStgTask* mpShooting;
+  /* 0x007c */ int mLastLogoSndGroupID;
+  /* 0x0080 */ int mLastSaveSndGroupID;
+  /* 0x0084 */ int TerminateCnt;
+  union
+  {
+    /* 0x0000 */ __int64 m_TotalStartPlayTime;
+    /* 0x0000 */ __int64 m_StartPlayTime;
+    /* 0x0000 */ __int64 m_ScenarioPlayTime;
+    /* 0x0000 */ bool mNewGameRequestForTitle;
+    struct
+    {
+      /* 0x0000 */ bool mAllClearHikitugi;
+      /* 0x0001 */ char Padding_974[0x87];
+      /* 0x0088 */ bool mInitStageLoad;
+      /* 0x0089 */ bool mOpeningMovieRequest;
+      /* 0x008a */ bool mNewGameRequest;
+      /* 0x008b */ bool mGotoTitleRequest;
+      /* 0x008c */ int mGameExit;
+      /* 0x0090 */ int mGameExitProcess;
+      /* 0x0094 */ bool mAllClearDataLoadFlag;
+      /* 0x0095 */ bool mMainScenarioRun;
+      /* 0x0096 */ bool mSubMissionRun;
+      /* 0x0097 */ char Padding_975;
+      /* 0x0098 */ int mSetSubMissionID;
+      /* 0x009c */ int mGameLevel;
+      /* 0x00a0 */ bool mHomeButtonDisEnable;
+      /* 0x00a1 */ char Padding_976[3];
+      /* 0x00a4 */ enum HrGameTask::HRGAME_ID m_Process_id;
+      /* 0x00a8 */ enum HrGameTask::HR_PROCESS_STS m_Pro_Sts;
+      /* 0x00ac */ struct tagHRSAVEDATA* mp_SaveData;
+      /* 0x00b0 */ struct tagHRSAVEDATA* mp_CheckPoint;
+      /* 0x00b4 */ struct tagHRSAVEDATA* mp_HikitugiSaveData;
+      /* 0x00b8 */ int m_SmRunflag[60];
+      /* 0x01a8 */ class HrScriptTask* mpGameScrTask;
+      /* 0x01ac */ class HrDemo* m_pDemo;
+      /* 0x01b0 */ class HrMenuTask* m_pMenu;
+      /* 0x01b4 */ class HrGameOver* mpGameOver;
+      /* 0x01b8 */ bool mBossResultRequest;
+      /* 0x01b9 */ bool mRankingUpRequest;
+      /* 0x01ba */ char Padding_977[2];
+      /* 0x01bc */ int mStageChangeFadeType;
+      /* 0x01c0 */ bool mStaffRollRequest;
+      /* 0x01c1 */ bool mStaffRoll2Request;
+      /* 0x01c2 */ bool mShootingRequest;
+      /* 0x01c3 */ bool mLastLogoRequest;
+      /* 0x01c4 */ bool mLastSaveRequest;
+      /* 0x01c5 */ char Padding_978[3];
+      /* 0x01c8 */ int mLastSaveProcess;
+      /* 0x01cc */ struct GAMESAVERESOURCE mLastSaveResource;
+      /* 0x01d8 */ class HrSave* mpLastSave;
+      /* 0x01dc */ int mLastLogoProcess;
+      /* 0x01e0 */ struct tagGHMR_TEX mLastLogoTex[4];
+      /* 0x0280 */ int mLastLogoTexDispNum;
+      /* 0x0284 */ class WAnimLinearF mLastLogoAlpha;
+      /* 0x029c */ int mLastLogoDispTick;
+      /* 0x02a0 */ class WAnimLinearF mLastLogoMoveX;
+      /* 0x02b8 */ int mGameSaveProcess;
+      /* 0x02bc */ struct GAMESAVERESOURCE mGameSaveResource;
+      /* 0x02c8 */ class HrSave* mpGameSave;
+      /* 0x02cc */ int mGameSaveSetUpWait;
+      /* 0x02d0 */ int mGameSaveMode;
+      /* 0x02d4 */ class TGmfNode* mpGameSavePcNode;
+      /* 0x02d8 */ bool mGameSaveCopyLightFadeOutReq;
+      /* 0x02d9 */ char Padding_979[3];
+      /* 0x02dc */ int mLoadingWallType;
+      /* 0x02e0 */ int mBossResultAfterDemoNo;
+      /* 0x02e4 */ bool m_STG_Feed_f;
+      /* 0x02e5 */ char Padding_980[3];
+      /* 0x02e8 */ class HrSubGameTask* m_pSubTask;
+    }; /* size: 0x0256 */
+    /* 0x0000 */ char mScenarioScriptFileName[64];
+    /* 0x0000 */ char mSubMissionScriptFileName[64];
+    /* 0x0000 */ int mRefreshCounter;
+  }; /* size: 0x0256 */
+}; /* size: 0x02ec */
