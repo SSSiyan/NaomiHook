@@ -88,42 +88,16 @@ static constexpr std::array<Stage, 78> stage_items = {
     Stage {"STG9009",  69, "Dr.Peace Toilet Stadium"},
 };
 
-typedef bool (__thiscall* setStageFunc)(
-    uintptr_t* gp_CBgCtrl,
-    const char* _StgName,
-    int _Arg,              // added stages
-    int _Arg1,             // unkn
-    int _Arg2,             // unkn
-    bool inBossInfoDisp,
-    int inFadeType,
-    __int64 inSetVolRate,
-    bool inPause,
-    unsigned int a10);     // unkn
-
 std::optional<std::string> StageWarp::on_initialize() {
     return Mod::on_initialize();
 }
 
 void StageWarp::on_draw_ui() {
-    uintptr_t gp_CBgCtrlAddr = g_framework->get_module().as<uintptr_t>() + 0x8446F0;
-    if (gp_CBgCtrlAddr) {
-        // ImGui::Text("gp_CBgCtrlAddr = %p", (void*)gp_CBgCtrlAddr);
-        uintptr_t* gp_CBgCtrl = (uintptr_t*)gp_CBgCtrlAddr;
-        if (gp_CBgCtrl) {
-            // ImGui::Text("gp_CBgCtrl = %p", (void*)gp_CBgCtrl);
-            uintptr_t* gp_CBgCtrlBase = *(uintptr_t**)gp_CBgCtrl;
-            if (gp_CBgCtrlBase) {
-                // ImGui::Text("gp_CBgCtrlBase = %p", (void*)gp_CBgCtrlBase);
-                uintptr_t* targetAddress = (uintptr_t*)((char*)gp_CBgCtrlBase + 0xab0); // add as bytes
-                // ImGui::Text("gp_CBgCtrl+ab0 = %p", (void*)targetAddress);
-                const char* currentStage = (const char*)targetAddress;
-                if (currentStage && (strlen(currentStage) < 20)) { // can you tell I had trouble with this
-                    ImGui::Text("Current Stage: %s", currentStage);
-                } else {
-                    ImGui::Text("Current Stage: ?");
-                }
-            }
-        }
+    char* currentStage = nmh_sdk::get_CBgCtrl()->m_NowStageName;
+    if (currentStage && (strlen(currentStage) < 20)) {
+        ImGui::Text("Current Stage: %s", nmh_sdk::get_CBgCtrl()->m_NowStageName);
+    } else {
+        ImGui::Text("Current Stage: ?");
     }
     help_marker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n"
     "The warps you've been using up to this point have left all of these values at 0.");
@@ -148,16 +122,8 @@ void StageWarp::on_draw_ui() {
         char buttonLabel[64];
         snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", stage_items[i].name, stage_items[i].info);
         if (ImGui::Button(buttonLabel)) {
-            uintptr_t setStageAddress = (g_framework->get_module().as<uintptr_t>() + 0x3FD690);
-            setStageFunc setStage = (setStageFunc)setStageAddress;
-            uintptr_t* gp_CBgCtrl = (uintptr_t*)gp_CBgCtrlAddr;
-            if (gp_CBgCtrl) {
-                uintptr_t* gp_CBgCtrlBase = *(uintptr_t**)gp_CBgCtrl;
-                if (gp_CBgCtrlBase) {
-                    setStage(gp_CBgCtrlBase, stage_items[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2],
-                        setStageArgs[3], setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
-                }
-            }
+            nmh_sdk::SetStage(stage_items[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2],
+                setStageArgs[3], setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
         }
     }
 }

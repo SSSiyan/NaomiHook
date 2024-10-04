@@ -4,6 +4,7 @@
 bool WeaponSwitcher::mod_enabled = false;
 float WeaponSwitcher::weaponSwitchCooldown = 20.0f;
 
+// Disable toggling the map while Weapon Switcher is active
 void WeaponSwitcher::toggleForceMap(bool enable) {
     if (enable) {
         install_patch_offset(0x3DC204, m_patch, "\xEB", 1); // jmp nmh.exe+3DC21A
@@ -13,14 +14,24 @@ void WeaponSwitcher::toggleForceMap(bool enable) {
     }
 }
 
+// check a weapon switch ban list of states and animations
 bool WeaponSwitcher::CanWeaponSwitch(pcItem newWeapon) {
     if (mHRPc* playerPtr = nmh_sdk::get_mHRPc()) {
         int currentMode = playerPtr->mInputMode;
         pcItem currentWeapon = playerPtr->mPcStatus.equip[0].id;
         pcMotion currentMoveID = playerPtr->mCharaStatus.motionNo;
-        if (newWeapon != currentWeapon && currentMode == 4 && nmh_sdk::CheckCanAttack() &&
-            !nmh_sdk::CheckGuardMotion(false) && !nmh_sdk::CheckHajikare() && !nmh_sdk::CheckTsubazering() && !nmh_sdk::CheckSideStep(-1)
-            && currentMoveID != pcMotion::ePcMtBtryChrgSt && currentMoveID != pcMotion::ePcMtBtryChrgLp && currentMoveID != pcMotion::ePcMtStpF && currentMoveID != pcMotion::ePcMtAvdR && currentMoveID != pcMotion::ePcMtAvdL) {
+        if (newWeapon != currentWeapon
+            && currentMode == 4 &&
+            nmh_sdk::CheckCanAttack() &&
+            !nmh_sdk::CheckGuardMotion(false) &&
+            !nmh_sdk::CheckHajikare() && // eating a hit
+            !nmh_sdk::CheckTsubazering(-1) && // clashing
+            !nmh_sdk::CheckSideStep(-1) && // dodging back or left or right
+            currentMoveID != pcMotion::ePcMtBtryChrgSt && // start charging
+            currentMoveID != pcMotion::ePcMtBtryChrgLp && // continue charging
+            currentMoveID != pcMotion::ePcMtStpF && // dodge forward
+            currentMoveID != pcMotion::ePcMtAvdR && // darkstep right
+            currentMoveID != pcMotion::ePcMtAvdL) { // darkstep left
             return true;
         }
     }
@@ -54,6 +65,7 @@ void WeaponSwitcher::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("weapon_switcher").value_or(false);
     toggleForceMap(mod_enabled);
 }
+
 // during save
 void WeaponSwitcher::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("weapon_switcher", mod_enabled);
