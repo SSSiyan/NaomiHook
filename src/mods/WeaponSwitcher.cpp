@@ -13,14 +13,14 @@ void WeaponSwitcher::toggleForceMap(bool enable) {
     }
 }
 
-bool WeaponSwitcher::CanWeaponSwitch(int newWeapon) {
+bool WeaponSwitcher::CanWeaponSwitch(pcItem newWeapon) {
     if (mHRPc* playerPtr = nmh_sdk::get_mHRPc()) {
         int currentMode = playerPtr->mInputMode;
-        int currentWeapon = playerPtr->mPcStatus.equip[0].id;
-        int currentMoveID = playerPtr->mCharaStatus.motionNo;
+        pcItem currentWeapon = playerPtr->mPcStatus.equip[0].id;
+        pcMotion currentMoveID = playerPtr->mCharaStatus.motionNo;
         if (newWeapon != currentWeapon && currentMode == 4 && nmh_sdk::CheckCanAttack() &&
             !nmh_sdk::CheckGuardMotion(false) && !nmh_sdk::CheckHajikare() && !nmh_sdk::CheckTsubazering() && !nmh_sdk::CheckSideStep(-1)
-            && currentMoveID != 44 && currentMoveID != 45 && currentMoveID != 26 && currentMoveID != 28 && currentMoveID != 29) {
+            && currentMoveID != pcMotion::ePcMtBtryChrgSt && currentMoveID != pcMotion::ePcMtBtryChrgLp && currentMoveID != pcMotion::ePcMtStpF && currentMoveID != pcMotion::ePcMtAvdR && currentMoveID != pcMotion::ePcMtAvdL) {
             return true;
         }
     }
@@ -36,14 +36,14 @@ void WeaponSwitcher::on_draw_ui() {
         toggleForceMap(mod_enabled);
     }
     help_marker("Enable the main mod. This binds weapon swaps to Dpad.");
-    static int motionID = 174;
-    ImGui::InputInt("Motion ID", &motionID);
+    static pcMotion motionID = pcMotion::ePcMtBtLSSonic;
+    ImGui::InputInt("Motion ID", (int*)&motionID);
     if (ImGui::Button("Play Move")) {
         nmh_sdk::PlayMotion(motionID, 0, 0, 0, 0.1f);
     }
 
-    static int equipID = 601;
-    ImGui::InputInt("Equip ID", &equipID);
+    static pcItem equipID = pcItem::shirt1;
+    ImGui::InputInt("Equip ID", (int*)&equipID);
     if (ImGui::Button("Set Equip")) {
         nmh_sdk::SetEquip(equipID, false);
     }
@@ -63,30 +63,30 @@ void WeaponSwitcher::on_frame() {
     if (mod_enabled) {
         if (weaponSwitchCooldown > 20.0f) {
             uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
-            int8_t dPadInput = *(int8_t*)dPadInputsAddr;
             if (dPadInputsAddr) {
+                int8_t dPadInput = *(int8_t*)dPadInputsAddr;
                 switch (dPadInput) {
-                case 1: // left, mk1
-                    if (CanWeaponSwitch(2)) {
-                        nmh_sdk::SetEquip(2, false);
+                case 1: // left
+                    if (CanWeaponSwitch(pcItem::mk1)) {
+                        nmh_sdk::SetEquip(pcItem::mk1, false);
                         weaponSwitchCooldown = 0.0f;
                     }
                     break;
-                case 2: // right, mk3
-                    if (CanWeaponSwitch(1)) {
+                case 2: // right
+                    if (CanWeaponSwitch(pcItem::mk3)) {
                         nmh_sdk::SetMk3Equip();
                         weaponSwitchCooldown = 0.0f;
                     }
                     break;
-                case 4: // down, mk2
-                    if (CanWeaponSwitch(3)) {
-                        nmh_sdk::SetEquip(3, false);
+                case 4: // down
+                    if (CanWeaponSwitch(pcItem::mk2)) {
+                        nmh_sdk::SetEquip(pcItem::mk2, false);
                         weaponSwitchCooldown = 0.0f;
                     }
                     break;
-                case 8: // up, berry
-                    if (CanWeaponSwitch(0)) {
-                        nmh_sdk::SetEquip(0, false);
+                case 8: // up
+                    if (CanWeaponSwitch(pcItem::berry)) {
+                        nmh_sdk::SetEquip(pcItem::berry, false);
                         weaponSwitchCooldown = 0.0f;
                     }
                     break;

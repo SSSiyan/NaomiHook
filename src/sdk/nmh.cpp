@@ -34,7 +34,7 @@ namespace nmh_sdk {
         return NULL;
     }
 
-    void PlayMotion(int inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate) {
+    void PlayMotion(pcMotion inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate) {
         uintptr_t* mHRPc = GetPlayerPtr();
         uintptr_t playMotionAddress = (g_framework->get_module().as<uintptr_t>() + 0x402CF0);
         mPlayMotionFunc playMotion = (mPlayMotionFunc)playMotionAddress;
@@ -43,7 +43,7 @@ namespace nmh_sdk {
         }
     }
 
-    void SetEquip(int inID, bool inPowUp) {
+    void SetEquip(pcItem inID, bool inPowUp) {
         uintptr_t* mHRPc = GetPlayerPtr();
         uintptr_t setEquipAddress = (g_framework->get_module().as<uintptr_t>() + 0x3E2240);
         mSetEquipFunc setEquip = (mSetEquipFunc)setEquipAddress;

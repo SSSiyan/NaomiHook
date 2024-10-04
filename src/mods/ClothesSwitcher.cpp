@@ -163,7 +163,7 @@ void ClothesSwitcher::on_draw_ui() {
                 const bool is_selected = (selected_indices[i] == n - combo.start_idx);
                 if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
                     selected_indices[i] = n - combo.start_idx;
-                    nmh_sdk::SetEquip(clothing_items[n].id, 0);
+                    nmh_sdk::SetEquip((pcItem)clothing_items[n].id, 0);
                 }
                 if (is_selected) {
                     ImGui::SetItemDefaultFocus();

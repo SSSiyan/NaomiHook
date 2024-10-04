@@ -22,12 +22,12 @@ void setBit(T& flags, int bit, bool value) {
 void PlayerTracker::on_draw_ui() {
     if (CBgCtrl* CBgCtrl = nmh_sdk::get_CBgCtrl()) {
         if (ImGui::CollapsingHeader("CBgCtrl")) {
-            uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&CBgCtrl->Padding_1372);
-            ImGui::Text("Base Address: 0x%08X", baseAddress);
-            uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&CBgCtrl->mReleaseWaitCount);
-            ImGui::Text("Target Address: 0x%08X", targetAddress);
-            uintptr_t offsetDifference = targetAddress - baseAddress;
-            ImGui::Text("Offset difference: 0x%08X", offsetDifference);
+            // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&CBgCtrl->Padding_1372);
+            // ImGui::Text("Base Address: 0x%08X", baseAddress);
+            // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&CBgCtrl->mReleaseWaitCount);
+            // ImGui::Text("Target Address: 0x%08X", targetAddress);
+            // uintptr_t offsetDifference = targetAddress - baseAddress;
+            // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
 
             bool disableUpdate = getBit(CBgCtrl->m_Flag, 0);
             if (ImGui::Checkbox("m_DISABLEUPDATE", &disableUpdate)) setBit(CBgCtrl->m_Flag, 0, disableUpdate);
@@ -210,7 +210,6 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputScalar("Slot Zorome Flash Alpha", ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoromeFlashAlpha);
                 ImGui::InputScalar("Slot Zoro Back Alpha", ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoroBackAlpha);
                 ImGui::InputScalar("Slot Zorome ZOROME", ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoromeZOROME);
-
                 ImGui::Checkbox("Zorome Sorotta", &mHRBattle->mBtEffect.pScreenStatus->m_bZoromeSorotta);
                 ImGui::InputInt("Slot Zoro Back Cnt", &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoroBackCnt);
                 ImGui::InputInt("Slot Zoro Leave Wait Cnt", &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoroLeaveWaitCnt);
@@ -478,7 +477,7 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputFloat("mAiDamageCount", &player->mCharaStatus.mAiDamageCount);
                 ImGui::InputInt("tsubazeriNum", &player->mCharaStatus.tsubazeriNum);
                 ImGui::InputInt("DamageAcceptFrame", &player->mCharaStatus.DamageAcceptFrame);
-                ImGui::InputInt("motionNo", &player->mCharaStatus.motionNo);
+                ImGui::InputInt("motionNo", (int*)&player->mCharaStatus.motionNo);
                 ImGui::InputScalar("motionBrendNum", ImGuiDataType_S8, &player->mCharaStatus.motionBrendNum);
                 ImGui::InputFloat("motSpd", &player->mCharaStatus.motSpd);
                 ImGui::InputFloat3("mYukaNormal", &player->mCharaStatus.mYukaNormal.x);
@@ -590,30 +589,35 @@ void PlayerTracker::on_draw_ui() {
                 if (ImGui::CollapsingHeader("Weapon Info")) {
                     for (int i = 0; i < 16; i++) {
                         ImGui::Text("Weapon Info %d", i);
-                        ImGui::InputInt(("Weapon ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.wepInfo[i].id);
+                        ImGui::InputInt(("ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.wepInfo[i].id);
                         ImGui::InputScalar(("Battery ##" + std::to_string(i)).c_str(), ImGuiDataType_S16, &player->mPcStatus.wepInfo[i].battery);
                         ImGui::InputScalar(("Battery Max ##" + std::to_string(i)).c_str(), ImGuiDataType_S16, &player->mPcStatus.wepInfo[i].batteryMax);
                         ImGui::SliderFloat(("Power ##" + std::to_string(i)).c_str(), &player->mPcStatus.wepInfo[i].power, 0.0f, 100.0f);
                         ImGui::Checkbox(("Combo Extend ##" + std::to_string(i)).c_str(), &player->mPcStatus.wepInfo[i].cmbExtend);
                     }
                 }
-    
+                if (ImGui::CollapsingHeader("Equipped Items")) {
+                    for (int i = 0; i < 7; i++) {
+                        ImGui::Text("Item %d", i);
+                        ImGui::InputInt(("readProc ##" + std::to_string(i)).c_str(), (int*)&player->mPcStatus.equip[i].readProc);
+                        ImGui::InputInt(("ID ##" + std::to_string(i)).c_str(), (int*)&player->mPcStatus.equip[i].id);
+                        ImGui::Checkbox(("reverseDisp ##" + std::to_string(i)).c_str(), &player->mPcStatus.equip[i].reverseDisp);
+                    }
+                }
                 if (ImGui::CollapsingHeader("Locker Items")) {
                     for (int i = 0; i < 200; i++) {
-                        ImGui::Text("Locker Item %d", i);
-                        ImGui::InputInt(("Locker Item ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.locker[i].id);
+                        ImGui::Text("Item %d", i);
+                        ImGui::InputInt(("ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.locker[i].id);
                     }
                 }
-
                 if (ImGui::CollapsingHeader("Inventory Items")) {
                     for (int i = 0; i < 300; i++) {
-                        ImGui::Text("Inventory Item %d", i);
-                        ImGui::InputInt(("Item ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.item[i].id);
-                        ImGui::InputScalar(("Item Quantity ##" + std::to_string(i)).c_str(), ImGuiDataType_S8, &player->mPcStatus.item[i].num);
-                        ImGui::Checkbox(("Item Use ##" + std::to_string(i)).c_str(), &player->mPcStatus.item[i].use);
+                        ImGui::Text("Item %d", i);
+                        ImGui::InputInt(("ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.item[i].id);
+                        ImGui::InputScalar(("Quantity ##" + std::to_string(i)).c_str(), ImGuiDataType_S8, &player->mPcStatus.item[i].num);
+                        ImGui::Checkbox(("Use ##" + std::to_string(i)).c_str(), &player->mPcStatus.item[i].use);
                     }
                 }
-
                 ImGui::SliderFloat("Strength", &player->mPcStatus.strength, 0.0f, 100.0f);
                 ImGui::SliderFloat("Stamina", &player->mPcStatus.stammina, 0.0f, 100.0f);
                 ImGui::SliderFloat("Vitality", &player->mPcStatus.vitality, 0.0f, 100.0f);
@@ -723,7 +727,6 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputScalar("Bike Sight", ImGuiDataType_S8, &player->mPcSaveData.bikeSight);
                 ImGui::InputInt("Clear Count", (int*)&player->mPcSaveData.clearNum);
             }
-
             if (ImGui::CollapsingHeader("mpLockOnNpc")) {
                 if (player->mpLockOnNpc) {
                     ImGui::InputFloat("mDistFromPc", &player->mpLockOnNpc->mDistFromPc);
@@ -769,7 +772,7 @@ void PlayerTracker::on_draw_ui() {
                     ImGui::InputFloat("mAiDamageCount", &player->mpLockOnNpc->mStatus.mAiDamageCount);
                     ImGui::InputInt("tsubazeriNum", &player->mpLockOnNpc->mStatus.tsubazeriNum);
                     ImGui::InputInt("DamageAcceptFrame", &player->mpLockOnNpc->mStatus.DamageAcceptFrame);
-                    ImGui::InputInt("motionNo", &player->mpLockOnNpc->mStatus.motionNo);
+                    ImGui::InputInt("motionNo", (int*)&player->mpLockOnNpc->mStatus.motionNo);
                     ImGui::InputScalar("motionBrendNum", ImGuiDataType_S8, &player->mpLockOnNpc->mStatus.motionBrendNum);
                     ImGui::InputFloat("motSpd", &player->mpLockOnNpc->mStatus.motSpd);
                     ImGui::InputFloat3("mYukaNormal", &player->mpLockOnNpc->mStatus.mYukaNormal.x);
