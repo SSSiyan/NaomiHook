@@ -2591,6 +2591,16 @@ class MouseDeltaTracker
   /* 0x0008 */ float _sqrMouseDelta;
 }; /* size: 0x000c */
 
+enum HS_CLASS_TASK
+{
+  HS_CLASS_TASK_NON = -1,
+  HS_CLASS_TASK_INIT = 0,
+  HS_CLASS_TASK_LODING = 1,
+  HS_CLASS_TASK_IDLE = 2,
+  HS_CLASS_TASK_RELEASE = 3,
+  HS_CLASS_TASK_END = 4,
+};
+
 class hsSourceBase
 {
 public:

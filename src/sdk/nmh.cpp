@@ -46,6 +46,9 @@ namespace nmh_sdk {
         if (CBgCtrl* cBgCtrl = get_CBgCtrl()) {
             setStage(cBgCtrl, _StgName, _StgAdd, _Arg1, _Arg2, inBossInfoDisp, inFadeType, inSetVolRate, inPause, a10);
         }
+        if (HrMenuTask* HrMenuTask = nmh_sdk::get_HrMenuTask()){ // if in a shop or motel
+            HrMenuTask->m_pHsMenu->m_Task = HS_CLASS_TASK_END;   // unload it
+        }
     }
 
     // Play player motion
