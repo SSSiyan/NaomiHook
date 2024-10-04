@@ -6,11 +6,14 @@ public:
   ForceFOV() = default;
   
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
-  static bool mod_enabled;
+  static bool force_fov;
+  static bool disable_attack_zoom;
   static float custom_fov;
   static float default_fov;
   static uintptr_t jmp_ret1;
   static uintptr_t jmp_ret2;
+
+  void toggle(bool enable);
 
   // mod name string for config
   std::string get_mod_name() const override { return "ForceFOV"; }
@@ -33,5 +36,5 @@ public:
   //void on_draw_debug_ui() override;
 private:
 	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
-	// std::unique_ptr<Patch> m_patch;
+	std::unique_ptr<Patch> m_patch;
 };

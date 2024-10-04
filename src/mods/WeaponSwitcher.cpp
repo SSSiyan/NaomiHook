@@ -47,6 +47,7 @@ void WeaponSwitcher::on_draw_ui() {
         toggleForceMap(mod_enabled);
     }
     help_marker("Enable the main mod. This binds weapon swaps to Dpad.");
+
     static pcMotion motionID = pcMotion::ePcMtBtLSSonic;
     ImGui::InputInt("Motion ID", (int*)&motionID);
     if (ImGui::Button("Play Move")) {

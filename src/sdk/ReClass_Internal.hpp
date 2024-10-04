@@ -891,6 +891,316 @@ struct tagGHMR_TEX
   /* 0x0024 */ enum GHMR_TEXDOT_ASPECT Aspect;
 }; /* size: 0x0028 */
 
+struct TFAnmObjF32_3
+{
+    struct GETA
+    {
+      /* 0x0000 */ float Value;
+      /* 0x0004 */ float Wait;
+      /* 0x0008 */ float LockWait;
+      /* 0x000c */ float InSlope;
+      /* 0x0010 */ float OutSlope;
+    }; /* size: 0x0014 */
+
+    struct tagMAIN {
+        /* 0x0000 */ struct _WFAnmObjHeader** ppAnmData;
+        /* 0x0004 */ enum TFANMOBJDATATYPE DataType;
+        /* 0x0008 */ struct Vec* pData;
+        /* 0x000c */ struct Vec NowValue;
+        union
+        {
+            struct /* bitfield */
+            {
+                /* 0x0018 */ unsigned int Idle : 1; /* bit position: 0 */
+                /* 0x0018 */ unsigned int Pause : 1; /* bit position: 1 */
+                /* 0x0018 */ unsigned int Interpolate : 1; /* bit position: 2 */
+                /* 0x0018 */ unsigned int Reverse : 1; /* bit position: 3 */
+                /* 0x0018 */ unsigned int Init : 1; /* bit position: 4 */
+                /* 0x0018 */ unsigned int NoUpdate : 1; /* bit position: 5 */
+                /* 0x0018 */ unsigned int FlagPad : 26; /* bit position: 6 */
+            }; /* bitfield */
+            /* 0x0018 */ unsigned int Flag;
+        }; /* size: 0x0004 */
+        /* 0x001c */ unsigned char NextType;
+        /* 0x001d */ unsigned char PrevType;
+        /* 0x001e */ unsigned short KeyCount;
+        /* 0x0020 */ unsigned short KeyCountMax;
+        /* 0x0022 */ unsigned short KeyListCount;
+        /* 0x0024 */ float Tick;
+        /* 0x0028 */ float NextWait;
+        /* 0x002c */ float PrevWait;
+        /* 0x0030 */ void* pNextKey[3];
+        /* 0x003c */ void* pPrevKey[3];
+        /* 0x0048 */ float NextValue[3];
+        /* 0x0054 */ float PrevValue[3];
+        /* 0x0060 */ float NextSlope[3];
+        /* 0x006c */ float PrevSlope[3];
+        /* 0x0078 */ struct TFAnmObjF32_3::GETA NextGeta[3];
+        /* 0x00b4 */ struct TFAnmObjF32_3::GETA PrevGeta[3];
+        /* 0x00f0 */ struct _WFAnmObjKeyListHeader* pNowKeyListHeader[3];
+        /* 0x00fc */ struct TFAnmObjF32_3::GETA NowKeyGeta[3];
+        /* 0x0138 */ unsigned int NowKeyTypeSize;
+        /* 0x013c */ void* pNowKey[3];
+    };
+}; /* size: 0x0148 */
+
+struct TGmfDrawCmpParam
+{
+  /* 0x0000 */ unsigned char NotUseLightMask;
+  /* 0x0001 */ unsigned char NotUseLightMask_Toon;
+  /* 0x0002 */ unsigned char UseAmbLightIndex;
+  union
+  {
+    /* 0x0003 */ unsigned char Flag;
+    struct /* bitfield */
+    {
+      /* 0x0003 */ unsigned char UseColor : 1; /* bit position: 0 */
+      /* 0x0003 */ unsigned char FogCut : 1; /* bit position: 1 */
+      /* 0x0003 */ unsigned char BackClip : 1; /* bit position: 2 */
+      /* 0x0003 */ unsigned char Padding : 5; /* bit position: 3 */
+    }; /* bitfield */
+  }; /* size: 0x0001 */
+}; /* size: 0x0004 */
+
+struct TGmfNode
+{
+    struct tagMAIN {
+        /* 0x0000 */ class TGmf* pGmf;
+        /* 0x0004 */ struct _WGmfNodeSpec* pSpec;
+        /* 0x0008 */ class TGmfNode* pBaseAttachTarget;
+        /* 0x000c */ class TGmf* pAttachModel;
+        /* 0x0010 */ struct TGmfNodeStripList* pStripList;
+        /* 0x0014 */ unsigned int StripListNum;
+        /* 0x0018 */ struct TGmfNodeBlendSet* pBlendSet;
+        /* 0x001c */ class TGmfNode* pParent;
+        /* 0x0020 */ class TGmfNode* pChild;
+        /* 0x0024 */ class TGmfNode* pPrev;
+        /* 0x0028 */ class TGmfNode* pNext;
+        /* 0x002c */ class TGmfNode* pBlendMatrixNodeNext;
+        /* 0x0030 */ class TGmfNode* pBlendMatrixNodePrev;
+        /* 0x0034 */ bool Visible;
+        /* 0x0035 */ bool Hide;
+        /* 0x0036 */ bool VC;
+        /* 0x0037 */ bool Big;
+        /* 0x0038 */ struct Vec Position;
+        /* 0x0044 */ struct Vec Rotation;
+        /* 0x0050 */ struct Vec Scale;
+        /* 0x005c */ struct TGmfDrawCmpParam CmpP;
+        /* 0x0060 */ unsigned int MulColor;
+        /* 0x0064 */ bool SetupMatrixFlag;
+        /* 0x0065 */ char Padding_10[3];
+        /* 0x0068 */ enum TGMF_MATRIX MatrixType;
+        /* 0x006c */ float LocalWorldMatrix[4][3];
+        union
+        {
+            /* 0x009c */ float OrigLocalWorldMatrix[4][3];
+            /* 0x009c */ float OrigWorldLocalMatrix[4][3];
+        }; /* size: 0x0030 */
+        /* 0x00cc */ int MotionNum;
+        /* 0x00d0 */ struct TGmfNodeMotion* Motion[2];
+        /* 0x00d4 */ struct TGmfNodeShape* pShape;
+        /* 0x00d8 */ enum TGMF_LIGHTTYPE LightType;
+        /* 0x00dc */ struct TGMFLIGHT* pLightParam;
+    }; /* size: 0x00e0 */
+};
+
+class TFAnm {
+public:
+    struct tagMAIN
+    {
+      /* 0x0000 */ class TGmfNode::tagMAIN* pGmfNode;
+      /* 0x0004 */ class TFAnmObjF32_3::tagMAIN* pAnmObj3;
+      /* 0x0008 */ int AnmObj3Num;
+      /* 0x000c */ class TFAnmObj* pAnmObj;
+      /* 0x0010 */ int AnmObjNum;
+      /* 0x0014 */ float Rate;
+      union
+      {
+        struct /* bitfield */
+        {
+          /* 0x0018 */ unsigned int Idle : 1; /* bit position: 0 */
+          /* 0x0018 */ unsigned int Pause : 1; /* bit position: 1 */
+          /* 0x0018 */ unsigned int Loop : 1; /* bit position: 2 */
+          /* 0x0018 */ unsigned int PlayStart : 1; /* bit position: 3 */
+          /* 0x0018 */ unsigned int NoUpdate : 1; /* bit position: 4 */
+          /* 0x0018 */ unsigned int Rewind : 1; /* bit position: 5 */
+        }; /* bitfield */
+        /* 0x0018 */ unsigned int Flag;
+      }; /* size: 0x0004 */
+      /* 0x001c */ float PlayTick;
+      /* 0x0020 */ float StartTick;
+      /* 0x0024 */ float EndTick;
+    }; /* size: 0x0028 */
+};
+
+class TGmf {
+public:
+    struct tagMOVMOTION
+    {
+      /* 0x0000 */ class TGanPlay* pGanPlay;
+      /* 0x0004 */ bool ValidPrevPos;
+      /* 0x0005 */ char Padding_34[3];
+      /* 0x0008 */ struct Vec NowPos;
+      /* 0x0014 */ struct Vec PrevPos;
+    }; /* size: 0x0020 */
+
+    struct tagMOTION
+    {
+      /* 0x0000 */ bool Valid[2];
+      /* 0x0002 */ char Padding_35[2];
+      /* 0x0004 */ float BlendWeight;
+      /* 0x0008 */ bool Blend;
+      /* 0x0009 */ char Padding_36[3];
+      /* 0x000c */ float BlendRate;
+      /* 0x0010 */ float BlendSpeed;
+      /* 0x0014 */ int Active;
+      /* 0x0018 */ int MotionType2State;
+      /* 0x001c */ bool MotionAttachFlag;
+      /* 0x001d */ bool PlayMotionFlag;
+      /* 0x001e */ char Padding_37[2];
+      /* 0x0020 */ float PlayMotionTick;
+      /* 0x0024 */ float MotionRate;
+      /* 0x0028 */ class TGan* pMotion[2];
+      /* 0x0030 */ int TimingSoundHandle[2];
+      /* 0x0038 */ bool Loop;
+      /* 0x0039 */ bool LoopFlag2[2];
+      /* 0x003b */ char Padding_38;
+      /* 0x003c */ float LoopMotionTime2[2];
+      /* 0x0044 */ bool** pSetupMatrixFlag[2];
+      /* 0x004c */ int SetupMatrixFlagNum[2];
+      /* 0x0054 */ class TFAnm MotionType3Anm[2];
+      /* 0x00a4 */ struct TGmf::tagMOVMOTION MOVInfo[2];
+    }; /* size: 0x00e4 */
+
+    struct tagMAIN
+    {
+      /* 0x0000 */ class TGmf* pGlobalListPrev;
+      /* 0x0004 */ class TGmf* pGlobalListNext;
+      /* 0x0008 */ void* pDeleteCallback[16] /* function */;
+      /* 0x0048 */ void* pDeleteCallbackData[16];
+      /* 0x0088 */ int DeleteCallbackNum;
+      /* 0x008c */ bool ProcessBlock;
+      /* 0x008d */ char Padding_40[3];
+      /* 0x0090 */ enum TGMF_STATE State;
+      /* 0x0094 */ struct TGmfNodeStripList* pNodeStripList;
+      /* 0x0098 */ unsigned int NodeStripListNum;
+      /* 0x009c */ unsigned int UseHeap;
+      /* 0x00a0 */ int MaterialNum;
+      /* 0x00a4 */ bool BaseAttach;
+      /* 0x00a5 */ char Padding_41[3];
+      /* 0x00a8 */ class TGmf* pBaseAttachTarget;
+      /* 0x00ac */ class TGmf* pBaseAttachModel[8];
+      /* 0x00cc */ int BaseAttachModelNum;
+      /* 0x00d0 */ class TGmfNode* pAttachTarget;
+      /* 0x00d4 */ struct _WGmfSpec* pSpec;
+      /* 0x00d8 */ struct _WGmfNodeSpec* pTopNodeSpec;
+      /* 0x00dc */ struct Vec RootPosition;
+      /* 0x00e8 */ struct Vec RootRotation;
+      /* 0x00f4 */ struct Vec RootScale;
+      /* 0x0100 */ float RootMatrix[4][3];
+      /* 0x0130 */ bool ValidRootMatrix;
+      /* 0x0131 */ char Padding_42[3];
+      /* 0x0134 */ float LocalWorldMatrix[4][3];
+      /* 0x0164 */ bool SetupMatrixFlag;
+      /* 0x0165 */ char Padding_43[3];
+      /* 0x0168 */ enum TGMF_MATRIX MatrixType;
+      /* 0x016c */ class TGmfNode* pTopNode;
+      /* 0x0170 */ struct TGmfMaterial* pTopMaterial;
+      /* 0x0174 */ struct TGmfTexture* pTopTexture;
+      /* 0x0178 */ int VertFormat;
+      /* 0x017c */ bool AlphaBlend;
+      /* 0x017d */ char Padding_44[3];
+      /* 0x0180 */ int Alpha;
+      /* 0x0184 */ enum GHMR_BLEND BlendMode;
+      /* 0x0188 */ bool EnableDestAlpha;
+      /* 0x0189 */ char Padding_45[3];
+      /* 0x018c */ int DestAlpha;
+      /* 0x0190 */ unsigned int LightRegisterMap;
+      /* 0x0194 */ int MaxAttachMotionNum;
+      /* 0x0198 */ struct TGmf::tagMOTION Motion[4];
+      /* 0x0528 */ bool EnableMotionSound;
+      /* 0x0529 */ char Padding_46[3];
+      /* 0x052c */ class TGmfNode* pCharLightNode[4];
+      /* 0x053c */ class TGmfNode* pAmbientLightNode[4];
+      /* 0x054c */ class TGmfNode* pDirLightNode[4];
+      /* 0x055c */ class TGmfNode* pPointLightNode[4];
+      /* 0x056c */ class TGmfNode* pSpotLightNode[4];
+      /* 0x057c */ struct TGMFLIGHT* pLightParam;
+      /* 0x0580 */ class TGmfNode* pNodeBuffer;
+      /* 0x0584 */ int NodeBufferAddress;
+      /* 0x0588 */ class TGmfNode** pStripNodeBuffer;
+      /* 0x058c */ int StripNodeBufferAddress;
+      /* 0x0590 */ struct TGmfNodeMotion* pNodeMotionBuffer[2];
+      /* 0x0594 */ int NodeMotionBufferAddress;
+      /* 0x0598 */ struct TGmfNodeBlendSet* pNodeBlendSetBuffer;
+      /* 0x059c */ int NodeBlendSetAddress;
+      /* 0x05a0 */ struct TGmfNodeBlend* pNodeBlendBuffer;
+      /* 0x05a4 */ int NodeBlendAddress;
+      /* 0x05a8 */ struct TGmfNodeBlendWeight* pNodeBlendWeightBuffer;
+      /* 0x05ac */ int NodeBlendWeightAddress;
+      /* 0x05b0 */ unsigned char* pShapeBuffer;
+      /* 0x05b4 */ int ShapeAddress;
+      /* 0x05b8 */ float BoundSphereSize;
+      /* 0x05bc */ bool NoClip;
+      /* 0x05bd */ bool ReverseCulling;
+      /* 0x05be */ bool DrawType2;
+      /* 0x05bf */ bool UseBlendMatrix;
+      /* 0x05c0 */ class TGmfNode* pBlendMatrixNodeFirst;
+      /* 0x05c4 */ class TGmfNode* pBlendMatrixNodeLast;
+      /* 0x05c8 */ bool UseMotionType3;
+      /* 0x05c9 */ char Padding_47[3];
+      /* 0x05cc */ struct TFANMOBJINFO* pMotType3AnmObjInfo;
+      /* 0x05d0 */ int MotType3AnmObjInfoNum;
+      /* 0x05d4 */ bool** pMotType3SetupMatrixFlag;
+      /* 0x05d8 */ int MotType3SetupMatrixFlagNum;
+      /* 0x05dc */ struct WGanFAnmSpec* pMotType3FAnmSpec;
+      /* 0x05e0 */ bool UseMotionType2;
+      /* 0x05e1 */ bool UseBlendWeightNormalize;
+      /* 0x05e2 */ bool UseShadowDraw;
+      /* 0x05e3 */ bool UseTexShadow;
+      /* 0x05e4 */ struct tagGHMR_TEX TexShadowTex;
+      /* 0x060c */ class TGmfNode* pTexShadowBaseNode;
+      /* 0x0610 */ class TGmf* pTexShadowModel;
+      /* 0x0614 */ bool ValidEasyShadowYPosition;
+      /* 0x0615 */ char Padding_48[3];
+      /* 0x0618 */ float EasyShadowYPosition;
+      /* 0x061c */ float EasyShadowScaleXZ;
+      /* 0x0620 */ bool ValidEasyShadowYukaNormal;
+      /* 0x0621 */ char Padding_49[3];
+      /* 0x0624 */ struct Vec EasyShadowYukaNormal;
+      /* 0x0630 */ class TGmf* pTexShadowGmfNext;
+      /* 0x0634 */ class TGmf* pTexShadowGmfPrev;
+      /* 0x0638 */ bool TexShadowSetupDraw;
+      /* 0x0639 */ bool EasyShadowDrawOnly;
+      /* 0x063a */ char Padding_50[2];
+      /* 0x063c */ struct tagGHMR_TEX* pGradationTexture;
+      /* 0x0640 */ struct Vec TexShadowCameraPosition;
+      /* 0x064c */ struct Vec TexShadowCameraTarget;
+      /* 0x0658 */ float TexShadowAreaHeight;
+      /* 0x065c */ float TexShadowAreaWidth;
+      /* 0x0660 */ int TexShadowPixelWidth;
+      /* 0x0664 */ int TexShadowPixelHeight;
+      /* 0x0668 */ short MotionSoundSeqLocalValue[8];
+      /* 0x0678 */ unsigned short MotionSoundSeqLocalValueValid;
+      /* 0x067a */ unsigned short MotionSoundSeqLocalValueValidNum;
+      /* 0x067c */ class TGmf* pLinkTexShadowGmf[16];
+      /* 0x06bc */ int LinkTexShadowGmfNum;
+      /* 0x06c0 */ class TGmf* pLinkTexShadowTarget;
+      /* 0x06c4 */ float LinkTexShadowGmfDrawArea[4];
+    }; /* size: 0x06d4 */
+};
+
+struct TGmfNodeMotion
+{
+  /* 0x0000 */ bool Valid;
+  /* 0x0001 */ bool Play;
+  /* 0x0002 */ char Padding_8[2];
+  /* 0x0004 */ struct Vec Pos;
+  /* 0x0010 */ struct Vec Rot;
+  /* 0x001c */ struct Vec Scale;
+  /* 0x0028 */ class TFAnm::tagMAIN Anm;
+}; /* size: 0x0050 */
+
 struct stPcSaveData
 {
   /* 0x0000 */ float maxHp;
@@ -1448,8 +1758,10 @@ public: // edited
     /* 0x0000 */ // bool CameraXReverseControlFlag;
   //}; /* size: 0x0028 */
   char pad_00[0x10]; // edited
-               struct stCharaStatus mCharaStatus; // edited
-               char pad_314[0xe4]; // edited
+               struct stCharaStatus mCharaStatus; // edited // size = 0x304
+  /* 0x0314 */ char pad_304[0xC];
+  /* 0x0320 */ class TGmf::tagMAIN* tagMain;
+               char pad_324[0xD4]; // edited
   /* 0x03f8 */ int mEscapeActionInit;
   /* 0x03fc */ int mEscapeOnButton;
   /* 0x0400 */ struct stPcStatus mPcStatus;
