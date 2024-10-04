@@ -10,7 +10,7 @@ public:
   static float weaponSwitchCooldown;
 
   void toggleForceMap(bool enable);
-  static bool CanWeaponSwitch(pcItem newWeapon);
+  static bool CanWeaponSwitch(pcItem desiredWeapon);
 
   // mod name string for config
   std::string get_mod_name() const override { return "WeaponSwitcher"; }

@@ -15,23 +15,23 @@ void WeaponSwitcher::toggleForceMap(bool enable) {
 }
 
 // check a weapon switch ban list of states and animations
-bool WeaponSwitcher::CanWeaponSwitch(pcItem newWeapon) {
+bool WeaponSwitcher::CanWeaponSwitch(pcItem desiredWeapon) {
     if (mHRPc* playerPtr = nmh_sdk::get_mHRPc()) {
-        int currentMode = playerPtr->mInputMode;
+        enPcInputMode currentMode = playerPtr->mInputMode;
         pcItem currentWeapon = playerPtr->mPcStatus.equip[0].id;
         pcMotion currentMoveID = playerPtr->mCharaStatus.motionNo;
-        if (newWeapon != currentWeapon
-            && currentMode == 4 &&
+        if (desiredWeapon != currentWeapon && 
+            currentMode == ePcInputBattleIdle &&
             nmh_sdk::CheckCanAttack() &&
-            !nmh_sdk::CheckGuardMotion(false) &&
+            !nmh_sdk::CheckGuardMotion(false) && 
             !nmh_sdk::CheckHajikare() && // eating a hit
             !nmh_sdk::CheckTsubazering(-1) && // clashing
             !nmh_sdk::CheckSideStep(-1) && // dodging back or left or right
-            currentMoveID != pcMotion::ePcMtBtryChrgSt && // start charging
-            currentMoveID != pcMotion::ePcMtBtryChrgLp && // continue charging
-            currentMoveID != pcMotion::ePcMtStpF && // dodge forward
-            currentMoveID != pcMotion::ePcMtAvdR && // darkstep right
-            currentMoveID != pcMotion::ePcMtAvdL) { // darkstep left
+            currentMoveID != ePcMtBtryChrgSt &&
+            currentMoveID != ePcMtBtryChrgLp &&
+            currentMoveID != ePcMtStpF &&
+            currentMoveID != ePcMtAvdR &&
+            currentMoveID != ePcMtAvdL) {
             return true;
         }
     }
@@ -53,7 +53,7 @@ void WeaponSwitcher::on_draw_ui() {
         nmh_sdk::PlayMotion(motionID, 0, 0, 0, 0.1f);
     }
 
-    static pcItem equipID = pcItem::shirt1;
+    static pcItem equipID = SHIRT1;
     ImGui::InputInt("Equip ID", (int*)&equipID);
     if (ImGui::Button("Set Equip")) {
         nmh_sdk::SetEquip(equipID, false);
@@ -78,27 +78,27 @@ void WeaponSwitcher::on_frame() {
             if (dPadInputsAddr) {
                 int8_t dPadInput = *(int8_t*)dPadInputsAddr;
                 switch (dPadInput) {
-                case 1: // left
-                    if (CanWeaponSwitch(pcItem::mk1)) {
-                        nmh_sdk::SetEquip(pcItem::mk1, false);
+                case DPAD_LEFT:
+                    if (CanWeaponSwitch(TSUBAKI_MK1)) {
+                        nmh_sdk::SetEquip(TSUBAKI_MK1, false);
                         weaponSwitchCooldown = 0.0f;
                     }
                     break;
-                case 2: // right
-                    if (CanWeaponSwitch(pcItem::mk3)) {
+                case DPAD_RIGHT:
+                    if (CanWeaponSwitch(TSUBAKI_MK3)) {
                         nmh_sdk::SetMk3Equip();
                         weaponSwitchCooldown = 0.0f;
                     }
                     break;
-                case 4: // down
-                    if (CanWeaponSwitch(pcItem::mk2)) {
-                        nmh_sdk::SetEquip(pcItem::mk2, false);
+                case DPAD_DOWN:
+                    if (CanWeaponSwitch(TSUBAKI_MK2)) {
+                        nmh_sdk::SetEquip(TSUBAKI_MK2, false);
                         weaponSwitchCooldown = 0.0f;
                     }
                     break;
-                case 8: // up
-                    if (CanWeaponSwitch(pcItem::berry)) {
-                        nmh_sdk::SetEquip(pcItem::berry, false);
+                case DPAD_UP:
+                    if (CanWeaponSwitch(BLOOD_BERRY)) {
+                        nmh_sdk::SetEquip(BLOOD_BERRY, false);
                         weaponSwitchCooldown = 0.0f;
                     }
                     break;
