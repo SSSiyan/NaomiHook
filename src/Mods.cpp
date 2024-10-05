@@ -18,6 +18,7 @@
 #include "mods/HitstopSettings.hpp"
 #include "mods/ScreenshakeSettings.hpp"
 #include "mods/RollForward.hpp"
+#include "mods/SprintSettings.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -45,6 +46,7 @@ Mods::Mods()
     ADD_MOD(HitstopSettings);
     ADD_MOD(ScreenshakeSettings);
     ADD_MOD(RollForward);
+    ADD_MOD(SprintSettings);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

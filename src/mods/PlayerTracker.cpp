@@ -647,277 +647,12 @@ void PlayerTracker::on_draw_ui() {
                 // ImGui::Text("Target Address: 0x%08X", targetAddress);
                 // uintptr_t offsetDifference = targetAddress - baseAddress;
                 // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
-
-                if (ImGui::CollapsingHeader("mHRPC tagMAIN")) {
-                    if (player->tagMain) {
-                        // ImGui::Text("pGlobalListPrev: %p", player->tagMain->pGlobalListPrev);
-                        // ImGui::Text("pGlobalListNext: %p", player->tagMain->pGlobalListNext);
-                        // for (int i = 0; i < 16; ++i) {
-                        //     ImGui::Text(("pDeleteCallback[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pDeleteCallback[i]);
-                        //     ImGui::Text(("pDeleteCallbackData[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pDeleteCallbackData[i]);
-                        // }
-                        ImGui::InputInt("DeleteCallbackNum", &player->tagMain->DeleteCallbackNum);
-                        ImGui::Checkbox("ProcessBlock", &player->tagMain->ProcessBlock);
-                        ImGui::InputInt("State", reinterpret_cast<int*>(&player->tagMain->State));
-                        // ImGui::Text("pNodeStripList: %p", player->tagMain->pNodeStripList);
-                        ImGui::InputInt("NodeStripListNum", (int*)&player->tagMain->NodeStripListNum);
-                        ImGui::InputInt("UseHeap", (int*)&player->tagMain->UseHeap);
-                        ImGui::InputInt("MaterialNum", &player->tagMain->MaterialNum);
-                        ImGui::Checkbox("BaseAttach", &player->tagMain->BaseAttach);
-                        // ImGui::Text("pBaseAttachTarget: %p", player->tagMain->pBaseAttachTarget);
-
-                        // for (int i = 0; i < 8; ++i) {
-                        //     ImGui::Text(("pBaseAttachModel[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pBaseAttachModel[i]);
-                        // }
-
-                        ImGui::InputInt("BaseAttachModelNum", &player->tagMain->BaseAttachModelNum);
-                        // ImGui::Text("pAttachTarget: %p", player->tagMain->pAttachTarget);
-                        // ImGui::Text("pSpec: %p", player->tagMain->pSpec);
-                        // ImGui::Text("pTopNodeSpec: %p", player->tagMain->pTopNodeSpec);
-                        ImGui::InputFloat3("RootPosition", &player->tagMain->RootPosition.x);
-                        ImGui::InputFloat3("RootRotation", &player->tagMain->RootRotation.x);
-                        ImGui::InputFloat3("RootScale", &player->tagMain->RootScale.x);
-                        for (int row = 0; row < 4; ++row) {
-                            for (int col = 0; col < 3; ++col) {
-                                ImGui::InputFloat(("RootMatrix[" + std::to_string(row) + "][" + std::to_string(col) + "]").c_str(), &player->tagMain->RootMatrix[row][col]);
-                            }
-                        }
-                        ImGui::Separator();
-                        ImGui::Checkbox("ValidRootMatrix", &player->tagMain->ValidRootMatrix);
-                        ImGui::InputFloat3("LocalWorldMatrix", &player->tagMain->LocalWorldMatrix[0][0]);
-                        ImGui::Checkbox("SetupMatrixFlag", &player->tagMain->SetupMatrixFlag);
-                        ImGui::InputInt("MatrixType", reinterpret_cast<int*>(&player->tagMain->MatrixType));
-                        // ImGui::Text("pTopNode Addr: %p", player->tagMain->pTopNode);
-                        // ImGui::Text("pTopMaterial Addr: %p", player->tagMain->pTopMaterial);
-                        // ImGui::Text("pTopTexture Addr: %p", player->tagMain->pTopTexture);
-                        ImGui::InputInt("VertFormat", &player->tagMain->VertFormat);
-                        ImGui::Checkbox("AlphaBlend", &player->tagMain->AlphaBlend);
-                        ImGui::InputInt("Alpha", &player->tagMain->Alpha);
-                        ImGui::InputInt("BlendMode", reinterpret_cast<int*>(&player->tagMain->BlendMode));
-                        ImGui::Checkbox("EnableDestAlpha", &player->tagMain->EnableDestAlpha);
-                        ImGui::InputInt("DestAlpha", &player->tagMain->DestAlpha);
-                        ImGui::InputInt("LightRegisterMap", (int*)&player->tagMain->LightRegisterMap);
-                        ImGui::InputInt("MaxAttachMotionNum", &player->tagMain->MaxAttachMotionNum);
-                        ImGui::Checkbox("EnableMotionSound", &player->tagMain->EnableMotionSound);
-                        // for (int i = 0; i < 4; ++i) {
-                        //     ImGui::Text(("pCharLightNode Addr[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pCharLightNode[i]);
-                        //     ImGui::Text(("pAmbientLightNode Addr[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pAmbientLightNode[i]);
-                        //     ImGui::Text(("pDirLightNode Addr[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pDirLightNode[i]);
-                        //     ImGui::Text(("pPointLightNode Addr[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pPointLightNode[i]);
-                        //     ImGui::Text(("pSpotLightNode Addr[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pSpotLightNode[i]);
-                        // }
-                        // ImGui::Text("pLightParam Addr: %p", player->tagMain->pLightParam);
-                        // ImGui::Text("pNodeBuffer Addr: %p", player->tagMain->pNodeBuffer);
-                        // ImGui::InputInt("NodeBufferAddress", &player->tagMain->NodeBufferAddress);
-                        // ImGui::Text("pStripNodeBuffer Addr: %p", player->tagMain->pStripNodeBuffer);
-                        // ImGui::InputInt("StripNodeBufferAddress", &player->tagMain->StripNodeBufferAddress);
-                        for (int i = 0; i < 2; ++i) {
-                            if (player->tagMain->pNodeMotionBuffer[i]) {
-                                ImGui::Text("pNodeMotionBuffer %d", i);
-                                ImGui::Checkbox(("Valid##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Valid);
-                                ImGui::Checkbox(("Play##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Play);
-                                ImGui::InputFloat3(("Position##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Pos.x);
-                                ImGui::InputFloat3(("Rotation##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Rot.x);
-                                ImGui::InputFloat3(("Scale##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Scale.x);
-                                if (player->tagMain->pNodeMotionBuffer[i]->Anm.pGmfNode) {
-                                    ImGui::Text("pNodeMotionBuffer[i]->Anm.pGmfNode %d", i);
-                                    ImGui::Checkbox(("Visible##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.pGmfNode->Visible);
-                                    ImGui::Checkbox(("Hide##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.pGmfNode->Hide);
-                                    ImGui::Checkbox(("VC##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.pGmfNode->VC);
-                                    ImGui::Checkbox(("Big##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.pGmfNode->Big);
-                                }
-                                if (player->tagMain->pNodeMotionBuffer[i]->Anm.pAnmObj3) {
-                                    ImGui::Text(">pNodeMotionBuffer[%d]->Anm.pAnmObj3", i);
-                                    ImGui::InputFloat3(("AnmObj3Num##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.pAnmObj3->pData->x);
-                                    auto& mainData = *player->tagMain->pNodeMotionBuffer[i]->Anm.pAnmObj3;
-                                    ImGui::Text("tagMAIN Properties:");
-                                    ImGui::Text("DataType: %d", mainData.DataType);
-                                    ImGui::InputFloat3(("NowValue##" + std::to_string(i)).c_str(), &mainData.NowValue.x);
-                                    bool idle = getBit(mainData.Flag, 0);
-                                    if (ImGui::Checkbox(("Idle##" + std::to_string(i)).c_str(), &idle)) setBit(mainData.Flag, 0, idle);
-                                    bool pause = getBit(mainData.Flag, 1);
-                                    if (ImGui::Checkbox(("Pause##" + std::to_string(i)).c_str(), &pause)) setBit(mainData.Flag, 1, pause);
-                                    bool interpolate = getBit(mainData.Flag, 2);
-                                    if (ImGui::Checkbox(("Interpolate##" + std::to_string(i)).c_str(), &interpolate)) setBit(mainData.Flag, 2, interpolate);
-                                    bool reverse = getBit(mainData.Flag, 3);
-                                    if (ImGui::Checkbox(("Reverse##" + std::to_string(i)).c_str(), &reverse)) setBit(mainData.Flag, 3, reverse);
-                                    bool init = getBit(mainData.Flag, 4);
-                                    if (ImGui::Checkbox(("Init##" + std::to_string(i)).c_str(), &init)) setBit(mainData.Flag, 4, init);
-                                    bool noUpdate = getBit(mainData.Flag, 5);
-                                    if (ImGui::Checkbox(("NoUpdate##" + std::to_string(i)).c_str(), &noUpdate)) setBit(mainData.Flag, 5, noUpdate);
-                                    ImGui::InputInt(("NextType##" + std::to_string(i)).c_str(), (int*)&mainData.NextType);
-                                    ImGui::InputInt(("PrevType##" + std::to_string(i)).c_str(), (int*)&mainData.PrevType);
-                                    ImGui::InputInt(("KeyCount##" + std::to_string(i)).c_str(), (int*)&mainData.KeyCount);
-                                    ImGui::InputInt(("KeyCountMax##" + std::to_string(i)).c_str(), (int*)&mainData.KeyCountMax);
-                                    ImGui::InputInt(("KeyListCount##" + std::to_string(i)).c_str(), (int*)&mainData.KeyListCount);
-                                    ImGui::InputFloat(("Tick##" + std::to_string(i)).c_str(), &mainData.Tick);
-                                    ImGui::InputFloat(("NextWait##" + std::to_string(i)).c_str(), &mainData.NextWait);
-                                    ImGui::InputFloat(("PrevWait##" + std::to_string(i)).c_str(), &mainData.PrevWait);
-                                    for (int j = 0; j < 3; ++j) {
-                                        ImGui::InputFloat(("NextValue[" + std::to_string(j) + "]##" + std::to_string(i)).c_str(), &mainData.NextValue[j]);
-                                        ImGui::InputFloat(("PrevValue[" + std::to_string(j) + "]##" + std::to_string(i)).c_str(), &mainData.PrevValue[j]);
-                                        ImGui::InputFloat(("NextSlope[" + std::to_string(j) + "]##" + std::to_string(i)).c_str(), &mainData.NextSlope[j]);
-                                        ImGui::InputFloat(("PrevSlope[" + std::to_string(j) + "]##" + std::to_string(i)).c_str(), &mainData.PrevSlope[j]);
-                                    }
-                                    ImGui::Separator();
-                                    for (int j = 0; j < 3; ++j) {
-                                        ImGui::Text("NextGeta[%d]:", j);
-                                        ImGui::InputFloat(("NextGeta[" + std::to_string(j) + "].Value##" + std::to_string(i)).c_str(), &mainData.NextGeta[j].Value);
-                                        ImGui::InputFloat(("NextGeta[" + std::to_string(j) + "].Wait##" + std::to_string(i)).c_str(), &mainData.NextGeta[j].Wait);
-                                        ImGui::InputFloat(("NextGeta[" + std::to_string(j) + "].LockWait##" + std::to_string(i)).c_str(), &mainData.NextGeta[j].LockWait);
-                                        ImGui::InputFloat(("NextGeta[" + std::to_string(j) + "].InSlope##" + std::to_string(i)).c_str(), &mainData.NextGeta[j].InSlope);
-                                        ImGui::InputFloat(("NextGeta[" + std::to_string(j) + "].OutSlope##" + std::to_string(i)).c_str(), &mainData.NextGeta[j].OutSlope);
-        
-                                        ImGui::Text("PrevGeta[%d]:", j);
-                                        ImGui::InputFloat(("PrevGeta[" + std::to_string(j) + "].Value##" + std::to_string(i)).c_str(), &mainData.PrevGeta[j].Value);
-                                        ImGui::InputFloat(("PrevGeta[" + std::to_string(j) + "].Wait##" + std::to_string(i)).c_str(), &mainData.PrevGeta[j].Wait);
-                                        ImGui::InputFloat(("PrevGeta[" + std::to_string(j) + "].LockWait##" + std::to_string(i)).c_str(), &mainData.PrevGeta[j].LockWait);
-                                        ImGui::InputFloat(("PrevGeta[" + std::to_string(j) + "].InSlope##" + std::to_string(i)).c_str(), &mainData.PrevGeta[j].InSlope);
-                                        ImGui::InputFloat(("PrevGeta[" + std::to_string(j) + "].OutSlope##" + std::to_string(i)).c_str(), &mainData.PrevGeta[j].OutSlope);
-                                    }
-                                    ImGui::Separator();
-                                    ImGui::InputInt(("NowKeyTypeSize##" + std::to_string(i)).c_str(), (int*)&mainData.NowKeyTypeSize);
-                                    // for (int j = 0; j < 3; ++j) {
-                                    //     ImGui::InputText(("NowKey[" + std::to_string(j) + "]##" + std::to_string(i)).c_str(), (char**)&mainData.pNowKey[j]);
-                                    // }
-                                    // ImGui::Separator();
-                                    for (int j = 0; j < 3; ++j) {
-                                        ImGui::InputFloat(("NowKeyGeta[" + std::to_string(j) + "].Value##" + std::to_string(i)).c_str(), &mainData.NowKeyGeta[j].Value);
-                                        ImGui::InputFloat(("NowKeyGeta[" + std::to_string(j) + "].Wait##" + std::to_string(i)).c_str(), &mainData.NowKeyGeta[j].Wait);
-                                        ImGui::InputFloat(("NowKeyGeta[" + std::to_string(j) + "].LockWait##" + std::to_string(i)).c_str(), &mainData.NowKeyGeta[j].LockWait);
-                                        ImGui::InputFloat(("NowKeyGeta[" + std::to_string(j) + "].InSlope##" + std::to_string(i)).c_str(), &mainData.NowKeyGeta[j].InSlope);
-                                        ImGui::InputFloat(("NowKeyGeta[" + std::to_string(j) + "].OutSlope##" + std::to_string(i)).c_str(), &mainData.NowKeyGeta[j].OutSlope);
-                                    }
-                                    ImGui::Separator();
-                                }
-                                ImGui::InputInt(("AnmObjNum##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.AnmObjNum);
-                                ImGui::InputFloat(("Rate##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.Rate);
-                                ImGui::InputFloat(("PlayTick##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.PlayTick);
-                                ImGui::InputFloat(("StartTick##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.StartTick);
-                                ImGui::InputFloat(("EndTick##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.EndTick);
-                                bool idle = getBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 0);
-                                if (ImGui::Checkbox(("Idle##" + std::to_string(i)).c_str(), &idle)) setBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 0, idle);
-                                bool pause = getBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 1);
-                                if (ImGui::Checkbox(("Pause##" + std::to_string(i)).c_str(), &pause)) setBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 1, pause);
-                                bool loop = getBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 2);
-                                if (ImGui::Checkbox(("Loop##" + std::to_string(i)).c_str(), &loop)) setBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 2, loop);
-                                bool playStart = getBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 3);
-                                if (ImGui::Checkbox(("PlayStart##" + std::to_string(i)).c_str(), &playStart)) setBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 3, playStart);
-                                bool noUpdate = getBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 4);
-                                if (ImGui::Checkbox(("NoUpdate##" + std::to_string(i)).c_str(), &noUpdate)) setBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 4, noUpdate);
-                                bool rewind = getBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 5);
-                                if (ImGui::Checkbox(("Rewind##" + std::to_string(i)).c_str(), &rewind)) setBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 5, rewind);
-                            }
-                        }
-                        // ImGui::Text("pNodeBlendSetBuffer: %p", player->tagMain->pNodeBlendSetBuffer);
-                        ImGui::InputInt("NodeBlendSetAddress", &player->tagMain->NodeBlendSetAddress);
-                        // ImGui::Text("pNodeBlendBuffer: %p", player->tagMain->pNodeBlendBuffer);
-                        // ImGui::InputInt("NodeBlendAddress", &player->tagMain->NodeBlendAddress);
-                        // ImGui::Text("pNodeBlendWeightBuffer: %p", player->tagMain->pNodeBlendWeightBuffer);
-                        ImGui::InputInt("NodeBlendWeightAddress", &player->tagMain->NodeBlendWeightAddress);
-                        // ImGui::Text("pShapeBuffer: %p", player->tagMain->pShapeBuffer);
-                        ImGui::InputInt("ShapeAddress", &player->tagMain->ShapeAddress);
-                        ImGui::InputFloat("BoundSphereSize", &player->tagMain->BoundSphereSize);
-                        ImGui::Checkbox("NoClip", &player->tagMain->NoClip);
-                        ImGui::Checkbox("ReverseCulling", &player->tagMain->ReverseCulling);
-                        ImGui::Checkbox("DrawType2", &player->tagMain->DrawType2);
-                        ImGui::Checkbox("UseBlendMatrix", &player->tagMain->UseBlendMatrix);
-                        // ImGui::Text("pBlendMatrixNodeFirst: %p", player->tagMain->pBlendMatrixNodeFirst);
-                        // ImGui::Text("pBlendMatrixNodeLast: %p", player->tagMain->pBlendMatrixNodeLast);
-                        ImGui::Checkbox("UseMotionType3", &player->tagMain->UseMotionType3);
-                        // ImGui::Text("pMotType3AnmObjInfo: %p", player->tagMain->pMotType3AnmObjInfo);
-                        ImGui::InputInt("MotType3AnmObjInfoNum", &player->tagMain->MotType3AnmObjInfoNum);
-                        // if (player->tagMain->pMotType3SetupMatrixFlag) { 
-                        //     bool* firstBoolPointer = *player->tagMain->pMotType3SetupMatrixFlag;
-                        //     if (firstBoolPointer) {
-                        //         ImGui::Checkbox("pMotType3SetupMatrixFlag", firstBoolPointer); // this is bool** im lost man
-                        //     }
-                        // }
-                        ImGui::InputInt("MotType3SetupMatrixFlagNum", &player->tagMain->MotType3SetupMatrixFlagNum);
-                        ImGui::Text("pMotType3FAnmSpec: %p", player->tagMain->pMotType3FAnmSpec);
-                        ImGui::Checkbox("UseMotionType2", &player->tagMain->UseMotionType2);
-                        ImGui::Checkbox("UseBlendWeightNormalize", &player->tagMain->UseBlendWeightNormalize);
-                        ImGui::Checkbox("UseShadowDraw", &player->tagMain->UseShadowDraw);
-                        ImGui::Checkbox("UseTexShadow", &player->tagMain->UseTexShadow);
-                        // ImGui::Text("pTexShadowBaseNode: %p", player->tagMain->pTexShadowBaseNode);
-                        // ImGui::Text("pTexShadowModel: %p", player->tagMain->pTexShadowModel);
-                        ImGui::Checkbox("ValidEasyShadowYPosition", &player->tagMain->ValidEasyShadowYPosition);
-                        ImGui::InputFloat("EasyShadowYPosition", &player->tagMain->EasyShadowYPosition);
-                        ImGui::InputFloat("EasyShadowScaleXZ", &player->tagMain->EasyShadowScaleXZ);
-                        ImGui::Checkbox("ValidEasyShadowYukaNormal", &player->tagMain->ValidEasyShadowYukaNormal);
-                        ImGui::InputFloat3("EasyShadowYukaNormal", &player->tagMain->EasyShadowYukaNormal.x);
-                        ImGui::Text("pTexShadowGmfNext: %p", player->tagMain->pTexShadowGmfNext);
-                        ImGui::Text("pTexShadowGmfPrev: %p", player->tagMain->pTexShadowGmfPrev);
-                        ImGui::Checkbox("TexShadowSetupDraw", &player->tagMain->TexShadowSetupDraw);
-                        ImGui::Checkbox("EasyShadowDrawOnly", &player->tagMain->EasyShadowDrawOnly);
-                        ImGui::Text("pGradationTexture: %p", player->tagMain->pGradationTexture);
-                        ImGui::InputFloat3("TexShadowCameraPosition", &player->tagMain->TexShadowCameraPosition.x);
-                        ImGui::InputFloat3("TexShadowCameraTarget", &player->tagMain->TexShadowCameraTarget.x);
-                        ImGui::InputFloat("TexShadowAreaHeight", &player->tagMain->TexShadowAreaHeight);
-                        ImGui::InputFloat("TexShadowAreaWidth", &player->tagMain->TexShadowAreaWidth);
-                        ImGui::InputInt("TexShadowPixelWidth", &player->tagMain->TexShadowPixelWidth);
-                        ImGui::InputInt("TexShadowPixelHeight", &player->tagMain->TexShadowPixelHeight);
-
-                        // Display MotionSoundSeqLocalValue array
-                        for (int i = 0; i < 8; ++i) {
-                            ImGui::InputScalar(("MotionSoundSeqLocalValue[" + std::to_string(i) + "]").c_str(), ImGuiDataType_S16, &player->tagMain->MotionSoundSeqLocalValue[i]);
-                        }
-                        ImGui::Separator();
-                        ImGui::InputScalar("MotionSoundSeqLocalValueValid", ImGuiDataType_U16, &player->tagMain->MotionSoundSeqLocalValueValid);
-                        ImGui::InputScalar("MotionSoundSeqLocalValueValidNum", ImGuiDataType_U16, &player->tagMain->MotionSoundSeqLocalValueValidNum);
-        
-                        // // Display link texture shadow
-                        // for (int i = 0; i < 16; ++i) {
-                        //     ImGui::Text(("pLinkTexShadowGmf[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pLinkTexShadowGmf[i]);
-                        // }
-
-                        ImGui::InputInt("LinkTexShadowGmfNum", &player->tagMain->LinkTexShadowGmfNum);
-                        // ImGui::Text("pLinkTexShadowTarget: %p", player->tagMain->pLinkTexShadowTarget);
-                        ImGui::InputFloat4("LinkTexShadowGmfDrawArea", player->tagMain->LinkTexShadowGmfDrawArea);
-                    }
-                }
-
-                if (ImGui::CollapsingHeader("mHRPc tagMain tagMOTION")) {
-                    for (int i = 0; i < 4; ++i) {
-                        if (&player->tagMain->Motion[i]) {
-                            if (ImGui::CollapsingHeader(("Motion " + std::to_string(i)).c_str())) {
-                                ImGui::Checkbox(("Valid 1 [" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Valid[0]);
-                                ImGui::Checkbox(("Valid 2 [" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Valid[1]);
-                                ImGui::InputFloat(("BlendWeight[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].BlendWeight);
-                                ImGui::Checkbox(("Blend[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Blend);
-                                ImGui::InputFloat(("BlendRate[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].BlendRate);
-                                ImGui::InputFloat(("BlendSpeed[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].BlendSpeed);
-                                ImGui::InputInt(("Active[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Active);
-                                ImGui::InputInt(("MotionType2State[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].MotionType2State);
-                                ImGui::Checkbox(("MotionAttachFlag[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].MotionAttachFlag);
-                                ImGui::Checkbox(("PlayMotionFlag[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].PlayMotionFlag);
-                                ImGui::InputFloat(("PlayMotionTick[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].PlayMotionTick);
-                                ImGui::InputFloat(("MotionRate[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].MotionRate);
-                                // ImGui::Text(("pMotion[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->Motion[i].pMotion);
-                                for (int j = 0; j < 2; ++j) {
-                                    ImGui::InputInt(("TimingSoundHandle[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].TimingSoundHandle[j]);
-                                }
-                                ImGui::Separator();
-                                ImGui::Checkbox(("Loop[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Loop);
-                                for (int j = 0; j < 2; ++j) {
-                                    ImGui::Checkbox(("LoopFlag2[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].LoopFlag2[j]);
-                                    ImGui::InputFloat(("LoopMotionTime2[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].LoopMotionTime2[j]);
-                                    ImGui::InputInt(("SetupMatrixFlagNum[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].SetupMatrixFlagNum[j]);
-                                    if (ImGui::TreeNode(("MOVInfo[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str())) {
-                                        // ImGui::Text("pGanPlay: %p", player->tagMain->Motion[i].MOVInfo[j].pGanPlay);
-                                        ImGui::Checkbox(("ValidPrevPos[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].MOVInfo[j].ValidPrevPos);
-                                        ImGui::InputFloat3(("NowPos[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].MOVInfo[j].NowPos.x);
-                                        ImGui::InputFloat3(("PrevPos[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].MOVInfo[j].PrevPos.x);
-                                        ImGui::TreePop();
-                                    }
-                                }
-                                ImGui::Separator();
-                            }
-                        }
-                    }
-                    ImGui::Separator();
-                }
-
+                ImGui::InputScalar("mEscapeActionInit", ImGuiDataType_S32, &player->mEscapeActionInit);
+                ImGui::InputScalar("mEscapeOnButton", ImGuiDataType_S32, &player->mEscapeOnButton);
+                ImGui::Text("mpBike: %p", player->mpBike);
+                ImGui::InputScalar("mInputMode", ImGuiDataType_S32, &player->mInputMode);
+                ImGui::InputScalar("mInputModeOld", ImGuiDataType_S32, &player->mInputModeOld);
+                ImGui::InputScalar("mInputModeBefore", ImGuiDataType_S32, &player->mInputModeBefore);
                 ImGui::Checkbox("mPauseAll", &player->mPauseAll);
                 ImGui::Checkbox("mPauseNpc", &player->mPauseNpc);
                 ImGui::Checkbox("mOperate", &player->mOperate);
@@ -931,6 +666,275 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::Checkbox("mStageChangeTermEnd", &player->mStageChangeTermEnd);
                 ImGui::Checkbox("mStageChangeMuteki", &player->mStageChangeMuteki);
                 ImGui::Checkbox("mBanStatusScreen", &player->mBanStatusScreen);
+            }
+            if (ImGui::CollapsingHeader("mHRPC tagMAIN")) {
+                if (player->tagMain) {
+                    // ImGui::Text("pGlobalListPrev: %p", player->tagMain->pGlobalListPrev);
+                    // ImGui::Text("pGlobalListNext: %p", player->tagMain->pGlobalListNext);
+                    // for (int i = 0; i < 16; ++i) {
+                    //     ImGui::Text(("pDeleteCallback[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pDeleteCallback[i]);
+                    //     ImGui::Text(("pDeleteCallbackData[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pDeleteCallbackData[i]);
+                    // }
+                    ImGui::InputInt("DeleteCallbackNum", &player->tagMain->DeleteCallbackNum);
+                    ImGui::Checkbox("ProcessBlock", &player->tagMain->ProcessBlock);
+                    ImGui::InputInt("State", reinterpret_cast<int*>(&player->tagMain->State));
+                    // ImGui::Text("pNodeStripList: %p", player->tagMain->pNodeStripList);
+                    ImGui::InputInt("NodeStripListNum", (int*)&player->tagMain->NodeStripListNum);
+                    ImGui::InputInt("UseHeap", (int*)&player->tagMain->UseHeap);
+                    ImGui::InputInt("MaterialNum", &player->tagMain->MaterialNum);
+                    ImGui::Checkbox("BaseAttach", &player->tagMain->BaseAttach);
+                    // ImGui::Text("pBaseAttachTarget: %p", player->tagMain->pBaseAttachTarget);
+
+                    // for (int i = 0; i < 8; ++i) {
+                    //     ImGui::Text(("pBaseAttachModel[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pBaseAttachModel[i]);
+                    // }
+
+                    ImGui::InputInt("BaseAttachModelNum", &player->tagMain->BaseAttachModelNum);
+                    // ImGui::Text("pAttachTarget: %p", player->tagMain->pAttachTarget);
+                    // ImGui::Text("pSpec: %p", player->tagMain->pSpec);
+                    // ImGui::Text("pTopNodeSpec: %p", player->tagMain->pTopNodeSpec);
+                    ImGui::InputFloat3("RootPosition", &player->tagMain->RootPosition.x);
+                    ImGui::InputFloat3("RootRotation", &player->tagMain->RootRotation.x);
+                    ImGui::InputFloat3("RootScale", &player->tagMain->RootScale.x);
+                    for (int row = 0; row < 4; ++row) {
+                        for (int col = 0; col < 3; ++col) {
+                            ImGui::InputFloat(("RootMatrix[" + std::to_string(row) + "][" + std::to_string(col) + "]").c_str(), &player->tagMain->RootMatrix[row][col]);
+                        }
+                    }
+                    ImGui::Separator();
+                    ImGui::Checkbox("ValidRootMatrix", &player->tagMain->ValidRootMatrix);
+                    ImGui::InputFloat3("LocalWorldMatrix", &player->tagMain->LocalWorldMatrix[0][0]);
+                    ImGui::Checkbox("SetupMatrixFlag", &player->tagMain->SetupMatrixFlag);
+                    ImGui::InputInt("MatrixType", reinterpret_cast<int*>(&player->tagMain->MatrixType));
+                    // ImGui::Text("pTopNode Addr: %p", player->tagMain->pTopNode);
+                    // ImGui::Text("pTopMaterial Addr: %p", player->tagMain->pTopMaterial);
+                    // ImGui::Text("pTopTexture Addr: %p", player->tagMain->pTopTexture);
+                    ImGui::InputInt("VertFormat", &player->tagMain->VertFormat);
+                    ImGui::Checkbox("AlphaBlend", &player->tagMain->AlphaBlend);
+                    ImGui::InputInt("Alpha", &player->tagMain->Alpha);
+                    ImGui::InputInt("BlendMode", reinterpret_cast<int*>(&player->tagMain->BlendMode));
+                    ImGui::Checkbox("EnableDestAlpha", &player->tagMain->EnableDestAlpha);
+                    ImGui::InputInt("DestAlpha", &player->tagMain->DestAlpha);
+                    ImGui::InputInt("LightRegisterMap", (int*)&player->tagMain->LightRegisterMap);
+                    ImGui::InputInt("MaxAttachMotionNum", &player->tagMain->MaxAttachMotionNum);
+                    ImGui::Checkbox("EnableMotionSound", &player->tagMain->EnableMotionSound);
+                    // for (int i = 0; i < 4; ++i) {
+                    //     ImGui::Text(("pCharLightNode Addr[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pCharLightNode[i]);
+                    //     ImGui::Text(("pAmbientLightNode Addr[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pAmbientLightNode[i]);
+                    //     ImGui::Text(("pDirLightNode Addr[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pDirLightNode[i]);
+                    //     ImGui::Text(("pPointLightNode Addr[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pPointLightNode[i]);
+                    //     ImGui::Text(("pSpotLightNode Addr[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pSpotLightNode[i]);
+                    // }
+                    // ImGui::Text("pLightParam Addr: %p", player->tagMain->pLightParam);
+                    // ImGui::Text("pNodeBuffer Addr: %p", player->tagMain->pNodeBuffer);
+                    // ImGui::InputInt("NodeBufferAddress", &player->tagMain->NodeBufferAddress);
+                    // ImGui::Text("pStripNodeBuffer Addr: %p", player->tagMain->pStripNodeBuffer);
+                    // ImGui::InputInt("StripNodeBufferAddress", &player->tagMain->StripNodeBufferAddress);
+                    for (int i = 0; i < 2; ++i) {
+                        if (player->tagMain->pNodeMotionBuffer[i]) {
+                            ImGui::Text("pNodeMotionBuffer %d", i);
+                            ImGui::Checkbox(("Valid##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Valid);
+                            ImGui::Checkbox(("Play##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Play);
+                            ImGui::InputFloat3(("Position##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Pos.x);
+                            ImGui::InputFloat3(("Rotation##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Rot.x);
+                            ImGui::InputFloat3(("Scale##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Scale.x);
+                            if (player->tagMain->pNodeMotionBuffer[i]->Anm.pGmfNode) {
+                                ImGui::Text("pNodeMotionBuffer[i]->Anm.pGmfNode %d", i);
+                                ImGui::Checkbox(("Visible##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.pGmfNode->Visible);
+                                ImGui::Checkbox(("Hide##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.pGmfNode->Hide);
+                                ImGui::Checkbox(("VC##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.pGmfNode->VC);
+                                ImGui::Checkbox(("Big##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.pGmfNode->Big);
+                            }
+                            if (player->tagMain->pNodeMotionBuffer[i]->Anm.pAnmObj3) {
+                                ImGui::Text(">pNodeMotionBuffer[%d]->Anm.pAnmObj3", i);
+                                ImGui::InputFloat3(("AnmObj3Num##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.pAnmObj3->pData->x);
+                                auto& mainData = *player->tagMain->pNodeMotionBuffer[i]->Anm.pAnmObj3;
+                                ImGui::Text("tagMAIN Properties:");
+                                ImGui::Text("DataType: %d", mainData.DataType);
+                                ImGui::InputFloat3(("NowValue##" + std::to_string(i)).c_str(), &mainData.NowValue.x);
+                                bool idle = getBit(mainData.Flag, 0);
+                                if (ImGui::Checkbox(("Idle##" + std::to_string(i)).c_str(), &idle)) setBit(mainData.Flag, 0, idle);
+                                bool pause = getBit(mainData.Flag, 1);
+                                if (ImGui::Checkbox(("Pause##" + std::to_string(i)).c_str(), &pause)) setBit(mainData.Flag, 1, pause);
+                                bool interpolate = getBit(mainData.Flag, 2);
+                                if (ImGui::Checkbox(("Interpolate##" + std::to_string(i)).c_str(), &interpolate)) setBit(mainData.Flag, 2, interpolate);
+                                bool reverse = getBit(mainData.Flag, 3);
+                                if (ImGui::Checkbox(("Reverse##" + std::to_string(i)).c_str(), &reverse)) setBit(mainData.Flag, 3, reverse);
+                                bool init = getBit(mainData.Flag, 4);
+                                if (ImGui::Checkbox(("Init##" + std::to_string(i)).c_str(), &init)) setBit(mainData.Flag, 4, init);
+                                bool noUpdate = getBit(mainData.Flag, 5);
+                                if (ImGui::Checkbox(("NoUpdate##" + std::to_string(i)).c_str(), &noUpdate)) setBit(mainData.Flag, 5, noUpdate);
+                                ImGui::InputInt(("NextType##" + std::to_string(i)).c_str(), (int*)&mainData.NextType);
+                                ImGui::InputInt(("PrevType##" + std::to_string(i)).c_str(), (int*)&mainData.PrevType);
+                                ImGui::InputInt(("KeyCount##" + std::to_string(i)).c_str(), (int*)&mainData.KeyCount);
+                                ImGui::InputInt(("KeyCountMax##" + std::to_string(i)).c_str(), (int*)&mainData.KeyCountMax);
+                                ImGui::InputInt(("KeyListCount##" + std::to_string(i)).c_str(), (int*)&mainData.KeyListCount);
+                                ImGui::InputFloat(("Tick##" + std::to_string(i)).c_str(), &mainData.Tick);
+                                ImGui::InputFloat(("NextWait##" + std::to_string(i)).c_str(), &mainData.NextWait);
+                                ImGui::InputFloat(("PrevWait##" + std::to_string(i)).c_str(), &mainData.PrevWait);
+                                for (int j = 0; j < 3; ++j) {
+                                    ImGui::InputFloat(("NextValue[" + std::to_string(j) + "]##" + std::to_string(i)).c_str(), &mainData.NextValue[j]);
+                                    ImGui::InputFloat(("PrevValue[" + std::to_string(j) + "]##" + std::to_string(i)).c_str(), &mainData.PrevValue[j]);
+                                    ImGui::InputFloat(("NextSlope[" + std::to_string(j) + "]##" + std::to_string(i)).c_str(), &mainData.NextSlope[j]);
+                                    ImGui::InputFloat(("PrevSlope[" + std::to_string(j) + "]##" + std::to_string(i)).c_str(), &mainData.PrevSlope[j]);
+                                }
+                                ImGui::Separator();
+                                for (int j = 0; j < 3; ++j) {
+                                    ImGui::Text("NextGeta[%d]:", j);
+                                    ImGui::InputFloat(("NextGeta[" + std::to_string(j) + "].Value##" + std::to_string(i)).c_str(), &mainData.NextGeta[j].Value);
+                                    ImGui::InputFloat(("NextGeta[" + std::to_string(j) + "].Wait##" + std::to_string(i)).c_str(), &mainData.NextGeta[j].Wait);
+                                    ImGui::InputFloat(("NextGeta[" + std::to_string(j) + "].LockWait##" + std::to_string(i)).c_str(), &mainData.NextGeta[j].LockWait);
+                                    ImGui::InputFloat(("NextGeta[" + std::to_string(j) + "].InSlope##" + std::to_string(i)).c_str(), &mainData.NextGeta[j].InSlope);
+                                    ImGui::InputFloat(("NextGeta[" + std::to_string(j) + "].OutSlope##" + std::to_string(i)).c_str(), &mainData.NextGeta[j].OutSlope);
+        
+                                    ImGui::Text("PrevGeta[%d]:", j);
+                                    ImGui::InputFloat(("PrevGeta[" + std::to_string(j) + "].Value##" + std::to_string(i)).c_str(), &mainData.PrevGeta[j].Value);
+                                    ImGui::InputFloat(("PrevGeta[" + std::to_string(j) + "].Wait##" + std::to_string(i)).c_str(), &mainData.PrevGeta[j].Wait);
+                                    ImGui::InputFloat(("PrevGeta[" + std::to_string(j) + "].LockWait##" + std::to_string(i)).c_str(), &mainData.PrevGeta[j].LockWait);
+                                    ImGui::InputFloat(("PrevGeta[" + std::to_string(j) + "].InSlope##" + std::to_string(i)).c_str(), &mainData.PrevGeta[j].InSlope);
+                                    ImGui::InputFloat(("PrevGeta[" + std::to_string(j) + "].OutSlope##" + std::to_string(i)).c_str(), &mainData.PrevGeta[j].OutSlope);
+                                }
+                                ImGui::Separator();
+                                ImGui::InputInt(("NowKeyTypeSize##" + std::to_string(i)).c_str(), (int*)&mainData.NowKeyTypeSize);
+                                // for (int j = 0; j < 3; ++j) {
+                                //     ImGui::InputText(("NowKey[" + std::to_string(j) + "]##" + std::to_string(i)).c_str(), (char**)&mainData.pNowKey[j]);
+                                // }
+                                // ImGui::Separator();
+                                for (int j = 0; j < 3; ++j) {
+                                    ImGui::InputFloat(("NowKeyGeta[" + std::to_string(j) + "].Value##" + std::to_string(i)).c_str(), &mainData.NowKeyGeta[j].Value);
+                                    ImGui::InputFloat(("NowKeyGeta[" + std::to_string(j) + "].Wait##" + std::to_string(i)).c_str(), &mainData.NowKeyGeta[j].Wait);
+                                    ImGui::InputFloat(("NowKeyGeta[" + std::to_string(j) + "].LockWait##" + std::to_string(i)).c_str(), &mainData.NowKeyGeta[j].LockWait);
+                                    ImGui::InputFloat(("NowKeyGeta[" + std::to_string(j) + "].InSlope##" + std::to_string(i)).c_str(), &mainData.NowKeyGeta[j].InSlope);
+                                    ImGui::InputFloat(("NowKeyGeta[" + std::to_string(j) + "].OutSlope##" + std::to_string(i)).c_str(), &mainData.NowKeyGeta[j].OutSlope);
+                                }
+                                ImGui::Separator();
+                            }
+                            ImGui::InputInt(("AnmObjNum##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.AnmObjNum);
+                            ImGui::InputFloat(("Rate##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.Rate);
+                            ImGui::InputFloat(("PlayTick##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.PlayTick);
+                            ImGui::InputFloat(("StartTick##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.StartTick);
+                            ImGui::InputFloat(("EndTick##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Anm.EndTick);
+                            bool idle = getBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 0);
+                            if (ImGui::Checkbox(("Idle##" + std::to_string(i)).c_str(), &idle)) setBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 0, idle);
+                            bool pause = getBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 1);
+                            if (ImGui::Checkbox(("Pause##" + std::to_string(i)).c_str(), &pause)) setBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 1, pause);
+                            bool loop = getBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 2);
+                            if (ImGui::Checkbox(("Loop##" + std::to_string(i)).c_str(), &loop)) setBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 2, loop);
+                            bool playStart = getBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 3);
+                            if (ImGui::Checkbox(("PlayStart##" + std::to_string(i)).c_str(), &playStart)) setBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 3, playStart);
+                            bool noUpdate = getBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 4);
+                            if (ImGui::Checkbox(("NoUpdate##" + std::to_string(i)).c_str(), &noUpdate)) setBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 4, noUpdate);
+                            bool rewind = getBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 5);
+                            if (ImGui::Checkbox(("Rewind##" + std::to_string(i)).c_str(), &rewind)) setBit(player->tagMain->pNodeMotionBuffer[i]->Anm.Flag, 5, rewind);
+                        }
+                    }
+                    // ImGui::Text("pNodeBlendSetBuffer: %p", player->tagMain->pNodeBlendSetBuffer);
+                    ImGui::InputInt("NodeBlendSetAddress", &player->tagMain->NodeBlendSetAddress);
+                    // ImGui::Text("pNodeBlendBuffer: %p", player->tagMain->pNodeBlendBuffer);
+                    // ImGui::InputInt("NodeBlendAddress", &player->tagMain->NodeBlendAddress);
+                    // ImGui::Text("pNodeBlendWeightBuffer: %p", player->tagMain->pNodeBlendWeightBuffer);
+                    ImGui::InputInt("NodeBlendWeightAddress", &player->tagMain->NodeBlendWeightAddress);
+                    // ImGui::Text("pShapeBuffer: %p", player->tagMain->pShapeBuffer);
+                    ImGui::InputInt("ShapeAddress", &player->tagMain->ShapeAddress);
+                    ImGui::InputFloat("BoundSphereSize", &player->tagMain->BoundSphereSize);
+                    ImGui::Checkbox("NoClip", &player->tagMain->NoClip);
+                    ImGui::Checkbox("ReverseCulling", &player->tagMain->ReverseCulling);
+                    ImGui::Checkbox("DrawType2", &player->tagMain->DrawType2);
+                    ImGui::Checkbox("UseBlendMatrix", &player->tagMain->UseBlendMatrix);
+                    // ImGui::Text("pBlendMatrixNodeFirst: %p", player->tagMain->pBlendMatrixNodeFirst);
+                    // ImGui::Text("pBlendMatrixNodeLast: %p", player->tagMain->pBlendMatrixNodeLast);
+                    ImGui::Checkbox("UseMotionType3", &player->tagMain->UseMotionType3);
+                    // ImGui::Text("pMotType3AnmObjInfo: %p", player->tagMain->pMotType3AnmObjInfo);
+                    ImGui::InputInt("MotType3AnmObjInfoNum", &player->tagMain->MotType3AnmObjInfoNum);
+                    // if (player->tagMain->pMotType3SetupMatrixFlag) { 
+                    //     bool* firstBoolPointer = *player->tagMain->pMotType3SetupMatrixFlag;
+                    //     if (firstBoolPointer) {
+                    //         ImGui::Checkbox("pMotType3SetupMatrixFlag", firstBoolPointer); // this is bool** im lost man
+                    //     }
+                    // }
+                    ImGui::InputInt("MotType3SetupMatrixFlagNum", &player->tagMain->MotType3SetupMatrixFlagNum);
+                    ImGui::Text("pMotType3FAnmSpec: %p", player->tagMain->pMotType3FAnmSpec);
+                    ImGui::Checkbox("UseMotionType2", &player->tagMain->UseMotionType2);
+                    ImGui::Checkbox("UseBlendWeightNormalize", &player->tagMain->UseBlendWeightNormalize);
+                    ImGui::Checkbox("UseShadowDraw", &player->tagMain->UseShadowDraw);
+                    ImGui::Checkbox("UseTexShadow", &player->tagMain->UseTexShadow);
+                    // ImGui::Text("pTexShadowBaseNode: %p", player->tagMain->pTexShadowBaseNode);
+                    // ImGui::Text("pTexShadowModel: %p", player->tagMain->pTexShadowModel);
+                    ImGui::Checkbox("ValidEasyShadowYPosition", &player->tagMain->ValidEasyShadowYPosition);
+                    ImGui::InputFloat("EasyShadowYPosition", &player->tagMain->EasyShadowYPosition);
+                    ImGui::InputFloat("EasyShadowScaleXZ", &player->tagMain->EasyShadowScaleXZ);
+                    ImGui::Checkbox("ValidEasyShadowYukaNormal", &player->tagMain->ValidEasyShadowYukaNormal);
+                    ImGui::InputFloat3("EasyShadowYukaNormal", &player->tagMain->EasyShadowYukaNormal.x);
+                    ImGui::Text("pTexShadowGmfNext: %p", player->tagMain->pTexShadowGmfNext);
+                    ImGui::Text("pTexShadowGmfPrev: %p", player->tagMain->pTexShadowGmfPrev);
+                    ImGui::Checkbox("TexShadowSetupDraw", &player->tagMain->TexShadowSetupDraw);
+                    ImGui::Checkbox("EasyShadowDrawOnly", &player->tagMain->EasyShadowDrawOnly);
+                    ImGui::Text("pGradationTexture: %p", player->tagMain->pGradationTexture);
+                    ImGui::InputFloat3("TexShadowCameraPosition", &player->tagMain->TexShadowCameraPosition.x);
+                    ImGui::InputFloat3("TexShadowCameraTarget", &player->tagMain->TexShadowCameraTarget.x);
+                    ImGui::InputFloat("TexShadowAreaHeight", &player->tagMain->TexShadowAreaHeight);
+                    ImGui::InputFloat("TexShadowAreaWidth", &player->tagMain->TexShadowAreaWidth);
+                    ImGui::InputInt("TexShadowPixelWidth", &player->tagMain->TexShadowPixelWidth);
+                    ImGui::InputInt("TexShadowPixelHeight", &player->tagMain->TexShadowPixelHeight);
+
+                    // Display MotionSoundSeqLocalValue array
+                    for (int i = 0; i < 8; ++i) {
+                        ImGui::InputScalar(("MotionSoundSeqLocalValue[" + std::to_string(i) + "]").c_str(), ImGuiDataType_S16, &player->tagMain->MotionSoundSeqLocalValue[i]);
+                    }
+                    ImGui::Separator();
+                    ImGui::InputScalar("MotionSoundSeqLocalValueValid", ImGuiDataType_U16, &player->tagMain->MotionSoundSeqLocalValueValid);
+                    ImGui::InputScalar("MotionSoundSeqLocalValueValidNum", ImGuiDataType_U16, &player->tagMain->MotionSoundSeqLocalValueValidNum);
+        
+                    // // Display link texture shadow
+                    // for (int i = 0; i < 16; ++i) {
+                    //     ImGui::Text(("pLinkTexShadowGmf[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->pLinkTexShadowGmf[i]);
+                    // }
+
+                    ImGui::InputInt("LinkTexShadowGmfNum", &player->tagMain->LinkTexShadowGmfNum);
+                    // ImGui::Text("pLinkTexShadowTarget: %p", player->tagMain->pLinkTexShadowTarget);
+                    ImGui::InputFloat4("LinkTexShadowGmfDrawArea", player->tagMain->LinkTexShadowGmfDrawArea);
+                }
+            }
+
+            if (ImGui::CollapsingHeader("mHRPc tagMain tagMOTION")) {
+                for (int i = 0; i < 4; ++i) {
+                    if (&player->tagMain->Motion[i]) {
+                        if (ImGui::CollapsingHeader(("Motion " + std::to_string(i)).c_str())) {
+                            ImGui::Checkbox(("Valid 1 [" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Valid[0]);
+                            ImGui::Checkbox(("Valid 2 [" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Valid[1]);
+                            ImGui::InputFloat(("BlendWeight[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].BlendWeight);
+                            ImGui::Checkbox(("Blend[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Blend);
+                            ImGui::InputFloat(("BlendRate[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].BlendRate);
+                            ImGui::InputFloat(("BlendSpeed[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].BlendSpeed);
+                            ImGui::InputInt(("Active[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Active);
+                            ImGui::InputInt(("MotionType2State[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].MotionType2State);
+                            ImGui::Checkbox(("MotionAttachFlag[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].MotionAttachFlag);
+                            ImGui::Checkbox(("PlayMotionFlag[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].PlayMotionFlag);
+                            ImGui::InputFloat(("PlayMotionTick[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].PlayMotionTick);
+                            ImGui::InputFloat(("MotionRate[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].MotionRate);
+                            // ImGui::Text(("pMotion[" + std::to_string(i) + "]: %p").c_str(), player->tagMain->Motion[i].pMotion);
+                            for (int j = 0; j < 2; ++j) {
+                                ImGui::InputInt(("TimingSoundHandle[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].TimingSoundHandle[j]);
+                            }
+                            ImGui::Separator();
+                            ImGui::Checkbox(("Loop[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Loop);
+                            for (int j = 0; j < 2; ++j) {
+                                ImGui::Checkbox(("LoopFlag2[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].LoopFlag2[j]);
+                                ImGui::InputFloat(("LoopMotionTime2[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].LoopMotionTime2[j]);
+                                ImGui::InputInt(("SetupMatrixFlagNum[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].SetupMatrixFlagNum[j]);
+                                if (ImGui::TreeNode(("MOVInfo[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str())) {
+                                    // ImGui::Text("pGanPlay: %p", player->tagMain->Motion[i].MOVInfo[j].pGanPlay);
+                                    ImGui::Checkbox(("ValidPrevPos[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].MOVInfo[j].ValidPrevPos);
+                                    ImGui::InputFloat3(("NowPos[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].MOVInfo[j].NowPos.x);
+                                    ImGui::InputFloat3(("PrevPos[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].MOVInfo[j].PrevPos.x);
+                                    ImGui::TreePop();
+                                }
+                            }
+                            ImGui::Separator();
+                        }
+                    }
+                }
+                ImGui::Separator();
             }
             if (ImGui::CollapsingHeader("mHRPc mCharaStatus")) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->mCharaStatus.resNo);

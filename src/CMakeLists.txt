@@ -27,7 +27,8 @@ set(MODS_SRC
     mods/ScreenshakeSettings.cpp 
     mods/RollForward.hpp 
     mods/RollForward.cpp 
-
+    mods/SprintSettings.hpp
+    mods/SprintSettings.cpp
 )
 
 set(HOOKS_SRC
@@ -43,6 +44,8 @@ set(SDK_SRC
     sdk/Enums_Internal.hpp
     sdk/Offsets.hpp
     sdk/NoMoreHeroesPdb.hpp
+    sdk/nmh.hpp
+    sdk/nmh.cpp
 )
 
 set(UTILITY_SRC

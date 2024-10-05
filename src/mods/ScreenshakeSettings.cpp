@@ -9,7 +9,6 @@ int ScreenshakeSettings::customBasicScreenshakeAmount = 6;
 naked void detour1() { // basic attacks // player in edi
     __asm {
         push eax
-        // mov dword ptr [ScreenshakeSettings::Offset_84BA18], 6 // probably pad rumble
         mov eax,[ScreenshakeSettings::Offset_84BA18]
         mov [eax],6
         pop eax

@@ -1,30 +1,23 @@
 #pragma once
 #include "Mod.hpp"
 #include "sdk/ReClass.hpp"
-class RollForward : public Mod {
+
+class SprintSettings : public Mod {
 public:
-  RollForward() = default;
+  SprintSettings() = default;
   
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
-  static bool mod_enabled;
+  static bool battle_sprint;
   static uintptr_t jmp_ret1;
-  static uintptr_t Offset_LeftStickUp;
-  static uintptr_t Offset_LeftStickLeft;
-  static uintptr_t Offset_JNE_1;
-
-  static uintptr_t jmp_ret2;
-
-  static uintptr_t jmp_ret3;
-  static uintptr_t Offset_GetEdgeButton;
-  static uintptr_t Offset_JNE3;
-
-   static uintptr_t jmp_ret4;
-   static uintptr_t Offset_mCheckCanOperate;
+  static uintptr_t l3Addr;
+  static int battleSprintSpeed;
+  static uintptr_t jneAddr;
+  static uintptr_t closeQuartersAddr;
 
   // mod name string for config
-  std::string get_mod_name() const override { return "RollForward"; }
-  std::string get_human_readable_name() const { return "Roll Forward"; }
-  const char* get_description() const override { return R"(Roll Forward)"; };
+  std::string get_mod_name() const override { return "SprintSettings"; }
+  std::string get_human_readable_name() const { return "Sprint Settings"; }
+  const char* get_description() const override { return R"(Sprint Settings)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
@@ -41,6 +34,6 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3, m_hook4;
+	std::unique_ptr<FunctionHook> m_hook1;
 	// std::unique_ptr<Patch> m_patch;
 };
