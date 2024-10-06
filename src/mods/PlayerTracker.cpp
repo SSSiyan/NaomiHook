@@ -367,9 +367,9 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputInt("SprLch Sound ID", &mHRBattle->mBtEffect.pScreenStatus->m_SprLchSoundID);
                 ImGui::InputScalar("Herose", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_Herose);
                 ImGui::SliderFloat("HP", &mHRBattle->mBtEffect.pScreenStatus->m_HP, 0.0f, 100.0f); // Assuming ranges
-                ImGui::SliderFloat("Battery", &mHRBattle->mBtEffect.pScreenStatus->m_Battery, 0.0f, 100.0f);
-                ImGui::SliderFloat("Stamina", &mHRBattle->mBtEffect.pScreenStatus->m_Stamina, 0.0f, 100.0f);
-                ImGui::SliderFloat2("Tension", mHRBattle->mBtEffect.pScreenStatus->m_Tension, 0.0f, 100.0f);
+                ImGui::SliderFloat("Battery", &mHRBattle->mBtEffect.pScreenStatus->m_Battery, 0.0f, 1000.0f);
+                ImGui::SliderFloat("Stamina", &mHRBattle->mBtEffect.pScreenStatus->m_Stamina, 0.0f, 1.0f);
+                ImGui::SliderFloat2("Tension", mHRBattle->mBtEffect.pScreenStatus->m_Tension, 0.0f, 1000.0f);
                 ImGui::InputInt2("Money", mHRBattle->mBtEffect.pScreenStatus->m_Money);
                 ImGui::InputInt("Money Comp Sound Wait", &mHRBattle->mBtEffect.pScreenStatus->m_MoneyCompSoundWait);
                 ImGui::InputInt("Flag Anim Counter", &mHRBattle->mBtEffect.pScreenStatus->m_FlagAnimCounter);
@@ -1123,7 +1123,7 @@ void PlayerTracker::on_draw_ui() {
                     ImGui::Separator();
                 }
                 ImGui::SliderFloat("Strength", &player->mPcStatus.strength, 0.0f, 100.0f);
-                ImGui::SliderFloat("Stamina", &player->mPcStatus.stammina, 0.0f, 100.0f);
+                ImGui::SliderFloat("Stamina", &player->mPcStatus.stammina, 0.0f, 1.0f);
                 ImGui::SliderFloat("Vitality", &player->mPcStatus.vitality, 0.0f, 100.0f);
                 ImGui::InputInt("Battery Tick", &player->mPcStatus.batteryTick);
                 ImGui::InputInt("Attack 360 Tick", &player->mPcStatus.attack360Tick);

@@ -1,17 +1,23 @@
 #include "SprintSettings.hpp"
 #if 1
-bool SprintSettings::battle_sprint = false;
+bool SprintSettings::battleSprint = false;
+
 uintptr_t SprintSettings::jmp_ret1 = NULL;
 uintptr_t SprintSettings::l3Addr = NULL;
-int SprintSettings::battleSprintSpeed = 8;
 uintptr_t SprintSettings::jneAddr = NULL;
 uintptr_t SprintSettings::closeQuartersAddr = NULL;
 
+uintptr_t SprintSettings::jmp_ret2 = NULL;
+float SprintSettings::sprintSpeed = 0.0f;
+float SprintSettings::battleSprintSpeed = 0.0f;
+
+uintptr_t SprintSettings::jmp_ret3 = NULL;
+
 // clang-format off
-naked void detour1() { // basic attacks // player in edi
+naked void detour1() { // Enable sprint in combat
     __asm {
         //
-            cmp byte ptr [SprintSettings::battle_sprint], 0
+            cmp byte ptr [SprintSettings::battleSprint], 0
             je originalcode
         // 
             push edx
@@ -48,7 +54,73 @@ naked void detour1() { // basic attacks // player in edi
             jmp dword ptr [SprintSettings::jneAddr]
     }
 }
- 
+
+naked void detour2() { // Set sprint speeds
+    __asm {
+        //
+            cmp byte ptr [SprintSettings::battleSprint], 0
+            je originalcode
+        // 
+            cmp dword ptr [esi+0x2990], 3 // mode
+            jne originalCode
+
+            push eax
+            mov eax, [SprintSettings::battleSprintSpeed]
+            mov [edi], eax // in combat
+            pop eax
+            jmp returnCode
+
+        originalCode:
+            push eax
+            mov eax, [SprintSettings::sprintSpeed]
+            mov [edi], eax // default
+            pop eax
+        returnCode:
+            jmp dword ptr [SprintSettings::jmp_ret2]
+    }
+}
+
+naked void detour3() { // Set sprint vfx
+    __asm {
+        //
+            cmp byte ptr [SprintSettings::battleSprint], 0
+            je originalcode
+        // 
+            cmp dword ptr [esi+0x2990], 3
+            jne originalCode
+            push 0x3c // lifetime
+            push ecx
+            mov dword ptr [esp], 0x3F7AE148 // 0.98f
+            lea eax, [esp+0x3C]
+            push 0x02 // default smokes per second
+            push 0x03 // default idk1
+            sub esp, 0x08
+            //lea edx,[esi+50] // navel
+            lea edx, [esi+0x38]
+            xor ecx,ecx
+            mov dword ptr [esp+0x04], 0x40000000 // 2.0f
+            mov dword ptr [esp], 0x3dcccccd // 0.1f
+            mov dword ptr [esi+0x1298], 0x3f800000 // 1.0f
+            jmp returnCode
+
+        originalCode:
+            push 0x3c // lifetime
+            push ecx
+            mov dword ptr [esp], 0x3F7AE148 // 0.98f
+            lea eax, [esp+0x3C]
+            push 0x08 // default smokes per second
+            push 0x05 // default idk1
+            sub esp, 0x08
+            //lea edx,[esi+50] // navel
+            lea edx, [esi+0x38]
+            xor ecx,ecx
+            mov dword ptr [esp+0x04], 0x41200000 // default size // 10.0f
+            mov dword ptr [esp], 0x3F000000 // default idk2 // 0.5f
+        returnCode:
+            jmp dword ptr [SprintSettings::jmp_ret3]
+    }
+}
+
  // clang-format on
 
 std::optional<std::string> SprintSettings::on_initialize() {
@@ -60,27 +132,42 @@ std::optional<std::string> SprintSettings::on_initialize() {
         return "Failed to init SprintSettings mod";
     }
 
+    if (!install_hook_offset(0x3D2C9E, m_hook2, &detour2, &SprintSettings::jmp_ret2, 6)) {
+        spdlog::error("Failed to init SprintSettings mod\n");
+        return "Failed to init SprintSettings mod";
+    }
+
+    if (!install_hook_offset(0x3D2DC3, m_hook3, &detour3, &SprintSettings::jmp_ret3, 41)) {
+        spdlog::error("Failed to init SprintSettings mod\n");
+        return "Failed to init SprintSettings mod";
+    }
+
     return Mod::on_initialize();
-}
+} 
 
 void SprintSettings::on_draw_ui() {
-    ImGui::Checkbox("Battle Sprint", &battle_sprint);
-    // if (battle_sprint) {
-    //     ImGui::Text("Battle Sprint Speed");
-    //     ImGui::SliderInt("##battleSprintSpeed", &battleSprintSpeed, 0, 20);
-    //     help_marker("Default ?");
-    // }
+    ImGui::Checkbox("Battle Sprint", &battleSprint);
+    if (battleSprint) {
+        ImGui::Text("Sprint Speed");
+        ImGui::SliderFloat("##SprintSpeedSliderFloat", &sprintSpeed, 0, 5, "%.2f");
+        help_marker("Default 2.0f");
+        ImGui::Text("Battle Sprint Speed");
+        ImGui::SliderFloat("##battleSprintSpeedSliderFloat", &battleSprintSpeed, 0, 5, "%.2f");
+        help_marker("Default 1.35f");
+    }
 }
 
 // during load
 void SprintSettings::on_config_load(const utility::Config &cfg) {
-    battle_sprint = cfg.get<bool>("battle_sprint").value_or(false);
-    // battleSprintSpeed = cfg.get<int>("battleSprintSpeed").value_or(8);
+    battleSprint = cfg.get<bool>("battleSprint").value_or(false);
+    sprintSpeed = cfg.get<float>("sprintSpeed").value_or(2.0f);
+    battleSprintSpeed = cfg.get<float>("battleSprintSpeed").value_or(1.35f);
 }
 // during save
 void SprintSettings::on_config_save(utility::Config &cfg) {
-    cfg.set<bool>("battle_sprint", battle_sprint);
-    // cfg.set<int>("battleSprintSpeed", battleSprintSpeed);
+    cfg.set<bool>("battleSprint", battleSprint);
+    cfg.set<float>("sprintSpeed", sprintSpeed);
+    cfg.set<float>("battleSprintSpeed", battleSprintSpeed);
 }
 
 // do something every frame
