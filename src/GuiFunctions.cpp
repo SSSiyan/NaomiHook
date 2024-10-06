@@ -10,6 +10,7 @@
 
 #include "glm/vec2.hpp"
 #include "imgui.h"
+#include "imgui_internal.h"
 
 #define GUI_VERSION "0.0.0"
 #define IMGUI_WINDOW_PADDING 10.0f
@@ -17,6 +18,8 @@
 #define IMGUI_WINDOW_BG_COLOR IM_COL32(48, 48, 48, 222)
 #define IMGUI_WINDOW_CT_COLOR IM_COL32(255, 201, 115, 255)
 #define IMGUI_WINDOW_IN_COLOR IM_COL32(189, 95, 88, 255)
+
+#define IMGUI_WINDOW_ST_MODNAME_COLOR 0xffbfe6ff
 
 namespace gui {
     void dark_theme() {
@@ -65,7 +68,7 @@ namespace gui {
             style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.3372549116611481f, 0.3372549116611481f, 0.3372549116611481f, 0.5400000214576721f);
             style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.4000000059604645f, 0.4000000059604645f, 0.4000000059604645f, 0.5400000214576721f);
             style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.5568627715110779f, 0.5568627715110779f, 0.5568627715110779f, 0.5400000214576721f);
-            style.Colors[ImGuiCol_CheckMark] = ImVec4(0.3294117748737335f, 0.6666666865348816f, 0.8588235378265381f, 1.0f);
+            style.Colors[ImGuiCol_CheckMark] = ImColor::ImColor(IMGUI_WINDOW_CT_COLOR);
             style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.3372549116611481f, 0.3372549116611481f, 0.3372549116611481f, 0.5400000214576721f);
             style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.5568627715110779f, 0.5568627715110779f, 0.5568627715110779f, 0.5400000214576721f);
             style.Colors[ImGuiCol_Button] = ImVec4(0.0470588244497776f, 0.0470588244497776f, 0.0470588244497776f, 0.5400000214576721f);
@@ -98,10 +101,20 @@ namespace gui {
             style.Colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.0f, 0.0f, 0.0f, 0.2000000029802322f);
             style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.0f, 0.0f, 0.0f, 0.3499999940395355f);
         }
-        auto& style = ImGui::GetStyle();
-        style.Colors[ImGuiCol_WindowBg] = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
-        style.Colors[ImGuiCol_ChildBg]  = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
-        style.Colors[ImGuiCol_PopupBg]  = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
+
+        ImVec4* colors = ImGui::GetStyle().Colors;
+
+        colors[ImGuiCol_WindowBg]            = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
+        colors[ImGuiCol_ChildBg]             = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
+        colors[ImGuiCol_PopupBg]             = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
+        colors[ImGuiCol_CheckMark]           = ImVec4(0.86f, 0.65f, 0.33f, 1.00f);
+        colors[ImGuiCol_TabSelected]         = ImVec4(0.51f, 0.40f, 0.24f, 1.00f);
+        colors[ImGuiCol_TabSelectedOverline] = ImVec4(1.00f, 0.79f, 0.45f, 1.00f);
+        colors[ImGuiCol_TabDimmedSelected]   = ImVec4(0.42f, 0.31f, 0.14f, 1.00f);
+        colors[ImGuiCol_TextLink]            = ImVec4(0.98f, 0.72f, 0.26f, 1.00f);
+        colors[ImGuiCol_DragDropTarget]      = ImVec4(0.86f, 0.65f, 0.33f, 1.00f);
+        colors[ImGuiCol_Header]              = ImVec4(0.31f, 0.70f, 0.15f, 1.00f);
+        colors[ImGuiCol_HeaderHovered]       = ImVec4(0.31f, 0.70f, 0.15f, 1.00f);
     }
 
     void fps_drawing() {
@@ -251,13 +264,19 @@ namespace gui {
         bool window_open = ctx->selected_mod != nullptr;
         ImGui::Begin("Settings window", &window_open, ImGuiWindowFlags_NoDecoration);
         {
-            ImGui::PushFont(ctx->main_font);
 
             if (ctx->selected_mod) {
+                // mod name in diff font
+                {
+                    ImGuiRaiiFont font{ctx->modname_font};
+                    ImGui::PushStyleColor(ImGuiCol_Text, IMGUI_WINDOW_ST_MODNAME_COLOR);
+                    ImGui::Text("%s", ctx->selected_mod->get_human_readable_name().c_str());
+                    ImGui::PopStyleColor();
+                }
+                ImGuiRaiiFont font{ctx->main_font};
                 ctx->selected_mod->on_draw_ui();
             }
 
-            ImGui::PopFont();
         }
         ImGui::End();
 
@@ -280,7 +299,34 @@ namespace gui {
             }
             ImGui::TextColored(color, mod->get_human_readable_name().c_str());
         };
-        if (ImGui::TreeNode(category_name)) {
+
+#if 0
+        ImVec2 pos = ImGui::GetCursorPos();
+        ImVec2 sz  = ImVec2(-FLT_MIN, ImGui::GetTextLineHeightWithSpacing());
+        std::string btn_name{category_name};
+        btn_name += "_btn";
+        if (ImGui::InvisibleButton(btn_name.c_str(), sz)) {
+            ctx->selected_category = category_enum;
+        }
+#endif
+        ImGuiTreeNodeFlags flags{};
+#if 1
+        ImVec2 ps = ImGui::GetCursorScreenPos();
+        int k = 0;
+        ImVec2 sz = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight());
+        ImRect rect {ps, ImVec2(ps.x + sz.x, ps.y + sz.y)};
+        bool hovered = ImGui::IsMouseHoveringRect(rect.Min, rect.Max);
+#endif
+        if (ctx->selected_category == category_enum || hovered) {
+            ImGui::PushStyleColor(ImGuiCol_Text, 0xFF222B2B);
+            flags = ImGuiTreeNodeFlags_Selected;
+        }
+        else {
+            ImGui::PushStyleColor(ImGuiCol_Text,     IMGUI_WINDOW_CT_COLOR);
+            ImGui::SetNextItemOpen(false, ImGuiCond_Always);
+        }
+        if (ImGui::TreeNodeEx(category_name, flags)) {
+            ctx->selected_category = category_enum;
             ImGui::PushFont(ctx->main_font);
 
             for (auto& mod : g_framework->get_mods()->m_mods) {
@@ -293,6 +339,7 @@ namespace gui {
             ImGui::PopFont();
             ImGui::TreePop();
         }
+        ImGui::PopStyleColor(1);
     }
 
     void imgui_main_window_proc(OurImGuiContext* ctx, Mods* pmods, bool* window_open) {
@@ -311,7 +358,6 @@ namespace gui {
             ImGui::Begin(PROJECT_NAME " " GUI_VERSION, window_open);
             {
                 ImGui::PushFont(ctx->fancy_font);
-                ImGui::PushStyleColor(ImGuiCol_Text, IMGUI_WINDOW_CT_COLOR);
 
                 draw_category(ctx, "GAMEPLAY",  ModCategory::GAMEPLAY);
                 draw_category(ctx, "COSMETICS", ModCategory::COSMETICS);
@@ -319,7 +365,6 @@ namespace gui {
                 draw_category(ctx, "SOUND",     ModCategory::SOUND);
                 draw_category(ctx, "SYSTEM",    ModCategory::SYSTEM);
 
-                ImGui::PopStyleColor();
                 ImGui::PopFont();
             }
             static bool showImGuiDemoWindow = false;

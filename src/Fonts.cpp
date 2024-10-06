@@ -23,6 +23,9 @@ void load_fonts(OurImGuiContext* ctx, ImGuiIO& io) {
     ctx->infobox_font = io.Fonts->AddFontFromMemoryCompressedTTF(font_infoblock_compressed_data, font_infoblock_compressed_size, 28.0f);
     IM_ASSERT(ctx->infobox_font != nullptr);
 
+    ctx->modname_font = io.Fonts->AddFontFromMemoryCompressedTTF(font_main_compressed_data, font_main_compressed_size, 38.0f);
+    IM_ASSERT(ctx->modname_font != nullptr);
+
     // rebuild font atlas
     io.Fonts->Build();
 }

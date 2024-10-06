@@ -27,6 +27,21 @@
         }
     };
 
+    struct ImGuiRaiiFont {
+        explicit ImGuiRaiiFont(ImFont* font) {
+            ImGui::PushFont(font);
+        };
+        ~ImGuiRaiiFont() noexcept {
+            ImGui::PopFont();
+        }
+        // no copies
+        ImGuiRaiiFont(const ImGuiRaiiFont&) = delete;
+        ImGuiRaiiFont& operator=(const ImGuiRaiiFont&) = delete;
+        // no moves
+        ImGuiRaiiFont(ImGuiRaiiFont&&) = delete;
+        ImGuiRaiiFont& operator=(ImGuiRaiiFont&&) = delete;
+    };
+
     struct OurImGuiContext {
         int wflags{};
 
@@ -38,6 +53,9 @@
         ImFont* main_font{};
         ImFont* fancy_font{};
         ImFont* infobox_font{};
+        ImFont* modname_font{};
+
+        ModCategory selected_category{};
 
         Keyframe main_window_anim { 
             .time_start = 0.0f,
