@@ -5,8 +5,17 @@ bool SwordColours::mod_enabled = false;
 
 uintptr_t SwordColours::jmp_ret1 = NULL;
 uintptr_t SwordColours::gpBattle = NULL;
-float SwordColours::coloursPickedFloat[5][4]{}; // rgba
-uint8_t SwordColours::coloursPicked[5][4]{}; // abgr
+float SwordColours::coloursPickedFloat[6][4]{}; // rgba
+uint8_t SwordColours::coloursPicked[6][4]{}; // abgr
+
+bool Check_Event(void) {
+    if (mHRPc* player = nmh_sdk::get_mHRPc()) {
+        if (nmh_sdk::CheckTsubazering(-1)) {
+            return true;
+        }
+    }
+    return false;
+}
 
 // clang-format off
 naked void detour1() { // custom colours
@@ -22,7 +31,24 @@ naked void detour1() { // custom colours
             test eax,eax
             je popcode
 
-            // get sword no
+            // fucks eax, ecx, edx on release build
+            push eax
+            push ebx
+            push ecx
+            push edx
+            push esi
+            push edi
+            call dword ptr [Check_Event]
+            cmp al,1
+            pop edi
+            pop esi
+            pop edx
+            pop ecx
+            pop ebx
+            pop eax
+            je specialColour
+
+        // get sword no
             cmp [eax+0x42C], BLOOD_BERRY // berry
             je berryColour
             cmp [eax+0x42C], TSUBAKI_MK3 // mk3
@@ -31,28 +57,28 @@ naked void detour1() { // custom colours
             je mk1Colour
             cmp [eax+0x42C], TSUBAKI_MK2 // mk2
             je mk2Colour
-            jmp popcode // should be impossible
+            jmp otherColour // should be impossible
 
-            berryColour:
+        berryColour:
             // filter out non players
             cmp esi, [eax+0x350]
             jne popcode
             mov edi, [SwordColours::coloursPicked]
             jmp popret
 
-            mk3Colour:
+        mk3Colour:
             cmp esi, [eax+0x350]
             jne popcode
             mov edi, [SwordColours::coloursPicked+0x4]
             jmp popret
 
-            mk1Colour:
+        mk1Colour:
             cmp esi, [eax+0x350]
             jne popcode
             mov edi, [SwordColours::coloursPicked+0x8]
             jmp popret
 
-            mk2Colour:
+        mk2Colour:
             cmp esi, [eax+0x2aa0]
             je applyMk2Colour
             cmp esi, [eax+0x2aa4]
@@ -68,8 +94,13 @@ naked void detour1() { // custom colours
             mov edi, [SwordColours::coloursPicked+0xC]
             jmp popret
 
-            mov edi, [SwordColours::coloursPicked]
-            jmp retcode
+        otherColour:
+            mov edi, [SwordColours::coloursPicked+0x10]
+            jmp popret
+
+        specialColour:
+            mov edi, [SwordColours::coloursPicked+0x14]
+            jmp popret
 
         popret:
             pop eax
@@ -101,14 +132,15 @@ const char* colorPickerNames[] = {
     "Tsubaki Mk3",
     "Tsubaki Mk1",
     "Tsubaki Mk2",
-    "Other"
+    "Other",
+    "Special",
 };
 
 void SwordColours::on_draw_ui() {
     ImGui::Checkbox("Custom Colours", &mod_enabled);
 
-    for (int i = 0; i < 5; ++i) {
-        if (ImGui::ColorPicker4(colorPickerNames[i], coloursPickedFloat[i], ImGuiColorEditFlags_AlphaBar)) {
+    for (int i = 0; i < 6; ++i) {
+        if (ImGui::ColorPicker4(colorPickerNames[i], coloursPickedFloat[i])) {
             // Convert rgba floats into abgr int8s
             coloursPicked[i][3] = (uint8_t)(coloursPickedFloat[i][0] * 255); // Red
             coloursPicked[i][2] = (uint8_t)(coloursPickedFloat[i][1] * 255); // Green
@@ -122,12 +154,38 @@ void SwordColours::on_draw_ui() {
 void SwordColours::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("custom_colours").value_or(false);
 
-    for (int i = 0; i < 5; ++i) {
-        coloursPicked[i][0] = cfg.get<uint8_t>(fmt::format("colours_picked [{}][0]", i).c_str()).value_or(255); // A
-        coloursPicked[i][1] = cfg.get<uint8_t>(fmt::format("colours_picked [{}][1]", i).c_str()).value_or(255); // B
-        coloursPicked[i][2] = cfg.get<uint8_t>(fmt::format("colours_picked [{}][2]", i).c_str()).value_or(255); // G
-        coloursPicked[i][3] = cfg.get<uint8_t>(fmt::format("colours_picked [{}][3]", i).c_str()).value_or(0); // R
+    // berry
+    coloursPicked[0][0] = cfg.get<uint8_t>("colours_picked [0][0]").value_or(0xFF); // A
+    coloursPicked[0][1] = cfg.get<uint8_t>("colours_picked [0][1]").value_or(0x2A); // B
+    coloursPicked[0][2] = cfg.get<uint8_t>("colours_picked [0][2]").value_or(0xFF); // G
+    coloursPicked[0][3] = cfg.get<uint8_t>("colours_picked [0][3]").value_or(0x12); // R
+    // mk3
+    coloursPicked[1][0] = cfg.get<uint8_t>("colours_picked [1][0]").value_or(0x40); // A
+    coloursPicked[1][1] = cfg.get<uint8_t>("colours_picked [1][1]").value_or(0xFF); // B
+    coloursPicked[1][2] = cfg.get<uint8_t>("colours_picked [1][2]").value_or(0x64); // G
+    coloursPicked[1][3] = cfg.get<uint8_t>("colours_picked [1][3]").value_or(0x64); // R
+    // mk1
+    coloursPicked[2][0] = cfg.get<uint8_t>("colours_picked [2][0]").value_or(0xFF); // A
+    coloursPicked[2][1] = cfg.get<uint8_t>("colours_picked [2][1]").value_or(0xFF); // B
+    coloursPicked[2][2] = cfg.get<uint8_t>("colours_picked [2][2]").value_or(0x55); // G
+    coloursPicked[2][3] = cfg.get<uint8_t>("colours_picked [2][3]").value_or(0x00); // R
+    // mk2
+    coloursPicked[3][0] = cfg.get<uint8_t>("colours_picked [3][0]").value_or(0xFF); // A
+    coloursPicked[3][1] = cfg.get<uint8_t>("colours_picked [3][1]").value_or(0xFF); // B
+    coloursPicked[3][2] = cfg.get<uint8_t>("colours_picked [3][2]").value_or(0x55); // G
+    coloursPicked[3][3] = cfg.get<uint8_t>("colours_picked [3][3]").value_or(0x00); // R
+    // other
+    coloursPicked[4][0] = cfg.get<uint8_t>("colours_picked [4][0]").value_or(0xFF); // A
+    coloursPicked[4][1] = cfg.get<uint8_t>("colours_picked [4][1]").value_or(0xFF); // B
+    coloursPicked[4][2] = cfg.get<uint8_t>("colours_picked [4][2]").value_or(0xFF); // G
+    coloursPicked[4][3] = cfg.get<uint8_t>("colours_picked [4][3]").value_or(0xFF); // R
+    // special
+    coloursPicked[5][0] = cfg.get<uint8_t>("colours_picked [5][0]").value_or(0xFF); // A
+    coloursPicked[5][1] = cfg.get<uint8_t>("colours_picked [5][1]").value_or(0x00); // B
+    coloursPicked[5][2] = cfg.get<uint8_t>("colours_picked [5][2]").value_or(0x00); // G
+    coloursPicked[5][3] = cfg.get<uint8_t>("colours_picked [5][3]").value_or(0xFF); // R
 
+    for (int i = 0; i < 6; ++i) {
         coloursPickedFloat[i][3] = (float)(coloursPicked[i][0] / 255.0f);
         coloursPickedFloat[i][2] = (float)(coloursPicked[i][1] / 255.0f);
         coloursPickedFloat[i][1] = (float)(coloursPicked[i][2] / 255.0f);
@@ -139,7 +197,7 @@ void SwordColours::on_config_load(const utility::Config &cfg) {
 void SwordColours::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("custom_colours", mod_enabled);
 
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 6; ++i) {
         cfg.set<uint8_t>(fmt::format("colours_picked [{}][0]", i).c_str(), coloursPicked[i][0]); // a
         cfg.set<uint8_t>(fmt::format("colours_picked [{}][1]", i).c_str(), coloursPicked[i][1]); // b
         cfg.set<uint8_t>(fmt::format("colours_picked [{}][2]", i).c_str(), coloursPicked[i][2]); // g
