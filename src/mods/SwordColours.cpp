@@ -9,9 +9,8 @@ float SwordColours::coloursPickedFloat[5][4]{}; // rgba
 uint8_t SwordColours::coloursPicked[5][4]{}; // abgr
 
 uintptr_t SwordColours::jmp_ret2 = NULL;
-uintptr_t SwordColours::offset_mCheckCharge = NULL;
 int SwordColours::deathblowTimer = 0;
-int SwordColours::setDeathblowTimer = 50;
+int SwordColours::setDeathblowTimer = 0;
 
 // clang-format off
 naked void detour1() { // custom colours
@@ -28,15 +27,14 @@ naked void detour1() { // custom colours
             je popcode
 
             cmp dword ptr [SwordColours::deathblowTimer], 100
-            jbe specialColour
+            jbe deathblowColour
             jmp getSwordID
 
-        specialColour:
-            cmp dword ptr [SwordColours::deathblowTimer],0
+        deathblowColour:
+            cmp dword ptr [SwordColours::deathblowTimer], 0
             je getSwordID
             dec dword ptr [SwordColours::deathblowTimer]
             mov edi, [SwordColours::coloursPicked+0x10]
-        skipTimerDec:
             jmp popret
 
         getSwordID:
@@ -98,7 +96,7 @@ naked void detour1() { // custom colours
     }
 }
 
-naked void detour2() { // custom colours
+naked void detour2() { // set deathblow timer
     __asm {
         //
             cmp byte ptr [SwordColours::mod_enabled], 0
@@ -137,8 +135,6 @@ std::optional<std::string> SwordColours::on_initialize() {
         return "Failed to init SprintSettings mod";
     }
 
-
-    SwordColours::offset_mCheckCharge = g_framework->get_module().as<uintptr_t>() + 0x3D42F0;
     if (!install_hook_offset(0x3C6279, m_hook2, &detour2, &SwordColours::jmp_ret2, 6)) { // speedblur for deathblows
         spdlog::error("Failed to init SprintSettings mod\n");
         return "Failed to init SprintSettings mod";
@@ -152,19 +148,21 @@ const char* colorPickerNames[] = {
     "Tsubaki Mk3",
     "Tsubaki Mk1",
     "Tsubaki Mk2",
-    "Special",
+    "Deathblows",
 };
 
 void SwordColours::on_draw_ui() {
     ImGui::Checkbox("Custom Colours", &mod_enabled);
-    ImGui::InputInt("Deathblow Timer", &setDeathblowTimer);
-    for (int i = 0; i < 5; ++i) {
-        if (ImGui::ColorPicker4(colorPickerNames[i], coloursPickedFloat[i])) {
-            // Convert rgba floats into abgr int8s
-            coloursPicked[i][3] = (uint8_t)(coloursPickedFloat[i][0] * 255); // Red
-            coloursPicked[i][2] = (uint8_t)(coloursPickedFloat[i][1] * 255); // Green
-            coloursPicked[i][1] = (uint8_t)(coloursPickedFloat[i][2] * 255); // Blue
-            coloursPicked[i][0] = (uint8_t)(coloursPickedFloat[i][3] * 255); // Alpha
+    if (ImGui::CollapsingHeader("Weapon Colours")) {
+        ImGui::InputInt("Deathblow Timer", &setDeathblowTimer);
+        for (int i = 0; i < 5; ++i) {
+            if (ImGui::ColorPicker4(colorPickerNames[i], coloursPickedFloat[i])) {
+                // Convert rgba floats into abgr int8s
+                coloursPicked[i][3] = (uint8_t)(coloursPickedFloat[i][0] * 255); // Red
+                coloursPicked[i][2] = (uint8_t)(coloursPickedFloat[i][1] * 255); // Green
+                coloursPicked[i][1] = (uint8_t)(coloursPickedFloat[i][2] * 255); // Blue
+                coloursPicked[i][0] = (uint8_t)(coloursPickedFloat[i][3] * 255); // Alpha
+            }
         }
     }
 }
