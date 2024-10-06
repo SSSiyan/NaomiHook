@@ -29,6 +29,9 @@ set(MODS_SRC
     mods/RollForward.cpp 
     mods/SprintSettings.hpp
     mods/SprintSettings.cpp
+    mods/SwordColours.hpp 
+    mods/SwordColours.cpp 
+
 )
 
 set(HOOKS_SRC

@@ -19,6 +19,7 @@
 #include "mods/ScreenshakeSettings.hpp"
 #include "mods/RollForward.hpp"
 #include "mods/SprintSettings.hpp"
+#include "mods/SwordColours.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -47,6 +48,7 @@ Mods::Mods()
     ADD_MOD(ScreenshakeSettings);
     ADD_MOD(RollForward);
     ADD_MOD(SprintSettings);
+    ADD_MOD(SwordColours);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

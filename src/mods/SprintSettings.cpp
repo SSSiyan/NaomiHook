@@ -20,6 +20,9 @@ naked void detour1() { // Enable sprint in combat
             cmp byte ptr [SprintSettings::battleSprint], 0
             je originalcode
         // 
+            cmp dword ptr [esi+0x2990], 3 // mode
+            jne originalCode
+        //
             push edx
             push ecx
             push eax
@@ -63,7 +66,7 @@ naked void detour2() { // Set sprint speeds
         // 
             cmp dword ptr [esi+0x2990], 3 // mode
             jne originalCode
-
+        //
             push eax
             mov eax, [SprintSettings::battleSprintSpeed]
             mov [edi], eax // in combat
@@ -88,6 +91,7 @@ naked void detour3() { // Set sprint vfx
         // 
             cmp dword ptr [esi+0x2990], 3
             jne originalCode
+        //
             push 0x3c // lifetime
             push ecx
             mov dword ptr [esp], 0x3F7AE148 // 0.98f

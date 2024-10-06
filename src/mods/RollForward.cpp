@@ -16,7 +16,7 @@ uintptr_t RollForward::jmp_ret4 = NULL;
 uintptr_t RollForward::Offset_mCheckCanOperate = NULL;
 
 // clang-format off
-naked void detour1() {
+naked void detour1() { // make lockon+forward input (also used by buffer)
     __asm {
         cmp byte ptr [RollForward::mod_enabled], 0
         je originalcode
@@ -42,7 +42,7 @@ naked void detour1() {
     }
 }
 
-naked void detour2() {
+naked void detour2() { // add roll forward animation
     __asm {
         cmp byte ptr [RollForward::mod_enabled], 0
         je originalcode
@@ -65,7 +65,7 @@ naked void detour2() {
     }
 }
 
-naked void detour3() {
+naked void detour3() { // make lockon+forward (while attacking) input by copying down input
     __asm {
         cmp byte ptr [RollForward::mod_enabled], 0
         je originalcode
@@ -88,7 +88,7 @@ naked void detour3() {
     }
 }
 
-naked void detour4() {
+naked void detour4() { // make right stick up and buffer value accepted inputs while attacking
     __asm {
         cmp byte ptr [RollForward::mod_enabled], 0
         je originalcode
