@@ -31,6 +31,8 @@ set(MODS_SRC
     mods/SprintSettings.cpp
     mods/SwordColours.hpp 
     mods/SwordColours.cpp 
+    mods/ThrowBattery.hpp 
+    mods/ThrowBattery.cpp 
 
 )
 

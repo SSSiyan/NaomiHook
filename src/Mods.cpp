@@ -20,6 +20,7 @@
 #include "mods/RollForward.hpp"
 #include "mods/SprintSettings.hpp"
 #include "mods/SwordColours.hpp"
+#include "mods/ThrowBattery.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -49,6 +50,7 @@ Mods::Mods()
     ADD_MOD(RollForward);
     ADD_MOD(SprintSettings);
     ADD_MOD(SwordColours);
+    ADD_MOD(ThrowBattery);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
