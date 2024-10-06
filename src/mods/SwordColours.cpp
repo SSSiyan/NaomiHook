@@ -9,7 +9,7 @@ float SwordColours::coloursPickedFloat[5][4]{}; // rgba
 uint8_t SwordColours::coloursPicked[5][4]{}; // abgr
 
 uintptr_t SwordColours::jmp_ret2 = NULL;
-uintptr_t SwordColours::offset_mCheckHajikare = NULL;
+uintptr_t SwordColours::offset_mCheckCharge = NULL;
 int SwordColours::deathblowTimer = 0;
 int SwordColours::setDeathblowTimer = 50;
 
@@ -105,6 +105,19 @@ naked void detour2() { // custom colours
             je originalcode
             cmp dword ptr [ebx+0x198], 0 // condition // 0 = good, not taking damage
             jne originalcode
+
+        // filter out non deathblows
+            cmp dword ptr [ebx+0x18c], ePcMtBtChgLp // 168 low charge p2
+            je originalcode
+            cmp dword ptr [ebx+0x18c], ePcMtBtAtkChgUp // 170 high charge
+            je originalcode
+            // enum pcMotion {
+            // ePcMtBtChgStrt = 167,
+            // ePcMtBtChgLp = 168,
+            // ePcMtBtAtkChg = 169,
+            // ePcMtBtAtkChgUp = 170,
+
+        // set deathblow timer
             push eax
             mov eax, [SwordColours::setDeathblowTimer]
             mov [SwordColours::deathblowTimer], eax
@@ -118,13 +131,14 @@ naked void detour2() { // custom colours
  // clang-format on
 
 std::optional<std::string> SwordColours::on_initialize() {
-    SwordColours::gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
+    SwordColours::gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584; 
     if (!install_hook_offset(0x4C9AED, m_hook1, &detour1, &SwordColours::jmp_ret1, 6)) {
         spdlog::error("Failed to init SprintSettings mod\n");
         return "Failed to init SprintSettings mod";
     }
 
-    SwordColours::offset_mCheckHajikare = g_framework->get_module().as<uintptr_t>() + 0x3D4BA0;
+
+    SwordColours::offset_mCheckCharge = g_framework->get_module().as<uintptr_t>() + 0x3D42F0;
     if (!install_hook_offset(0x3C6279, m_hook2, &detour2, &SwordColours::jmp_ret2, 6)) { // speedblur for deathblows
         spdlog::error("Failed to init SprintSettings mod\n");
         return "Failed to init SprintSettings mod";

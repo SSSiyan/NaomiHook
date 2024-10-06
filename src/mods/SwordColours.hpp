@@ -15,7 +15,7 @@ public:
 
   static uintptr_t jmp_ret2;
   static int deathblowTimer;
-  static uintptr_t offset_mCheckHajikare;
+  static uintptr_t offset_mCheckCharge;
   static int setDeathblowTimer;
 
   // mod name string for config
