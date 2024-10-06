@@ -979,6 +979,7 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputInt("motionNo", (int*)&player->mCharaStatus.motionNo);
                 ImGui::InputScalar("motionBrendNum", ImGuiDataType_S8, &player->mCharaStatus.motionBrendNum);
                 ImGui::InputFloat("motSpd", &player->mCharaStatus.motSpd);
+                ImGui::InputScalar("condition", ImGuiDataType_S8, &player->mCharaStatus.condition);
                 ImGui::InputFloat3("mYukaNormal", &player->mCharaStatus.mYukaNormal.x);
                 ImGui::InputInt("movTick", &player->mCharaStatus.movTick);
                 ImGui::InputScalar("hitNum", ImGuiDataType_S16, &player->mCharaStatus.hitNum);
@@ -1281,6 +1282,7 @@ void PlayerTracker::on_draw_ui() {
                     ImGui::InputInt("motionNo", (int*)&player->mpLockOnNpc->mStatus.motionNo);
                     ImGui::InputScalar("motionBrendNum", ImGuiDataType_S8, &player->mpLockOnNpc->mStatus.motionBrendNum);
                     ImGui::InputFloat("motSpd", &player->mpLockOnNpc->mStatus.motSpd);
+                    ImGui::InputScalar("condition", ImGuiDataType_S8, &player->mpLockOnNpc->mStatus.condition);
                     ImGui::InputFloat3("mYukaNormal", &player->mpLockOnNpc->mStatus.mYukaNormal.x);
                     ImGui::InputInt("movTick", &player->mpLockOnNpc->mStatus.movTick);
                     ImGui::InputScalar("hitNum", ImGuiDataType_S16, &player->mpLockOnNpc->mStatus.hitNum);

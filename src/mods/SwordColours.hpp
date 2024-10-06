@@ -10,8 +10,13 @@ public:
 
   static uintptr_t jmp_ret1;
   static uintptr_t gpBattle;
-  static uint8_t coloursPicked[6][4]; // bgra
-  static float coloursPickedFloat[6][4]; //rgba
+  static uint8_t coloursPicked[5][4]; // bgra
+  static float coloursPickedFloat[5][4]; //rgba
+
+  static uintptr_t jmp_ret2;
+  static int deathblowTimer;
+  static uintptr_t offset_mCheckHajikare;
+  static int setDeathblowTimer;
 
   // mod name string for config
   std::string get_mod_name() const override { return "SwordColours"; }
@@ -33,6 +38,6 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1;
+	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
 	// std::unique_ptr<Patch> m_patch;
 };
