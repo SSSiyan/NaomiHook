@@ -22,6 +22,7 @@
 #include "mods/SwordColours.hpp"
 #include "mods/ThrowBattery.hpp"
 #include "mods/DodgeBattery.hpp"
+#include "mods/HPHitNumber.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -53,6 +54,7 @@ Mods::Mods()
     ADD_MOD(SwordColours);
     ADD_MOD(ThrowBattery);
     ADD_MOD(DodgeBattery);
+    ADD_MOD(HPHitNumber);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

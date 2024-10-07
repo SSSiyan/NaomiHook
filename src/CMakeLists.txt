@@ -35,6 +35,8 @@ set(MODS_SRC
     mods/ThrowBattery.cpp 
     mods/DodgeBattery.hpp 
     mods/DodgeBattery.cpp 
+    mods/HPHitNumber.hpp 
+    mods/HPHitNumber.cpp 
 
 )
 
