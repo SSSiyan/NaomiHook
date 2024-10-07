@@ -16,20 +16,20 @@ uintptr_t DodgeBattery::SoundPrepPlay = NULL;
 uintptr_t DodgeBattery::mUpdateLockOnTarget = NULL;
 
 // clang-format off
-naked void detour1() { // basic attacks // player in edi
+naked void detour1() { // called during dodges
     __asm {
         // 
             cmp byte ptr [DodgeBattery::mod_enabled], 0
             je originalcode
         // 
             //nmh.mHRPc::mFrameProc+133D
-            cmp [edi+0x18c], 26 // front roll
+            cmp dword ptr [edi+0x18c], ePcMtStpF // 26 front roll
             je originalcode
-            cmp [edi+0x18c], 27 // back roll
+            cmp dword ptr [edi+0x18c], ePcMtRollB // 27 back roll
             je originalcode
-            cmp [edi+0x18c], 30 // right roll
+            cmp dword ptr [edi+0x18c], ePcMtRollR // 30 right roll
             je originalcode
-            cmp [edi+0x18c], 31 // left roll
+            cmp dword ptr [edi+0x18c], ePcMtRollL // 31 left roll
             je originalcode
 
             push eax

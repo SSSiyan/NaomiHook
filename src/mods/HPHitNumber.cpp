@@ -6,7 +6,7 @@ uintptr_t HPHitNumber::jmp_ret2 = NULL;
 uintptr_t HPHitNumber::gpBattle = NULL;
 float HPHitNumber::verticalOffset = 0.0f;
 
-void HPHitNumber::toggle(bool enable) {
+void HPHitNumber::toggle(bool enable) { // hide "HIT" text
     if (enable) {
         install_patch_offset(0x428612, m_patch1, "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90", 10); // nop A
     }
@@ -49,7 +49,7 @@ naked void detour1() { // show hp instead of hit number
     }
 }
 
-naked void detour2() { // show hp instead of hit number
+naked void detour2() { // Move number to centre of lockon circle
     __asm {
         // 
             cmp byte ptr [HPHitNumber::mod_enabled], 0
