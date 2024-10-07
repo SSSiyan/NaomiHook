@@ -21,13 +21,14 @@ naked void detour1() { // basic attacks // player in edi
             push eax
             mov ecx,edi // put player in ecx for calls
 
+        // add battery
             push dword ptr [ThrowBattery::batteryThrowReward]
-            call dword ptr [ThrowBattery::mAddBattery] // rets 4, fucks 
+            call dword ptr [ThrowBattery::mAddBattery] // rets 4, fucks eax, ecx, edx
 
         // play visual
             mov ecx, [ThrowBattery::gpBattle]
             mov ecx, [ecx]
-            mov edi, [ecx+0x164] // player
+            // mov edi, [ecx+0x164] // player already in edi
             mov ecx, [ecx+0x14C] // hrScreenStatus
             push 0x0d
             push 0x3ea

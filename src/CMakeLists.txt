@@ -33,6 +33,8 @@ set(MODS_SRC
     mods/SwordColours.cpp 
     mods/ThrowBattery.hpp 
     mods/ThrowBattery.cpp 
+    mods/DodgeBattery.hpp 
+    mods/DodgeBattery.cpp 
 
 )
 
