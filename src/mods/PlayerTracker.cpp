@@ -1383,6 +1383,75 @@ void PlayerTracker::on_draw_ui() {
                     if (ImGui::Checkbox("jpnDead", &jpnDead)) setBit(player->mpLockOnNpc->mStatus.flag2, 1, jpnDead);
                 }
             }
+            if (ImGui::CollapsingHeader("mpLockOnNpc mEffect.pBattleIcon")) {
+                if (player->mpLockOnNpc) {
+                    uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->mpLockOnNpc->mEffect.pBattleIcon->Padding_175);
+                    uintptr_t statusAddress = reinterpret_cast<uintptr_t>(&player->mpLockOnNpc->mEffect.pBattleIcon->m_DrawHitCmbFlag);
+                    uintptr_t offsetDifference = statusAddress - baseAddress;
+                    ImGui::Text("Offset target: 0x304 | Offset: 0x%08X", offsetDifference);
+
+                    ImGui::InputScalar("Icon Stat", ImGuiDataType_S32, &player->mpLockOnNpc->mEffect.pBattleIcon->D_BICON_STAT);
+                    ImGui::InputScalar("Yoyaku Icon", ImGuiDataType_S32, &player->mpLockOnNpc->mEffect.pBattleIcon->m_YoyakuIcon);
+                    ImGui::InputScalar("Lock On Distance", ImGuiDataType_Float, &player->mpLockOnNpc->mEffect.pBattleIcon->m_LockOnDist);
+                    ImGui::InputScalar("Lock On Circle Size", ImGuiDataType_Float, &player->mpLockOnNpc->mEffect.pBattleIcon->m_LockOnCircleSize);
+                    ImGui::InputScalar("Block Size", ImGuiDataType_Float, &player->mpLockOnNpc->mEffect.pBattleIcon->m_BIcon_Block_Size);
+                    ImGui::InputScalarN("Block Color", ImGuiDataType_U8, player->mpLockOnNpc->mEffect.pBattleIcon->m_blockcolor, 3);
+                    ImGui::InputScalar("Color Type", ImGuiDataType_U8, &player->mpLockOnNpc->mEffect.pBattleIcon->m_ColorType);
+                    ImGui::InputScalarN("Con Act ID", ImGuiDataType_S32, player->mpLockOnNpc->mEffect.pBattleIcon->m_ConActID, 2);
+                    ImGui::InputScalarN("Con Act Count", ImGuiDataType_S16, player->mpLockOnNpc->mEffect.pBattleIcon->m_ConActCount, 2);
+                    ImGui::InputScalar("Counter", ImGuiDataType_S16, &player->mpLockOnNpc->mEffect.pBattleIcon->m_Counter);
+                    ImGui::InputScalar("Del Counter", ImGuiDataType_S16, &player->mpLockOnNpc->mEffect.pBattleIcon->m_DelCounter);
+                    ImGui::InputScalar("Arrow Appear Count", ImGuiDataType_S32, &player->mpLockOnNpc->mEffect.pBattleIcon->m_Arrow_AppearCnt);
+                    ImGui::InputScalar("Rotate Anim Count", ImGuiDataType_S32, &player->mpLockOnNpc->mEffect.pBattleIcon->m_Rotate_AnimCnt);
+                    ImGui::InputScalar("Tmp Jst Vec X", ImGuiDataType_Float, &player->mpLockOnNpc->mEffect.pBattleIcon->m_TmpJstVec.x);
+                    ImGui::InputScalar("Tmp Jst Vec Y", ImGuiDataType_Float, &player->mpLockOnNpc->mEffect.pBattleIcon->m_TmpJstVec.y);
+                    ImGui::InputScalar("Tmp Jst Vec Z", ImGuiDataType_Float, &player->mpLockOnNpc->mEffect.pBattleIcon->m_TmpJstVec.z);
+                    ImGui::InputScalar("Pyoko Count", ImGuiDataType_S16, &player->mpLockOnNpc->mEffect.pBattleIcon->m_PyokoCnt);
+                    ImGui::InputScalar("Pyoko Flag", ImGuiDataType_S16, &player->mpLockOnNpc->mEffect.pBattleIcon->m_PyokoFlag);
+                    ImGui::InputScalar("Pyoko Ratio", ImGuiDataType_Float, &player->mpLockOnNpc->mEffect.pBattleIcon->m_PyokoRatio);
+                    ImGui::InputScalar("Pyoko Alpha", ImGuiDataType_U8, &player->mpLockOnNpc->mEffect.pBattleIcon->m_PyokoAlpha);
+                    ImGui::Checkbox("Draw Hit Combo Flag", (bool*)&player->mpLockOnNpc->mEffect.pBattleIcon->m_DrawHitCmbFlag);
+                    ImGui::InputScalarN("Tsuba Ratio", ImGuiDataType_Float, player->mpLockOnNpc->mEffect.pBattleIcon->m_TsubaRatio, 36);
+                    for (int i = 0; i < 2; ++i) {
+                        ImGui::Text("Position %d: %p", i, player->mpLockOnNpc->mEffect.pBattleIcon->m_pPosition[i]);
+                    }
+                    ImGui::Text("Node: %p", player->mpLockOnNpc->mEffect.pBattleIcon->m_pNode);
+                    for (int i = 0; i < 3; ++i) {
+                        ImGui::InputScalarN(fmt::format("Color [{}]", i).c_str(), ImGuiDataType_U8, player->mpLockOnNpc->mEffect.pBattleIcon->m_Color[i], 2);
+                    }
+                    ImGui::InputScalar("HP Bar Counter", ImGuiDataType_S16, &player->mpLockOnNpc->mEffect.pBattleIcon->m_HpBerCounter);
+                    ImGui::InputScalar("Line Counter", ImGuiDataType_S16, &player->mpLockOnNpc->mEffect.pBattleIcon->m_LineCounter);
+                    ImGui::InputScalar("Meter Counter", ImGuiDataType_S8, &player->mpLockOnNpc->mEffect.pBattleIcon->m_MeterCounter);
+                    ImGui::InputScalarN("Tension", ImGuiDataType_Float, player->mpLockOnNpc->mEffect.pBattleIcon->m_Tension, 2);
+                    ImGui::InputScalarN("T Meter Rev Position", ImGuiDataType_Float, player->mpLockOnNpc->mEffect.pBattleIcon->m_TMeterRevPos, 2);
+                    ImGui::InputScalarN("Get Money", ImGuiDataType_S16, player->mpLockOnNpc->mEffect.pBattleIcon->m_GetMoney, 2);
+                    ImGui::InputScalarN("Hit Number", ImGuiDataType_S16, player->mpLockOnNpc->mEffect.pBattleIcon->m_HitNum, 2);
+                    ImGui::InputScalarN("HP", ImGuiDataType_Float, player->mpLockOnNpc->mEffect.pBattleIcon->m_HP, 3);
+                    ImGui::InputScalar("HP Base Alpha", ImGuiDataType_U8, &player->mpLockOnNpc->mEffect.pBattleIcon->m_HPBaseAlpha);
+                    ImGui::InputScalar("HP Virt Alpha", ImGuiDataType_U8, &player->mpLockOnNpc->mEffect.pBattleIcon->m_HPVirtAlpha);
+                    ImGui::InputScalarN("Button Counter", ImGuiDataType_S16, player->mpLockOnNpc->mEffect.pBattleIcon->m_BottanCounter, 4);
+                    ImGui::InputScalar("Target Icon Count", ImGuiDataType_S16, &player->mpLockOnNpc->mEffect.pBattleIcon->m_TergetIconCount);
+                    ImGui::InputScalar("Direct", ImGuiDataType_S32, &player->mpLockOnNpc->mEffect.pBattleIcon->m_Direct);
+                    ImGui::InputScalar("Angle", ImGuiDataType_S32, &player->mpLockOnNpc->mEffect.pBattleIcon->m_Angle);
+                    ImGui::InputScalar("Sound ID", ImGuiDataType_S32, &player->mpLockOnNpc->mEffect.pBattleIcon->m_Soundid);
+                    bool fdrawbase = getBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 0);
+                    if (ImGui::Checkbox("Draw Base", &fdrawbase)) setBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 0, fdrawbase);
+                    bool fdrawmoney = getBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 1);
+                    if (ImGui::Checkbox("Draw Money", &fdrawmoney)) setBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 1, fdrawmoney);
+                    bool fdrawtension = getBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 2);
+                    if (ImGui::Checkbox("Draw Tension", &fdrawtension)) setBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 2, fdrawtension);
+                    bool fdrawheart = getBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 3);
+                    if (ImGui::Checkbox("Draw Heart", &fdrawheart)) setBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 3, fdrawheart);
+                    bool fdrawterget = getBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 4);
+                    if (ImGui::Checkbox("Draw Target", &fdrawterget)) setBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 4, fdrawterget);
+                    bool fdrawhp = getBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 5);
+                    if (ImGui::Checkbox("Draw HP", &fdrawhp)) setBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 5, fdrawhp);
+                    bool fdraw_word = getBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 6);
+                    if (ImGui::Checkbox("Draw Word", &fdraw_word)) setBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 6, fdraw_word);
+                    bool fhptype = getBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 10);
+                    if (ImGui::Checkbox("HP Type", &fhptype)) setBit(player->mpLockOnNpc->mEffect.pBattleIcon->flag, 10, fhptype);
+                }
+            }
             if (ImGui::CollapsingHeader("mpLockOnNpc mStatus.dmgInfo")) {
                 if (player->mpLockOnNpc) {
                     ImGui::SliderFloat("Damage", &player->mpLockOnNpc->mStatus.dmgInfo.dmg, 0.0f, 100.0f);

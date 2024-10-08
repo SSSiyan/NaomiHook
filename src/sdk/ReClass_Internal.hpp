@@ -1682,6 +1682,78 @@ struct stBloodEffect
   /* 0x000c */ int tick;
 }; /* size: 0x0010 */
 
+class HrBattleIcon
+{
+public: // edited
+  // union                                                   // edited
+  // {                                                       // edited
+    /* 0x0000 */ //int mBattleIconTodomeWait;                // edited
+    /* 0x0000 */ //struct HrBattleIcon::UNION uni;           // edited
+    /* 0x0000 */ //char** ParamName /* zero-length array */; // edited
+    struct
+    {
+      /* 0x0000 */ //int* Param /* zero-length array */;
+      /* 0x0001 */ char Padding_175[0x50];
+      /* 0x0050 */ enum m_IconStat D_BICON_STAT;
+      /* 0x0054 */ enum m_YoyakuIcon m_YoyakuIcon;
+      /* 0x0058 */ float m_LockOnDist;
+      /* 0x005c */ float m_LockOnCircleSize;
+      /* 0x0060 */ float m_BIcon_Block_Size;
+      /* 0x0064 */ unsigned char m_blockcolor[3];
+      /* 0x0067 */ unsigned char m_ColorType;
+      /* 0x0068 */ enum E_CON_ACT_ID m_ConActID[2];
+      /* 0x0070 */ short m_ConActCount[2];
+      /* 0x0074 */ short m_Counter;
+      /* 0x0076 */ short m_DelCounter;
+      /* 0x0078 */ int m_Arrow_AppearCnt;
+      /* 0x007c */ int m_Rotate_AnimCnt;
+      /* 0x0080 */ struct Vec m_TmpJstVec;
+      /* 0x008c */ short m_PyokoCnt;
+      /* 0x008e */ short m_PyokoFlag;
+      /* 0x0090 */ float m_PyokoRatio;
+      /* 0x0094 */ unsigned char m_PyokoAlpha;
+      /* 0x0095 */ bool m_DrawHitCmbFlag;
+      /* 0x0096 */ char Padding_176[2];
+      /* 0x0098 */ float m_TsubaRatio[36];
+      /* 0x0128 */ struct Vec* m_pPosition[2];
+      /* 0x0130 */ class TGmfNode* m_pNode;
+      /* 0x0134 */ unsigned char m_Color[3][2];
+      /* 0x013a */ short m_HpBerCounter;
+      /* 0x013c */ short m_LineCounter;
+      /* 0x013e */ char m_MeterCounter;
+      /* 0x013f */ char Padding_177;
+      /* 0x0140 */ float m_Tension[2];
+      /* 0x0148 */ float m_TMeterRevPos[2];
+      /* 0x0150 */ short m_GetMoney[2];
+      /* 0x0154 */ short m_HitNum[2];
+      /* 0x0158 */ float m_HP[3];
+      /* 0x0164 */ unsigned char m_HPBaseAlpha;
+      /* 0x0165 */ unsigned char m_HPVirtAlpha;
+      /* 0x0166 */ short m_BottanCounter[4];
+      /* 0x016e */ short m_TergetIconCount;
+      /* 0x0170 */ enum D_TODOME_DIRECT m_Direct;
+      /* 0x0174 */ int m_Angle;
+      /* 0x0178 */ int m_Soundid;
+      union
+      {
+        struct /* bitfield */
+        {
+          /* 0x017c */ unsigned short fdrawbase : 1; /* bit position: 0 */
+          /* 0x017c */ unsigned short fdrawmoney : 1; /* bit position: 1 */
+          /* 0x017c */ unsigned short fdrawtension : 1; /* bit position: 2 */
+          /* 0x017c */ unsigned short fdrawheart : 1; /* bit position: 3 */
+          /* 0x017c */ unsigned short fdrawterget : 1; /* bit position: 4 */
+          /* 0x017c */ unsigned short fdrawhp : 1; /* bit position: 5 */
+          /* 0x017c */ unsigned short fdraw_word : 4; /* bit position: 6 */
+          /* 0x017c */ unsigned short fhptype : 2; /* bit position: 10 */
+          /* 0x017c */ unsigned short pad : 4; /* bit position: 12 */
+        }; /* bitfield */
+        /* 0x017c */ unsigned short flag;
+      }; /* size: 0x0002 */
+    }; /* size: 0x012c */
+  //}; /* size: 0x0b7c */ // edited
+}; /* size: 0x0180 */
+
 struct stCharaEffect
 {
   /* 0x0000 */ class EffectSwordLaser* pLaser;
