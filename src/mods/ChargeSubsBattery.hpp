@@ -9,7 +9,8 @@ public:
   static bool mod_enabled;
   static uintptr_t mSubBattery;
   static uintptr_t jmp_ret1;
-  static int customBatterySubAmount;
+  static int BatterySubCounter;
+  static int subWhenOver;
 
   // mod name string for config
   std::string get_mod_name() const override { return "ChargeSubsBattery"; }

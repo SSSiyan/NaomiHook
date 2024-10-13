@@ -3,7 +3,8 @@
 bool ChargeSubsBattery::mod_enabled = false;
 uintptr_t ChargeSubsBattery::jmp_ret1 = NULL;
 uintptr_t ChargeSubsBattery::mSubBattery = NULL;
-int ChargeSubsBattery::customBatterySubAmount = 0;
+int ChargeSubsBattery::BatterySubCounter = 0;
+int ChargeSubsBattery::subWhenOver = 0;
 
 // clang-format off
 naked void detour1() {
@@ -12,12 +13,21 @@ naked void detour1() {
             cmp byte ptr [ChargeSubsBattery::mod_enabled], 0
             je originalcode
 
-        // subtract battery
+            push eax
+            mov eax, [ChargeSubsBattery::BatterySubCounter]
+            cmp eax, [ChargeSubsBattery::subWhenOver]
+            pop eax
+            jae subBattery
+            inc dword ptr [ChargeSubsBattery::BatterySubCounter]
+            jmp originalcode
+
+        subBattery:
+            mov dword ptr [ChargeSubsBattery::BatterySubCounter], 0
             push eax
             push edx
             push ecx
             mov ecx,ebx // player
-            push dword ptr [ChargeSubsBattery::customBatterySubAmount]
+            push 1
             call dword ptr [ChargeSubsBattery::mSubBattery] // fucks eax, edx
             pop ecx
             pop edx
@@ -43,21 +53,21 @@ std::optional<std::string> ChargeSubsBattery::on_initialize() {
 void ChargeSubsBattery::on_draw_ui() {
     ImGui::Checkbox("Charging Subtracts Battery", &mod_enabled);
     if (mod_enabled) {
-        ImGui::Text("Custom Sub Amount");
-        ImGui::SliderInt("##customBatterySubSliderInt", &customBatterySubAmount, 1, 5);
-        help_marker("Default 1");
+        ImGui::Text("How many ticks required to sub 1 battery");
+        ImGui::SliderInt("##customBatterySubSliderInt", &subWhenOver, 0, 10);
+        help_marker("Default 0");
     }
 }
 
 // during load
 void ChargeSubsBattery::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("charge_subs_battery").value_or(false);
-    customBatterySubAmount = cfg.get<int>("customBatterySubAmount").value_or(1);
+    subWhenOver = cfg.get<float>("customBatterySubAmount").value_or(0);
 }
 // during save
 void ChargeSubsBattery::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("charge_subs_battery", mod_enabled);
-    cfg.set<int>("customBatterySubAmount", customBatterySubAmount);
+    cfg.set<float>("customBatterySubAmount", subWhenOver);
 }
 
 // do something every frame

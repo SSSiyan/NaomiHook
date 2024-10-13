@@ -93,37 +93,39 @@ std::optional<std::string> StageWarp::on_initialize() {
 }
 
 void StageWarp::on_draw_ui() {
-    char* currentStage = nmh_sdk::get_CBgCtrl()->m_NowStageName;
-    if (currentStage && (strlen(currentStage) < 20)) {
-        ImGui::Text("Current Stage: %s", nmh_sdk::get_CBgCtrl()->m_NowStageName);
-    } else {
-        ImGui::Text("Current Stage: ?");
-    }
-    help_marker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n"
-    "The warps you've been using up to this point have left all of these values at 0.");
+    if (nmh_sdk::get_CBgCtrl()) {
+        char* currentStage = nmh_sdk::get_CBgCtrl()->m_NowStageName;
+        if (currentStage && (strlen(currentStage) < 20)) {
+            ImGui::Text("Current Stage: %s", nmh_sdk::get_CBgCtrl()->m_NowStageName);
+        } else {
+            ImGui::Text("Current Stage: ?");
+        }
+        help_marker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n"
+        "The warps you've been using up to this point have left all of these values at 0.");
 
-    static int setStageArgs[7]{};
-    static int64_t inSetVolRateArg = 0;
-    if (ImGui::CollapsingHeader("SetStage args")) {
-        ImGui::InputInt("AddedStages", &setStageArgs[0]);
-        help_marker("I think this adds n to stageID? Not sure how else it would get next stage");
-        ImGui::InputInt("_Arg1", &setStageArgs[1]);
-        ImGui::InputInt("_Arg2", &setStageArgs[2]);
-        ImGui::InputInt("inBossInfoDisp", &setStageArgs[3]);
-        help_marker("Shows the boss popup");
-        ImGui::InputInt("inFadeType", &setStageArgs[4]);
-        help_marker("Sets the transition that plays, e.g. a black fade or stickers");
-        ImGui::InputScalar("inSetVolRate", ImGuiDataType_S64, &inSetVolRateArg);
-        ImGui::InputInt("inPause", &setStageArgs[5]);
-        ImGui::InputInt("a10", &setStageArgs[6]);
-    }
+        static int setStageArgs[7]{};
+        static int64_t inSetVolRateArg = 0;
+        if (ImGui::CollapsingHeader("SetStage args")) {
+            ImGui::InputInt("AddedStages", &setStageArgs[0]);
+            help_marker("I think this adds n to stageID? Not sure how else it would get next stage");
+            ImGui::InputInt("_Arg1", &setStageArgs[1]);
+            ImGui::InputInt("_Arg2", &setStageArgs[2]);
+            ImGui::InputInt("inBossInfoDisp", &setStageArgs[3]);
+            help_marker("Shows the boss popup");
+            ImGui::InputInt("inFadeType", &setStageArgs[4]);
+            help_marker("Sets the transition that plays, e.g. a black fade or stickers");
+            ImGui::InputScalar("inSetVolRate", ImGuiDataType_S64, &inSetVolRateArg);
+            ImGui::InputInt("inPause", &setStageArgs[5]);
+            ImGui::InputInt("a10", &setStageArgs[6]);
+        }
 
-    for (int i = 0; i < stage_items.size(); ++i) {
-        char buttonLabel[64];
-        snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", stage_items[i].name, stage_items[i].info);
-        if (ImGui::Button(buttonLabel)) {
-            nmh_sdk::SetStage(stage_items[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2],
-                setStageArgs[3], setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
+        for (int i = 0; i < stage_items.size(); ++i) {
+            char buttonLabel[64];
+            snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", stage_items[i].name, stage_items[i].info);
+            if (ImGui::Button(buttonLabel)) {
+                nmh_sdk::SetStage(stage_items[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2],
+                    setStageArgs[3], setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
+            }
         }
     }
 }
