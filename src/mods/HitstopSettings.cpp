@@ -3,8 +3,8 @@
 bool HitstopSettings::mod_enabled = false;
 uintptr_t HitstopSettings::jmp_ret1 = NULL;
 uintptr_t HitstopSettings::gpBattle = NULL;
-int HitstopSettings::customBasicHitstopAmount = 8;
-int HitstopSettings::customDarkHitstopAmount = 8;
+int HitstopSettings::customBasicHitstopAmount = 0;
+int HitstopSettings::customDarkHitstopAmount = 0;
 
 // clang-format off
 naked void detour1() { // basic attacks // player in edi

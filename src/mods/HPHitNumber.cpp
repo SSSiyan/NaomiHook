@@ -34,8 +34,8 @@ naked void detour1() { // show hp instead of hit number
             mov ecx, [eax+0x360] // lock on HUD
             test ecx,ecx
             je popcode
-            mov [ecx+0x8E], 3 // which lockon to show
-            mov [ecx+0x95], 1 // display HIT
+            mov word ptr [ecx+0x8E], 3 // which lockon to show
+            mov word ptr [ecx+0x95], 1 // display HIT
             pop ecx
             cvttss2si eax, [eax+0x24] // HP
             jmp retcode

@@ -37,6 +37,8 @@ set(MODS_SRC
     mods/DodgeBattery.cpp 
     mods/HPHitNumber.hpp 
     mods/HPHitNumber.cpp 
+    mods/ChargeSubsBattery.hpp 
+    mods/ChargeSubsBattery.cpp 
 
 )
 

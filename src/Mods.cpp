@@ -23,6 +23,7 @@
 #include "mods/ThrowBattery.hpp"
 #include "mods/DodgeBattery.hpp"
 #include "mods/HPHitNumber.hpp"
+#include "mods/ChargeSubsBattery.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -55,6 +56,7 @@ Mods::Mods()
     ADD_MOD(ThrowBattery);
     ADD_MOD(DodgeBattery);
     ADD_MOD(HPHitNumber);
+    ADD_MOD(ChargeSubsBattery);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
