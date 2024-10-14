@@ -29,15 +29,20 @@ naked void detour1() { // Enable sprint in combat // sprint's mode check // play
             push edx
             push ecx
             push eax
-            mov edx,[esi+0x2b60] // lock on target in edx
-            test edx,edx // valid?
-            je canSprint
-            cmp dword ptr [edx+0x18],0 // check target isn't lockOnDummy
-            je noTarget
+            mov edx, [esi+0x2b60] // lock on target in edx
+            test edx, edx // are we locking on?
+            je notLockedOn
+            cmp dword ptr [edx+0x18], 0 // check target isn't lockOnDummy
+            je popCode
             mov eax, [SprintSettings::closeQuartersAddr]
             movss xmm1, [eax] // darkstep range
             comiss xmm1, [edx+0x3f0] // compare darkstep to current locked on enemy distance
-            ja noTarget // if inside darkstep range, disable sprint
+            jae popCode // if inside darkstep range, disable sprint
+            // cmp dword ptr [esi+0x18c], ePcMtBtDefRunR // 24 lock on strafe right
+            // je canSprint
+            // cmp dword ptr [esi+0x18c], ePcMtBtDefRunL // 25 lock on strafe left
+            // je canSprint
+        notLockedOn:
             cmp dword ptr [esi+0x18c], ePcMtBt01Rn // 221 berry run
             je canSprint
             cmp dword ptr [esi+0x18c], ePcMtBt02Rn // 269 tsubaki mk3 run
@@ -46,6 +51,7 @@ naked void detour1() { // Enable sprint in combat // sprint's mode check // play
             je canSprint
             cmp dword ptr [esi+0x18c], ePcMtBt04Rn // 364 tsubaki mk2 run
             je canSprint
+            jmp popCode
         canSprint:
             pop eax
             pop ecx
@@ -58,13 +64,13 @@ naked void detour1() { // Enable sprint in combat // sprint's mode check // play
             pop eax
             jne jneAddr
             jmp originalCode
-        noTarget:
+        popCode:
             pop eax
             pop ecx
             pop edx
         originalCode:
             mov byte ptr [SprintSettings::sprintFlag], 0 // if any conditionals fail, set sprint flag false
-            cmp dword ptr [esi+0x00002990],03
+            cmp dword ptr [esi+0x00002990], 03
             jmp dword ptr [SprintSettings::jmp_ret1]
 
         jneAddr: // sprint
