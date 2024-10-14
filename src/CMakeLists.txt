@@ -39,6 +39,8 @@ set(MODS_SRC
     mods/HPHitNumber.cpp 
     mods/ChargeSubsBattery.hpp 
     mods/ChargeSubsBattery.cpp 
+    mods/LockOnDisablesThrows.hpp 
+    mods/LockOnDisablesThrows.cpp 
 
 )
 

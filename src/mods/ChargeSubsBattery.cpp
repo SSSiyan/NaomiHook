@@ -7,7 +7,7 @@ int ChargeSubsBattery::BatterySubCounter = 0;
 int ChargeSubsBattery::subWhenOver = 0;
 
 // clang-format off
-naked void detour1() {
+naked void detour1() { // ticks when effect starts // player in ebx
     __asm {
         // 
             cmp byte ptr [ChargeSubsBattery::mod_enabled], 0
@@ -26,7 +26,7 @@ naked void detour1() {
             push eax
             push edx
             push ecx
-            mov ecx,ebx // player
+            mov ecx, ebx // player
             push 1
             call dword ptr [ChargeSubsBattery::mSubBattery] // fucks eax, edx
             pop ecx
@@ -62,12 +62,12 @@ void ChargeSubsBattery::on_draw_ui() {
 // during load
 void ChargeSubsBattery::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("charge_subs_battery").value_or(false);
-    subWhenOver = cfg.get<float>("customBatterySubAmount").value_or(0);
+    subWhenOver = cfg.get<int>("customBatterySubAmount").value_or(0);
 }
 // during save
 void ChargeSubsBattery::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("charge_subs_battery", mod_enabled);
-    cfg.set<float>("customBatterySubAmount", subWhenOver);
+    cfg.set<int>("customBatterySubAmount", subWhenOver);
 }
 
 // do something every frame

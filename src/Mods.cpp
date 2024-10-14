@@ -24,6 +24,7 @@
 #include "mods/DodgeBattery.hpp"
 #include "mods/HPHitNumber.hpp"
 #include "mods/ChargeSubsBattery.hpp"
+#include "mods/LockOnDisablesThrows.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -57,6 +58,7 @@ Mods::Mods()
     ADD_MOD(DodgeBattery);
     ADD_MOD(HPHitNumber);
     ADD_MOD(ChargeSubsBattery);
+    ADD_MOD(LockOnDisablesThrows);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

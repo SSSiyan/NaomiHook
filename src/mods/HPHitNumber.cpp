@@ -88,7 +88,7 @@ void HPHitNumber::on_draw_ui() {
     }
     ImGui::Text("HP Number Vertical Offset");
     ImGui::SliderFloat("## HP number vertical offset inputfloat", &verticalOffset, 0.0f, 500.0f, "%.0f");
-    help_marker("I never tested this at other resolutions so leaving the option here");
+    help_marker("I never tested this at other resolutions so leaving the option here\nDefault 285");
 }
 
 // during load
