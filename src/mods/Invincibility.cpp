@@ -17,7 +17,7 @@ naked void detour1() { // mSetDamage+F9 // damage receiver in esi
             mov eax, [eax]
             cmp dword ptr [eax+0xaa8], 0 // is screen m_DarkSideModeColor?
             pop eax
-            ja jmp_ja
+            jg jmp_ja
 
         originalcode:
             cmp byte ptr [esi+0x000029A7], 01 // mStageChangeMuteki
