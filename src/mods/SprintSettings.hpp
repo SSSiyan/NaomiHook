@@ -12,12 +12,15 @@ public:
   static uintptr_t l3Addr;
   static uintptr_t jneAddr;
   static uintptr_t closeQuartersAddr;
+  static bool sprintFlag;
 
   static uintptr_t jmp_ret2;
   static float sprintSpeed;
   static float battleSprintSpeed;
 
   static uintptr_t jmp_ret3;
+
+  static uintptr_t jmp_ret4;
 
   // mod name string for config
   std::string get_mod_name() const override { return "SprintSettings"; }
@@ -39,6 +42,6 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3;
+	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3, m_hook4;
 	// std::unique_ptr<Patch> m_patch;
 };

@@ -10,11 +10,14 @@ uintptr_t SprintSettings::closeQuartersAddr = NULL;
 uintptr_t SprintSettings::jmp_ret2 = NULL;
 float SprintSettings::sprintSpeed = 0.0f;
 float SprintSettings::battleSprintSpeed = 0.0f;
+bool SprintSettings::sprintFlag = false;
 
 uintptr_t SprintSettings::jmp_ret3 = NULL;
 
+uintptr_t SprintSettings::jmp_ret4 = NULL;
+
 // clang-format off
-naked void detour1() { // Enable sprint in combat
+naked void detour1() { // Enable sprint in combat // sprint's mode check // player in esi
     __asm {
         //
             cmp byte ptr [SprintSettings::battleSprint], 0
@@ -26,21 +29,31 @@ naked void detour1() { // Enable sprint in combat
             push edx
             push ecx
             push eax
-            mov edx,[esi+0x2b60] // lock on target
+            mov edx,[esi+0x2b60] // lock on target in edx
             test edx,edx // valid?
-            je notLockingOn
-            cmp [edx+0x18],0 // check target isn't lockOnDummy
+            je canSprint
+            cmp dword ptr [edx+0x18],0 // check target isn't lockOnDummy
             je noTarget
             mov eax, [SprintSettings::closeQuartersAddr]
             movss xmm1, [eax] // darkstep range
             comiss xmm1, [edx+0x3f0] // compare darkstep to current locked on enemy distance
-        notLockingOn:
+            ja noTarget // if inside darkstep range, disable sprint
+            cmp dword ptr [esi+0x18c], ePcMtBt01Rn // 221 berry run
+            je canSprint
+            cmp dword ptr [esi+0x18c], ePcMtBt02Rn // 269 tsubaki mk3 run
+            je canSprint
+            cmp dword ptr [esi+0x18c], ePcMtBt03Rn // 317 tsubaki mk1 run
+            je canSprint
+            cmp dword ptr [esi+0x18c], ePcMtBt04Rn // 364 tsubaki mk2 run
+            je canSprint
+        canSprint:
             pop eax
             pop ecx
             pop eax
-            ja originalCode // if inside darkstep range, disable sprint
+            cmp byte ptr [SprintSettings::sprintFlag], 1 // are we already sprinting?
+            je jneAddr
             push eax
-            mov eax, [SprintSettings::l3Addr]
+            mov eax, [SprintSettings::l3Addr] // if not, see if sprint was pressed
             test byte ptr [eax], 1
             pop eax
             jne jneAddr
@@ -50,10 +63,12 @@ naked void detour1() { // Enable sprint in combat
             pop ecx
             pop edx
         originalCode:
+            mov byte ptr [SprintSettings::sprintFlag], 0 // if any conditionals fail, set sprint flag false
             cmp dword ptr [esi+0x00002990],03
             jmp dword ptr [SprintSettings::jmp_ret1]
 
-        jneAddr:
+        jneAddr: // sprint
+            mov byte ptr [SprintSettings::sprintFlag], 1 // if under specific conditions, set sprint flag true
             jmp dword ptr [SprintSettings::jneAddr]
     }
 }
@@ -125,6 +140,20 @@ naked void detour3() { // Set sprint vfx
     }
 }
 
+naked void detour4() { // Set sprint flag false after any action
+    __asm {
+        //
+            cmp byte ptr [SprintSettings::battleSprint], 0
+            je originalcode
+        // 
+            mov byte ptr [SprintSettings::sprintFlag],0
+
+        originalCode:
+            mov [esi+0x0000018C],ebx
+            jmp dword ptr [SprintSettings::jmp_ret4]
+    }
+}
+
  // clang-format on
 
 std::optional<std::string> SprintSettings::on_initialize() {
@@ -142,6 +171,11 @@ std::optional<std::string> SprintSettings::on_initialize() {
     }
 
     if (!install_hook_offset(0x3D2DC3, m_hook3, &detour3, &SprintSettings::jmp_ret3, 41)) {
+        spdlog::error("Failed to init SprintSettings mod\n");
+        return "Failed to init SprintSettings mod";
+    }
+
+    if (!install_hook_offset(0x402956, m_hook4, &detour4, &SprintSettings::jmp_ret4, 6)) {
         spdlog::error("Failed to init SprintSettings mod\n");
         return "Failed to init SprintSettings mod";
     }
