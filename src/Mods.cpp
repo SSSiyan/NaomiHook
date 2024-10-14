@@ -26,6 +26,7 @@
 #include "mods/ChargeSubsBattery.hpp"
 #include "mods/LockOnDisablesThrows.hpp"
 #include "mods/DebugText.hpp"
+#include "mods/Invincibility.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -61,6 +62,7 @@ Mods::Mods()
     ADD_MOD(ChargeSubsBattery);
     ADD_MOD(LockOnDisablesThrows);
     ADD_MOD(DebugText);
+    ADD_MOD(Invincibility);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

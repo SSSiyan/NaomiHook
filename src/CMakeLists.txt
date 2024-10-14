@@ -43,6 +43,8 @@ set(MODS_SRC
     mods/LockOnDisablesThrows.cpp 
     mods/DebugText.hpp 
     mods/DebugText.cpp 
+    mods/Invincibility.hpp 
+    mods/Invincibility.cpp 
 
 )
 
