@@ -138,7 +138,7 @@ naked void detour3() { // Set sprint vfx
             sub esp, 0x08
             //lea edx,[esi+50] // navel
             lea edx, [esi+0x38]
-            xor ecx,ecx
+            xor ecx, ecx
             mov dword ptr [esp+0x04], 0x41200000 // default size // 10.0f
             mov dword ptr [esp], 0x3F000000 // default idk2 // 0.5f
         returnCode:
@@ -152,10 +152,10 @@ naked void detour4() { // Set sprint flag false after any action
             cmp byte ptr [SprintSettings::battleSprint], 0
             je originalcode
         // 
-            mov byte ptr [SprintSettings::sprintFlag],0
+            mov byte ptr [SprintSettings::sprintFlag], 0
 
         originalCode:
-            mov [esi+0x0000018C],ebx
+            mov [esi+0x0000018C], ebx
             jmp dword ptr [SprintSettings::jmp_ret4]
     }
 }

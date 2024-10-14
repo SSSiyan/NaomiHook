@@ -45,6 +45,8 @@ set(MODS_SRC
     mods/DebugText.cpp 
     mods/Invincibility.hpp 
     mods/Invincibility.cpp 
+    mods/RollRotation.hpp 
+    mods/RollRotation.cpp 
 
 )
 

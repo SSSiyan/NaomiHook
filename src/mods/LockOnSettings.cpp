@@ -6,10 +6,12 @@ bool LockOnSettings::lockon_parry_qtes = false;
 
 void LockOnSettings::toggle_sidestep_lockon(bool enable) {
     if (enable) {
-        install_patch_offset(0x3C4893, patch1, "\xEB", 1); // jmp nmh.exe+3C489C
+        install_patch_offset(0x3C42BE, patch0, "\x74\x12\x90\x90\x90\x90", 6); // je nmh.mHRPc::mUpdateLockOnTarget+A2 nop 4 // roll back
+        install_patch_offset(0x3C42CC, patch1, "\x90\x90\x90\x90\x90\x90", 6); // nop 6 // other rolls
     }
     else {
-        install_patch_offset(0x3C4893, patch1, "\x74", 1); // je nmh.exe+3C489C
+        install_patch_offset(0x3C42BE, patch0, "\x0F\x84\xC8\x05\x00\x00", 6); // je nmh.mHRPc::mUpdateLockOnTarget+65C // roll back
+        install_patch_offset(0x3C42CC, patch1, "\x0F\x8E\xBA\x05\x00\x00", 6); // jng nmh.mHRPc::mUpdateLockOnTarget+65C // other rolls
     }
 }
 

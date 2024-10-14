@@ -15,7 +15,7 @@ naked void detour1() { // mSetDamage+F9 // damage receiver in esi
             push eax
             mov eax, [Invincibility::CBgCtrl]
             mov eax, [eax]
-            cmp dword ptr [eax+0xaa8], 0 // is screen m_DarkSideModeColor?
+            cmp word ptr [eax+0xaa8], 0 // is screen m_DarkSideModeColor?
             pop eax
             jg jmp_ja
 

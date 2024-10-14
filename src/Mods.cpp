@@ -27,6 +27,7 @@
 #include "mods/LockOnDisablesThrows.hpp"
 #include "mods/DebugText.hpp"
 #include "mods/Invincibility.hpp"
+#include "mods/RollRotation.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -63,6 +64,7 @@ Mods::Mods()
     ADD_MOD(LockOnDisablesThrows);
     ADD_MOD(DebugText);
     ADD_MOD(Invincibility);
+    ADD_MOD(RollRotation);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
