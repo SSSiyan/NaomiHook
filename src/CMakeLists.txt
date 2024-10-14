@@ -41,6 +41,8 @@ set(MODS_SRC
     mods/ChargeSubsBattery.cpp 
     mods/LockOnDisablesThrows.hpp 
     mods/LockOnDisablesThrows.cpp 
+    mods/DebugText.hpp 
+    mods/DebugText.cpp 
 
 )
 
