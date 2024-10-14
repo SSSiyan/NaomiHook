@@ -15,6 +15,7 @@ naked void detour1() { // mSetDamage+F9 // damage receiver in esi
             push eax
             push ecx
             push edx
+            mov ecx, edi // player
             call dword ptr [RollRotation::mRotate2LockOnTarget]
             pop edx
             pop ecx
