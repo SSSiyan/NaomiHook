@@ -6,7 +6,7 @@ uintptr_t RollRotation::mRotate2LockOnTarget = NULL;
 uintptr_t RollRotation::GetMotionRunState = NULL;
 
 // clang-format off
-naked void detour1() { // mSetDamage+F9 // damage receiver in esi
+naked void detour1() { // player in edi
     __asm {
         //
             cmp byte ptr [RollRotation::mod_enabled], 0

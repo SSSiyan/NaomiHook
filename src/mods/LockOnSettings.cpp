@@ -4,6 +4,11 @@ bool LockOnSettings::lockon_sidesteps = false;
 bool LockOnSettings::lockon_deathblows = false;
 bool LockOnSettings::lockon_parry_qtes = false;
 
+uintptr_t LockOnSettings::jmp_ret1 = NULL;
+bool LockOnSettings::target_switch_degrees_toggle = false;
+float LockOnSettings::default_search_degrees = 1.57f;
+float LockOnSettings::custom_search_degrees = 0.0f;
+
 void LockOnSettings::toggle_sidestep_lockon(bool enable) {
     if (enable) {
         install_patch_offset(0x3C42BE, patch0, "\x74\x12\x90\x90\x90\x90", 6); // je nmh.mHRPc::mUpdateLockOnTarget+A2 nop 4 // roll back
@@ -33,7 +38,29 @@ void LockOnSettings::toggle_parry_qte_lockon(bool enable) {
     }
 }
 
+// clang-format off
+naked void detour1() { // Horizontal Limit // player in ecx
+    __asm {
+        // 
+            cmp byte ptr [LockOnSettings::target_switch_degrees_toggle], 0
+            je originalcode
+        // 
+            movss xmm0, [LockOnSettings::custom_search_degrees]
+            jmp dword ptr [LockOnSettings::jmp_ret1]
+
+        originalcode:
+            movss xmm0, [LockOnSettings::default_search_degrees]
+            jmp dword ptr [LockOnSettings::jmp_ret1]
+    }
+}
+ // clang-format on
+
 std::optional<std::string> LockOnSettings::on_initialize() {
+    if (!install_hook_offset(0x3C4B90, m_hook1, &detour1, &LockOnSettings::jmp_ret1, 8)) { // Horizontal Limit
+        spdlog::error("Failed to init LockOnSettings mod\n");
+        return "Failed to init LockOnSettings mod";
+    }
+
     return Mod::on_initialize();
 }
 
@@ -47,6 +74,12 @@ void LockOnSettings::on_draw_ui() {
     if (ImGui::Checkbox("Lock On During Parry QTEs", &lockon_parry_qtes)) {
         toggle_parry_qte_lockon(lockon_parry_qtes);
     }
+
+    ImGui::Checkbox("Custom Target Switch Horizontal Limit", &target_switch_degrees_toggle);
+    if (target_switch_degrees_toggle) {
+        ImGui::SliderFloat("Radians ##CustomSearchDegreesSliderFloat", &custom_search_degrees, 0.0f, 6.28f, "%.2f");
+        help_marker("1.57 default, 6.28 is a full circle");
+    }
 }
 
 // during load
@@ -57,6 +90,9 @@ void LockOnSettings::on_config_load(const utility::Config &cfg) {
     toggle_deathblow_lockon(lockon_deathblows);
     lockon_parry_qtes = cfg.get<bool>("lockon_parry_qtes").value_or(false);
     toggle_parry_qte_lockon(lockon_parry_qtes);
+
+    target_switch_degrees_toggle = cfg.get<bool>("target_switch_degrees_toggle").value_or(false);
+    custom_search_degrees = cfg.get<float>("custom_search_degrees").value_or(1.57f);
 }
 
 // during save
@@ -64,6 +100,9 @@ void LockOnSettings::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("lockon_sidesteps", lockon_sidesteps);
     cfg.set<bool>("lockon_deathblows", lockon_deathblows);
     cfg.set<bool>("lockon_parry_qtes", lockon_parry_qtes);
+
+    cfg.set<bool>("target_switch_degrees_toggle", target_switch_degrees_toggle);
+    cfg.set<float>("custom_search_degrees", custom_search_degrees);
 }
 
 // do something every frame
