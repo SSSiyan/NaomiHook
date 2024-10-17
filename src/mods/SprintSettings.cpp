@@ -15,6 +15,7 @@ bool SprintSettings::sprintFlag = false;
 uintptr_t SprintSettings::jmp_ret3 = NULL;
 
 uintptr_t SprintSettings::jmp_ret4 = NULL;
+uintptr_t SprintSettings::gpBattle = NULL;
 
 // clang-format off
 naked void detour1() { // Enable sprint in combat // sprint's mode check // player in esi
@@ -152,6 +153,13 @@ naked void detour4() { // Set sprint flag false after any action
             cmp byte ptr [SprintSettings::battleSprint], 0
             je originalcode
         // 
+            push eax
+            mov eax, [SprintSettings::gpBattle]
+            mov eax, [eax+0x164]
+            cmp eax, ebx
+            pop eax
+            jne originalCode
+
             mov byte ptr [SprintSettings::sprintFlag], 0
 
         originalCode:
@@ -181,6 +189,7 @@ std::optional<std::string> SprintSettings::on_initialize() {
         return "Failed to init SprintSettings mod";
     }
 
+    SprintSettings::gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
     if (!install_hook_offset(0x402956, m_hook4, &detour4, &SprintSettings::jmp_ret4, 6)) {
         spdlog::error("Failed to init SprintSettings mod\n");
         return "Failed to init SprintSettings mod";

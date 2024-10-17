@@ -21,6 +21,7 @@ public:
   static uintptr_t jmp_ret3;
 
   static uintptr_t jmp_ret4;
+  static uintptr_t gpBattle;
 
   // mod name string for config
   std::string get_mod_name() const override { return "SprintSettings"; }

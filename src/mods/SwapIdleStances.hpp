@@ -5,7 +5,7 @@ class SwapIdleStances : public Mod {
 public:
   SwapIdleStances() = default;
   
-  ModCategory get_category() { return ModCategory::GAMEPLAY; };
+  ModCategory get_category() { return ModCategory::COSMETICS; };
   static bool mod_enabled;
 
   void toggle(bool enable);
