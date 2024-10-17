@@ -1,28 +1,19 @@
 #pragma once
 #include "Mod.hpp"
 #include "sdk/ReClass.hpp"
-class LockOnSettings : public Mod {
+class SwapIdleStances : public Mod {
 public:
-  LockOnSettings() = default;
+  SwapIdleStances() = default;
   
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
-  static bool lockon_sidesteps;
-  static bool lockon_deathblows;
-  static bool lockon_parry_qtes;
+  static bool mod_enabled;
 
-  static uintptr_t jmp_ret1;
-  static bool target_switch_degrees_toggle;
-  static float default_search_degrees;
-  static float custom_search_degrees;
-
-  void toggle_sidestep_lockon(bool enable);
-  void toggle_deathblow_lockon(bool enable);
-  void toggle_parry_qte_lockon(bool enable);
+  void toggle(bool enable);
 
   // mod name string for config
-  std::string get_mod_name() const override { return "LockOnSettings"; }
-  std::string get_human_readable_name() const { return "Lock On Settings"; }
-  const char* get_description() const override { return R"(Lock On Settings)"; };
+  std::string get_mod_name() const override { return "SwapIdleStances"; }
+  std::string get_human_readable_name() const { return "Swap Idle Stances"; }
+  const char* get_description() const override { return R"(Swap Idle Stances)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
@@ -39,6 +30,6 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1;
-	std::unique_ptr<Patch> patch0, patch1, patch2, patch3;
+	// std::unique_ptr<FunctionHook> m_hook1;
+	std::unique_ptr<Patch> patch0, patch1;
 };

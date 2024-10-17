@@ -47,6 +47,8 @@ set(MODS_SRC
     mods/Invincibility.cpp 
     mods/RollRotation.hpp 
     mods/RollRotation.cpp 
+    mods/SwapIdleStances.hpp 
+    mods/SwapIdleStances.cpp 
 
 )
 

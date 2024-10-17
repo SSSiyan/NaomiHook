@@ -28,6 +28,7 @@
 #include "mods/DebugText.hpp"
 #include "mods/Invincibility.hpp"
 #include "mods/RollRotation.hpp"
+#include "mods/SwapIdleStances.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -65,6 +66,7 @@ Mods::Mods()
     ADD_MOD(DebugText);
     ADD_MOD(Invincibility);
     ADD_MOD(RollRotation);
+    ADD_MOD(SwapIdleStances);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

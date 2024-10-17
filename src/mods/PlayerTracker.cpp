@@ -20,6 +20,28 @@ void setBit(T& flags, int bit, bool value) {
 }
 
 void PlayerTracker::on_draw_ui() {
+    if (ImGui::CollapsingHeader("Useful", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (mHRPc* player = nmh_sdk::get_mHRPc()) {
+            ImGui::Text("Player");
+            ImGui::SliderFloat("Player HP ##Useful", &player->mCharaStatus.hp, 0.0f, player->mCharaStatus.maxHp);
+            ImGui::InputInt("mInputMode ##Useful", (int*)&player->mInputMode, 1);
+            ImGui::InputInt("motionNo ##Useful", (int*)&player->mCharaStatus.motionNo, 1);
+            ImGui::Checkbox("mOperate ##Useful", &player->mOperate);
+            bool hitStageDisEnable = getBit(player->mCharaStatus.flag, 10);
+            if (ImGui::Checkbox("hitStageDisEnable ##Useful", &hitStageDisEnable)) setBit(player->mCharaStatus.flag, 10, hitStageDisEnable);
+        if (mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle()) {
+            ImGui::Text("Enemy");
+            ImGui::InputFloat("mNpcAttackRate ##Useful", &mHRBattle->mNpcAttackRate, 1.0f, 10.0f, "%.1f");
+        }
+            if (player->mpLockOnNpc) {
+                ImGui::SliderFloat("Lock On Target HP ##Useful", &player->mpLockOnNpc->mStatus.hp, 0.0f, player->mpLockOnNpc->mStatus.maxHp);
+            }
+            else {
+                ImGui::Text("No Lock On Target");
+            }
+        }
+    }
+
     if (ImGui::CollapsingHeader("HrGameTask")) {
         if (HrGameTask* hrGameTask = nmh_sdk::get_HrGameTask()) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrGameTask->mAllClearHikitugi);
@@ -338,7 +360,7 @@ void PlayerTracker::on_draw_ui() {
             ImGui::InputInt("mTotalNpcNum", &mHRBattle->mTotalNpcNum); 
             ImGui::InputInt("mTotalKillNum", &mHRBattle->mTotalKillNum);
             ImGui::InputInt("mKillNum", &mHRBattle->mKillNum);
-            ImGui::InputFloat("mNpcAttackRate", &mHRBattle->mNpcAttackRate);
+            ImGui::InputFloat("mNpcAttackRate", &mHRBattle->mNpcAttackRate, 1.0f, 10.0f, "%.1f");
             bool battlePause = getBit(mHRBattle->mFlag, 0);
             if (ImGui::Checkbox("battlePause", &battlePause)) setBit(mHRBattle->mFlag, 0, battlePause);
             bool tutoRun = getBit(mHRBattle->tutoRun, 1);
@@ -650,9 +672,9 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputScalar("mEscapeActionInit", ImGuiDataType_S32, &player->mEscapeActionInit);
                 ImGui::InputScalar("mEscapeOnButton", ImGuiDataType_S32, &player->mEscapeOnButton);
                 ImGui::Text("mpBike: %p", player->mpBike);
-                ImGui::InputScalar("mInputMode", ImGuiDataType_S32, &player->mInputMode);
-                ImGui::InputScalar("mInputModeOld", ImGuiDataType_S32, &player->mInputModeOld);
-                ImGui::InputScalar("mInputModeBefore", ImGuiDataType_S32, &player->mInputModeBefore);
+                ImGui::InputInt("mInputMode", (int*)&player->mInputMode, 1);
+                ImGui::InputInt("mInputModeOld", (int*)&player->mInputModeOld, 1);
+                ImGui::InputInt("mInputModeBefore", (int*)&player->mInputModeBefore, 1);
                 ImGui::Checkbox("mPauseAll", &player->mPauseAll);
                 ImGui::Checkbox("mPauseNpc", &player->mPauseNpc);
                 ImGui::Checkbox("mOperate", &player->mOperate);
@@ -949,7 +971,7 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputInt("charaType", (int*)&player->mCharaStatus.charaType);
                 ImGui::InputScalar("zakoWepType", ImGuiDataType_S16, &player->mCharaStatus.zakoWepType);
                 ImGui::InputFloat("maxHp", &player->mCharaStatus.maxHp);
-                ImGui::InputFloat("hp", &player->mCharaStatus.hp);
+                ImGui::SliderFloat("hp", &player->mCharaStatus.hp, 0.0f, player->mCharaStatus.maxHp);
                 ImGui::InputScalar("money", ImGuiDataType_S16, &player->mCharaStatus.money);
                 ImGui::InputScalar("dropMoney", ImGuiDataType_S16, &player->mCharaStatus.dropMoney);
                 ImGui::InputFloat("tension", &player->mCharaStatus.tension);
@@ -1223,7 +1245,7 @@ void PlayerTracker::on_draw_ui() {
             }
             if (ImGui::CollapsingHeader("mHRPc mPcSaveData")) {
                 ImGui::SliderFloat("Max HP", &player->mPcSaveData.maxHp, 0.0f, 1000.0f);
-                ImGui::SliderFloat("HP", &player->mPcSaveData.hp, 0.0f, player->mPcSaveData.maxHp);
+                ImGui::SliderFloat("HP", &player->mPcSaveData.hp, 0.0f, player->mPcSaveData.maxHp, "%.1f");
                 ImGui::SliderFloat("Strength", &player->mPcSaveData.strength, 0.0f, 100.0f);
                 ImGui::SliderFloat("Stamina", &player->mPcSaveData.stammina, 0.0f, 100.0f);
                 ImGui::SliderFloat("Vitality", &player->mPcSaveData.vitality, 0.0f, 100.0f);
@@ -1270,7 +1292,7 @@ void PlayerTracker::on_draw_ui() {
                     ImGui::InputInt("charaType", (int*)&player->mpLockOnNpc->mStatus.charaType);
                     ImGui::InputScalar("zakoWepType", ImGuiDataType_S16, &player->mpLockOnNpc->mStatus.zakoWepType);
                     ImGui::InputFloat("maxHp", &player->mpLockOnNpc->mStatus.maxHp);
-                    ImGui::InputFloat("hp", &player->mpLockOnNpc->mStatus.hp);
+                    ImGui::SliderFloat("hp", &player->mpLockOnNpc->mStatus.hp, 0.0f, player->mpLockOnNpc->mStatus.maxHp);
                     ImGui::InputScalar("money", ImGuiDataType_S16, &player->mpLockOnNpc->mStatus.money);
                     ImGui::InputScalar("dropMoney", ImGuiDataType_S16, &player->mpLockOnNpc->mStatus.dropMoney);
                     ImGui::InputFloat("tension", &player->mpLockOnNpc->mStatus.tension);

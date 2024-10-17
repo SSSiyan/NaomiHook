@@ -78,7 +78,7 @@ void LockOnSettings::on_draw_ui() {
     ImGui::Checkbox("Custom Target Switch Horizontal Limit", &target_switch_degrees_toggle);
     if (target_switch_degrees_toggle) {
         ImGui::SliderFloat("Radians ##CustomSearchDegreesSliderFloat", &custom_search_degrees, 0.0f, 6.28f, "%.2f");
-        help_marker("1.57 default, 6.28 is a full circle");
+        help_marker("1.57 default (90 degrees)\n6.28 is a full circle");
     }
 }
 
