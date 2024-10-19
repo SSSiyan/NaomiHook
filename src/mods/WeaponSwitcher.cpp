@@ -2,7 +2,7 @@
 #if 1
 
 bool WeaponSwitcher::mod_enabled = false;
-float WeaponSwitcher::weaponSwitchCooldown = 20.0f;
+int WeaponSwitcher::weaponSwitchCooldown = 20;
 
 // Disable toggling the map while Weapon Switcher is active
 void WeaponSwitcher::toggleForceMap(bool enable) {
@@ -20,11 +20,13 @@ bool WeaponSwitcher::CanWeaponSwitch(pcItem desiredWeapon) {
         enPcInputMode currentMode = playerPtr->mInputMode;
         pcItem currentWeapon = playerPtr->mPcStatus.equip[0].id;
         pcMotion currentMoveID = playerPtr->mCharaStatus.motionNo;
+        enCharaCondition condition = playerPtr->mCharaStatus.condition;
         if (desiredWeapon != currentWeapon && 
             currentMode == ePcInputBattleIdle &&
+            condition == eGood &&
             nmh_sdk::CheckCanAttack() &&
             !nmh_sdk::CheckGuardMotion(false) && 
-            !nmh_sdk::CheckHajikare() && // eating a hit
+            //!nmh_sdk::CheckHajikare() && // eating a hit @siy this is bad
             !nmh_sdk::CheckTsubazering(-1) && // clashing
             !nmh_sdk::CheckSideStep(-1) && // dodging back or left or right
             currentMoveID != ePcMtBtryChrgSt &&
@@ -73,42 +75,86 @@ void WeaponSwitcher::on_config_save(utility::Config &cfg) {
 }
 
 void WeaponSwitcher::on_frame() {
+    static int previousSwordEquipRead = 0;
+    static int checkmotReadProc = 0;
     if (mod_enabled) {
-        if (weaponSwitchCooldown > 20.0f) {
-            uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
-            if (dPadInputsAddr) {
-                int8_t dPadInput = *(int8_t*)dPadInputsAddr;
-                switch (dPadInput) {
-                case DPAD_LEFT:
-                    if (CanWeaponSwitch(TSUBAKI_MK1)) {
-                        nmh_sdk::SetEquip(TSUBAKI_MK1, false);
-                        weaponSwitchCooldown = 0.0f;
+        mHRPc* player = nmh_sdk::get_mHRPc();
+        if (player) {
+            if (weaponSwitchCooldown > 20.0f) {
+                uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
+                if (dPadInputsAddr) {
+                    int8_t dPadInput = *(int8_t*)dPadInputsAddr;
+                    switch (dPadInput) {
+                    case DPAD_LEFT:
+                        if (CanWeaponSwitch(TSUBAKI_MK1)) {
+                            nmh_sdk::SetEquip(TSUBAKI_MK1, false);
+                            weaponSwitchCooldown = 0.0f;
+                        }
+                        break;
+                    case DPAD_RIGHT:
+                        if (CanWeaponSwitch(TSUBAKI_MK3)) {
+                            nmh_sdk::SetMk3Equip();
+                            weaponSwitchCooldown = 0.0f;
+                        }
+                        break;
+                    case DPAD_DOWN:
+                        if (CanWeaponSwitch(TSUBAKI_MK2)) {
+                            nmh_sdk::SetEquip(TSUBAKI_MK2, false);
+                            weaponSwitchCooldown = 0.0f;
+                        }
+                        break;
+                    case DPAD_UP:
+                        if (CanWeaponSwitch(BLOOD_BERRY)) {
+                            nmh_sdk::SetEquip(BLOOD_BERRY, false);
+                            weaponSwitchCooldown = 0.0f;
+                        }
+                        break;
+                    default:
+                        break;
                     }
+                }
+            }
+
+            // play an anim after the sword loads
+            if (previousSwordEquipRead == eEqWait1Frame && player->mInputMode == ePcInputBattleIdle) {
+                switch (player->mPcStatus.equip[0].id) {
+                case BLOOD_BERRY:
+                    //nmh_sdk::PlayMotion(ePcMtBattou01, 0, 0, 0, 0.1f); // 249
+                    nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
                     break;
-                case DPAD_RIGHT:
-                    if (CanWeaponSwitch(TSUBAKI_MK3)) {
-                        nmh_sdk::SetMk3Equip();
-                        weaponSwitchCooldown = 0.0f;
-                    }
+                case TSUBAKI_MK3:
+                    //nmh_sdk::PlayMotion(player, ePcMtBattou02Ed, 0, 0, 0, 0.1f); // 297
+                    nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
                     break;
-                case DPAD_DOWN:
-                    if (CanWeaponSwitch(TSUBAKI_MK2)) {
-                        nmh_sdk::SetEquip(TSUBAKI_MK2, false);
-                        weaponSwitchCooldown = 0.0f;
-                    }
+                case TSUBAKI_MK1:
+                    //nmh_sdk::PlayMotion(player, ePcMtBattou03Ed, 0, 0, 0, 0.1f); // 345
+                    nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
                     break;
-                case DPAD_UP:
-                    if (CanWeaponSwitch(BLOOD_BERRY)) {
-                        nmh_sdk::SetEquip(BLOOD_BERRY, false);
-                        weaponSwitchCooldown = 0.0f;
-                    }
+                case TSUBAKI_MK2:
+                    //nmh_sdk::PlayMotion(player, ePcMtBattou04Ed, 0, 0, 0, 0.1f); // 391
+                    nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
                     break;
                 default:
+                    //nmh_sdk::PlayMotion(player, ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
                     break;
                 }
             }
+
+            // effectively pause the game while loading a sword. Optional but should be safer
+            // Can't pause all because then the loading process pauses too
+            if (player->mInputMode == ePcInputBattleIdle) {
+                if (player->mPcStatus.equip[0].readProc != eEqReadMax) {
+                    player->mPauseNpc = true;
+                    player->mOperate = false;
+                }
+                else {
+                    player->mPauseNpc = false;
+                    player->mOperate = true;
+                }
+            }
+            weaponSwitchCooldown++;
+            previousSwordEquipRead = player->mPcStatus.equip[0].readProc;
         }
-        weaponSwitchCooldown++; // get delta sometime :)
     }
 }
 

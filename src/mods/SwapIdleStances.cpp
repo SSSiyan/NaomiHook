@@ -18,7 +18,7 @@ std::optional<std::string> SwapIdleStances::on_initialize() {
 }
 
 void SwapIdleStances::on_draw_ui() {
-    if (ImGui::Checkbox("Lock On During Sidesteps", &mod_enabled)) {
+    if (ImGui::Checkbox("Swap Idle Stances", &mod_enabled)) {
         toggle(mod_enabled);
     }
 }

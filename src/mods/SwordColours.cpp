@@ -101,7 +101,7 @@ naked void detour2() { // set deathblow timer
         //
             cmp byte ptr [SwordColours::mod_enabled], 0
             je originalcode
-            cmp dword ptr [ebx+0x198], 0 // condition // 0 = good, not taking damage
+            cmp dword ptr [ebx+0x198], eGood // condition // 0 = not taking damage
             jne originalcode
 
         // filter out non deathblows

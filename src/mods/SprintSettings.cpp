@@ -156,7 +156,7 @@ naked void detour4() { // Set sprint flag false after any action
             push eax
             mov eax, [SprintSettings::gpBattle]
             mov eax, [eax+0x164]
-            cmp eax, ebx
+            cmp eax, esi
             pop eax
             jne originalCode
 

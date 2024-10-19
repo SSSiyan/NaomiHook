@@ -7,7 +7,7 @@ public:
   
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
   static bool mod_enabled;
-  static float weaponSwitchCooldown;
+  static int weaponSwitchCooldown;
 
   void toggleForceMap(bool enable);
   static bool CanWeaponSwitch(pcItem desiredWeapon);

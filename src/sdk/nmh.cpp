@@ -54,11 +54,11 @@ namespace nmh_sdk {
     }
 
     // Play player motion
-    void PlayMotion(pcMotion inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate) {
+    bool PlayMotion(pcMotion inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate) {
         uintptr_t playMotionAddress = (g_framework->get_module().as<uintptr_t>() + 0x402CF0);
         mPlayMotionFunc playMotion = (mPlayMotionFunc)playMotionAddress;
         if (mHRPc* mHRPc = get_mHRPc()) {
-            playMotion(mHRPc, inMotNo, inLoop, inStartFrame, inOverWrite, inInterpolate);
+            return playMotion(mHRPc, inMotNo, inLoop, inStartFrame, inOverWrite, inInterpolate);
         }
     }
 

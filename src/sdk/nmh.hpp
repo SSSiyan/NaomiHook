@@ -19,7 +19,7 @@ namespace nmh_sdk {
 	typedef bool(__thiscall* mCheckSideStepFunc)(mHRPc* mHRPc, int unkn); // call this with -1 // 0x3E2730
 
 	void SetStage(const char* _StgName, int _StageAdd, int _Arg1, int _Arg2, bool inBossInfoDisp, int inFadeType, __int64 inSetVolRate, bool inPause, unsigned int a10);
-	void PlayMotion(pcMotion inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate);
+	bool PlayMotion(pcMotion inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate);
 	void SetEquip(pcItem inID, bool inPowUp);
 	void SetMk3Equip();
 	bool CheckCanAttack();

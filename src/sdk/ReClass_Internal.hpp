@@ -23,6 +23,27 @@ enum enPcInputMode
   ePcInputMax = 9,
 };
 
+enum enEqReadProc
+{
+  eEqFileNew = 0,
+  eEqFileOpen = 1,
+  eEqRead = 2,
+  eEqReadWait = 3,
+  eEqWait1Frame = 4,
+  eEqReadMax = 5,
+};
+
+enum enCharaCondition
+{
+  eGood = 0,
+  eDamaging = 1,
+  eDying = 2,
+  eDead = 3,
+  eBossDead = 4,
+  eConditionInit = 5,
+  eConditionMax = 6,
+};
+
 enum pcItem
 {
   BLOOD_BERRY = 0,
@@ -46,6 +67,10 @@ enum pcItem
   GLASSES13 = 113,
   GLASSES14 = 114,
   GLASSES15 = 115,
+  GLASSES16 = 116,
+  GLASSES17 = 117,
+  GLASSES18 = 118,
+  GLASSES19 = 119,
   
   JACKET0  = 200,
   JACKET1  = 201,
@@ -63,6 +88,10 @@ enum pcItem
   JACKET13 = 213,
   JACKET14 = 214,
   JACKET15 = 215,
+  JACKET16 = 216,
+  JACKET17 = 217,
+  JACKET18 = 218,
+  JACKET19 = 219,
   
   SHOES0  = 300,
   SHOES1  = 301,
@@ -80,6 +109,10 @@ enum pcItem
   SHOES13 = 313,
   SHOES14 = 314,
   SHOES15 = 315,
+  SHOES16 = 316,
+  SHOES17 = 317,
+  SHOES18 = 318,
+  SHOES19 = 319,
   
   JEANS0  = 400,
   JEANS1  = 401,
@@ -97,6 +130,10 @@ enum pcItem
   JEANS13 = 413,
   JEANS14 = 414,
   JEANS15 = 415,
+  JEANS16 = 416,
+  JEANS17 = 417,
+  JEANS18 = 418,
+  JEANS19 = 419,
   
   BELT0  = 500,
   BELT1  = 501,
@@ -114,6 +151,10 @@ enum pcItem
   BELT13 = 513,
   BELT14 = 514,
   BELT15 = 515,
+  BELT16 = 516,
+  BELT17 = 517,
+  BELT18 = 518,
+  BELT19 = 519,
   
   SHIRT0  = 600,
   SHIRT1  = 601,
@@ -131,6 +172,10 @@ enum pcItem
   SHIRT13 = 613,
   SHIRT14 = 614,
   SHIRT15 = 615,
+  SHIRT16 = 216,
+  SHIRT17 = 217,
+  SHIRT18 = 218,
+  SHIRT19 = 219,
 };
 
 enum pcMotion
