@@ -212,8 +212,8 @@ void WeaponSwitcher::on_config_save(utility::Config &cfg) {
 }
 
 void WeaponSwitcher::on_frame() {
-    static int previousSwordEquipRead = 0;
-    static int checkmotReadProc = 0;
+    //static int previousSwordEquipRead = 0;
+    //static int checkmotReadProc = 0;
     if (mod_enabled) {
         mHRPc* player = nmh_sdk::get_mHRPc();
         if (player) {
@@ -279,7 +279,8 @@ void WeaponSwitcher::on_frame() {
 
             // effectively pause the game while loading a sword. Optional but should be safer
             // Can't pause all because then the loading process pauses too
-            if (player->mInputMode == ePcInputBattleIdle) {
+            // Of course this lets you move during cutscenes I am so dumb
+            /*if (player->mInputMode == ePcInputBattleIdle) {
                 if (player->mPcStatus.equip[0].readProc != eEqReadMax) {
                     player->mPauseNpc = true;
                     player->mOperate = false;
@@ -289,8 +290,8 @@ void WeaponSwitcher::on_frame() {
                     player->mOperate = true;
                 }
             }
+            previousSwordEquipRead = player->mPcStatus.equip[0].readProc;*/
             weaponSwitchCooldown++;
-            previousSwordEquipRead = player->mPcStatus.equip[0].readProc;
         }
     }
 }
