@@ -27,6 +27,7 @@ void PlayerTracker::on_draw_ui() {
             ImGui::InputInt("mInputMode ##Useful", (int*)&player->mInputMode, 1);
             ImGui::InputInt("motionNo ##Useful", (int*)&player->mCharaStatus.motionNo, 1);
             ImGui::Checkbox("mOperate ##Useful", &player->mOperate);
+            ImGui::Checkbox("mCameraOperate ##Useful", &player->mCameraOperate);
             bool hitStageDisEnable = getBit(player->mCharaStatus.flag, 10);
             if (ImGui::Checkbox("hitStageDisEnable ##Useful", &hitStageDisEnable)) setBit(player->mCharaStatus.flag, 10, hitStageDisEnable);
         if (mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle()) {
