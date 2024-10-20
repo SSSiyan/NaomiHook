@@ -51,6 +51,8 @@ naked void detour1() { // play weapon anims // player in ecx // called last
         //
             cmp dword ptr [ecx+0x2990], ePcInputBattleIdle // enPcInputMode
             jne originalcode
+            cmp dword ptr [WeaponSwitcher::weaponSwitchCooldown], 10 // only edit anim if weapon switcher changed the value
+            jae originalcode
             push 01 // interrupt
             push 00 // frame
             push 00 // repeat
@@ -113,6 +115,8 @@ naked void detour2() { // play weapon anims // player in esi
         //
             cmp dword ptr [esi+0x2990], ePcInputBattleIdle // enPcInputMode
             jne originalcode
+            cmp dword ptr [WeaponSwitcher::weaponSwitchCooldown], 10 // only edit anim if weapon switcher changed the value
+            jae originalcode
             push 01 // interrupt
             push 00 // frame
             push 00 // repeat
