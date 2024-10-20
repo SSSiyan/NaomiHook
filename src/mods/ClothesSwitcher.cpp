@@ -6,7 +6,28 @@ struct Equip_Item {
     const char* name;
 };
 
-static constexpr std::array<Equip_Item, 120> clothing_items = {
+static constexpr std::array<Equip_Item, 140> clothing_items = {
+    Equip_Item  {BLOOD_BERRY, "Blood Berry"},
+    Equip_Item  {TSUBAKI_MK3, "Tsubaki Mk3"},
+    Equip_Item  {TSUBAKI_MK1, "Tsubaki Mk1"},
+    Equip_Item  {TSUBAKI_MK2, "Tsubaki Mk2"},
+    Equip_Item  {SWORD4,      "Glasses 4"},
+    Equip_Item  {SWORD5,      "Glasses 5"},
+    Equip_Item  {SWORD6,      "Glasses 6"},
+    Equip_Item  {SWORD7,      "Glasses 7"},
+    Equip_Item  {SWORD8,      "Glasses 8"},
+    Equip_Item  {SWORD9,      "Glasses 9"},
+    Equip_Item  {SWORD10,     "Glasses 10"},
+    Equip_Item  {SWORD11,     "Glasses 11"},
+    Equip_Item  {SWORD12,     "Glasses 12"},
+    Equip_Item  {SWORD13,     "Glasses 13"},
+    Equip_Item  {SWORD14,     "Glasses 14"},
+    Equip_Item  {SWORD15,     "Glasses 15"},
+    Equip_Item  {SWORD16,     "Glasses 16"},
+    Equip_Item  {SWORD17,     "Glasses 17"},
+    Equip_Item  {SWORD18,     "Glasses 18"},
+    Equip_Item  {SWORD19,     "Glasses 19"},
+
     Equip_Item  {GLASSES0,  "Glasses 0"},
     Equip_Item  {GLASSES1,  "Glasses 1"},
     Equip_Item  {GLASSES2,  "Glasses 2"},
@@ -140,36 +161,66 @@ struct ComboInfo {
     size_t end_idx;
 };
 
-ComboInfo combo_boxes[] = {
-    {"##GlassesCombo", 0, 20},
-    {"##JacketCombo", 20, 40},
-    {"##ShoesCombo", 40, 60},
-    {"##JeansCombo", 60, 80},
-    {"##BeltCombo", 80, 100},
-    {"##ShirtCombo", 100, 120}
+static constexpr std::array<ComboInfo, 7> combo_boxes = {
+    ComboInfo {"##SwordsCombo", 0, 20},
+    ComboInfo {"##GlassesCombo", 20, 40},
+    ComboInfo {"##JacketCombo", 40, 60},
+    ComboInfo {"##ShoesCombo", 60, 80},
+    ComboInfo {"##JeansCombo", 80, 100},
+    ComboInfo {"##BeltCombo", 100, 120},
+    ComboInfo {"##ShirtCombo", 120, 140}
 };
 
 std::optional<std::string> ClothesSwitcher::on_initialize() {
     return Mod::on_initialize();
 }
 
+static const Equip_Item* find_room_by_id(int id) {
+    auto it = std::find_if(clothing_items.begin(), clothing_items.end(), [id](const Equip_Item& room) { return room.id == id; });
+    IM_ASSERT(it != clothing_items.end()); // crash if we passed wrong index
+    size_t index = std::distance(clothing_items.begin(), it);
+    IM_ASSERT(index > 0);
+    return &clothing_items[index];
+};
+
+static int find_room_index_by_id(int id) {
+    auto it = std::find_if(clothing_items.begin(), clothing_items.end(), [id](const Equip_Item& room) { return room.id == id; });
+    IM_ASSERT(it != clothing_items.end()); // crash if we passed wrong index
+    size_t index = std::distance(clothing_items.begin(), it);
+    // IM_ASSERT(index > 0);
+    return index;
+};
+
 void ClothesSwitcher::on_draw_ui() {
-    static int selected_indices[sizeof(combo_boxes) / sizeof(combo_boxes[0])] = {0};
-    for (size_t i = 0; i < sizeof(combo_boxes) / sizeof(combo_boxes[0]); i++) {
-        const auto& combo = combo_boxes[i];
-        size_t selected_item_index = combo.start_idx + selected_indices[i];
-        if (ImGui::BeginCombo(combo.label, clothing_items[selected_item_index].name)) {
-            for (size_t n = combo.start_idx; n < combo.end_idx; n++) {
-                const bool is_selected = (selected_indices[i] == n - combo.start_idx);
-                if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
-                    selected_indices[i] = n - combo.start_idx;
-                    nmh_sdk::SetEquip((pcItem)clothing_items[n].id, 0);
-                }
-                if (is_selected) {
-                    ImGui::SetItemDefaultFocus();
-                }
+    if (mHRPc* player = nmh_sdk::get_mHRPc()) {
+        // Assuming the number of combo boxes is equal to the size of combo_boxes array.
+        std::vector<int> selected_indices(combo_boxes.size(), 0);  // Initialize all indices to 0
+        for (size_t i = 0; i < combo_boxes.size(); i++) {
+            const auto& combo = combo_boxes[i];
+            // Find the default "selected" index for the player's current equipment
+            int playerItem = find_room_index_by_id(player->mPcStatus.equip[i].id);
+            // Set the selected index to 'playerItem' if it's within valid bounds before the combo is opened
+            if (playerItem >= 0 && playerItem < clothing_items.size()) {
+                selected_indices[i] = playerItem - combo.start_idx; // Adjust for combo start index range
             }
-            ImGui::EndCombo();
+            size_t selected_item_index = combo.start_idx + selected_indices[i];
+            // Begin the ImGui combo box, only if 'playerItem' is valid
+            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {  // Use 'playerItem' to display the current selection
+                for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
+                    // Determine if the item is selected
+                    const bool is_selected = (selected_indices[i] == n - combo.start_idx);
+                    // Create the selectable item in the combo box
+                    if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
+                        selected_indices[i] = n - combo.start_idx;
+                        nmh_sdk::SetEquip((pcItem)clothing_items[n].id, 0); // Set the equipment based on selection
+                    }
+                    // Focus on the currently selected item
+                    if (is_selected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
         }
     }
 }
