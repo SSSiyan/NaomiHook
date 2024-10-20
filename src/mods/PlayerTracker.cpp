@@ -1162,11 +1162,11 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::Checkbox("Dark Side Key Guide Disp", &player->mPcStatus.darkSideKeyGuideDisp);
                 ImGui::Checkbox("Dark Side Success Input", &player->mPcStatus.darkSideSuccessInput);
                 ImGui::Checkbox("Rapid Finish End", &player->mPcStatus.rapidFinishEnd);
-                ImGui::Checkbox("Light Side Charge Tick", (bool*)&player->mPcStatus.lightSideChargeTick);
-                ImGui::Checkbox("Rapid Finish Tick", (bool*)&player->mPcStatus.rapidFinishTick);
-                ImGui::Checkbox("Fast Action Tick", (bool*)&player->mPcStatus.fastActionTick);
-                ImGui::Checkbox("Shinku Tick", (bool*)&player->mPcStatus.shinkuTick);
-                ImGui::Checkbox("Bullet Tick", (bool*)&player->mPcStatus.bulletTick);
+                ImGui::InputInt("Light Side Charge Tick", &player->mPcStatus.lightSideChargeTick);
+                ImGui::InputInt("Rapid Finish Tick", &player->mPcStatus.rapidFinishTick);
+                ImGui::InputInt("Fast Action Tick", &player->mPcStatus.fastActionTick);
+                ImGui::InputInt("Shinku Tick", &player->mPcStatus.shinkuTick);
+                ImGui::InputInt("Bullet Tick", &player->mPcStatus.bulletTick);
                 ImGui::InputInt("Money", &player->mPcStatus.money);
                 ImGui::InputInt("Max Money", &player->mPcStatus.moneyMax);
                 ImGui::SliderFloat("Tsuba Rate", &player->mPcStatus.tsubaRate, 0.0f, 1.0f);
