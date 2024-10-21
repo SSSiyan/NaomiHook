@@ -858,7 +858,6 @@ enum pcItem {
     SHIRT197 = 797,
     SHIRT198 = 798,
     SHIRT199 = 799,
-    //SHIRT200 = 800,
 };
 
 

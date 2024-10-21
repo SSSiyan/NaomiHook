@@ -820,7 +820,6 @@ static constexpr std::array<Equip_Item, 800> clothing_items = {
     Equip_Item {SHIRT197,   "Shirt 197"},
     Equip_Item {SHIRT198,   "Shirt 198"},
     Equip_Item {SHIRT199,   "Shirt 199"},
-    //Equip_Item {SHIRT200,   "Shirt 200"}
 };
 
 

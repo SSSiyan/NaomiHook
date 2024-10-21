@@ -88,6 +88,12 @@ static constexpr std::array<Stage, 78> stage_items = {
     Stage {"STG9009",  69, "Dr.Peace Toilet Stadium"},
 };
 
+static constexpr std::array<Stage, 3> motel_stages = {
+    Stage {"STG00011", 69, "Motel"},
+    Stage {"STG500",   69, "Motel"},
+    Stage {"STG500US", 69, "Motel"},
+};
+
 std::optional<std::string> StageWarp::on_initialize() {
     return Mod::on_initialize();
 }
@@ -119,12 +125,25 @@ void StageWarp::on_draw_ui() {
             ImGui::InputInt("a10", &setStageArgs[6]);
         }
 
-        for (int i = 0; i < stage_items.size(); ++i) {
-            char buttonLabel[64];
-            snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", stage_items[i].name, stage_items[i].info);
-            if (ImGui::Button(buttonLabel)) {
-                nmh_sdk::SetStage(stage_items[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2],
-                    setStageArgs[3], setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
+        if (ImGui::CollapsingHeader("All")) {
+            for (int i = 0; i < stage_items.size(); ++i) {
+                char buttonLabel[64];
+                snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", stage_items[i].name, stage_items[i].info);
+                if (ImGui::Button(buttonLabel)) {
+                    nmh_sdk::SetStage(stage_items[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2],
+                        setStageArgs[3], setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
+                }
+            }
+        }
+
+        if (ImGui::CollapsingHeader("Motels")) {
+            for (int i = 0; i < motel_stages.size(); ++i) {
+                char buttonLabel[64];
+                snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", motel_stages[i].name, motel_stages[i].info);
+                if (ImGui::Button(buttonLabel)) {
+                    nmh_sdk::SetStage(motel_stages[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2],
+                        setStageArgs[3], setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
+                }
             }
         }
     }
