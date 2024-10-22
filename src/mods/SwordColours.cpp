@@ -109,6 +109,14 @@ naked void detour2() { // set deathblow timer
             je originalcode
             cmp dword ptr [ebx+0x18c], ePcMtBtAtkChgUp // 170 high charge
             je originalcode
+            cmp dword ptr [ebx+0x18c], ePcMtBtChgWlkF // 37 Walk Charge Forward
+            je originalcode
+            cmp dword ptr [ebx+0x18c], ePcMtBtChgWlkB // 38 Walk Charge Back
+            je originalcode
+            cmp dword ptr [ebx+0x18c], ePcMtBtChgWlkL // 39 Walk Charge Left
+            je originalcode
+            cmp dword ptr [ebx+0x18c], ePcMtBtChgWlkR // 40 Walk Charge Right
+            je originalcode
             // enum pcMotion {
             // ePcMtBtChgStrt = 167,
             // ePcMtBtChgLp = 168,
