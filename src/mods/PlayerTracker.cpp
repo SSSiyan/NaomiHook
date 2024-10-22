@@ -28,6 +28,7 @@ void PlayerTracker::on_draw_ui() {
             ImGui::InputInt("motionNo ##Useful", (int*)&player->mCharaStatus.motionNo, 1);
             ImGui::Checkbox("mOperate ##Useful", &player->mOperate);
             ImGui::Checkbox("mCameraOperate ##Useful", &player->mCameraOperate);
+            ImGui::Checkbox("mDead ## Useful", &player->mDead);
             bool hitStageDisEnable = getBit(player->mCharaStatus.flag, 10);
             if (ImGui::Checkbox("hitStageDisEnable ##Useful", &hitStageDisEnable)) setBit(player->mCharaStatus.flag, 10, hitStageDisEnable);
         if (mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle()) {
@@ -45,9 +46,9 @@ void PlayerTracker::on_draw_ui() {
 
     if (ImGui::CollapsingHeader("HrGameTask")) {
         if (HrGameTask* hrGameTask = nmh_sdk::get_HrGameTask()) {
-            // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrGameTask->mAllClearHikitugi);
+            // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrGameTask->Padding_972);
             // ImGui::Text("Base Address: 0x%08X", baseAddress);
-            // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&hrGameTask->m_pSubTask); 
+            // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&hrGameTask->mGotoTitleRequest); 
             // ImGui::Text("Target Address: 0x%08X", targetAddress);
             // uintptr_t offsetDifference = targetAddress - baseAddress;
             // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
@@ -69,10 +70,10 @@ void PlayerTracker::on_draw_ui() {
             ImGui::InputInt("mLastLogoSndGroupID", &hrGameTask->mLastLogoSndGroupID);
             ImGui::InputInt("mLastSaveSndGroupID", &hrGameTask->mLastSaveSndGroupID);
             ImGui::InputInt("TerminateCnt", &hrGameTask->TerminateCnt);
-            ImGui::Text("Union");
-            ImGui::InputScalar("m_TotalStartPlayTime", ImGuiDataType_S64, &hrGameTask->m_TotalStartPlayTime);
-            ImGui::Checkbox("mNewGameRequestForTitle", &hrGameTask->mNewGameRequestForTitle);
-            ImGui::Checkbox("mAllClearHikitugi", &hrGameTask->mAllClearHikitugi);
+            // ImGui::Text("Union");
+            // ImGui::InputScalar("m_TotalStartPlayTime", ImGuiDataType_S64, &hrGameTask->m_TotalStartPlayTime);
+            // ImGui::Checkbox("mNewGameRequestForTitle", &hrGameTask->mNewGameRequestForTitle);
+            // ImGui::Checkbox("mAllClearHikitugi", &hrGameTask->mAllClearHikitugi);
             ImGui::Checkbox("mInitStageLoad", &hrGameTask->mInitStageLoad);
             ImGui::Checkbox("mOpeningMovieRequest", &hrGameTask->mOpeningMovieRequest);
             ImGui::Checkbox("mNewGameRequest", &hrGameTask->mNewGameRequest);

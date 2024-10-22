@@ -3577,16 +3577,16 @@ public:
   /* 0x007c */ int mLastLogoSndGroupID;
   /* 0x0080 */ int mLastSaveSndGroupID;
   /* 0x0084 */ int TerminateCnt;
-  union
-  {
-    /* 0x0000 */ __int64 m_TotalStartPlayTime;
-    /* 0x0000 */ __int64 m_StartPlayTime;
-    /* 0x0000 */ __int64 m_ScenarioPlayTime;
-    /* 0x0000 */ bool mNewGameRequestForTitle;
-    struct
-    {
-      /* 0x0000 */ bool mAllClearHikitugi;
-      /* 0x0001 */ char Padding_974[0x87];
+  // union // edited
+  // {
+  //   /* 0x0000 */ __int64 m_TotalStartPlayTime;
+  //   /* 0x0000 */ __int64 m_StartPlayTime;
+  //   /* 0x0000 */ __int64 m_ScenarioPlayTime;
+  //   /* 0x0000 */ bool mNewGameRequestForTitle;
+  //   struct
+  //   {
+      /* 0x0000 */ //bool mAllClearHikitugi;
+      /* 0x0001 */ //char Padding_974[0x3];
       /* 0x0088 */ bool mInitStageLoad;
       /* 0x0089 */ bool mOpeningMovieRequest;
       /* 0x008a */ bool mNewGameRequest;
@@ -3643,9 +3643,9 @@ public:
       /* 0x02e4 */ bool m_STG_Feed_f;
       /* 0x02e5 */ char Padding_980[3];
       /* 0x02e8 */ class HrSubGameTask* m_pSubTask;
-    }; /* size: 0x0256 */
+    //}; /* size: 0x0256 */ // edited
     /* 0x0000 */ char mScenarioScriptFileName[64];
     /* 0x0000 */ char mSubMissionScriptFileName[64];
     /* 0x0000 */ int mRefreshCounter;
-  }; /* size: 0x0256 */
+  //}; /* size: 0x0256 */ // edited
 }; /* size: 0x02ec */
