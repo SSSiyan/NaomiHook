@@ -108,9 +108,12 @@ set(UTILITY_SRC
 
 
 set(IMGUI_SRC
+    fw-imgui/SwordsTextureAtlas.cpp
     fw-imgui/FontFancy.cpp
     fw-imgui/FontInfoblock.cpp
     fw-imgui/FontMain.cpp
+    fw-imgui/Texture2DD3D11.hpp
+    fw-imgui/Texture2DD3D11.cpp
     fw-imgui/imgui_impl_win32.h
     fw-imgui/imgui_impl_win32.cpp
     fw-imgui/imgui_impl_dx11.h

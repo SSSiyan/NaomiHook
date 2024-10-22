@@ -1,0 +1,24 @@
+// https://mustache.github.io/
+// https://github.com/odrick/free-tex-packer
+
+struct Frame {
+    ImVec2 pos,size;
+    ImVec2 uv0, uv1;
+};
+
+struct TextureAtlas {
+    {{#rects}}
+    static constexpr auto {{{name}}}() {
+        return Frame {
+            ImVec2 { {{frame.x}}.0f, {{frame.y}}.0f },  
+            ImVec2 { {{frame.w}}.0f, {{frame.h}}.0f },
+            ImVec2 { {{frame.x}}.0f / {{config.imageWidth}}.0f, {{frame.y}}.0f / {{config.imageHeight}}.0f },
+            ImVec2 { ( {{frame.x}}.0f + {{frame.w}}.0f ) / {{config.imageWidth}}.0f, ( {{frame.y}}.0f + {{frame.h}}.0f ) / {{config.imageHeight}}.0f }
+        }; //{{{name}}}
+    };
+    {{/rects}}
+
+    static constexpr auto meta_size() {
+        return ImVec2{ {{config.imageWidth}}.0f, {{config.imageWidth}}.0f  };
+    };
+};

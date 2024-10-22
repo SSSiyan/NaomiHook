@@ -247,21 +247,22 @@ namespace gui {
     }
 
     void imgui_left_window_proc(OurImGuiContext* ctx, Mods* pmods) {
+
+        bool window_open = ctx->selected_mod;
+
         glm::vec2 offset { 
             ctx->main_window_rect.Max.x  + IMGUI_WINDOW_PADDING,
             ctx->main_window_rect.Min.y
         };
-        glm::vec2 size = {
-            ctx->main_window_rect.GetWidth(), 
-            ctx->main_window_rect.GetHeight()
-        };
+
+        glm::vec2 size = {ctx->main_window_rect.GetWidth(), ctx->main_window_rect.GetHeight()};
+
         ctx->left_window_rect.Min = offset;
         ctx->left_window_rect.Max = offset + size;
 
         ImGui::SetNextWindowPos(offset);
         ImGui::SetNextWindowSize(size);
 
-        bool window_open = ctx->selected_mod != nullptr;
         ImGui::Begin("Settings window", &window_open, ImGuiWindowFlags_NoDecoration);
         {
 

@@ -9,6 +9,8 @@ include_directories(${CMAKE_SOURCE_DIR}/dependencies/minhook/include)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/spdlog/include)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/glm)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/scope_guard)
+include_directories(${CMAKE_SOURCE_DIR}/dependencies/stb)
+
 
 # set standard
 set(CMAKE_CXX_STANDARD 23)

@@ -10,8 +10,11 @@ public:
 
   static uintptr_t jmp_ret1;
   static uintptr_t gpBattle;
+#if 0
   static uint8_t coloursPicked[5][4]; // bgra
   static float coloursPickedFloat[5][4]; //rgba
+#else
+#endif
 
   static uintptr_t jmp_ret2;
   static int deathblowTimer;

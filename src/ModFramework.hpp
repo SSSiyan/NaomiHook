@@ -4,6 +4,7 @@
 
 class Mods;
 struct OurImGuiContext;
+struct ID3D11Device;
 
 #include "D3D11Hook.hpp"
 #include "WindowsMessageHook.hpp"
@@ -34,6 +35,10 @@ public:
 
     bool is_ready() const {
         return m_game_data_initialized;
+    }
+
+    D3D11Hook* d3d11() const {
+        return m_d3d11_hook.get();
     }
 
     void on_frame();
