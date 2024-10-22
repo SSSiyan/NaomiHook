@@ -172,8 +172,6 @@ static constexpr std::array<Stage, 19> misc_stages = {
     Stage {"STG1708",  69, "Train Station Harvey (Boarding)"},
     Stage {"STG1709",  69, "Train Station Harvey (Exit)"},
 
-
-
 };
 
 static constexpr std::array<Stage, 10> save_stages = {
@@ -276,6 +274,17 @@ void StageWarp::on_draw_ui() {
             }
         }
 
+        if (ImGui::CollapsingHeader("Miscellaneous")) {
+            for (int i = 0; i < misc_stages.size(); ++i) {
+                char buttonLabel[64];
+                snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", misc_stages[i].name, misc_stages[i].info);
+                if (ImGui::Button(buttonLabel)) {
+                    nmh_sdk::SetStage(misc_stages[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
+                        setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
+                }
+            }
+        }
+
         if (ImGui::CollapsingHeader("Toilets")) {
             for (int i = 0; i < save_stages.size(); ++i) {
                 char buttonLabel[64];
@@ -286,7 +295,6 @@ void StageWarp::on_draw_ui() {
                 }
             }
         }
-
     }
 }
 
