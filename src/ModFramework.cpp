@@ -49,7 +49,6 @@ ModFramework::~ModFramework() {
 }
 
 void ModFramework::on_frame() {
-    spdlog::debug("on_frame");
 
     if (!m_initialized) {
         if (!initialize()) {
