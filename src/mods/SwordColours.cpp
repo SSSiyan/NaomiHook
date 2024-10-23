@@ -282,17 +282,18 @@ struct SwordDef {
 
 std::array swords = {
     SwordDef { "Blood Berry", g_atlas.Berry_Blade(),     g_atlas.Berry_Hilt()     },
-    SwordDef { "Tsubaki Mk3", g_atlas.Tsubaki_3_Blade(), g_atlas.Tsubaki_3_Hilt() },
     SwordDef { "Tsubaki Mk1", g_atlas.Tsubaki_1_Blade(), g_atlas.Tsubaki_1_Hilt() },
+    SwordDef { "Tsubaki Mk3", g_atlas.Tsubaki_3_Blade(), g_atlas.Tsubaki_3_Hilt() },
     SwordDef { "Tsubaki Mk2", g_atlas.Tsubaki_2_Blade(), g_atlas.Tsubaki_2_Hilt() },
 };
 
+#if 0
 static float sin_pulse(float frequency) {
     const float pi = 3.14f;
     return 0.5f * (1 + (float)std::sin(2 * pi * frequency * ImGui::GetTime()));
 }
+#endif
 
-static ImColor sword_name_color{};
 static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImColor& rgba, ImU32& abgr) {
 
 #if 0

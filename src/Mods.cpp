@@ -79,7 +79,7 @@ std::optional<std::string> Mods::on_initialize() const {
         spdlog::info("{:s}::on_initialize()", mod->get_mod_name().data());
 
         if (auto e = mod->on_initialize(); e != std::nullopt) {
-            spdlog::info("{:s}::on_initialize() has failed: {:s}", mod->get_mod_name().data(), *e);
+            spdlog::error("{:s}::on_initialize() has failed: {:s}", mod->get_mod_name().data(), *e);
             return e;
         }
     }
