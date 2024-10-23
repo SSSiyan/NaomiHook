@@ -1,7 +1,9 @@
 #include "PlayerTracker.hpp"
 #if 1
+static bool shouldDisplayCustomImgui = false;
 
 std::optional<std::string> PlayerTracker::on_initialize() {
+
     return Mod::on_initialize();
 }
 
@@ -19,9 +21,19 @@ void setBit(T& flags, int bit, bool value) {
     }
 }
 
+void PlayerTracker::custom_imgui_window() {
+    static bool testbool = false;
+    if (shouldDisplayCustomImgui) {
+        ImGui::Begin("OverlayTest", &shouldDisplayCustomImgui);
+        ImGui::Checkbox("Test", &testbool);
+        ImGui::End();
+    }
+}
+
 void PlayerTracker::on_draw_ui() {
     if (ImGui::CollapsingHeader("Useful", ImGuiTreeNodeFlags_DefaultOpen)) {
         if (mHRPc* player = nmh_sdk::get_mHRPc()) {
+            ImGui::Checkbox("shouldDisplayCustomImgui", &shouldDisplayCustomImgui);
             ImGui::Text("Player");
             ImGui::SliderFloat("Player HP ##Useful", &player->mCharaStatus.hp, 0.0f, player->mCharaStatus.maxHp);
             ImGui::InputInt("mInputMode ##Useful", (int*)&player->mInputMode, 1);

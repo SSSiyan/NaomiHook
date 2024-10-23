@@ -7,12 +7,12 @@
 // #include "mods/SimpleMod.hpp"
 // #include "mods/BeamColor.hpp"
 // #include "mods/HpColor.hpp"
+#include "mods/PlayerTracker.hpp"
 #include "mods/DisableCrashDumps.hpp"
 #include "mods/AcceptPadInputsTabbedOut.hpp"
 #include "mods/WeaponSwitcher.hpp"
 #include "mods/ForceFOV.hpp"
 #include "mods/StageWarp.hpp"
-#include "mods/PlayerTracker.hpp"
 #include "mods/ClothesSwitcher.hpp"
 #include "mods/LockOnSettings.hpp"
 #include "mods/HitstopSettings.hpp"
@@ -45,12 +45,12 @@ Mods::Mods()
     // ADD_MOD(SimpleMod);
     // ADD_MOD(BeamColor);
     // ADD_MOD(HpColor);
+    ADD_MOD(PlayerTracker);
     ADD_MOD(DisableCrashDumps);
     ADD_MOD(AcceptPadInputsTabbedOut);
     ADD_MOD(WeaponSwitcher);
     ADD_MOD(ForceFOV);
     ADD_MOD(StageWarp);
-    ADD_MOD(PlayerTracker);
     ADD_MOD(ClothesSwitcher);
     ADD_MOD(LockOnSettings);
     ADD_MOD(HitstopSettings);
@@ -98,6 +98,11 @@ void Mods::on_frame() const {
     for (auto& mod : m_mods) {
         mod->on_frame();
     }
+}
+
+void Mods::on_draw_custom_imgui_window() {
+    PlayerTracker* pt = dynamic_cast<PlayerTracker*>(m_mods[0].get());
+    pt->custom_imgui_window();
 }
 
 void Mods::on_draw_debug_ui() const {

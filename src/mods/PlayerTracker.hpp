@@ -7,6 +7,8 @@ public:
   
   ModCategory get_category() { return ModCategory::SYSTEM; };
 
+  void custom_imgui_window();
+
   // mod name string for config
   std::string get_mod_name() const override { return "PlayerTracker"; }
   std::string get_human_readable_name() const { return "Player Tracker"; }

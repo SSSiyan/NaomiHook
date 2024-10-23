@@ -67,6 +67,7 @@ void ModFramework::on_frame() {
 
     if (m_error.empty() && m_game_data_initialized) {
         m_mods->on_frame();
+        m_mods->on_draw_custom_imgui_window();
     }
 
     draw_ui();
