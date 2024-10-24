@@ -24,12 +24,32 @@ void setBit(T& flags, int bit, bool value) {
 void DrawEnemyStats() {
     mHRPc* player = nmh_sdk::get_mHRPc();
     static mHRChara* mpLockOnNpc = NULL;
-    static bool saveCurrentLockedOnEnemy = false;
-    if (ImGui::Checkbox("Save Currently Locked On Enemy", &saveCurrentLockedOnEnemy)) {
-        mpLockOnNpc = player->mpLockOnNpc; // update on checking the box
+
+    static int currentSelectedEnemy = 0;
+    static bool useCurrentSelectedEnemySlider = false;
+    ImGui::Checkbox("useCurrentSelectedEnemySlider", &useCurrentSelectedEnemySlider);
+    if (useCurrentSelectedEnemySlider) {
+        ImGui::SliderInt("currentSelectedEnemy", &currentSelectedEnemy, 0, 30);
+        mpLockOnNpc = nmh_sdk::get_mHRBattle()->mpNpc[currentSelectedEnemy];
+        if (ImGui::Button("Find Locked On Enemy In List")) {
+            if (player->mpLockOnNpc) {
+                for (uint32_t i = 0; i < 30; ++i) {
+                    if (nmh_sdk::get_mHRBattle()->mpNpc[i] && nmh_sdk::get_mHRBattle()->mpNpc[i] == player->mpLockOnNpc) {
+                        currentSelectedEnemy = i;
+                        break;
+                    }
+                }
+            }
+        }
     }
-    if (!saveCurrentLockedOnEnemy) {
-        mpLockOnNpc = player->mpLockOnNpc; // update every tick
+    else {
+        static bool saveCurrentLockedOnEnemy = false;
+        if (ImGui::Checkbox("Save Currently Locked On Enemy", &saveCurrentLockedOnEnemy)) {
+            mpLockOnNpc = player->mpLockOnNpc; // update on checking the box
+        }
+        if (!saveCurrentLockedOnEnemy) {
+            mpLockOnNpc = player->mpLockOnNpc; // update every tick
+        }
     }
 
     if (ImGui::CollapsingHeader("mpLockOnNpc")) {

@@ -356,7 +356,7 @@ namespace gui {
             ImGui::SetNextWindowPos(offset);
             ImGui::SetNextWindowSize(size);
 
-            ImGui::Begin(PROJECT_NAME " " GUI_VERSION, window_open);
+            ImGui::Begin(PROJECT_NAME " " GUI_VERSION, window_open, ImGuiWindowFlags_NoCollapse);
             {
                 ImGui::PushFont(ctx->fancy_font);
 

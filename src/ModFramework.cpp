@@ -102,7 +102,7 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
         m_draw_ui = !m_draw_ui;
     }
 
-    if (m_draw_ui && ImGui_ImplWin32_WndProcHandler(wnd, message, w_param, l_param) != 0) {
+    if (ImGui_ImplWin32_WndProcHandler(wnd, message, w_param, l_param) != 0) { // if (m_draw_ui && didn't work and stops us interacting with debug windows
         // If the user is interacting with the UI we block the message from going to the game.
         auto& io = ImGui::GetIO();
 
