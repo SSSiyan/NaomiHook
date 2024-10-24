@@ -191,7 +191,9 @@ void DrawEnemyStats() {
             ImGui::InputScalar("Pyoko Ratio", ImGuiDataType_Float, &mpLockOnNpc->mEffect.pBattleIcon->m_PyokoRatio);
             ImGui::InputScalar("Pyoko Alpha", ImGuiDataType_U8, &mpLockOnNpc->mEffect.pBattleIcon->m_PyokoAlpha);
             ImGui::Checkbox("Draw Hit Combo Flag", (bool*)&mpLockOnNpc->mEffect.pBattleIcon->m_DrawHitCmbFlag);
-            ImGui::InputScalarN("Tsuba Ratio", ImGuiDataType_Float, mpLockOnNpc->mEffect.pBattleIcon->m_TsubaRatio, 36);
+            for (int i = 0; i < 36; ++i) {
+                ImGui::InputFloat(fmt::format("Tsuba Ratio [{}]", i).c_str(), &mpLockOnNpc->mEffect.pBattleIcon->m_TsubaRatio[i]);
+            }
             for (int i = 0; i < 2; ++i) {
                 ImGui::Text("Position %d: %p", i, mpLockOnNpc->mEffect.pBattleIcon->m_pPosition[i]);
             }
