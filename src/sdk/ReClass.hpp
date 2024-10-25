@@ -9,3 +9,4 @@
 #include "NoMoreHeroesPdb.hpp"
 
 #include "Enums_Internal.hpp"
+#include "Offsets.hpp"

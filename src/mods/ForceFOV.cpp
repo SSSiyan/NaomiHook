@@ -37,7 +37,7 @@ naked void detour2() { // used during attacks
         je originalcode
 
         movss xmm1, [ForceFOV::custom_fov]
-        jmp dword ptr [ForceFOV::jmp_ret1]
+        jmp dword ptr [ForceFOV::jmp_ret2]
 
         originalcode:
         movss xmm1, [ForceFOV::default_fov]

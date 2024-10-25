@@ -822,7 +822,6 @@ static constexpr std::array<Equip_Item, 800> clothing_items = {
     Equip_Item {SHIRT199,   "Shirt 199"},
 };
 
-
 struct ComboInfo {
     const char* label;
     size_t start_idx;
@@ -830,13 +829,13 @@ struct ComboInfo {
 };
 
 static constexpr std::array<ComboInfo, 7> combo_boxes = {
-    ComboInfo {"##SwordsCombo", 0, 100},
-    ComboInfo {"##GlassesCombo", 100, 200},
-    ComboInfo {"##JacketCombo", 200, 300},
-    ComboInfo {"##ShoesCombo", 300, 400},
-    ComboInfo {"##JeansCombo", 400, 500},
-    ComboInfo {"##BeltCombo", 500, 600},
-    ComboInfo {"##ShirtCombo", 600, 800}
+    ComboInfo {"Sword ##Combo", 0, 100},
+    ComboInfo {"Glasses ##Combo", 100, 200},
+    ComboInfo {"Jacket ##Combo", 200, 300},
+    ComboInfo {"Shoes ##Combo", 300, 400},
+    ComboInfo {"Jeans ##Combo", 400, 500},
+    ComboInfo {"Belt ##Combo", 500, 600},
+    ComboInfo {"Shirt ##Combo", 600, 800}
 };
 
 std::optional<std::string> ClothesSwitcher::on_initialize() {

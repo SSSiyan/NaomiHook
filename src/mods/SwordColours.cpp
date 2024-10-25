@@ -282,8 +282,8 @@ struct SwordDef {
 
 std::array swords = {
     SwordDef { "Blood Berry", g_atlas.Berry_Blade(),     g_atlas.Berry_Hilt()     },
-    SwordDef { "Tsubaki Mk1", g_atlas.Tsubaki_1_Blade(), g_atlas.Tsubaki_1_Hilt() },
     SwordDef { "Tsubaki Mk3", g_atlas.Tsubaki_3_Blade(), g_atlas.Tsubaki_3_Hilt() },
+    SwordDef { "Tsubaki Mk1", g_atlas.Tsubaki_1_Blade(), g_atlas.Tsubaki_1_Hilt() },
     SwordDef { "Tsubaki Mk2", g_atlas.Tsubaki_2_Blade(), g_atlas.Tsubaki_2_Hilt() },
 };
 
@@ -368,8 +368,9 @@ static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImCol
 }
 void SwordColours::on_draw_ui() {
     ImGui::Checkbox("Custom Colours", &mod_enabled);
-    if (ImGui::CollapsingHeader("Weapon Colours")) {
+    if (mod_enabled) {
         ImGui::InputInt("Deathblow Timer", &setDeathblowTimer);
+        help_marker("How long the deathblow colour will stay applied when initiating a Deathblow");
         for (size_t i = 0; i < swords.size(); i++) {
             draw_sword_behavior(swords[i].name, swords[i].blade, swords[i].hilt, colours_picked_rgba[i], colours_picked_abgr[i]);
         }
@@ -380,18 +381,6 @@ void SwordColours::on_draw_ui() {
             i = (i + 1) % 4;
         }
         draw_sword_behavior("Deathblow", swords[i].blade, swords[i].hilt, colours_picked_rgba[4], colours_picked_abgr[4]);
-
-#if 0
-        for (int i = 0; i < 5; ++i) {
-            if (ImGui::ColorPicker4(colorPickerNames[i], coloursPickedFloat[i])) {
-                // Convert rgba floats into abgr int8s
-                coloursPicked[i][3] = (uint8_t)(coloursPickedFloat[i][0] * 255); // Red
-                coloursPicked[i][2] = (uint8_t)(coloursPickedFloat[i][1] * 255); // Green
-                coloursPicked[i][1] = (uint8_t)(coloursPickedFloat[i][2] * 255); // Blue
-                coloursPicked[i][0] = (uint8_t)(coloursPickedFloat[i][3] * 255); // Alpha
-            }
-        }
-#endif
     }
 }
 
@@ -403,7 +392,7 @@ struct ArgbDefaults {
 
 static constexpr std::array cfg_defaults = {
     ArgbDefaults { "colors_picked[0]", &colours_picked_abgr[0], /*0xFF2AFF12*/ 0x12FF2AFF},
-    ArgbDefaults { "colors_picked[1]", &colours_picked_abgr[1], /*0x40FF6464*/ 0x6464FF40},
+    ArgbDefaults { "colors_picked[1]", &colours_picked_abgr[1], /*0xFFFF6464*/ 0x6464FFFF},
     ArgbDefaults { "colors_picked[2]", &colours_picked_abgr[2], /*0xFFFF5500*/ 0x0055FFFF},
     ArgbDefaults { "colors_picked[3]", &colours_picked_abgr[3], /*0xFFFF5500*/ 0x0055FFFF},
     ArgbDefaults { "colors_picked[4]", &colours_picked_abgr[4], 0xFF0000FF},
@@ -412,7 +401,6 @@ static constexpr std::array cfg_defaults = {
 // during load
 void SwordColours::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("custom_colours").value_or(false);
-
     {
         size_t i = 0;
         for (const auto& def : cfg_defaults) {
@@ -421,41 +409,6 @@ void SwordColours::on_config_load(const utility::Config &cfg) {
             i = i+1;
         }
     }
-#if 0
-    // berry
-    coloursPicked[0][0] = cfg.get<uint8_t>("colours_picked [0][0]").value_or(0xFF); // A
-    coloursPicked[0][1] = cfg.get<uint8_t>("colours_picked [0][1]").value_or(0x2A); // B
-    coloursPicked[0][2] = cfg.get<uint8_t>("colours_picked [0][2]").value_or(0xFF); // G
-    coloursPicked[0][3] = cfg.get<uint8_t>("colours_picked [0][3]").value_or(0x12); // R
-    // mk3
-    coloursPicked[1][0] = cfg.get<uint8_t>("colours_picked [1][0]").value_or(0x40); // A
-    coloursPicked[1][1] = cfg.get<uint8_t>("colours_picked [1][1]").value_or(0xFF); // B
-    coloursPicked[1][2] = cfg.get<uint8_t>("colours_picked [1][2]").value_or(0x64); // G
-    coloursPicked[1][3] = cfg.get<uint8_t>("colours_picked [1][3]").value_or(0x64); // R
-    // mk1
-    coloursPicked[2][0] = cfg.get<uint8_t>("colours_picked [2][0]").value_or(0xFF); // A
-    coloursPicked[2][1] = cfg.get<uint8_t>("colours_picked [2][1]").value_or(0xFF); // B
-    coloursPicked[2][2] = cfg.get<uint8_t>("colours_picked [2][2]").value_or(0x55); // G
-    coloursPicked[2][3] = cfg.get<uint8_t>("colours_picked [2][3]").value_or(0x00); // R
-    // mk2
-    coloursPicked[3][0] = cfg.get<uint8_t>("colours_picked [3][0]").value_or(0xFF); // A
-    coloursPicked[3][1] = cfg.get<uint8_t>("colours_picked [3][1]").value_or(0xFF); // B
-    coloursPicked[3][2] = cfg.get<uint8_t>("colours_picked [3][2]").value_or(0x55); // G
-    coloursPicked[3][3] = cfg.get<uint8_t>("colours_picked [3][3]").value_or(0x00); // R
-    // special
-    coloursPicked[4][0] = cfg.get<uint8_t>("colours_picked [4][0]").value_or(0xFF); // A
-    coloursPicked[4][1] = cfg.get<uint8_t>("colours_picked [4][1]").value_or(0x00); // B
-    coloursPicked[4][2] = cfg.get<uint8_t>("colours_picked [4][2]").value_or(0x00); // G
-    coloursPicked[4][3] = cfg.get<uint8_t>("colours_picked [4][3]").value_or(0xFF); // R
-
-    for (int i = 0; i < 5; ++i) {
-        coloursPickedFloat[i][3] = (float)(coloursPicked[i][0] / 255.0f);
-        coloursPickedFloat[i][2] = (float)(coloursPicked[i][1] / 255.0f);
-        coloursPickedFloat[i][1] = (float)(coloursPicked[i][2] / 255.0f);
-        coloursPickedFloat[i][0] = (float)(coloursPicked[i][3] / 255.0f);
-    }
-#endif
-
     setDeathblowTimer = cfg.get<int>("setDeathblowTimer").value_or(50);
 }
 
@@ -465,14 +418,6 @@ void SwordColours::on_config_save(utility::Config &cfg) {
     for (const auto& def : cfg_defaults) {
         cfg.set<ImU32>(def.cfg_name, *def.col);
     }
-#if 0
-    for (int i = 0; i < 5; ++i) {
-        cfg.set<uint8_t>(fmt::format("colours_picked [{}][0]", i).c_str(), coloursPicked[i][0]); // a
-        cfg.set<uint8_t>(fmt::format("colours_picked [{}][1]", i).c_str(), coloursPicked[i][1]); // b
-        cfg.set<uint8_t>(fmt::format("colours_picked [{}][2]", i).c_str(), coloursPicked[i][2]); // g
-        cfg.set<uint8_t>(fmt::format("colours_picked [{}][3]", i).c_str(), coloursPicked[i][3]); // r
-    }
-#endif
     cfg.set<int>("setDeathblowTimer", setDeathblowTimer);
 }
 //void SwordColours::on_frame() {}
