@@ -53,6 +53,8 @@ set(MODS_SRC
     mods/ReprisalSwap.cpp 
     mods/DisableMouse.hpp 
     mods/DisableMouse.cpp 
+    mods/SoundTracker.hpp 
+    mods/SoundTracker.cpp 
 
 )
 
