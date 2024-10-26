@@ -101,7 +101,7 @@ static constexpr std::array<Stage, 10> boss_stages = {
     Stage {"STG0003", 69, "Henry"},
 };
 
-static constexpr std::array<Stage, 16> zako_stages = {
+static constexpr std::array<Stage, 17> zako_stages = {
     Stage {"STG083",   69, "Deathmetal Zako 1"},
     Stage {"STG080",   69, "Deathmetal Zako 2"},
     Stage {"STG041",   69, "Dr.Peace Zako 1"},
@@ -114,6 +114,7 @@ static constexpr std::array<Stage, 16> zako_stages = {
     Stage {"STG030",   69, "Destroyman Zako 2"},
     Stage {"STG0002",  69, "Holly Summers Zako"},
     Stage {"STG051",   69, "Letz Shake Zako"},
+    Stage{"STG1708",   69, "Harvey Zako"},
     Stage {"STG00014", 69, "Speedbuster Zako"},
     Stage {"STG021",   69, "Bad Girl Zako"},
     Stage {"STG100",   69, "Darkstar Bike Zako"},
@@ -151,7 +152,7 @@ static constexpr std::array<Stage, 14> wii_stages = {
 
 };
 
-static constexpr std::array<Stage, 19> misc_stages = {
+static constexpr std::array<Stage, 18> misc_stages = {
     Stage {"STG000",   69, "Santa Destroy Overworld"},
     Stage {"STG0004",  69, "Free Fight 3"},
     Stage {"STG00011", 69, "Motel Exterior"},
@@ -169,7 +170,6 @@ static constexpr std::array<Stage, 19> misc_stages = {
     Stage {"STG1702",  69, "Train"},
     Stage {"STG1703",  69, "Train Station (Boarding)"},
     Stage {"STG1707",  69, "Train Station Exit"},
-    Stage {"STG1708",  69, "Train Station Harvey (Boarding)"},
     Stage {"STG1709",  69, "Train Station Harvey (Exit)"},
 
 };
@@ -252,7 +252,7 @@ void StageWarp::on_draw_ui() {
             }
         }
 
-        if (ImGui::CollapsingHeader("City")) {
+        if (ImGui::CollapsingHeader("City Interiors")) {
             for (int i = 0; i < city_stages.size(); ++i) {
                 char buttonLabel[64];
                 snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", city_stages[i].name, city_stages[i].info);
