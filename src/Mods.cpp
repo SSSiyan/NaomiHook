@@ -31,6 +31,7 @@
 #include "mods/SwapIdleStances.hpp"
 #include "mods/ReprisalSwap.hpp"
 #include "mods/DisableMouse.hpp"
+#include "mods/SoundTracker.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -71,6 +72,7 @@ Mods::Mods()
     ADD_MOD(SwapIdleStances);
     ADD_MOD(ReprisalSwap);
     ADD_MOD(DisableMouse);
+    ADD_MOD(SoundTracker);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

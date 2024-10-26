@@ -1382,7 +1382,8 @@ struct stItem
 
 class WAnimF
 {
-  /* 0x0000 */ long Padding_20;
+public:
+  /* 0x0000 */ int Padding_0; // edited, was long
   /* 0x0004 */ float mCurValue;
   /* 0x0008 */ float mDstValue;
   /* 0x000c */ float mSrcValue;
