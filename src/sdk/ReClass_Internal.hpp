@@ -1999,6 +1999,132 @@ struct tagHRTASKCHECK
   /* 0x0004 */ unsigned int MagicNumber;
 }; /* size: 0x0008 */
 
+class rPrimBase
+{
+  /* 0x0000 */ int Padding_597; // edited, was long
+  union
+  {
+    struct /* bitfield */
+    {
+      /* 0x0004 */ unsigned int m_bInit : 1; /* bit position: 0 */
+      /* 0x0004 */ unsigned int m_bActive : 1; /* bit position: 1 */
+      /* 0x0004 */ unsigned int m_bVisible : 1; /* bit position: 2 */
+      /* 0x0004 */ unsigned int m_bPause : 1; /* bit position: 3 */
+      /* 0x0004 */ unsigned int m_bColorAnime : 1; /* bit position: 4 */
+      /* 0x0004 */ unsigned int m_bRot : 1; /* bit position: 5 */
+      /* 0x0004 */ unsigned int m_bBuillBoard : 1; /* bit position: 6 */
+      /* 0x0004 */ unsigned int m_bTransform : 1; /* bit position: 7 */
+      /* 0x0004 */ unsigned int m_bClip : 1; /* bit position: 8 */
+      /* 0x0004 */ unsigned int m_pad : 23; /* bit position: 9 */
+    }; /* bitfield */
+    /* 0x0004 */ unsigned int m_BitFlag;
+  }; /* size: 0x0004 */
+  /* 0x0008 */ class rPrimBase* m_pPrev;
+  /* 0x000c */ class rPrimBase* m_pNext;
+}; /* size: 0x0010 */
+
+class rPrimUnific
+{
+  /* 0x0000 */ int Padding_247; // edited, was long
+  /* 0x0004 */ class rPrimBase* m_pListTop;
+  /* 0x0008 */ class rPrimBase* m_pListEnd;
+  /* 0x000c */ enum GHMR_PROJECT m_ProjectMode;
+  /* 0x0010 */ enum GHMR_PRIMTYPE m_PrimType;
+  /* 0x0014 */ unsigned int m_PrimNum;
+  /* 0x0018 */ struct tagGHMR_TEX* m_pTex;
+  union
+  {
+    struct /* bitfield */
+    {
+      /* 0x001c */ unsigned int m_bInit : 1; /* bit position: 0 */
+      /* 0x001c */ unsigned int m_bVisible : 1; /* bit position: 1 */
+      /* 0x001c */ unsigned int m_bActive : 1; /* bit position: 2 */
+      /* 0x001c */ unsigned int m_bPause : 1; /* bit position: 3 */
+      /* 0x001c */ unsigned int m_bZTest : 1; /* bit position: 4 */
+      /* 0x001c */ unsigned int m_bZWrite : 1; /* bit position: 5 */
+      /* 0x001c */ unsigned int m_pad : 26; /* bit position: 6 */
+    }; /* bitfield */
+    /* 0x001c */ unsigned int m_BitFlag;
+  }; /* size: 0x0004 */
+}; /* size: 0x0020 */
+
+struct rColor
+{
+  /* 0x0000 */ float r;
+  /* 0x0004 */ float g;
+  /* 0x0008 */ float b;
+  /* 0x000c */ float a;
+}; /* size: 0x0010 */
+
+struct rST
+{
+  /* 0x0000 */ float s;
+  /* 0x0004 */ float t;
+}; /* size: 0x0008 */
+
+struct rColorAnime
+{
+  /* 0x0000 */ struct rColor Add;
+  /* 0x0010 */ struct rColor Target;
+  /* 0x0020 */ unsigned int Count;
+  /* 0x0024 */ unsigned int Frame;
+}; /* size: 0x0028 */
+
+class rQuad
+{
+  /* 0x0000 */ int Padding_173[4]; // edited, was long
+  /* 0x0010 */ struct Vec m_RootPosition;
+  /* 0x001c */ struct Vec m_LocalPosition[4];
+  /* 0x004c */ struct rColor m_Color;
+  /* 0x005c */ struct rST m_ST[4];
+  /* 0x007c */ struct rColorAnime m_ColorAnime;
+  /* 0x00a4 */ struct Vec m_RotAngle;
+}; /* size: 0x00b0 */
+
+class EffectCloseContest
+{
+public:
+  struct Common
+  {
+      /* 0x0000 */ unsigned char LoadState;
+      /* 0x0001 */ char Padding_1153[3];
+      /* 0x0004 */ struct tagGHMR_TEX Tex;
+  }; /* size: 0x002c */
+  /* 0x0000 */ char Padding_0[0x50]; // edited
+  union
+  {
+    struct /* bitfield */
+    {
+      /* 0x0050 */ unsigned char m_bState : 3; /* bit position: 0 */
+      /* 0x0050 */ unsigned char m_bInit : 1; /* bit position: 3 */
+      /* 0x0050 */ unsigned char m_bActive : 1; /* bit position: 4 */
+      /* 0x0050 */ unsigned char m_bVisible : 1; /* bit position: 5 */
+      /* 0x0050 */ unsigned char m_bPause : 1; /* bit position: 6 */
+      /* 0x0050 */ unsigned char m_bPad : 1; /* bit position: 7 */
+    }; /* bitfield */
+    struct
+    {
+      /* 0x0050 */ unsigned char m_Flag;
+      /* 0x0051 */ char Padding_1155[3];
+      /* 0x0054 */ class rPrimUnific m_QuadUni;
+      /* 0x0074 */ class rQuad m_Quad;
+      /* 0x0124 */ bool m_QuadScale;
+      /* 0x0125 */ char Padding_1156[3];
+      /* 0x0128 */ float m_SetCount;
+      /* 0x012c */ float m_SetRate;
+      /* 0x0130 */ float m_TimeCount;
+      /* 0x0134 */ int m_TimeFrame;
+      /* 0x0138 */ float m_TimeRate;
+    }; /* size: 0x00e6 */
+  }; /* size: 0x00e6 */
+  union                                                   
+  {                                                       
+    /* 0x0000 */ struct EffectCloseContest::Common Uni;   
+    /* 0x0000 */ char** ParamName /* zero-length array */;
+    /* 0x0000 */ int* Param /* zero-length array */;      
+  }; /* size: 0x002c */                                   
+}; /* size: 0x013c */
+
 struct stPcEffect
 {
   /* 0x0000 */ bool laserTrackFade;
@@ -2631,6 +2757,208 @@ public: // edited
   /* 0x302c */ bool mIkasamaTsuba;
                char pad_302d[3];
 }; /* size: 0x3030 */
+
+struct stBike
+{
+  /* 0x0000 */ class TGmf* pGmf;
+  /* 0x0004 */ class TGan** pGan;
+  /* 0x0008 */ enum enBikeProc process;
+  /* 0x000c */ enum enBikeFallProc fallProcess;
+  /* 0x0010 */ int motionNo;
+  /* 0x0014 */ int motionNumMax;
+  /* 0x0018 */ int motionBrendNum;
+  /* 0x001c */ int restoreMotionNo;
+  /* 0x0020 */ float spd;
+  /* 0x0024 */ float posYF;
+  /* 0x0028 */ float posYB;
+  /* 0x002c */ struct Vec pos;
+  /* 0x0038 */ struct Vec beforePos;
+  /* 0x0044 */ struct Vec beforePosF;
+  /* 0x0050 */ struct Vec beforePosB;
+  /* 0x005c */ struct Vec moveTempPos;
+  /* 0x0068 */ struct Vec moveTempPosF;
+  /* 0x0074 */ struct Vec moveTempPosB;
+  /* 0x0080 */ struct Vec rot;
+  /* 0x008c */ struct Vec oldRot;
+  /* 0x0098 */ float oldPosY;
+  /* 0x009c */ float oldPosYF;
+  /* 0x00a0 */ float oldPosYB;
+  /* 0x00a4 */ float adjustRotY;
+  /* 0x00a8 */ bool hitCheck;
+  /* 0x00a9 */ bool clash;
+  /* 0x00aa */ bool hitWall;
+  /* 0x00ab */ bool hitWall4Spin;
+  /* 0x00ac */ bool alwaysCheckHitColl;
+  /* 0x00ad */ char Padding_1117[3];
+  /* 0x00b0 */ int hp;
+  /* 0x00b4 */ int bgmHdl;
+  /* 0x00b8 */ int seHndlEngine;
+  /* 0x00bc */ int seHndlEngineNeutral;
+  /* 0x00c0 */ int seHndlBreak;
+  /* 0x00c4 */ int seHndlQBreak;
+  /* 0x00c8 */ int seHndlAir;
+  /* 0x00cc */ int seHndlNitro;
+  /* 0x00d0 */ float seVolEngine;
+  /* 0x00d4 */ float seVolEngineNeutral;
+  /* 0x00d8 */ float seVolBreak;
+  /* 0x00dc */ float seVolQBreak;
+  /* 0x00e0 */ float seVolAir;
+  /* 0x00e4 */ float seVolNitro;
+  /* 0x00e8 */ int command;
+  /* 0x00ec */ float acc;
+  /* 0x00f0 */ bool useNitro;
+  /* 0x00f1 */ char Padding_1118[3];
+  /* 0x00f4 */ float nitro;
+  /* 0x00f8 */ int nitroStopTick;
+  /* 0x00fc */ float turnVal;
+  /* 0x0100 */ float rimTurnVal;
+  /* 0x0104 */ float qBreakRotY;
+  /* 0x0108 */ enum enBikeSpinDir spinDir;
+  /* 0x010c */ float spinY;
+  /* 0x0110 */ bool wiry;
+  /* 0x0111 */ bool clashMySelf;
+  /* 0x0112 */ bool battle;
+  /* 0x0113 */ bool rideOnStart;
+  /* 0x0114 */ bool initHitJudge;
+  /* 0x0115 */ bool pushAcceling;
+  /* 0x0116 */ bool pushBreaking;
+  /* 0x0117 */ bool cantRideOn;
+  /* 0x0118 */ bool cantGetOff;
+  /* 0x0119 */ bool cantHandling;
+  /* 0x011a */ bool dispCantGetOff;
+  /* 0x011b */ bool crash2Stand;
+  /* 0x011c */ bool changeVolEngine;
+  /* 0x011d */ bool changeVolEngineIdle;
+  /* 0x011e */ char Padding_1119[2];
+  /* 0x0120 */ int startWait;
+  /* 0x0124 */ float rateTbl[3];
+  /* 0x0130 */ class WAnimF inputRelay;
+  /* 0x0150 */ class ghmGcCollObjCapsule hitColl;
+  /* 0x01b0 */ class ghmGcCollObjCapsule rideColl;
+  /* 0x0210 */ class ghmGcCollObjCapsule hitStgColl;
+  /* 0x0270 */ class ghmGcCollObjCapsule hitStgCollF;
+  /* 0x02d0 */ class ghmGcCollObjCapsule hitStgCollB;
+  /* 0x0330 */ class ghmGcCollObj* footHitResultObj;
+  /* 0x0334 */ class ghmGcCollObjHitResult* footHitResult;
+  /* 0x0338 */ class ghmGcCollObjHitResultObj footHitResultObj2;
+  /* 0x0384 */ class EventAreaCircle* pEvIcn;
+  /* 0x0388 */ struct tagGHMR_TEX texSpeed;
+  /* 0x03b0 */ class WAnimF cameraLength;
+  /* 0x03d0 */ class WAnimF cameraAngle;
+  /* 0x03f0 */ float rotZ;
+  /* 0x03f4 */ bool forceHitStage;
+  /* 0x03f5 */ bool crashFlag;
+  /* 0x03f6 */ char Padding_1120[2];
+  /* 0x03f8 */ int damageCount;
+  /* 0x03fc */ class WAnimF prj;
+  /* 0x041c */ class WAnimF modelAlpha;
+}; /* size: 0x043c */
+
+struct stBikeEffect
+{
+  /* 0x0000 */ class EffectDriftMark* pDriftMark;
+  /* 0x0004 */ class EffectKeepSmoke* pKeepSmoke;
+  /* 0x0008 */ int smoking;
+  /* 0x000c */ struct Vec posTireOldL;
+  /* 0x0018 */ struct Vec posTireOldR;
+  /* 0x0024 */ class EffectFixFire* pFixFire[4];
+}; /* size: 0x0034 */
+
+class hPath
+{
+  /* 0x0000 */ long Padding_1121;
+  /* 0x0004 */ char* mName;
+  /* 0x0008 */ int mPointNum;
+  /* 0x000c */ struct Vec* mPointList;
+  /* 0x0010 */ class hPath* mpPrev;
+  /* 0x0014 */ class hPath* mpNext;
+  /* 0x0018 */ class hPathManager* mpParentManager;
+  /* 0x001c */ unsigned short mObjCount;
+  /* 0x001e */ char Padding_1122[2];
+  /* 0x0020 */ int mEventNum;
+  /* 0x0024 */ class hPathEvent* mEventTop;
+  /* 0x0028 */ class hPathEvent* mEventEnd;
+  /* 0x002c */ float mPathLength;
+  union
+  {
+    struct /* bitfield */
+    {
+      /* 0x0030 */ unsigned short mbReady : 1; /* bit position: 0 */
+      /* 0x0030 */ unsigned short mbMemAlloc : 1; /* bit position: 1 */
+      /* 0x0030 */ unsigned short mbLock : 1; /* bit position: 2 */
+      /* 0x0030 */ unsigned short mbVisible : 1; /* bit position: 3 */
+      /* 0x0030 */ unsigned short mbCross : 1; /* bit position: 4 */
+      /* 0x0030 */ unsigned short mbCrossPoint : 1; /* bit position: 5 */
+      /* 0x0030 */ unsigned short mbLinear : 1; /* bit position: 6 */
+      /* 0x0030 */ unsigned short mbPad : 9; /* bit position: 7 */
+    }; /* bitfield */
+    /* 0x0030 */ unsigned short mFlag;
+  }; /* size: 0x0002 */
+}; /* size: 0x0034 */
+
+struct HLINK
+{
+  /* 0x0000 */ short pathindex;
+  /* 0x0002 */ short point;
+}; /* size: 0x0004 */
+
+class hPathWalk
+{
+  /* 0x0000 */ struct Vec mPos;
+  /* 0x000c */ struct Vec mDir;
+  /* 0x0018 */ struct Vec mPointNow;
+  /* 0x0024 */ struct Vec mPointNext;
+  /* 0x0030 */ int mPoint;
+  /* 0x0034 */ float mNowPoint;
+  /* 0x0038 */ float mIpPoint;
+  /* 0x003c */ float mSpeed;
+  /* 0x0040 */ float mMargin;
+  /* 0x0044 */ int mWaitTime;
+  /* 0x0048 */ int mWaitTimeCnt;
+  /* 0x004c */ class hPath* mWalkLine;
+  /* 0x0050 */ struct HLINK* mpNextLink;
+  /* 0x0054 */ class hPath mInterpolate;
+  /* 0x0088 */ struct HLINK mVirtualLink;
+  /* 0x008c */ class hPathScroll* mpScroll;
+  union
+  {
+    struct /* bitfield */
+    {
+      /* 0x0090 */ unsigned short mMode : 4; /* bit position: 0 */
+      /* 0x0090 */ unsigned short mState : 4; /* bit position: 4 */
+      /* 0x0090 */ unsigned short mbRev : 1; /* bit position: 8 */
+      /* 0x0090 */ unsigned short mbInterpolate : 1; /* bit position: 9 */
+      /* 0x0090 */ unsigned short mbVisible : 1; /* bit position: 10 */
+      /* 0x0090 */ unsigned short mbPathChange : 1; /* bit position: 11 */
+      /* 0x0090 */ unsigned short mbTail : 1; /* bit position: 12 */
+      /* 0x0090 */ unsigned short mbPad : 3; /* bit position: 13 */
+    }; /* bitfield */
+    /* 0x0090 */ unsigned short mFlag;
+  }; /* size: 0x0002 */
+}; /* size: 0x0094 */
+
+class mHRBike
+{
+public:
+  /* 0x0000 */ struct stBike mBike;
+  /* 0x043c */ struct stBikeEffect mBikeEffect;
+  /* 0x0470 */ bool mhitStage;
+  /* 0x0471 */ char Padding_1123[3];
+  /* 0x0474 */ float mWryRate;
+  /* 0x0478 */ float mBankRate;
+  /* 0x047c */ struct Vec mDamegeDir;
+  /* 0x0488 */ float mDamegeRotY;
+  /* 0x048c */ float mAccel;
+  /* 0x0490 */ struct Vec mPassRot;
+  /* 0x049c */ int mFireSEID;
+  /* 0x04a0 */ float mHitWait;
+  /* 0x04a4 */ bool mRotLock;
+  /* 0x04a5 */ bool mBkAtkOk;
+  /* 0x04a6 */ char Padding_1124[2];
+  /* 0x04a8 */ class hPathWalk mBkPathWalk;
+  /* 0x053c */ class hPath mVirtualBkPath;
+}; /* size: 0x0570 */
+
 
 struct stVecA
 {

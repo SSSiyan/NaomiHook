@@ -286,7 +286,6 @@ void DrawEnemyStats() {
 void PlayerTracker::on_draw_ui() {
     if (ImGui::CollapsingHeader("Useful", ImGuiTreeNodeFlags_DefaultOpen)) {
         if (mHRPc* player = nmh_sdk::get_mHRPc()) {
-            ImGui::Checkbox("Locked On Enemy Stats Popout", &imguiPopout);
             ImGui::Text("Player");
             ImGui::SliderFloat("Player HP ##Useful", &player->mCharaStatus.hp, 0.0f, player->mCharaStatus.maxHp);
             ImGui::InputInt("mInputMode ##Useful", (int*)&player->mInputMode, 1);
@@ -308,7 +307,6 @@ void PlayerTracker::on_draw_ui() {
             }
         }
     }
-
     if (ImGui::CollapsingHeader("HrGameTask")) {
         if (HrGameTask* hrGameTask = nmh_sdk::get_HrGameTask()) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrGameTask->Padding_972);
@@ -398,7 +396,6 @@ void PlayerTracker::on_draw_ui() {
             ImGui::Text("m_pSubTask: %p", hrGameTask->m_pSubTask);
         }
     }
-
     if (ImGui::CollapsingHeader("m_pHrMenuTask")) {
         if (HrMenuTask* HrMenuTask = nmh_sdk::get_HrMenuTask()) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&HrMenuTask->m_pHrMenuTask);
@@ -518,7 +515,6 @@ void PlayerTracker::on_draw_ui() {
             ImGui::Text("mouseDeltaTracker: %p", &hsMenu->mouseDeltaTracker);
         }
     }
-
     if (CBgCtrl* CBgCtrl = nmh_sdk::get_CBgCtrl()) {
         if (ImGui::CollapsingHeader("CBgCtrl")) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&CBgCtrl->Padding_1372);
@@ -927,7 +923,6 @@ void PlayerTracker::on_draw_ui() {
                 if (ImGui::Checkbox("Cam Axis Y Flag TMP", &m_CamAxisYFlagTMP)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 7, m_CamAxisYFlagTMP);
             }
         }
-
         if (mHRPc* player = nmh_sdk::get_mHRPc()) {
             if (ImGui::CollapsingHeader("mHRPc")) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->pad_00);
@@ -1184,7 +1179,6 @@ void PlayerTracker::on_draw_ui() {
                     ImGui::InputFloat4("LinkTexShadowGmfDrawArea", player->tagMain->LinkTexShadowGmfDrawArea);
                 }
             }
-
             if (ImGui::CollapsingHeader("mHRPc tagMain tagMOTION")) {
                 for (int i = 0; i < 4; ++i) {
                     if (&player->tagMain->Motion[i]) {
@@ -1546,6 +1540,257 @@ void PlayerTracker::on_draw_ui() {
                 ImGui::InputScalar("Bike Sight", ImGuiDataType_S8, &player->mPcSaveData.bikeSight);
                 ImGui::InputInt("Clear Count", (int*)&player->mPcSaveData.clearNum);
             }
+            if (ImGui::CollapsingHeader("mHRBike")) {
+                if (player->mpBike) {
+                    if (ImGui::CollapsingHeader("mBike")) {
+                        ImGui::Text("pGmf: %p", player->mpBike->mBike.pGmf);
+                        ImGui::Text("pGan: %p", player->mpBike->mBike.pGan);
+                        ImGui::Combo("process", (int*)&player->mpBike->mBike.process, "Process 0\0Process 1\0Process 2\0Process 3\0");
+                        ImGui::Combo("fallProcess", (int*)&player->mpBike->mBike.fallProcess, "Fall 0\0Fall 1\0Fall 2\0Fall 3\0");
+                        ImGui::InputInt("motionNo", &player->mpBike->mBike.motionNo);
+                        ImGui::InputInt("motionNumMax", &player->mpBike->mBike.motionNumMax);
+                        ImGui::InputInt("motionBrendNum", &player->mpBike->mBike.motionBrendNum);
+                        ImGui::InputInt("restoreMotionNo", &player->mpBike->mBike.restoreMotionNo);
+                        ImGui::InputFloat("spd", &player->mpBike->mBike.spd);
+                        ImGui::InputFloat("posYF", &player->mpBike->mBike.posYF);
+                        ImGui::InputFloat("posYB", &player->mpBike->mBike.posYB);
+                        ImGui::InputFloat3("pos", &player->mpBike->mBike.pos.x);
+                        ImGui::InputFloat3("beforePos", &player->mpBike->mBike.beforePos.x);
+                        ImGui::InputFloat3("beforePosF", &player->mpBike->mBike.beforePosF.x);
+                        ImGui::InputFloat3("beforePosB", &player->mpBike->mBike.beforePosB.x);
+                        ImGui::InputFloat3("moveTempPos", &player->mpBike->mBike.moveTempPos.x);
+                        ImGui::InputFloat3("moveTempPosF", &player->mpBike->mBike.moveTempPosF.x);
+                        ImGui::InputFloat3 ("moveTempPosB", &player->mpBike->mBike.moveTempPosB.x);
+                        ImGui::InputFloat("rot.x", &player->mpBike->mBike.rot.x);
+                        ImGui::InputFloat("rot.y", &player->mpBike->mBike.rot.y);
+                        ImGui::InputFloat("rot.z", &player->mpBike->mBike.rot.z);
+                        ImGui::InputFloat3("oldRot", &player->mpBike->mBike.oldRot.x);
+                        ImGui::InputFloat("oldPosY", &player->mpBike->mBike.oldPosY);
+                        ImGui::InputFloat("oldPosYF", &player->mpBike->mBike.oldPosYF);
+                        ImGui::InputFloat("oldPosYB", &player->mpBike->mBike.oldPosYB);
+                        ImGui::InputFloat("adjustRotY", &player->mpBike->mBike.adjustRotY);
+                        ImGui::Checkbox("hitCheck", &player->mpBike->mBike.hitCheck);
+                        ImGui::Checkbox("clash", &player->mpBike->mBike.clash);
+                        ImGui::Checkbox("hitWall", &player->mpBike->mBike.hitWall);
+                        ImGui::Checkbox("hitWall4Spin", &player->mpBike->mBike.hitWall4Spin);
+                        ImGui::Checkbox("alwaysCheckHitColl", &player->mpBike->mBike.alwaysCheckHitColl);
+                        ImGui::InputInt("hp", &player->mpBike->mBike.hp);
+                        ImGui::InputInt("bgmHdl", &player->mpBike->mBike.bgmHdl);
+                        ImGui::InputInt("seHndlEngine", &player->mpBike->mBike.seHndlEngine);
+                        ImGui::InputInt("seHndlEngineNeutral", &player->mpBike->mBike.seHndlEngineNeutral);
+                        ImGui::InputInt("seHndlBreak", &player->mpBike->mBike.seHndlBreak);
+                        ImGui::InputInt("seHndlQBreak", &player->mpBike->mBike.seHndlQBreak);
+                        ImGui::InputInt("seHndlAir", &player->mpBike->mBike.seHndlAir);
+                        ImGui::InputInt("seHndlNitro", &player->mpBike->mBike.seHndlNitro);
+                        ImGui::InputFloat("seVolEngine", &player->mpBike->mBike.seVolEngine);
+                        ImGui::InputFloat("seVolEngineNeutral", &player->mpBike->mBike.seVolEngineNeutral);
+                        ImGui::InputFloat("seVolBreak", &player->mpBike->mBike.seVolBreak);
+                        ImGui::InputFloat("seVolQBreak", &player->mpBike->mBike.seVolQBreak);
+                        ImGui::InputFloat("seVolAir", &player->mpBike->mBike.seVolAir);
+                        ImGui::InputFloat("seVolNitro", &player->mpBike->mBike.seVolNitro);
+                        ImGui::InputInt("command", &player->mpBike->mBike.command);
+                        ImGui::InputFloat("acc", &player->mpBike->mBike.acc);
+                        ImGui::Checkbox("useNitro", &player->mpBike->mBike.useNitro);
+                        ImGui::InputFloat("nitro", &player->mpBike->mBike.nitro);
+                        ImGui::InputInt("nitroStopTick", &player->mpBike->mBike.nitroStopTick);
+                        ImGui::InputFloat("turnVal", &player->mpBike->mBike.turnVal);
+                        ImGui::InputFloat("rimTurnVal", &player->mpBike->mBike.rimTurnVal);
+                        ImGui::InputFloat("qBreakRotY", &player->mpBike->mBike.qBreakRotY);
+                        ImGui::Combo("spinDir", (int*)&player->mpBike->mBike.spinDir, "Spin 0\0Spin 1\0Spin 2\0Spin 3\0");
+                        ImGui::InputFloat("spinY", &player->mpBike->mBike.spinY);
+                        ImGui::Checkbox("wiry", &player->mpBike->mBike.wiry);
+                        ImGui::Checkbox("clashMySelf", &player->mpBike->mBike.clashMySelf);
+                        ImGui::Checkbox("battle", &player->mpBike->mBike.battle);
+                        ImGui::Checkbox("rideOnStart", &player->mpBike->mBike.rideOnStart);
+                        ImGui::Checkbox("initHitJudge", &player->mpBike->mBike.initHitJudge);
+                        ImGui::Checkbox("pushAcceling", &player->mpBike->mBike.pushAcceling);
+                        ImGui::Checkbox("pushBreaking", &player->mpBike->mBike.pushBreaking);
+                        ImGui::Checkbox("cantRideOn", &player->mpBike->mBike.cantRideOn);
+                        ImGui::Checkbox("cantGetOff", &player->mpBike->mBike.cantGetOff);
+                        ImGui::Checkbox("cantHandling", &player->mpBike->mBike.cantHandling);
+                        ImGui::Checkbox("dispCantGetOff", &player->mpBike->mBike.dispCantGetOff);
+                        ImGui::Checkbox("crash2Stand", &player->mpBike->mBike.crash2Stand);
+                        ImGui::Checkbox("changeVolEngine", &player->mpBike->mBike.changeVolEngine);
+                        ImGui::Checkbox("changeVolEngineIdle", &player->mpBike->mBike.changeVolEngineIdle);
+                        ImGui::InputInt("startWait", &player->mpBike->mBike.startWait);
+                        for (int i = 0; i < 3; ++i) {
+                            ImGui::InputFloat(fmt::format("rateTbl[{}]", i).c_str(), &player->mpBike->mBike.rateTbl[i]);
+                        }
+                        ImGui::Text("inputRelay: %p", player->mpBike->mBike.inputRelay);
+                        ImGui::Text("hitColl: %p", player->mpBike->mBike.hitColl);
+                        ImGui::Text("rideColl: %p", player->mpBike->mBike.rideColl);
+                        ImGui::Text("hitStgColl: %p", player->mpBike->mBike.hitStgColl);
+                        ImGui::Text("hitStgCollF: %p", player->mpBike->mBike.hitStgCollF);
+                        ImGui::Text("hitStgCollB: %p", player->mpBike->mBike.hitStgCollB);
+                        ImGui::Text("footHitResultObj: %p", player->mpBike->mBike.footHitResultObj);
+                        ImGui::Text("footHitResult: %p", player->mpBike->mBike.footHitResult);
+                        ImGui::Text("footHitResultObj2: %p", player->mpBike->mBike.footHitResultObj2);
+                        ImGui::Text("pEvIcn: %p", player->mpBike->mBike.pEvIcn);
+                        ImGui::Text("texSpeed: %p", player->mpBike->mBike.texSpeed);
+                        ImGui::Text("cameraLength: %p", player->mpBike->mBike.cameraLength);
+                        ImGui::Text("cameraAngle: %p", player->mpBike->mBike.cameraAngle);
+                        ImGui::InputFloat("rotZ", &player->mpBike->mBike.rotZ);
+                        ImGui::Checkbox("forceHitStage", &player->mpBike->mBike.forceHitStage);
+                        ImGui::Checkbox("crashFlag", &player->mpBike->mBike.crashFlag);
+                        ImGui::InputInt("damageCount", &player->mpBike->mBike.damageCount);
+                        ImGui::Text("prj: %p", player->mpBike->mBike.prj);
+                        ImGui::Text("modelAlpha: %p", player->mpBike->mBike.modelAlpha);
+                    }
+                    if (ImGui::CollapsingHeader("mBikeEffect")) {
+                        ImGui::Text("Contents of stBikeEffect struct");
+                    }
+                    ImGui::Checkbox("mhitStage", &player->mpBike->mhitStage);
+                    ImGui::InputFloat("mWryRate", &player->mpBike->mWryRate);
+                    ImGui::InputFloat("mBankRate", &player->mpBike->mBankRate);
+                    if (ImGui::CollapsingHeader("mDamegeDir")) {
+                        ImGui::InputFloat("mDamegeDir.x", &player->mpBike->mDamegeDir.x);
+                        ImGui::InputFloat("mDamegeDir.y", &player->mpBike->mDamegeDir.y);
+                        ImGui::InputFloat("mDamegeDir.z", &player->mpBike->mDamegeDir.z);
+                    }
+                    ImGui::InputFloat("mDamegeRotY", &player->mpBike->mDamegeRotY);
+                    ImGui::InputFloat("mAccel", &player->mpBike->mAccel);
+                    if (ImGui::CollapsingHeader("mPassRot")) {
+                        ImGui::InputFloat("mPassRot.x", &player->mpBike->mPassRot.x);
+                        ImGui::InputFloat("mPassRot.y", &player->mpBike->mPassRot.y);
+                        ImGui::InputFloat("mPassRot.z", &player->mpBike->mPassRot.z);
+                    }
+                    ImGui::InputInt("mFireSEID", &player->mpBike->mFireSEID);
+                    ImGui::InputFloat("mHitWait", &player->mpBike->mHitWait);
+                    ImGui::Checkbox("mRotLock", &player->mpBike->mRotLock);
+                    ImGui::Checkbox("mBkAtkOk", &player->mpBike->mBkAtkOk);
+                    if (ImGui::CollapsingHeader("mBkPathWalk")) {
+                        ImGui::Text("Contents of hPathWalk class");
+                    }
+                    if (ImGui::CollapsingHeader("mVirtualBkPath")) {
+                        ImGui::Text("Contents of hPath class");
+                    }
+                }
+            }
+
+            if (ImGui::CollapsingHeader("hHRPc mPcEffect")) {
+                ImGui::Checkbox("Laser Track Fade", &player->mPcEffect.laserTrackFade);
+                ImGui::InputFloat("Laser Depth", &player->mPcEffect.laserDepth);
+                ImGui::InputInt("Laser Wait Tick", &player->mPcEffect.laserWaitTick);
+                if (ImGui::CollapsingHeader("EffectCloseContest")) {
+                    if (player->mPcEffect.pCloseContest) {
+                        bool state = getBit(player->mPcEffect.pCloseContest->m_Flag, 0);
+                        if (ImGui::Checkbox("State", &state)) setBit(player->mPcEffect.pCloseContest->m_Flag, 0, state);
+                        bool init = getBit(player->mPcEffect.pCloseContest->m_Flag, 3);
+                        if (ImGui::Checkbox("Initialized", &init)) setBit(player->mPcEffect.pCloseContest->m_Flag, 3, init);
+                        bool active = getBit(player->mPcEffect.pCloseContest->m_Flag, 4);
+                        if (ImGui::Checkbox("Active", &active)) setBit(player->mPcEffect.pCloseContest->m_Flag, 4, active);
+                        bool visible = getBit(player->mPcEffect.pCloseContest->m_Flag, 5);
+                        if (ImGui::Checkbox("Visible", &visible)) setBit(player->mPcEffect.pCloseContest->m_Flag, 5, visible);
+                        bool pause = getBit(player->mPcEffect.pCloseContest->m_Flag, 6);
+                        if (ImGui::Checkbox("Paused", &pause)) setBit(player->mPcEffect.pCloseContest->m_Flag, 6, pause);
+                        if (ImGui::CollapsingHeader("Common")) {
+                            ImGui::InputInt("Load State", (int*)(&player->mPcEffect.pCloseContest->Uni.LoadState));
+                            ImGui::Text("Texture: SoonTM");
+                        }
+                        ImGui::Checkbox("Quad Scale", &player->mPcEffect.pCloseContest->m_QuadScale);
+                        ImGui::InputFloat("Set Count", &player->mPcEffect.pCloseContest->m_SetCount);
+                        ImGui::InputFloat("Set Rate", &player->mPcEffect.pCloseContest->m_SetRate);
+                        ImGui::InputFloat("Time Count", &player->mPcEffect.pCloseContest->m_TimeCount);
+                        ImGui::InputInt("Time Frame", &player->mPcEffect.pCloseContest->m_TimeFrame);
+                        ImGui::InputFloat("Time Rate", &player->mPcEffect.pCloseContest->m_TimeRate);
+                        ImGui::Text("Quad Unified Class: SoonTM");
+                        ImGui::Text("Quad Class: SoonTM");
+                    }
+                }
+                ImGui::Text("Speed Blur Effect: SoonTM");
+                ImGui::InputInt("Speed Blur Tick", &player->mPcEffect.speedBlurTick);
+                ImGui::InputFloat("Speed Blur Alpha", &player->mPcEffect.speedBlurAlpha);
+                ImGui::InputFloat("Speed Blur Scale", &player->mPcEffect.speedBlurScale);
+                ImGui::InputInt("Speed Blur Repeat", &player->mPcEffect.speedBlurRepeat);
+                if (ImGui::CollapsingHeader("Speed Blur Repeat Number")) {
+                    ImGui::Indent();
+                    ImGui::InputFloat("Current Value ## Speed Blur Repeat Number", &player->mPcEffect.speedBlurRepeatNum.mCurValue);
+                    ImGui::InputFloat("Destination Value ## Speed Blur Repeat Number", &player->mPcEffect.speedBlurRepeatNum.mDstValue);
+                    ImGui::InputFloat("Source Value ## Speed Blur Repeat Number", &player->mPcEffect.speedBlurRepeatNum.mSrcValue);
+                    ImGui::InputInt("Count ## Speed Blur Repeat Number", (int*)(&player->mPcEffect.speedBlurRepeatNum.mCount));
+                    ImGui::InputInt("Time ## Speed Blur Repeat Number", (int*)(&player->mPcEffect.speedBlurRepeatNum.mTime));
+                    ImGui::InputInt("Interpolation Type ## Speed Blur Repeat Number", &player->mPcEffect.speedBlurRepeatNum.mIpType);
+                    ImGui::InputFloat("Motion Rate ## Speed Blur Repeat Number", &player->mPcEffect.speedBlurRepeatNum.mMotionRate);
+                    ImGui::Unindent();
+                }
+                ImGui::InputFloat3("Position Hit Slash", (float*)(&player->mPcEffect.posHitSlash));
+                ImGui::InputFloat3("Position Hit Slash Old", (float*)(&player->mPcEffect.posHitSlashOld));
+                ImGui::Text("Throw Sabel Effect: SoonTM");
+                ImGui::InputInt("Light Reflect Tick", &player->mPcEffect.lightReflecteTick);
+                ImGui::Text("Concentration Line Effect: SoonTM");
+                if (ImGui::CollapsingHeader("Dark Value")) {
+                    ImGui::Indent();
+                    ImGui::InputFloat("Current ## Dark Value", &player->mPcEffect.darkValue.mCurValue);
+                    ImGui::InputFloat("Destination ## Dark Value", &player->mPcEffect.darkValue.mDstValue);
+                    ImGui::InputFloat("Source ## Dark Value", &player->mPcEffect.darkValue.mSrcValue);
+                    ImGui::InputInt("Count ## Dark Value", (int*)(&player->mPcEffect.darkValue.mCount));
+                    ImGui::InputInt("Time ## Dark Value", (int*)(&player->mPcEffect.darkValue.mTime));
+                    ImGui::InputInt("Interpolation Type ## Dark Value", &player->mPcEffect.darkValue.mIpType);
+                    ImGui::InputFloat("Motion Rate ## Dark Value", &player->mPcEffect.darkValue.mMotionRate);
+                    ImGui::Unindent();
+                }
+                for (int i = 0; i < 3; i++) {
+                    ImGui::Text("Shinku Wave Effect %d: SoonTM", i);
+                }
+                for (int i = 0; i < 3; i++) {
+                    ImGui::Text("Shinku Wave Task Check %d: SoonTM", i);
+                }
+                ImGui::Text("Model Fire Effect: SoonTM");
+                if (ImGui::CollapsingHeader("Model Fire Value")) {
+                    ImGui::Indent();
+                    ImGui::InputFloat("Current ## Model Fire", &player->mPcEffect.modelFireValue.mCurValue);
+                    ImGui::InputFloat("Destination ## Model Fire", &player->mPcEffect.modelFireValue.mDstValue);
+                    ImGui::InputFloat("Source ## Model Fire", &player->mPcEffect.modelFireValue.mSrcValue);
+                    ImGui::InputInt("Count ## Model Fire", (int*)(&player->mPcEffect.modelFireValue.mCount));
+                    ImGui::InputInt("Time ## Model Fire", (int*)(&player->mPcEffect.modelFireValue.mTime));
+                    ImGui::InputInt("Interpolation Type ## Model Fire", &player->mPcEffect.modelFireValue.mIpType);
+                    ImGui::InputFloat("Motion Rate ## Model Fire", &player->mPcEffect.modelFireValue.mMotionRate);
+                    ImGui::Unindent();
+                }
+                ImGui::InputInt("Bomb Tick", &player->mPcEffect.bombTick);
+                ImGui::Text("Bomb Effect: SoonTM");
+                ImGui::Text("Bomb Task Check: SoonTM");
+                ImGui::Text("Charge Effect: SoonTM");
+                for (int i = 0; i < 2; i++) {
+                    ImGui::Text("Laser LR Effect %d: SoonTM", i);
+                }
+                for (int i = 0; i < 5; i++) {
+                    ImGui::Text("Laser Effect %d: SoonTM", i);
+                }
+                ImGui::Text("Dry Ice Effect: SoonTM");
+                ImGui::Text("Metal Elect Effect: SoonTM");
+                ImGui::Text("Warp Locus Effect: SoonTM");
+                ImGui::Text("Shinku Cursor Texture: SoonTM");
+
+                if (ImGui::CollapsingHeader("Hit Attack Projection")) {
+                    ImGui::Indent();
+                    ImGui::InputFloat("Current Value ## Hit Attack Projection", &player->mPcEffect.hitAttackProjection.mCurValue);
+                    ImGui::InputFloat("Destination Value ## Hit Attack Projection", &player->mPcEffect.hitAttackProjection.mDstValue);
+                    ImGui::InputFloat("Source Value ## Hit Attack Projection", &player->mPcEffect.hitAttackProjection.mSrcValue);
+                    ImGui::InputInt("Count ## Hit Attack Projection", (int*)(&player->mPcEffect.hitAttackProjection.mCount));
+                    ImGui::InputInt("Time ## Hit Attack Projection", (int*)(&player->mPcEffect.hitAttackProjection.mTime));
+                    ImGui::InputInt("Interpolation Type ## Hit Attack Projection", &player->mPcEffect.hitAttackProjection.mIpType);
+                    ImGui::InputFloat("Motion Rate ## Hit Attack Projection", &player->mPcEffect.hitAttackProjection.mMotionRate);
+                    ImGui::Unindent();
+                }
+                ImGui::Text("Monokuro Effect: SoonTM");
+                ImGui::Text("Slot Noise Effect: SoonTM");
+                if (ImGui::CollapsingHeader("Fast Action Blur")) {
+                    ImGui::Indent();
+                    ImGui::InputFloat("Current ## Fast Action Blur", &player->mPcEffect.fastActionBlur.mCurValue);
+                    ImGui::InputFloat("Destination ## Fast Action Blur", &player->mPcEffect.fastActionBlur.mDstValue);
+                    ImGui::InputFloat("Source ## Fast Action Blur", &player->mPcEffect.fastActionBlur.mSrcValue);
+                    ImGui::InputInt("Count ## Fast Action Blur", (int*)(&player->mPcEffect.fastActionBlur.mCount));
+                    ImGui::InputInt("Time ## Fast Action Blur", (int*)(&player->mPcEffect.fastActionBlur.mTime));
+                    ImGui::InputInt("Interpolation Type ## Fast Action Blur", &player->mPcEffect.fastActionBlur.mIpType);
+                    ImGui::InputFloat("Motion Rate ## Fast Action Blur", &player->mPcEffect.fastActionBlur.mMotionRate);
+                    ImGui::Unindent();
+                }
+                ImGui::Text("Lock On Effect 2: SoonTM");
+            }
+            ImGui::Separator();
+            ImGui::Text("Enemy");
+            ImGui::Checkbox("Enemy Stats Popout", &imguiPopout);
             if (!imguiPopout)
                 DrawEnemyStats();
         }
@@ -1555,7 +1800,7 @@ void PlayerTracker::on_draw_ui() {
 void PlayerTracker::custom_imgui_window() {
     static bool testbool = false;
     if (imguiPopout) {
-        ImGui::Begin("Locked On Enemy Stats", &imguiPopout);
+        ImGui::Begin("Enemy Stats", &imguiPopout);
         DrawEnemyStats();
         ImGui::End();
     }
