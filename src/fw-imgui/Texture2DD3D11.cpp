@@ -93,3 +93,9 @@ bool Texture2DD3D11::Commit()
 
 	return true;
 }
+
+void Texture2DD3D11::Decommit()
+{
+    m_SRV->Release();
+    m_SRV = nullptr;
+}

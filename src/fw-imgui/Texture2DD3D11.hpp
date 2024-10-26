@@ -83,8 +83,9 @@ public:
 	inline operator bool() { return IsValid(); }
 	inline operator bool() const { return IsValid(); }
 
-private:
+public:
 	bool Commit();
+    void Decommit();
 
 private:
 	unsigned char* m_ImageData{ nullptr };

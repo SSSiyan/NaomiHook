@@ -315,6 +315,7 @@ public:
     virtual void on_frame() {};
     virtual void on_draw_ui() {};
 	virtual void on_draw_debug_ui() {};
+    virtual void on_d3d_reset() {};
 
     virtual ModCategory get_category() { return ModCategory::NONE; };
 

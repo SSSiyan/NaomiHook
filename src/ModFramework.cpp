@@ -1,4 +1,8 @@
+#ifndef NDEBUG
+#include <spdlog/sinks/stdout_color_sinks.h>
+#else
 #include <spdlog/sinks/basic_file_sink.h>
+#endif
 
 #include <imgui/imgui.h>
 
@@ -22,9 +26,15 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 std::unique_ptr<ModFramework> g_framework{};
 
+//static glm::vec2 g_window_dims{};
+
 ModFramework::ModFramework()
     : m_game_module{ GetModuleHandle(0) },
+#ifndef NDEBUG
+    m_logger{ spdlog::stdout_color_mt("ModFramework") }
+#else
     m_logger{ spdlog::basic_logger_mt("ModFramework", LOG_FILENAME, true) }
+#endif // !NDEBUG
 {
     spdlog::set_default_logger(m_logger);
     spdlog::flush_on(spdlog::level::info);
@@ -39,6 +49,8 @@ ModFramework::ModFramework()
     m_d3d11_hook->on_resize_buffers([this](D3D11Hook& hook) { on_reset(); });
 
     m_valid = m_d3d11_hook->hook();
+
+    m_our_imgui_ctx = std::make_unique<OurImGuiContext>();
 
     if (m_valid) {
         spdlog::info("Hooked D3D11");
@@ -87,16 +99,31 @@ void ModFramework::on_frame() {
 
 void ModFramework::on_reset() {
     spdlog::info("Reset!");
+    if(!m_initialized) { return; }
+
+#if 1
+    ImGui_ImplDX11_InvalidateDeviceObjects();
 
     // Crashes if we don't release it at this point.
-    cleanup_render_target();
-    m_initialized = false;
+    create_render_target();
+    ImGui_ImplDX11_CreateDeviceObjects();
+#endif
+    m_mods->on_d3d11_reset();
 }
+
 
 bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_param) {
     if (!m_initialized) {
         return true;
     }
+
+#if 0
+    if (message == WM_SIZE) {
+        g_window_dims.x = (float)LOWORD(l_param);
+        g_window_dims.y = (float)HIWORD(l_param);
+        spdlog::info("WM_SIZE: {}, {}", g_window_dims.x, g_window_dims.y);
+    }
+#endif
 
     // TODO(): hotkey crap from dmc4hook?
     if (message == WM_KEYDOWN && w_param == VK_DELETE) {
@@ -259,7 +286,6 @@ bool ModFramework::initialize() {
 
     gui::dark_theme();
 
-    m_our_imgui_ctx = std::make_unique<OurImGuiContext>();
 
     auto& io = ImGui::GetIO();
 

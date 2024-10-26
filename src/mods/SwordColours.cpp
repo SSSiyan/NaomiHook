@@ -240,6 +240,21 @@ naked void detour2() { // set deathblow timer
 }
  // clang-format on
 
+bool load_texture() {
+
+    auto [data, size] = utility::decompress_file_from_memory_with_size(swords_ta_compressed_data, swords_ta_compressed_size);
+    if (!data) {
+        return false;
+    }
+
+    g_sword_texture_atlas = std::make_unique<Texture2DD3D11>((const unsigned char*)data, size, g_framework->d3d11()->get_device());
+    if (!g_sword_texture_atlas->IsValid()) {
+        return false;
+    }
+
+    return true;
+}
+
 std::optional<std::string> SwordColours::on_initialize() {
     SwordColours::gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584; 
     if (!install_hook_offset(0x4C9AED, m_hook1, &detour1, &SwordColours::jmp_ret1, 6)) {
@@ -251,15 +266,8 @@ std::optional<std::string> SwordColours::on_initialize() {
         spdlog::error("Failed to init SprintSettings mod\n");
         return "Failed to init SprintSettings mod";
     }
-    auto [data, size] = utility::decompress_file_from_memory_with_size(swords_ta_compressed_data, swords_ta_compressed_size);
-    if (!data) {
-        return "Failed to load sword texture atlas";
-    }
 
-    g_sword_texture_atlas = std::make_unique<Texture2DD3D11>((const unsigned char*)data, size, g_framework->d3d11()->get_device());
-    if (!g_sword_texture_atlas->IsValid()) {
-        return "Failed to create sword texture atlas";
-    }
+    load_texture();
 
     return Mod::on_initialize();
 }
@@ -382,6 +390,12 @@ void SwordColours::on_draw_ui() {
         }
         draw_sword_behavior("Deathblow", swords[i].blade, swords[i].hilt, colours_picked_rgba[4], colours_picked_abgr[4]);
     }
+}
+
+void SwordColours::on_d3d_reset() {
+    // explicitly call the destructor first
+    g_sword_texture_atlas.reset();
+    load_texture();
 }
 
 struct ArgbDefaults {

@@ -14,6 +14,7 @@ public:
     void on_draw_custom_imgui_window();
     void on_draw_debug_ui() const;
     void on_config_save();
+    void on_d3d11_reset();
 
     std::vector<std::unique_ptr<Mod>> m_mods;
 

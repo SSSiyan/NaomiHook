@@ -46,12 +46,13 @@ static DWORD WINAPI startup_thread([[maybe_unused]] LPVOID parameter) {
 
     return ERROR_SUCCESS;
 }
+
 HMODULE g_nmhfix_handle {NULL};
 
 BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
     if (reason == DLL_PROCESS_ATTACH) {
 #ifndef NDEBUG
-        MessageBox(NULL, "Debug attach opportunity", "DMC4", MB_ICONINFORMATION);
+        MessageBox(NULL, "Debug attach opportunity", "NMH1", MB_ICONINFORMATION);
 #endif
         // Load NMHFix if it's not already
         HMODULE nmhfix_handle = GetModuleHandleA("NMHFix");
@@ -61,6 +62,7 @@ BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
         CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)startup_thread, nullptr, 0, nullptr);
     }
     if (reason == DLL_PROCESS_DETACH) {
+        FreeLibrary(g_nmhfix_handle);
     }
     return TRUE;
 }

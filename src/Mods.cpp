@@ -98,6 +98,8 @@ std::optional<std::string> Mods::on_initialize() const {
     return std::nullopt;
 }
 
+
+
 void Mods::on_frame() const {
     for (auto& mod : m_mods) {
         mod->on_frame();
@@ -146,6 +148,13 @@ void Mods::on_config_save() {
     }
 
     spdlog::info("Saved config");
+}
+
+void Mods::on_d3d11_reset()
+{
+    for (auto& mod : m_mods) {
+        mod->on_d3d_reset();
+    }
 }
 
 
