@@ -49,6 +49,8 @@ set(MODS_SRC
     mods/RollRotation.cpp 
     mods/SwapIdleStances.hpp 
     mods/SwapIdleStances.cpp 
+    mods/ReprisalSwap.hpp 
+    mods/ReprisalSwap.cpp 
 
 )
 
