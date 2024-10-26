@@ -30,6 +30,7 @@
 #include "mods/RollRotation.hpp"
 #include "mods/SwapIdleStances.hpp"
 #include "mods/ReprisalSwap.hpp"
+#include "mods/DisableMouse.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -69,6 +70,7 @@ Mods::Mods()
     ADD_MOD(RollRotation);
     ADD_MOD(SwapIdleStances);
     ADD_MOD(ReprisalSwap);
+    ADD_MOD(DisableMouse);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

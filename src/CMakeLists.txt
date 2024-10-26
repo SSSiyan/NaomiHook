@@ -51,6 +51,8 @@ set(MODS_SRC
     mods/SwapIdleStances.cpp 
     mods/ReprisalSwap.hpp 
     mods/ReprisalSwap.cpp 
+    mods/DisableMouse.hpp 
+    mods/DisableMouse.cpp 
 
 )
 
