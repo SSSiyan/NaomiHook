@@ -10,7 +10,7 @@ public:
   static uintptr_t gpBattle;
   static uintptr_t mSetVisible;
 
-  ModCategory get_category() { return ModCategory::GAMEPLAY; };
+  ModCategory get_category() { return ModCategory::STAGE; };
 
   // mod name string for config
   std::string get_mod_name() const override { return "ArcadeMode"; }
@@ -21,8 +21,8 @@ public:
   std::optional<std::string> on_initialize() override;
 
   // Override this things if you want to store values in the config file
-  //void on_config_load(const utility::Config& cfg) override;
-  //void on_config_save(utility::Config& cfg) override;
+  void on_config_load(const utility::Config& cfg) override;
+  void on_config_save(utility::Config& cfg) override;
 
   // on_frame() is called every frame regardless whether the gui shows up.
   //void on_frame() override;

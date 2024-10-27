@@ -9,36 +9,36 @@ uintptr_t ArcadeMode::mSetVisible = NULL;
 
 static constexpr std::array<const char*, 28> arcadeMode = {
     "STG500",   // Motel
-    "STG083",   // "Deathmetal Zako 1"},
-    "STG080",   // "Deathmetal Zako 2"},
-    "STG081",   // "Deathmetal"},
-    "STG041",   // "Dr.Peace Zako 1"},
-    "STG0412",  // "Dr.Peace Zako 2"},
-    "STG0411",  // "Dr.Peace Zako 3"},
-    "STG042",   // "Dr.Peace"},
-    "STG010",   // "Shinobu Zako 1"},
-    "STG011",   // "Shinobu Zako 2"},
-    "STG012",   // "Shinobu Zako 3"},
-    "STG013",   // "Shinobu"},
-    "STG170",   // "Destroyman Zako 1"},
-    "STG030",   // "Destroyman Zako 2"},
-    "STG031",   // "Destroyman"},
-    "STG0002",  // "Holly Summers Zako"},
-    "STG0001",  // "Holly Summers"},
-    "STG051",   // "Letz Shake Zako"},
-    "STG1708",  // "Harvey Zako"},
-    "STG090",   // "Harvey"},
-    "STG00014", // "Speedbuster Zako"},
-    "STG060",   // "SpeedBuster"},
-    "STG021",   // "Bad Girl Zako"},
-    "STG020",   // "Bad Girl"},
-    "STG101",   // "Darkstar Zako"},
-    "STG103",   // "Darkstar/Jeane"},
-    "STG0003",  // "Henry"},
+    "STG083",   // Deathmetal Zako 1
+    "STG080",   // Deathmetal Zako 2
+    "STG081",   // Deathmetal
+    "STG041",   // Dr.Peace Zako 1
+    "STG0412",  // Dr.Peace Zako 2
+    "STG0411",  // Dr.Peace Zako 3
+    "STG042",   // Dr.Peace
+    "STG010",   // Shinobu Zako 1
+    "STG011",   // Shinobu Zako 2
+    "STG012",   // Shinobu Zako 3
+    "STG013",   // Shinobu
+    "STG170",   // Destroyman Zako 1
+    "STG030",   // Destroyman Zako 2
+    "STG031",   // Destroyman
+    "STG0002",  // Holly Summers Zako
+    "STG0001",  // Holly Summers
+    "STG051",   // Letz Shake Zako
+    "STG1708",  // Harvey Zako
+    "STG090",   // Harvey
+    "STG00014", // Speedbuster Zako
+    "STG060",   // SpeedBuster
+    "STG021",   // Bad Girl Zako
+    "STG020",   // Bad Girl
+    "STG101",   // Darkstar Zako
+    "STG103",   // Darkstar/Jeane
+    "STG0003",  // Henry
 };
 
 // cba to add hash lookups at this moment, sorry che
-static const char* find_room_by_name(const csys::String& name) {
+static const char* get_next_room_by_name(const csys::String& name) {
     auto it = std::find_if(arcadeMode.begin(), arcadeMode.end(),
     [&name](const char* room) {
         return room != nullptr && _stricmp(room, name.m_String.c_str()) == 0;
@@ -56,7 +56,7 @@ static const char* find_room_by_name(const csys::String& name) {
 
 const char* GetNextStage() {
     if (const char* currentStage = nmh_sdk::get_CBgCtrl()->m_NowStageName){
-        return find_room_by_name(currentStage);
+        return get_next_room_by_name(currentStage);
     }
 }
 
@@ -69,18 +69,20 @@ naked void detour1() {
         push eax // 4
         push ecx // 8
         push edx // C
-        call dword ptr GetNextStage // put nextStage* in eax
-        test eax, eax
-        je noStage
-        mov [esp+0xC+0x4], eax // stageName
-        mov [esp+0xC+0x8], 0 // force stagesToAdd
-        push 1
         mov ecx, [ArcadeMode::gpBattle]
         mov ecx, [ecx]
         mov ecx, [ecx+0x164] // mHRPc
         test ecx,ecx
         je noStage
+        cmp byte ptr [ecx+0x29a2], 1 // if mDeadPause, do not edit teleport
+        je noStage
+        push 1
         call dword ptr [ArcadeMode::mSetVisible] // set char visible after cutscenes
+        call dword ptr GetNextStage // put nextStage* in eax
+        test eax, eax
+        je noStage
+        mov [esp+0xC+0x4], eax // stageName
+        mov [esp+0xC+0x8], 0 // force stagesToAdd
     noStage:
         pop edx
         pop ecx
@@ -109,9 +111,14 @@ void ArcadeMode::on_draw_ui() {
 }
 
 // during load
-//void ArcadeMode::on_config_load(const utility::Config &cfg) {}
+void ArcadeMode::on_config_load(const utility::Config &cfg) {
+    mod_enabled = cfg.get<bool>("arcade_mode").value_or(false);
+}
 // during save
-//void ArcadeMode::on_config_save(utility::Config &cfg) {}
+void ArcadeMode::on_config_save(utility::Config &cfg) {
+    cfg.set<bool>("arcade_mode", mod_enabled);
+}
+
 // do something every frame
 //void ArcadeMode::on_frame() {}
 // will show up in debug window, dump ImGui widgets you want here
