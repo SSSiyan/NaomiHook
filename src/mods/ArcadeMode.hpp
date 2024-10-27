@@ -7,6 +7,8 @@ public:
   ArcadeMode() = default;
   static bool mod_enabled;
   static uintptr_t jmp_ret1;
+  static uintptr_t gpBattle;
+  static uintptr_t mSetVisible;
 
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
 

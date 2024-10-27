@@ -4,6 +4,8 @@
 
 bool ArcadeMode::mod_enabled = false;
 uintptr_t ArcadeMode::jmp_ret1 = NULL;
+uintptr_t ArcadeMode::gpBattle = NULL;
+uintptr_t ArcadeMode::mSetVisible = NULL;
 
 static constexpr std::array<const char*, 28> arcadeMode = {
     "STG500",   // Motel
@@ -72,6 +74,13 @@ naked void detour1() {
         je noStage
         mov [esp+0xC+0x4], eax // stageName
         mov [esp+0xC+0x8], 0 // force stagesToAdd
+        push 1
+        mov ecx, [ArcadeMode::gpBattle]
+        mov ecx, [ecx]
+        mov ecx, [ecx+0x164] // mHRPc
+        test ecx,ecx
+        je noStage
+        call dword ptr [ArcadeMode::mSetVisible] // set char visible after cutscenes
     noStage:
         pop edx
         pop ecx
@@ -86,6 +95,8 @@ naked void detour1() {
 // clang-format on
 
 std::optional<std::string> ArcadeMode::on_initialize() {
+    gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
+    mSetVisible = g_framework->get_module().as<uintptr_t>() + 0x3D6D90; 
     if (!install_hook_offset(0x3FD690, m_hook1, &detour1, &ArcadeMode::jmp_ret1, 6)) {
         spdlog::error("Failed to init DisableMouse mod\n");
         return "Failed to init DisableMouse mod";
