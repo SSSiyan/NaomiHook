@@ -10,13 +10,10 @@ public:
 
   static uintptr_t jmp_ret1;
   static uintptr_t gpBattle;
-#if 0
-  static uint8_t coloursPicked[5][4]; // bgra
-  static float coloursPickedFloat[5][4]; //rgba
-#else
-#endif
 
   static uintptr_t jmp_ret2;
+
+  static uintptr_t jmp_ret3;
   static int deathblowTimer;
   static int setDeathblowTimer;
 
@@ -42,6 +39,6 @@ public:
 
   void on_d3d_reset() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
+	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3;
 	// std::unique_ptr<Patch> m_patch;
 };

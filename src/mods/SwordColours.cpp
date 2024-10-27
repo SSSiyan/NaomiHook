@@ -4,6 +4,27 @@
 #include "fw-imgui/Texture2DD3D11.hpp"
 #include "fw-imgui/SwordsTextureAtlas.cpp"
 
+bool SwordColours::mod_enabled = false;
+
+uintptr_t SwordColours::jmp_ret1 = NULL;
+uintptr_t SwordColours::gpBattle = NULL;
+
+uintptr_t SwordColours::jmp_ret2 = NULL;
+
+uintptr_t SwordColours::jmp_ret3 = NULL;
+int SwordColours::deathblowTimer = 0;
+int SwordColours::setDeathblowTimer = 0;
+
+struct IntColor {
+    int r;
+    int g;
+    int b;
+    int a;
+};
+
+static ImColor colours_picked_rgba[5];
+static IntColor colours_picked_rgbaInt[5];
+
 // directx stuff
 static std::unique_ptr<Texture2DD3D11> g_sword_texture_atlas{};
 
@@ -96,111 +117,203 @@ struct TextureAtlas {
 static constexpr TextureAtlas g_atlas{};
 #pragma endregion
 
-
-bool SwordColours::mod_enabled = false;
-
-uintptr_t SwordColours::jmp_ret1 = NULL;
-uintptr_t SwordColours::gpBattle = NULL;
-
-#if 0
-float SwordColours::coloursPickedFloat[5][4]{}; // rgba
-uint8_t SwordColours::coloursPicked[5][4]{}; // abgr
-#endif
-
-static ImColor colours_picked_rgba[5];
-static ImU32   colours_picked_abgr[5];
-
-
-
-uintptr_t SwordColours::jmp_ret2 = NULL;
-int SwordColours::deathblowTimer = 0;
-int SwordColours::setDeathblowTimer = 0;
-
 // clang-format off
-naked void detour1() { // custom colours
+naked void detour1() { // player in ebx
     __asm {
         //
             cmp byte ptr [SwordColours::mod_enabled], 0
             je originalcode
-        //
+            
+            // check this is player
             push eax
             mov eax, [SwordColours::gpBattle]
             mov eax, [eax]
             mov eax, [eax+0x164]
-            test eax,eax
-            je popcode
+            cmp eax, ebx
+            pop eax
+            jne originalcode
 
             cmp dword ptr [SwordColours::deathblowTimer], 100
             jbe deathblowColour
             jmp getSwordID
 
-        deathblowColour:
+        getSwordID:
+            cmp [ebx+0x42C], BLOOD_BERRY // berry
+            je berryColour
+            cmp [ebx+0x42C], TSUBAKI_MK3 // mk3
+            je mk3Colour
+            cmp [ebx+0x42C], TSUBAKI_MK1 // mk1
+            je mk1Colour
+            cmp [ebx+0x42C], TSUBAKI_MK2 // mk2
+            je mk2Colour
+            jmp originalcode
+
+        berryColour: // [0]
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
+
+        mk3Colour: // [1]
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt+0x10]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x10+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x10+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
+
+        mk1Colour: // [2]
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt+0x20]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x20+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x20+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
+
+        mk2Colour: // [3]
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt+0x30]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x30+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x30+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
+
+        deathblowColour: // [4]
             cmp dword ptr [SwordColours::deathblowTimer], 0
             je getSwordID
             dec dword ptr [SwordColours::deathblowTimer]
-            mov edi, [colours_picked_abgr+0x10]
-            jmp popret
-
-        getSwordID:
-            cmp [eax+0x42C], BLOOD_BERRY // berry
-            je berryColour
-            cmp [eax+0x42C], TSUBAKI_MK3 // mk3
-            je mk3Colour
-            cmp [eax+0x42C], TSUBAKI_MK1 // mk1
-            je mk1Colour
-            cmp [eax+0x42C], TSUBAKI_MK2 // mk2
-            je mk2Colour
-            jmp popcode // should be impossible
-
-        berryColour:
-            // filter out non players
-            cmp esi, [eax+0x350]
-            jne popcode
-            mov edi, [colours_picked_abgr]
-            jmp popret
-
-        mk3Colour:
-            cmp esi, [eax+0x350]
-            jne popcode
-            mov edi, [colours_picked_abgr+0x4]
-            jmp popret
-
-        mk1Colour:
-            cmp esi, [eax+0x350]
-            jne popcode
-            mov edi, [colours_picked_abgr+0x8]
-            jmp popret
-
-        mk2Colour:
-            cmp esi, [eax+0x2aa0]
-            je applyMk2Colour
-            cmp esi, [eax+0x2aa4]
-            je applyMk2Colour
-            cmp esi, [eax+0x2aa8]
-            je applyMk2Colour
-            cmp esi, [eax+0x2aaC]
-            je applyMk2Colour
-            cmp esi, [eax+0x2ab0]
-            je applyMk2Colour
-            jmp popcode
-            applyMk2Colour:
-            mov edi, [colours_picked_abgr+0xC]
-            jmp popret
-
-        popret:
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt+0x40]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x40+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x40+0x8]
+            mov [esp+0x4+0xC],eax
             pop eax
-            jmp retcode
+            jmp originalcode
 
-        popcode:
-            pop eax
         originalcode:
-            mov edi, [esi+0x000000A4]
+            push ebp
+            mov ebp, esp
+            mov edx, ecx
         retcode:
             jmp dword ptr [SwordColours::jmp_ret1]
     }
 }
 
-naked void detour2() { // set deathblow timer
+naked void detour2() { // player in ?
+    __asm {
+        //
+            cmp byte ptr [SwordColours::mod_enabled], 0
+            je originalcode
+            
+            // check this is player
+            push eax
+            mov eax, [SwordColours::gpBattle]
+            mov eax, [eax]
+            mov eax, [eax+0x164]
+            cmp eax, ebx
+            pop eax
+            jne originalcode
+
+            cmp dword ptr [SwordColours::deathblowTimer], 100
+            jbe deathblowColour
+            jmp getSwordID
+
+        getSwordID:
+            cmp [ebx+0x42C], BLOOD_BERRY // berry
+            je berryColour
+            cmp [ebx+0x42C], TSUBAKI_MK3 // mk3
+            je mk3Colour
+            cmp [ebx+0x42C], TSUBAKI_MK1 // mk1
+            je mk1Colour
+            cmp [ebx+0x42C], TSUBAKI_MK2 // mk2
+            je mk2Colour
+            jmp originalcode
+
+        berryColour: // [0]
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
+
+        mk3Colour: // [1]
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt+0x10]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x10+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x10+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
+
+        mk1Colour: // [2]
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt+0x20]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x20+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x20+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
+
+        mk2Colour: // [3]
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt+0x30]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x30+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x30+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
+
+        deathblowColour: // [4]
+            cmp dword ptr [SwordColours::deathblowTimer], 0
+            je getSwordID
+            dec dword ptr [SwordColours::deathblowTimer]
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt+0x40]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x40+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x40+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
+
+        originalcode:
+            push ebp
+            mov ebp,esp
+            push ebx
+            mov ebx,ecx
+        retcode:
+            jmp dword ptr [SwordColours::jmp_ret2]
+    }
+}
+
+naked void detour3() { // set deathblow timer
     __asm {
         //
             cmp byte ptr [SwordColours::mod_enabled], 0
@@ -235,7 +348,7 @@ naked void detour2() { // set deathblow timer
         originalcode:
             push [ebx+0x000029D4]
         retcode:
-            jmp dword ptr [SwordColours::jmp_ret2]
+            jmp dword ptr [SwordColours::jmp_ret3]
     }
 }
  // clang-format on
@@ -257,31 +370,25 @@ bool load_texture() {
 
 std::optional<std::string> SwordColours::on_initialize() {
     SwordColours::gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584; 
-    if (!install_hook_offset(0x4C9AED, m_hook1, &detour1, &SwordColours::jmp_ret1, 6)) {
-        spdlog::error("Failed to init SprintSettings mod\n");
-        return "Failed to init SprintSettings mod";
+    if (!install_hook_offset(0x3BF640, m_hook1, &detour1, &SwordColours::jmp_ret1, 5)) { // swords
+        spdlog::error("Failed to init SwordColours mod\n");
+        return "Failed to init SwordColours mod";
     }
 
-    if (!install_hook_offset(0x3C6279, m_hook2, &detour2, &SwordColours::jmp_ret2, 6)) { // speedblur for deathblows
-        spdlog::error("Failed to init SprintSettings mod\n");
-        return "Failed to init SprintSettings mod";
+    if (!install_hook_offset(0x4C7180, m_hook2, &detour2, &SwordColours::jmp_ret2, 6)) { // trails
+        spdlog::error("Failed to init SwordColours mod\n");
+        return "Failed to init SwordColours mod";
+    }
+
+    if (!install_hook_offset(0x3C6279, m_hook3, &detour3, &SwordColours::jmp_ret3, 6)) { // speedblur for deathblow timer
+        spdlog::error("Failed to init SwordColours mod\n");
+        return "Failed to init SwordColours mod";
     }
 
     load_texture();
 
     return Mod::on_initialize();
 }
-
-#if 0
-const char* colorPickerNames[] = {
-    "Blood Berry",
-    "Tsubaki Mk3",
-    "Tsubaki Mk1",
-    "Tsubaki Mk2",
-    "Deathblows",
-};
-#endif
-
 
 struct SwordDef {
     const char* name;
@@ -302,7 +409,7 @@ static float sin_pulse(float frequency) {
 }
 #endif
 
-static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImColor& rgba, ImU32& abgr) {
+static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImColor& rgba, IntColor& rgbaInt) {
 
 #if 0
     ImVec2 spos = ImGui::GetCursorScreenPos();
@@ -335,7 +442,11 @@ static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImCol
 
     if (ImGui::ColorPicker4(name, (float*)&rgba.Value, 
         ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview)) {
-        abgr = _byteswap_ulong(rgba);
+        rgbaInt = IntColor(
+            (int)(rgba.Value.x * 255.0f),
+            (int)(rgba.Value.y * 255.0f),
+            (int)(rgba.Value.z * 255.0f),
+            (int)(rgba.Value.w * 255.0f));
     }
 
     ImGui::TableNextRow();
@@ -380,7 +491,7 @@ void SwordColours::on_draw_ui() {
         ImGui::InputInt("Deathblow Timer", &setDeathblowTimer);
         help_marker("How long the deathblow colour will stay applied when initiating a Deathblow");
         for (size_t i = 0; i < swords.size(); i++) {
-            draw_sword_behavior(swords[i].name, swords[i].blade, swords[i].hilt, colours_picked_rgba[i], colours_picked_abgr[i]);
+            draw_sword_behavior(swords[i].name, swords[i].blade, swords[i].hilt, colours_picked_rgba[i], colours_picked_rgbaInt[i]);
         }
 
         static int i = 0;
@@ -388,7 +499,7 @@ void SwordColours::on_draw_ui() {
         if (frame % 40 == 0) {
             i = (i + 1) % 4;
         }
-        draw_sword_behavior("Deathblow", swords[i].blade, swords[i].hilt, colours_picked_rgba[4], colours_picked_abgr[4]);
+        draw_sword_behavior("Deathblow", swords[i].blade, swords[i].hilt, colours_picked_rgba[4], colours_picked_rgbaInt[4]);
     }
 }
 
@@ -398,18 +509,18 @@ void SwordColours::on_d3d_reset() {
     load_texture();
 }
 
-struct ArgbDefaults {
+struct RgbaDefaults {
     const char* cfg_name;
-    ImU32* col;
-    ImU32 default_value;
+    IntColor* col;
+    IntColor default_value;
 };
 
 static constexpr std::array cfg_defaults = {
-    ArgbDefaults { "colors_picked[0]", &colours_picked_abgr[0], /*0xFF2AFF12*/ 0x12FF2AFF},
-    ArgbDefaults { "colors_picked[1]", &colours_picked_abgr[1], /*0xFFFF6464*/ 0x6464FFFF},
-    ArgbDefaults { "colors_picked[2]", &colours_picked_abgr[2], /*0xFFFF5500*/ 0x0055FFFF},
-    ArgbDefaults { "colors_picked[3]", &colours_picked_abgr[3], /*0xFFFF5500*/ 0x0055FFFF},
-    ArgbDefaults { "colors_picked[4]", &colours_picked_abgr[4], 0xFF0000FF},
+    RgbaDefaults { "colors_picked[0]", &colours_picked_rgbaInt[0], {0x12, 0xFF, 0x2A, 0xFF}},
+    RgbaDefaults { "colors_picked[1]", &colours_picked_rgbaInt[1], {0x64, 0x64, 0xFF, 0xFF}},
+    RgbaDefaults { "colors_picked[2]", &colours_picked_rgbaInt[2], {0x00, 0x55, 0xFF, 0xFF}},
+    RgbaDefaults { "colors_picked[3]", &colours_picked_rgbaInt[3], {0x00, 0x55, 0xFF, 0xFF}},
+    RgbaDefaults { "colors_picked[4]", &colours_picked_rgbaInt[4], {0xFF, 0x00, 0x00, 0xFF}},
 };
 
 // during load
@@ -417,10 +528,13 @@ void SwordColours::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("custom_colours").value_or(false);
     {
         size_t i = 0;
-        for (const auto& def : cfg_defaults) {
-            *def.col = cfg.get<ImU32>(def.cfg_name).value_or(def.default_value);
-            colours_picked_rgba[i] = ImColor(_byteswap_ulong(*def.col));
-            i = i+1;
+        for (const auto& RgbaDefault : cfg_defaults) {
+            RgbaDefault.col->r = cfg.get<int>(std::string(RgbaDefault.cfg_name) + ".r").value_or(RgbaDefault.default_value.r);
+            RgbaDefault.col->g = cfg.get<int>(std::string(RgbaDefault.cfg_name) + ".g").value_or(RgbaDefault.default_value.g);
+            RgbaDefault.col->b = cfg.get<int>(std::string(RgbaDefault.cfg_name) + ".b").value_or(RgbaDefault.default_value.b);
+            RgbaDefault.col->a = cfg.get<int>(std::string(RgbaDefault.cfg_name) + ".a").value_or(RgbaDefault.default_value.a);
+            colours_picked_rgba[i] = ImColor(RgbaDefault.col->r, RgbaDefault.col->g, RgbaDefault.col->b, RgbaDefault.col->a);
+            i += 1;
         }
     }
     setDeathblowTimer = cfg.get<int>("setDeathblowTimer").value_or(50);
@@ -429,8 +543,11 @@ void SwordColours::on_config_load(const utility::Config &cfg) {
 // during save
 void SwordColours::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("custom_colours", mod_enabled);
-    for (const auto& def : cfg_defaults) {
-        cfg.set<ImU32>(def.cfg_name, *def.col);
+    for (const auto& RgbaDefault : cfg_defaults) {
+        cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".r", RgbaDefault.col->r);
+        cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".g", RgbaDefault.col->g);
+        cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".b", RgbaDefault.col->b);
+        cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".a", RgbaDefault.col->a);
     }
     cfg.set<int>("setDeathblowTimer", setDeathblowTimer);
 }
