@@ -55,6 +55,8 @@ set(MODS_SRC
     mods/DisableMouse.cpp 
     mods/SoundTracker.hpp 
     mods/SoundTracker.cpp 
+    mods/ArcadeMode.hpp 
+    mods/ArcadeMode.cpp 
 
 )
 
@@ -160,7 +162,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
             ${FRAMEWORK_SRC}
 )
 
-target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC imgui minhook d3d11 glm shlwapi)
+target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC imgui minhook d3d11 glm csys::csys shlwapi)
 #target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC /GS- /GR-)
 target_compile_features(${CMAKE_PROJECT_NAME} PUBLIC cxx_std_17)
 

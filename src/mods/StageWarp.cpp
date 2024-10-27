@@ -119,7 +119,6 @@ static constexpr std::array<Stage, 17> zako_stages = {
     Stage {"STG021",   69, "Bad Girl Zako"},
     Stage {"STG100",   69, "Darkstar Bike Zako"},
     Stage {"STG101",   69, "Darkstar Zako"},
-
 };
 
 static constexpr std::array<Stage, 8> city_stages = {
@@ -131,7 +130,6 @@ static constexpr std::array<Stage, 8> city_stages = {
     Stage {"STG550",  69, "Evolution Gym"},
     Stage {"STG560",  69, "Naomi's Lab"},
     Stage {"STG570",  69, "Area51"},
-
 };
 
 static constexpr std::array<Stage, 14> wii_stages = {
@@ -149,7 +147,6 @@ static constexpr std::array<Stage, 14> wii_stages = {
     Stage {"STG9007T", 69, "Destroyman Toilet TGS"},
     Stage {"STG500US", 69, "Motel"},
     Stage {"STG580",   69, "???"},
-
 };
 
 static constexpr std::array<Stage, 18> misc_stages = {
@@ -171,7 +168,6 @@ static constexpr std::array<Stage, 18> misc_stages = {
     Stage {"STG1703",  69, "Train Station (Boarding)"},
     Stage {"STG1707",  69, "Train Station Exit"},
     Stage {"STG1709",  69, "Train Station Harvey (Exit)"},
-
 };
 
 static constexpr std::array<Stage, 10> save_stages = {
@@ -185,7 +181,6 @@ static constexpr std::array<Stage, 10> save_stages = {
     Stage {"STG9007",  69, "Destroyman Toilet"},
     Stage {"STG9008",  69, "Shinobu Toilet"},
     Stage {"STG9009",  69, "Dr.Peace Toilet"},
-
 };
 
 std::optional<std::string> StageWarp::on_initialize() {
@@ -201,9 +196,10 @@ void StageWarp::on_draw_ui() {
             ImGui::Text("Current Stage: ?");
         }
         help_marker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n"
-        "The warps you've been using up to this point have left all of these values at 0.");
+        "The warps you've been using up to this point have left all of these values at 0.\n"
+        "I have recently edited _Arg1 and _Arg2 to -1, so let me know if there are more issues than usual");
 
-        static int setStageArgs[7]{};
+        static int setStageArgs[7]{0, -1, -1, 0, 0, 0, 0};
         static int64_t inSetVolRateArg = 0;
         if (ImGui::CollapsingHeader("SetStage args")) {
             ImGui::InputInt("AddedStages", &setStageArgs[0]);

@@ -1561,9 +1561,7 @@ void PlayerTracker::on_draw_ui() {
                         ImGui::InputFloat3("moveTempPos", &player->mpBike->mBike.moveTempPos.x);
                         ImGui::InputFloat3("moveTempPosF", &player->mpBike->mBike.moveTempPosF.x);
                         ImGui::InputFloat3 ("moveTempPosB", &player->mpBike->mBike.moveTempPosB.x);
-                        ImGui::InputFloat("rot.x", &player->mpBike->mBike.rot.x);
-                        ImGui::InputFloat("rot.y", &player->mpBike->mBike.rot.y);
-                        ImGui::InputFloat("rot.z", &player->mpBike->mBike.rot.z);
+                        ImGui::InputFloat3("rot", &player->mpBike->mBike.rot.x);
                         ImGui::InputFloat3("oldRot", &player->mpBike->mBike.oldRot.x);
                         ImGui::InputFloat("oldPosY", &player->mpBike->mBike.oldPosY);
                         ImGui::InputFloat("oldPosYF", &player->mpBike->mBike.oldPosYF);
@@ -1643,16 +1641,12 @@ void PlayerTracker::on_draw_ui() {
                     ImGui::InputFloat("mWryRate", &player->mpBike->mWryRate);
                     ImGui::InputFloat("mBankRate", &player->mpBike->mBankRate);
                     if (ImGui::CollapsingHeader("mDamegeDir")) {
-                        ImGui::InputFloat("mDamegeDir.x", &player->mpBike->mDamegeDir.x);
-                        ImGui::InputFloat("mDamegeDir.y", &player->mpBike->mDamegeDir.y);
-                        ImGui::InputFloat("mDamegeDir.z", &player->mpBike->mDamegeDir.z);
+                        ImGui::InputFloat3("mDamegeDir", &player->mpBike->mDamegeDir.x);
                     }
                     ImGui::InputFloat("mDamegeRotY", &player->mpBike->mDamegeRotY);
                     ImGui::InputFloat("mAccel", &player->mpBike->mAccel);
                     if (ImGui::CollapsingHeader("mPassRot")) {
-                        ImGui::InputFloat("mPassRot.x", &player->mpBike->mPassRot.x);
-                        ImGui::InputFloat("mPassRot.y", &player->mpBike->mPassRot.y);
-                        ImGui::InputFloat("mPassRot.z", &player->mpBike->mPassRot.z);
+                        ImGui::InputFloat3("mPassRot", &player->mpBike->mPassRot.x);
                     }
                     ImGui::InputInt("mFireSEID", &player->mpBike->mFireSEID);
                     ImGui::InputFloat("mHitWait", &player->mpBike->mHitWait);
