@@ -9,6 +9,7 @@ public:
   static uintptr_t jmp_ret1;
   static uintptr_t gpBattle;
   static uintptr_t mSetVisible;
+  static bool quickBoot;
 
   ModCategory get_category() { return ModCategory::STAGE; };
 

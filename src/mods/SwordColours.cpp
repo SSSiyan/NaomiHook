@@ -485,6 +485,7 @@ static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImCol
 #endif
 
 }
+
 void SwordColours::on_draw_ui() {
     ImGui::Checkbox("Custom Colours", &mod_enabled);
     if (mod_enabled) {
@@ -551,8 +552,8 @@ void SwordColours::on_config_save(utility::Config &cfg) {
     }
     cfg.set<int>("setDeathblowTimer", setDeathblowTimer);
 }
-//void SwordColours::on_frame() {}
 
+//void SwordColours::on_frame() {}
 // will show up in debug window, dump ImGui widgets you want here
 //void SwordColours::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here

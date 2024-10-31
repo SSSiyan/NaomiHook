@@ -3,9 +3,13 @@
 #include "csys/system.h"
 
 bool ArcadeMode::mod_enabled = false;
+bool ArcadeMode::quickBoot = true;
 uintptr_t ArcadeMode::jmp_ret1 = NULL;
 uintptr_t ArcadeMode::gpBattle = NULL;
 uintptr_t ArcadeMode::mSetVisible = NULL;
+
+static const char* originalBootStage = "STG00011";
+static const char* newBootStage = "STG080";
 
 static constexpr std::array<const char*, 28> arcadeMode = {
     "STG500",   // Motel
@@ -38,10 +42,16 @@ static constexpr std::array<const char*, 28> arcadeMode = {
 };
 
 // cba to add hash lookups at this moment, sorry che
-static const char* get_next_room_by_name(const csys::String& name) {
+static const char* get_next_room_by_name(const char* currentName) {
+    if (ArcadeMode::quickBoot) {
+        if (_stricmp(originalBootStage, currentName) == 0) {
+            return newBootStage;
+        }
+    }
+
     auto it = std::find_if(arcadeMode.begin(), arcadeMode.end(),
-    [&name](const char* room) {
-        return room != nullptr && _stricmp(room, name.m_String.c_str()) == 0;
+    [&currentName](const char* room) {
+        return room != nullptr && _stricmp(room, currentName) == 0;
     });
     
     if (it != arcadeMode.end()) {
@@ -72,7 +82,7 @@ naked void detour1() {
         mov ecx, [ArcadeMode::gpBattle]
         mov ecx, [ecx]
         mov ecx, [ecx+0x164] // mHRPc
-        test ecx,ecx
+        test ecx, ecx
         je noStage
         cmp byte ptr [ecx+0x29a2], 1 // if mDeadPause, do not edit teleport
         je noStage
@@ -108,6 +118,8 @@ std::optional<std::string> ArcadeMode::on_initialize() {
 
 void ArcadeMode::on_draw_ui() {
     ImGui::Checkbox("Arcade Mode", &mod_enabled);
+    ImGui::Checkbox("Quick Boot", &quickBoot);
+    help_marker("Load into STG080 stage on boot rather than motel");
 }
 
 // during load
