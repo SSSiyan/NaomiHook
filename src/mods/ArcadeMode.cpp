@@ -3,7 +3,7 @@
 #include "csys/system.h"
 
 bool ArcadeMode::mod_enabled = false;
-bool ArcadeMode::quickBoot = true;
+bool ArcadeMode::quickBoot = false;
 uintptr_t ArcadeMode::jmp_ret1 = NULL;
 uintptr_t ArcadeMode::gpBattle = NULL;
 uintptr_t ArcadeMode::mSetVisible = NULL;
@@ -125,10 +125,12 @@ void ArcadeMode::on_draw_ui() {
 // during load
 void ArcadeMode::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("arcade_mode").value_or(false);
+    quickBoot = cfg.get<bool>("quick_boot").value_or(true);
 }
 // during save
 void ArcadeMode::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("arcade_mode", mod_enabled);
+    cfg.set<bool>("quick_boot", quickBoot);
 }
 
 // do something every frame
