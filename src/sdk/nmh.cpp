@@ -43,13 +43,27 @@ namespace nmh_sdk {
     void SetStage(const char* _StgName, int _StgAdd, int _Arg1, int _Arg2, bool inBossInfoDisp, int inFadeType, __int64 inSetVolRate, bool inPause, unsigned int a10) {
         uintptr_t setStageAddress = (g_framework->get_module().as<uintptr_t>() + 0x3FD690);
         setStageFunc setStage = (setStageFunc)setStageAddress;
+        // jump to stage
         if (CBgCtrl* cBgCtrl = get_CBgCtrl()) {
             setStage(cBgCtrl, _StgName, _StgAdd, _Arg1, _Arg2, inBossInfoDisp, inFadeType, inSetVolRate, inPause, a10);
         }
+        // if in a shop or motel, unload it
         if (HrMenuTask* HrMenuTask = nmh_sdk::get_HrMenuTask()){
-            if (HrMenuTask->m_pHsMenu) {  // if in a shop or motel
-                HrMenuTask->m_pHsMenu->m_Task = HS_CLASS_TASK_END;   // unload it
+            if (HrMenuTask->m_pHsMenu) {
+                HrMenuTask->m_pHsMenu->m_Task = HS_CLASS_TASK_END;
             }
+        }
+        // set player visible in case cutscenes have set you invisible
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            SetVisible(true);
+        }
+    }
+
+    void SetVisible(bool inVisible) {
+        uintptr_t setVisibleAddress = (g_framework->get_module().as<uintptr_t>() + 0x3D6D90);
+        mSetVisibleFunc setVisible = (mSetVisibleFunc)setVisibleAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            setVisible(mHRPc, inVisible);
         }
     }
 
