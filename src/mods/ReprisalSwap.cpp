@@ -12,7 +12,6 @@ naked void detour1() {
 
         push eax
         mov eax, [ReprisalSwap::gpPad]
-        mov eax, [eax]
         cmp byte ptr [eax+0x1CC], 1 // high attack // From nmh.PC_INPUT_ATTACK+99
         pop eax
         jne originalcode
@@ -27,7 +26,7 @@ naked void detour1() {
  // clang-format on
 
 std::optional<std::string> ReprisalSwap::on_initialize() {
-    gpPad = (g_framework->get_module().as<uintptr_t>() + 0x843588); 
+    gpPad = g_framework->get_module().as<uintptr_t>() + 0x849D10; 
     if (!install_hook_offset(0x3CE22E, m_hook1, &detour1, &ReprisalSwap::jmp_ret1, 8)) {
         spdlog::error("Failed to init ReprisalSwap mod\n");
         return "Failed to init ReprisalSwap mod";

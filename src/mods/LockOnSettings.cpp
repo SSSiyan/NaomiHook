@@ -1,5 +1,4 @@
 #include "LockOnSettings.hpp"
-#include "StanceControl.hpp"
 
 #if 1
 bool LockOnSettings::mod_enabled = false;
@@ -11,7 +10,6 @@ uintptr_t LockOnSettings::jmp_ret1 = NULL;
 bool LockOnSettings::target_switch_degrees_toggle = false;
 float LockOnSettings::default_search_degrees = 1.57f;
 float LockOnSettings::custom_search_degrees = 0.0f;
-float LockOnSettings::zero_search_degrees = 0.0f;
 
 uintptr_t LockOnSettings::jmp_ret2 = NULL;
 uintptr_t LockOnSettings::jmp_ja2 = NULL;
@@ -50,15 +48,10 @@ void LockOnSettings::toggle_parry_qte_lockon(bool enable) {
 naked void detour1() { // Horizontal Limit // player in ecx
     __asm {
         // 
-            cmp byte ptr [StanceControl::mod_enabled], 1
-            je disablecode
             cmp byte ptr [LockOnSettings::target_switch_degrees_toggle], 0
             je originalcode
         // 
             movss xmm0, [LockOnSettings::custom_search_degrees]
-            jmp retcode
-        disablecode:
-            movss xmm0, [LockOnSettings::zero_search_degrees]
             jmp retcode
 
         originalcode:

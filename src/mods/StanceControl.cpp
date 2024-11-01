@@ -2,7 +2,7 @@
 #if 1
 bool StanceControl::mod_enabled = false;
 bool StanceControl::invert_input = false;
-uintptr_t StanceControl::r2PushAddr = NULL;
+uintptr_t StanceControl::gpPad = NULL;
 uintptr_t StanceControl::jmp_ret1 = NULL;
 
 float StanceControl::r2Mult = 127.5;
@@ -10,6 +10,11 @@ float StanceControl::r2Sub = 1;
 float StanceControl::invert = -1;
 float StanceControl::highBound = 0.9;
 float StanceControl::lowBound = -0.9;
+
+uintptr_t StanceControl::jmp_ret2 = NULL;
+uintptr_t StanceControl::jmp2je = NULL;
+
+bool StanceControl::wasL3PressedLastFrame = false;
 
 void StanceControl::toggle(bool enable) {
     if (enable) {
@@ -32,8 +37,8 @@ naked void detour1() { //
         je originalcode
     //
         push eax
-        mov eax, [StanceControl::r2PushAddr]
-        movss xmm0, [eax]
+        mov eax, [StanceControl::gpPad]
+        movss xmm0, [eax+0x64]
         pop eax
         divss xmm0, [StanceControl::r2Mult] // Gamepad reads 0-255
         subss xmm0, [StanceControl::r2Sub] // we need it to read -1 to 1
@@ -61,11 +66,56 @@ naked void detour1() { //
     }
 }
 
+naked void detour2() { // remap lock on cycle
+    __asm {
+    //
+        cmp byte ptr [StanceControl::mod_enabled], 0
+        je originalcode
+    //
+        push eax
+        push ecx
+        mov eax, [StanceControl::gpPad]
+        mov al, [eax+0x6] // R3 && L3
+        mov cl, [StanceControl::wasL3PressedLastFrame]
+        and al, 2
+        and cl, 2
+        test al, al
+        je nopress
+        test cl, cl
+        jne nopress
+        mov [StanceControl::wasL3PressedLastFrame], al
+        pop ecx
+        pop eax
+        jmp retcode
+
+    nopress:
+        mov [StanceControl::wasL3PressedLastFrame], al
+        pop ecx
+        pop eax
+    jecode:
+        jmp dword ptr [StanceControl::jmp2je]
+
+    originalcode:
+        push eax
+        mov eax, [StanceControl::gpPad]
+        cmp byte ptr [eax+0x1C16], 00
+        pop eax
+        je jecode
+    retcode:
+        jmp dword ptr [StanceControl::jmp_ret2]
+    }
+}
  // clang-format on
 
 std::optional<std::string> StanceControl::on_initialize() {
-    r2PushAddr = g_framework->get_module().as<uintptr_t>() + 0x849D74; 
+    gpPad = g_framework->get_module().as<uintptr_t>() + 0x849D10;
     if (!install_hook_offset(0x3D7D6B, m_hook1, &detour1, &StanceControl::jmp_ret1, 8)) {
+        spdlog::error("Failed to init StanceControl mod\n");
+        return "Failed to init StanceControl mod";
+    }
+
+    jmp2je = g_framework->get_module().as<uintptr_t>() + 0x3C46F8;
+    if (!install_hook_offset(0x3C4645, m_hook2, &detour2, &StanceControl::jmp_ret2, 13)) {
         spdlog::error("Failed to init StanceControl mod\n");
         return "Failed to init StanceControl mod";
     }
@@ -77,6 +127,7 @@ void StanceControl::on_draw_ui() {
     if (ImGui::Checkbox("Stance Control on R2", &mod_enabled)) {
         toggle(mod_enabled);
     }
+    help_marker("Remaps lock on cycle to R3");
     ImGui::SliderFloat("highBound", &StanceControl::highBound, 0.0f, 1.0f);
     help_marker("How far should r2 be pushed to enter high stance");
     ImGui::SliderFloat("lowBound", &StanceControl::lowBound, -1.0f, 0.0f);

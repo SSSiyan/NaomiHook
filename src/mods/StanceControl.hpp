@@ -10,7 +10,7 @@ public:
   static bool invert_input;
   static float custom_fov;
   static float default_fov;
-  static uintptr_t r2PushAddr;
+  static uintptr_t gpPad;
   static uintptr_t jmp_ret1;
 
   static float r2Mult;
@@ -18,6 +18,10 @@ public:
   static float highBound;
   static float lowBound;
   static float invert;
+
+  static uintptr_t jmp_ret2;
+  static uintptr_t jmp2je;
+  static bool wasL3PressedLastFrame;
 
   void toggle(bool enable);
 
@@ -41,6 +45,6 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1;
+	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
 	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3;
 };
