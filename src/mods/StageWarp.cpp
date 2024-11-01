@@ -1,7 +1,7 @@
 #include "StageWarp.hpp"
 #if 1
 
-std::array<StageWarp::Stage, 78> StageWarp::stage_items = {
+std::array<StageWarp::Stage, 78> StageWarp::stage_items = { // used elsewhere so part of StageWarp
     Stage {"STG000",   69, "Santa Destroy Overworld"},
     Stage {"STG0001",  69, "Beach Boss (Holly Summers)"},
     Stage {"STG0002",  69, "Holly Summers Zako"},
@@ -181,6 +181,23 @@ std::optional<std::string> StageWarp::on_initialize() {
     return Mod::on_initialize();
 }
 
+static int setStageArgs[7]{0, -1, -1, 0, 0, 0, 0};
+static int64_t inSetVolRateArg = 0;
+
+template <size_t N> // ??
+void DisplayStageSection(const char* headerName, const std::array<StageWarp::Stage, N>& stages) {
+    if (ImGui::CollapsingHeader(headerName)) {
+        for (size_t i = 0; i < stages.size(); ++i) {
+            char buttonLabel[64];
+            snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", stages[i].name, stages[i].info);
+            if (ImGui::Button(buttonLabel)) {
+                nmh_sdk::SetStage(stages[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
+                                  setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
+            }
+        }
+    }
+}
+
 void StageWarp::on_draw_ui() {
     if (nmh_sdk::get_CBgCtrl()) {
         char* currentStage = nmh_sdk::get_CBgCtrl()->m_NowStageName;
@@ -190,12 +207,12 @@ void StageWarp::on_draw_ui() {
             ImGui::Text("Current Stage: ?");
         }
 
-        static int setStageArgs[7]{0, -1, -1, 0, 0, 0, 0};
-        static int64_t inSetVolRateArg = 0;
+        static const char* argsHelpMarker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n"
+            "The warps you've been using up to this point have left all of these values at 0.\n"
+            "I have recently edited _Arg1 and _Arg2 to -1, so let me know if there are more issues than usual");
+
         if (ImGui::CollapsingHeader("SetStage args")) {
-            help_marker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n"
-        "The warps you've been using up to this point have left all of these values at 0.\n"
-        "I have recently edited _Arg1 and _Arg2 to -1, so let me know if there are more issues than usual");
+            help_marker(argsHelpMarker);
             ImGui::InputInt("AddedStages", &setStageArgs[0]);
             help_marker("I think this adds n to stageID? Not sure how else it would get next stage\nMotel>Overworld has this set to 2");
             ImGui::InputInt("_Arg1", &setStageArgs[1]);
@@ -211,87 +228,16 @@ void StageWarp::on_draw_ui() {
             ImGui::InputInt("a10", &setStageArgs[6]);
         }
         else {
-            help_marker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n"
-        "The warps you've been using up to this point have left all of these values at 0.\n"
-        "I have recently edited _Arg1 and _Arg2 to -1, so let me know if there are more issues than usual");
+            help_marker(argsHelpMarker);
         }
 
-        if (ImGui::CollapsingHeader("All")) {
-            for (int i = 0; i < stage_items.size(); ++i) {
-                char buttonLabel[64];
-                snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", stage_items[i].name, stage_items[i].info);
-                if (ImGui::Button(buttonLabel)) {
-                    nmh_sdk::SetStage(stage_items[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2],
-                        setStageArgs[3], setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
-                }
-            }
-        }
-
-        if (ImGui::CollapsingHeader("Bosses")) {
-            for (int i = 0; i < boss_stages.size(); ++i) {
-                char buttonLabel[64];
-                snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", boss_stages[i].name, boss_stages[i].info);
-                if (ImGui::Button(buttonLabel)) {
-                    nmh_sdk::SetStage(boss_stages[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2],
-                        setStageArgs[3], setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
-                }
-            }
-        }
-
-        if (ImGui::CollapsingHeader("Zako")) {
-            for (int i = 0; i < zako_stages.size(); ++i) {
-                char buttonLabel[64];
-                snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", zako_stages[i].name, zako_stages[i].info);
-                if (ImGui::Button(buttonLabel)) {
-                    nmh_sdk::SetStage(zako_stages[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
-                        setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
-                }
-            }
-        }
-
-        if (ImGui::CollapsingHeader("City Interiors")) {
-            for (int i = 0; i < city_stages.size(); ++i) {
-                char buttonLabel[64];
-                snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", city_stages[i].name, city_stages[i].info);
-                if (ImGui::Button(buttonLabel)) {
-                    nmh_sdk::SetStage(city_stages[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
-                        setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
-                }
-            }
-        }
-
-        if (ImGui::CollapsingHeader("Wii/Unused")) {
-            for (int i = 0; i < wii_stages.size(); ++i) {
-                char buttonLabel[64];
-                snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", wii_stages[i].name, wii_stages[i].info);
-                if (ImGui::Button(buttonLabel)) {
-                    nmh_sdk::SetStage(wii_stages[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
-                        setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
-                }
-            }
-        }
-
-        if (ImGui::CollapsingHeader("Miscellaneous")) {
-            for (int i = 0; i < misc_stages.size(); ++i) {
-                char buttonLabel[64];
-                snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", misc_stages[i].name, misc_stages[i].info);
-                if (ImGui::Button(buttonLabel)) {
-                    nmh_sdk::SetStage(misc_stages[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
-                        setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
-                }
-            }
-        }
-
-        if (ImGui::CollapsingHeader("Toilets")) {
-            for (int i = 0; i < save_stages.size(); ++i) {
-                char buttonLabel[64];
-                snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", save_stages[i].name, save_stages[i].info);
-                if (ImGui::Button(buttonLabel)) {
-                    nmh_sdk::SetStage(save_stages[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
-                        setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
-                }
-            }
-        }
+        DisplayStageSection("All", StageWarp::stage_items);
+        DisplayStageSection("Bosses", boss_stages);
+        DisplayStageSection("Zako", zako_stages);
+        DisplayStageSection("City Interiors", city_stages);
+        DisplayStageSection("Wii/Unused", wii_stages);
+        DisplayStageSection("Miscellaneous", misc_stages);
+        DisplayStageSection("Toilets", save_stages);
     }
 }
 
