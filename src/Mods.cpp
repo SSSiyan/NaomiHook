@@ -32,6 +32,7 @@
 #include "mods/ReprisalSwap.hpp"
 #include "mods/DisableMouse.hpp"
 #include "mods/SoundTracker.hpp"
+#include "mods/QuickBoot.hpp"
 #include "mods/ArcadeMode.hpp"
 
 #define ADD_MOD(name)                                  \
@@ -74,6 +75,7 @@ Mods::Mods()
     ADD_MOD(ReprisalSwap);
     ADD_MOD(DisableMouse);
     ADD_MOD(SoundTracker);
+    ADD_MOD(QuickBoot);
     ADD_MOD(ArcadeMode);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 

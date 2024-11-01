@@ -1,10 +1,19 @@
 #pragma once
+#if 1
 #include "Mod.hpp"
 #include "sdk/ReClass.hpp"
 class StageWarp : public Mod {
 public:
   StageWarp() = default;
-  
+
+  struct Stage {
+  const char* name;
+  int id;
+  const char* info;
+  };
+
+  static std::array<Stage, 78> stage_items;
+
   ModCategory get_category() { return ModCategory::STAGE; };
 
   // mod name string for config
@@ -30,3 +39,4 @@ private:
 	// std::unique_ptr<FunctionHook> m_hook1;
 	// std::unique_ptr<Patch> m_patch;
 };
+#endif

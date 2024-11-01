@@ -57,6 +57,8 @@ set(MODS_SRC
     mods/SoundTracker.cpp 
     mods/ArcadeMode.hpp 
     mods/ArcadeMode.cpp 
+    mods/QuickBoot.hpp 
+    mods/QuickBoot.cpp 
 
 )
 

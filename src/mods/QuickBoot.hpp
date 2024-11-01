@@ -2,21 +2,24 @@
 #if 1
 #include "Mod.hpp"
 #include "sdk/ReClass.hpp"
-class ArcadeMode : public Mod {
+class QuickBoot : public Mod {
 public:
-  ArcadeMode() = default;
+  QuickBoot() = default;
   static bool mod_enabled;
-  static uintptr_t jmp_ret1;
-  static uintptr_t gpBattle;
-  static uintptr_t mSetVisible;
-  static bool quickBoot;
+
+  static const char* originalBootStage;
+  static int newBootStageIndex;
+
+  static std::vector<const char*> stage_names; // Just names for asm pushes
+  static std::vector<std::string> stage_display_names; // Names + descriptions
+  static std::vector<const char*> stage_display_names_cstr; // ImGui acceptable names + descriptions
 
   ModCategory get_category() { return ModCategory::STAGE; };
 
   // mod name string for config
-  std::string get_mod_name() const override { return "ArcadeMode"; }
-  std::string get_human_readable_name() const { return "Arcade Mode"; }
-  const char* get_description() const override { return R"(Arcade Mode)"; };
+  std::string get_mod_name() const override { return "QuickBoot"; }
+  std::string get_human_readable_name() const { return "Quick Boot"; }
+  const char* get_description() const override { return R"(Quick Boot)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
@@ -33,6 +36,6 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-  std::unique_ptr<FunctionHook> m_hook1;
+  // std::unique_ptr<FunctionHook> m_hook1;
 };
 #endif
