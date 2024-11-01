@@ -61,6 +61,8 @@ set(MODS_SRC
     mods/QuickBoot.cpp 
     mods/EnemyTracker.hpp 
     mods/EnemyTracker.cpp 
+    mods/StanceControl.hpp 
+    mods/StanceControl.cpp 
 
 )
 

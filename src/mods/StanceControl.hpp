@@ -1,20 +1,30 @@
 #pragma once
 #include "Mod.hpp"
 #include "sdk/ReClass.hpp"
-class RollRotation : public Mod {
+class StanceControl : public Mod {
 public:
-  RollRotation() = default;
+  StanceControl() = default;
   
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
   static bool mod_enabled;
+  static bool invert_input;
+  static float custom_fov;
+  static float default_fov;
+  static uintptr_t r2PushAddr;
   static uintptr_t jmp_ret1;
-  static uintptr_t mRotate2LockOnTarget;
-  static uintptr_t GetMotionRunState;
+
+  static float r2Mult;
+  static float r2Sub;
+  static float highBound;
+  static float lowBound;
+  static float invert;
+
+  void toggle(bool enable);
 
   // mod name string for config
-  std::string get_mod_name() const override { return "RollRotation"; }
-  std::string get_human_readable_name() const { return "Roll Rotation"; }
-  const char* get_description() const override { return R"(Roll Rotation)"; };
+  std::string get_mod_name() const override { return "StanceControl"; }
+  std::string get_human_readable_name() const { return "Stance Control"; }
+  const char* get_description() const override { return R"(Stance Control)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
@@ -32,5 +42,5 @@ public:
   //void on_draw_debug_ui() override;
 private:
 	std::unique_ptr<FunctionHook> m_hook1;
-	// std::unique_ptr<Patch> m_patch;
+	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3;
 };

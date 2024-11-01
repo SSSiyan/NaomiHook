@@ -16,6 +16,7 @@ public:
   static bool target_switch_degrees_toggle;
   static float default_search_degrees;
   static float custom_search_degrees;
+  static float zero_search_degrees;
 
   static uintptr_t jmp_ret2;
   static uintptr_t jmp_ja2;

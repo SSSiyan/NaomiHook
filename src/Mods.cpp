@@ -35,6 +35,7 @@
 #include "mods/SoundTracker.hpp"
 #include "mods/QuickBoot.hpp"
 #include "mods/ArcadeMode.hpp"
+#include "mods/StanceControl.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -79,6 +80,7 @@ Mods::Mods()
     ADD_MOD(SoundTracker);
     ADD_MOD(QuickBoot);
     ADD_MOD(ArcadeMode);
+    ADD_MOD(StanceControl);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
