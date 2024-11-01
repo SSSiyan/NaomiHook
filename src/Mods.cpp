@@ -8,6 +8,7 @@
 // #include "mods/BeamColor.hpp"
 // #include "mods/HpColor.hpp"
 #include "mods/PlayerTracker.hpp"
+#include "mods/EnemyTracker.hpp"
 #include "mods/DisableCrashDumps.hpp"
 #include "mods/AcceptPadInputsTabbedOut.hpp"
 #include "mods/WeaponSwitcher.hpp"
@@ -51,6 +52,7 @@ Mods::Mods()
     // ADD_MOD(BeamColor);
     // ADD_MOD(HpColor);
     ADD_MOD(PlayerTracker);
+    ADD_MOD(EnemyTracker);
     ADD_MOD(DisableCrashDumps);
     ADD_MOD(AcceptPadInputsTabbedOut);
     ADD_MOD(WeaponSwitcher);
@@ -115,6 +117,8 @@ void Mods::on_frame() const {
 void Mods::on_draw_custom_imgui_window() {
     PlayerTracker* pt = dynamic_cast<PlayerTracker*>(m_mods[0].get());
     pt->custom_imgui_window();
+    EnemyTracker* et = dynamic_cast<EnemyTracker*>(m_mods[1].get());
+    et->custom_imgui_window();
 }
 
 void Mods::on_draw_debug_ui() const {

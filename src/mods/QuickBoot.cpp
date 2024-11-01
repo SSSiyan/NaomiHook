@@ -6,9 +6,9 @@ bool QuickBoot::mod_enabled = false;
 const char* QuickBoot::originalBootStage = "STG00011";
 int QuickBoot::newBootStageIndex = 0;
 
-std::vector<const char*> QuickBoot::stage_names; // Just names
-std::vector<std::string> QuickBoot::stage_display_names; // Names + Descriptions
-std::vector<const char*> QuickBoot::stage_display_names_cstr;
+std::vector<const char*> QuickBoot::stage_names; // Just names for asm pushes
+std::vector<std::string> QuickBoot::stage_display_names; // Names + descriptions
+std::vector<const char*> QuickBoot::stage_display_names_cstr; // ImGui acceptable names + descriptions
 
 std::optional<std::string> QuickBoot::on_initialize() {
     for (const auto& stage : StageWarp::stage_items) {

@@ -13,7 +13,7 @@ naked void detour1() {
         push eax
         mov eax, [ReprisalSwap::gpPad]
         mov eax, [eax]
-        cmp byte ptr [eax+0x1CC], 1 // high attack // Ffom nmh.PC_INPUT_ATTACK+99
+        cmp byte ptr [eax+0x1CC], 1 // high attack // From nmh.PC_INPUT_ATTACK+99
         pop eax
         jne originalcode
         mov eax, 169 // new motNum

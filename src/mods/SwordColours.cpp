@@ -118,7 +118,7 @@ static constexpr TextureAtlas g_atlas{};
 #pragma endregion
 
 // clang-format off
-naked void detour1() { // player in ebx
+naked void detour1() { // swords, player in ebx
     __asm {
         //
             cmp byte ptr [SwordColours::mod_enabled], 0
@@ -215,7 +215,7 @@ naked void detour1() { // player in ebx
     }
 }
 
-naked void detour2() { // player in ?
+naked void detour2() { // trails, player in ebx
     __asm {
         //
             cmp byte ptr [SwordColours::mod_enabled], 0
@@ -313,7 +313,7 @@ naked void detour2() { // player in ?
     }
 }
 
-naked void detour3() { // set deathblow timer
+naked void detour3() { // set deathblow timer, player in ebx
     __asm {
         //
             cmp byte ptr [SwordColours::mod_enabled], 0

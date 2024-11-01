@@ -59,6 +59,8 @@ set(MODS_SRC
     mods/ArcadeMode.cpp 
     mods/QuickBoot.hpp 
     mods/QuickBoot.cpp 
+    mods/EnemyTracker.hpp 
+    mods/EnemyTracker.cpp 
 
 )
 
