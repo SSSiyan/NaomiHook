@@ -28,10 +28,10 @@ void LockOnSettings::toggle_sidestep_lockon(bool enable) {
 
 void LockOnSettings::toggle_deathblow_lockon(bool enable) {
     if (enable) {
-        install_patch_offset(0x3C4429, patch2, "\xEB\x58", 5); // jmp nmh.exe+3C4483
+        install_patch_offset(0x3C4429, patch2, "\xEB\x58", 2); // jmp nmh.exe+3C4483
     }
     else {
-        install_patch_offset(0x3C4429, patch2, "\x75\x58", 5); // jne nmh.exe+3C4483
+        install_patch_offset(0x3C4429, patch2, "\x75\x58", 2); // jne nmh.exe+3C4483
     }
 }
 
