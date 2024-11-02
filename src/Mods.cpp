@@ -52,8 +52,8 @@ Mods::Mods()
     // ADD_MOD(SimpleMod);
     // ADD_MOD(BeamColor);
     // ADD_MOD(HpColor);
-    ADD_MOD(PlayerTracker);
-    ADD_MOD(EnemyTracker);
+    ADD_MOD(PlayerTracker); // keep first
+    ADD_MOD(EnemyTracker); // keep second
     ADD_MOD(DisableCrashDumps);
     ADD_MOD(AcceptPadInputsTabbedOut);
     ADD_MOD(WeaponSwitcher);
@@ -61,6 +61,7 @@ Mods::Mods()
     ADD_MOD(StageWarp);
     ADD_MOD(ClothesSwitcher);
     ADD_MOD(LockOnSettings);
+    ADD_MOD(LockOnDisablesThrows);
     ADD_MOD(HitstopSettings);
     ADD_MOD(ScreenshakeSettings);
     ADD_MOD(RollForward);
@@ -70,7 +71,6 @@ Mods::Mods()
     ADD_MOD(DodgeBattery);
     ADD_MOD(HPHitNumber);
     ADD_MOD(ChargeSubsBattery);
-    ADD_MOD(LockOnDisablesThrows);
     ADD_MOD(DebugText);
     ADD_MOD(Invincibility);
     ADD_MOD(RollRotation);

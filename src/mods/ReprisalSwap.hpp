@@ -8,7 +8,7 @@ public:
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
   static bool mod_enabled;
   static uintptr_t jmp_ret1;
-  static uintptr_t gpPad;
+  static uintptr_t gpPadUni;
 
   // mod name string for config
   std::string get_mod_name() const override { return "ReprisalSwap"; }

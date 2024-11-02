@@ -2,9 +2,9 @@
 
 #if 1
 bool LockOnSettings::mod_enabled = false;
-// bool LockOnSettings::lockon_sidesteps = false;
-// bool LockOnSettings::lockon_deathblows = false;
-// bool LockOnSettings::lockon_parry_qtes = false;
+bool LockOnSettings::lockon_sidesteps = false;
+bool LockOnSettings::lockon_deathblows = false;
+bool LockOnSettings::lockon_parry_qtes = false;
 
 uintptr_t LockOnSettings::jmp_ret1 = NULL;
 bool LockOnSettings::target_switch_degrees_toggle = false;
@@ -15,7 +15,7 @@ uintptr_t LockOnSettings::jmp_ret2 = NULL;
 uintptr_t LockOnSettings::jmp_ja2 = NULL;
 uintptr_t LockOnSettings::jmp_ret2alt = NULL;
 
-/*void LockOnSettings::toggle_sidestep_lockon(bool enable) {
+void LockOnSettings::toggle_sidestep_lockon(bool enable) {
     if (enable) {
         install_patch_offset(0x3C42BE, patch0, "\x74\x12\x90\x90\x90\x90", 6); // je nmh.mHRPc::mUpdateLockOnTarget+A2 nop 4 // roll back
         install_patch_offset(0x3C42CC, patch1, "\x90\x90\x90\x90\x90\x90", 6); // nop 6 // other rolls
@@ -28,10 +28,10 @@ uintptr_t LockOnSettings::jmp_ret2alt = NULL;
 
 void LockOnSettings::toggle_deathblow_lockon(bool enable) {
     if (enable) {
-        install_patch_offset(0x3D08E5, patch2, "\x90\x90\x90\x90\x90", 5); // nop 5
+        install_patch_offset(0x3C4429, patch2, "\xEB\x58", 5); // jmp nmh.exe+3C4483
     }
     else {
-        install_patch_offset(0x3D08E5, patch2, "\xE8\xF6\x44\xFF\xFF", 5); // call nmh.mHRPc::mInitLockOn
+        install_patch_offset(0x3C4429, patch2, "\x75\x58", 5); // jne nmh.exe+3C4483
     }
 }
 
@@ -42,7 +42,7 @@ void LockOnSettings::toggle_parry_qte_lockon(bool enable) {
     else {
         install_patch_offset(0x3C4268, patch3, "\x0F\x84\x2E\x06\x00\x00", 6); // je nmh.mHRPc::mUpdateLockOnTarget+66C
     }
-}*/
+}
 
 // clang-format off
 naked void detour1() { // Horizontal Limit // player in ecx
@@ -61,7 +61,7 @@ naked void detour1() { // Horizontal Limit // player in ecx
     }
 }
 
-naked void detour2() { // Horizontal Limit // player in ecx
+naked void detour2() { // Lock on during more actions
     __asm {
         // 
             cmp byte ptr [LockOnSettings::mod_enabled], 0
@@ -90,7 +90,6 @@ std::optional<std::string> LockOnSettings::on_initialize() {
         return "Failed to init LockOnSettings mod";
     }
 
-
     jmp_ret2alt = g_framework->get_module().as<uintptr_t>() + 0x3C4483;
     jmp_ja2 = g_framework->get_module().as<uintptr_t>() + 0x3C42BB;
     if (!install_hook_offset(0x3C42A5, m_hook2, &detour2, &LockOnSettings::jmp_ret2, 8)) {
@@ -102,7 +101,11 @@ std::optional<std::string> LockOnSettings::on_initialize() {
 }
 
 void LockOnSettings::on_draw_ui() {
-    /*if (ImGui::Checkbox("Lock On During Sidesteps", &lockon_sidesteps)) {
+    ImGui::TextWrapped("pls check to see which of these still need to be ticked and I'll remove the ones that don't");
+
+    ImGui::Checkbox("Enable lockon during more actions", &mod_enabled);
+
+    if (ImGui::Checkbox("Lock On During Sidesteps", &lockon_sidesteps)) {
         toggle_sidestep_lockon(lockon_sidesteps);
     }
     if (ImGui::Checkbox("Lock On During Deathblows", &lockon_deathblows)) {
@@ -110,9 +113,7 @@ void LockOnSettings::on_draw_ui() {
     }
     if (ImGui::Checkbox("Lock On During Parry QTEs", &lockon_parry_qtes)) {
         toggle_parry_qte_lockon(lockon_parry_qtes);
-    }*/
-
-    ImGui::Checkbox("Enable lockon during more actions", &mod_enabled);
+    }
 
     ImGui::Checkbox("Custom Target Switch Horizontal Limit", &target_switch_degrees_toggle);
     if (target_switch_degrees_toggle) {
@@ -123,12 +124,12 @@ void LockOnSettings::on_draw_ui() {
 
 // during load
 void LockOnSettings::on_config_load(const utility::Config &cfg) {
-    /*lockon_sidesteps = cfg.get<bool>("lockon_sidesteps").value_or(false);
+    lockon_sidesteps = cfg.get<bool>("lockon_sidesteps").value_or(false);
     toggle_sidestep_lockon(lockon_sidesteps);
     lockon_deathblows = cfg.get<bool>("lockon_deathblows").value_or(false);
     toggle_deathblow_lockon(lockon_deathblows);
     lockon_parry_qtes = cfg.get<bool>("lockon_parry_qtes").value_or(false);
-    toggle_parry_qte_lockon(lockon_parry_qtes);*/
+    toggle_parry_qte_lockon(lockon_parry_qtes);
 
     mod_enabled = cfg.get<bool>("more_lockon_actions").value_or(false);
     target_switch_degrees_toggle = cfg.get<bool>("target_switch_degrees_toggle").value_or(false);
@@ -137,9 +138,9 @@ void LockOnSettings::on_config_load(const utility::Config &cfg) {
 
 // during save
 void LockOnSettings::on_config_save(utility::Config &cfg) {
-    /*cfg.set<bool>("lockon_sidesteps", lockon_sidesteps);
+    cfg.set<bool>("lockon_sidesteps", lockon_sidesteps);
     cfg.set<bool>("lockon_deathblows", lockon_deathblows);
-    cfg.set<bool>("lockon_parry_qtes", lockon_parry_qtes);*/
+    cfg.set<bool>("lockon_parry_qtes", lockon_parry_qtes);
 
     cfg.set<bool>("more_lockon_actions", mod_enabled);
     cfg.set<bool>("target_switch_degrees_toggle", target_switch_degrees_toggle);

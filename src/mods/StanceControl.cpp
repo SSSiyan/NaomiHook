@@ -2,6 +2,7 @@
 #if 1
 bool StanceControl::mod_enabled = false;
 bool StanceControl::invert_input = false;
+bool StanceControl::invert_mid = false;
 uintptr_t StanceControl::gpPad = NULL;
 uintptr_t StanceControl::jmp_ret1 = NULL;
 
@@ -50,8 +51,10 @@ naked void detour1() { //
         ja writeHigh
         comiss xmm0, [StanceControl::lowBound]
         jb writeLow
-    // writeMid
-        mov dword ptr [esi+0x1350], 1
+    //writeMid:
+        cmp byte ptr [StanceControl::invert_mid], 1
+        je writeLowInstead
+        mov dword ptr [esi+0x1350], 1 // 2
         jmp originalcode
 
     writeHigh:
@@ -59,7 +62,18 @@ naked void detour1() { //
         jmp originalcode
 
     writeLow:
+        cmp byte ptr [StanceControl::invert_mid], 1
+        je writeMidInstead
         mov dword ptr [esi+0x1350], 2
+        jmp originalcode
+
+    writeMidInstead:
+        mov dword ptr [esi+0x1350], 1
+        jmp originalcode
+    writeLowInstead:
+        mov dword ptr [esi+0x1350], 2
+        jmp originalcode
+
     originalcode:
         movss [esi+0x0000139C], xmm0
         jmp dword ptr [StanceControl::jmp_ret1]
@@ -133,6 +147,9 @@ void StanceControl::on_draw_ui() {
     ImGui::SliderFloat("lowBound", &StanceControl::lowBound, -1.0f, 0.0f);
     help_marker("How little should r2 be pushed to enter low stance");
     ImGui::Checkbox("Invert", &StanceControl::invert_input);
+    help_marker("Swap low and high");
+    ImGui::Checkbox("Invert Mid", &StanceControl::invert_mid);
+    help_marker("Swap medium and low");
 }
 
 // during load
@@ -142,6 +159,7 @@ void StanceControl::on_config_load(const utility::Config &cfg) {
     invert_input = cfg.get<bool>("stance_control_invert").value_or(false);
     highBound = cfg.get<float>("stance_control_high_bound").value_or(0.9f);
     lowBound = cfg.get<float>("stance_control_low_bound").value_or(-0.9f);
+    invert_mid = cfg.get<bool>("stance_control_invert_mid").value_or(true);
 }
 // during save
 void StanceControl::on_config_save(utility::Config &cfg) {
@@ -149,10 +167,64 @@ void StanceControl::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("stance_control_invert", invert_input);
     cfg.set<float>("stance_control_high_bound", highBound);
     cfg.set<float>("stance_control_low_bound", lowBound);
+    cfg.set<bool>("stance_control_invert_mid", invert_mid);
+}
+
+void TextCentered(std::string text) {
+    auto windowWidth = ImGui::GetWindowSize().x;
+    auto textWidth   = ImGui::CalcTextSize(text.c_str()).x;
+
+    ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+    ImGui::Text(text.c_str());
 }
 
 // do something every frame
-//void StanceControl::on_frame() {}
+void StanceControl::on_frame() {
+    if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
+        if (mHRPc->mOperate && StanceControl::mod_enabled) {
+            ImVec2 windowPos = ImVec2((ImGui::GetIO().DisplaySize.x * 0.924f), (ImGui::GetIO().DisplaySize.y * 0.2f));
+            ImVec2 windowSize = (ImVec2((ImGui::GetIO().DisplaySize.x * 0.05f), (ImGui::GetIO().DisplaySize.y * 0.1f)));
+            ImGui::SetNextWindowPos(windowPos);
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+            ImGui::Begin("StanceControl", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
+            if (ImGui::BeginTable("StanceControlTable", 1, NULL, ImVec2(windowSize.x, windowSize.y / 3.0f))) {
+                int pose = mHRPc->mPcStatus.pose;
+                ImU32 redBgColor = IM_COL32(255, 0, 0, 255);
+                ImU32 defaultBgColor = IM_COL32(0, 0, 0, 255);
+                ImGui::TableNextColumn();
+                if (pose == 0) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, redBgColor);
+                }
+                else {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, defaultBgColor);
+                }
+                TextCentered("HIGH");
+
+                ImGui::TableNextColumn();
+                if (pose == 1 && !invert_mid || (pose == 2 && invert_mid)) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, redBgColor);
+                }
+                else {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, defaultBgColor);
+                }
+                TextCentered("MID");
+
+                ImGui::TableNextColumn();
+                if (pose == 2 && !invert_mid || pose == 1 && invert_mid) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, redBgColor);
+                }
+                else {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, defaultBgColor);
+                }
+                TextCentered("LOW");
+            }
+            ImGui::EndTable();
+            ImGui::PopStyleColor();
+            ImGui::End();
+        }
+    }
+}
+
 // will show up in debug window, dump ImGui widgets you want here
 //void StanceControl::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here
