@@ -4,6 +4,7 @@ bool StanceControl::mod_enabled = false;
 bool StanceControl::invert_input = false;
 bool StanceControl::invert_mid = false;
 bool StanceControl::show_new_ui = false;
+bool StanceControl::edit_old_ui = false;
 uintptr_t StanceControl::gpPad = NULL;
 uintptr_t StanceControl::jmp_ret1 = NULL;
 
@@ -28,6 +29,15 @@ void StanceControl::toggle(bool enable) {
         install_patch_offset(0x3DE09F, m_patch1, "\x74\x10", 2); // jmp nmh.exe+3DE0B1 // enable low stance set
         install_patch_offset(0x3DE067, m_patch2, "\x74\x0A", 2); // je nmh.exe+3DE073 // enable high stance set
         install_patch_offset(0x3D7E48, m_patch3, "\x80\xBE\x49\x16\x00\x00\x01", 7); // cmp byte ptr [esi+00001649],01 // disable mid stance
+    }
+} 
+
+void StanceControl::toggle_display_edit(bool enable) {
+    if (enable) {
+        install_patch_offset(0x409B70, m_patch4, "\x83\xE8\x01", 3); // sub eax,01
+    }
+    else {
+        install_patch_offset(0x409B70, m_patch4, "\x83\xE8\x02", 3); // sub eax,02
     }
 } 
 
@@ -150,8 +160,11 @@ void StanceControl::on_draw_ui() {
     ImGui::Checkbox("Invert", &StanceControl::invert_input);
     help_marker("Swap low and high");
     ImGui::Checkbox("Invert Mid", &StanceControl::invert_mid);
-    help_marker("Swap medium and low");
+    help_marker("Swap Medium and low");
     ImGui::Checkbox("Show Custom Stance UI", &StanceControl::show_new_ui);
+    if (ImGui::Checkbox("Swap Vanilla Mid And Low UI", &StanceControl::edit_old_ui)) {
+        toggle_display_edit(edit_old_ui);
+    }
 }
 
 // during load
@@ -160,6 +173,8 @@ void StanceControl::on_config_load(const utility::Config &cfg) {
     toggle(mod_enabled);
     invert_input = cfg.get<bool>("stance_control_invert").value_or(false);
     show_new_ui = cfg.get<bool>("stance_control_ui").value_or(true);
+    edit_old_ui = cfg.get<bool>("stance_control_edit_old_ui").value_or(false);
+    toggle_display_edit(edit_old_ui);
     invert_mid = cfg.get<bool>("stance_control_invert_mid").value_or(true);
     highBound = cfg.get<float>("stance_control_high_bound").value_or(0.9f);
     lowBound = cfg.get<float>("stance_control_low_bound").value_or(-0.9f);
@@ -169,6 +184,7 @@ void StanceControl::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("stance_control", mod_enabled);
     cfg.set<bool>("stance_control_invert", invert_input);
     cfg.set<bool>("stance_control_ui", show_new_ui);
+    cfg.set<bool>("stance_control_edit_old_ui", edit_old_ui);
     cfg.set<bool>("stance_control_invert_mid", invert_mid);
     cfg.set<float>("stance_control_high_bound", highBound);
     cfg.set<float>("stance_control_low_bound", lowBound);

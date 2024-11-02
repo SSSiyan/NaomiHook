@@ -9,6 +9,7 @@ public:
   static bool mod_enabled;
   static bool invert_input;
   static bool show_new_ui;
+  static bool edit_old_ui;
   static float custom_fov;
   static float default_fov;
   static uintptr_t gpPad;
@@ -26,6 +27,7 @@ public:
   static bool invert_mid;
 
   void toggle(bool enable);
+  void toggle_display_edit(bool enable);
 
   // mod name string for config
   std::string get_mod_name() const override { return "StanceControl"; }
@@ -48,5 +50,5 @@ public:
   //void on_draw_debug_ui() override;
 private:
 	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
-	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3;
+	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3, m_patch4;
 };
