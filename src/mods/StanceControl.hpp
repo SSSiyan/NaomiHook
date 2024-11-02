@@ -8,6 +8,7 @@ public:
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
   static bool mod_enabled;
   static bool invert_input;
+  static bool show_new_ui;
   static float custom_fov;
   static float default_fov;
   static uintptr_t gpPad;

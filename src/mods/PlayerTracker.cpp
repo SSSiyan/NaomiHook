@@ -42,6 +42,11 @@ void DrawPlayerStats() {
             else {
                 ImGui::Text("No Lock On Target");
             }
+            static pcMotion motionID = pcMotion::ePcMtBtLSSonic;
+            ImGui::InputInt("Motion ID", (int*)&motionID);
+            if (ImGui::Button("Play Move")) {
+                nmh_sdk::PlayMotion(motionID, 0, 0, 0, 0.1f);
+            }
         }
     }
     if (ImGui::CollapsingHeader("HrGameTask")) {

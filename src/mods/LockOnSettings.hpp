@@ -8,8 +8,9 @@ public:
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
 
   static bool mod_enabled;
-  static bool lockon_sidesteps;
+  // static bool lockon_sidesteps;
   static bool lockon_deathblows;
+  static bool lockon_deathblows_start;
   static bool lockon_parry_qtes;
 
   static uintptr_t jmp_ret1;
@@ -21,8 +22,9 @@ public:
   static uintptr_t jmp_ja2;
   static uintptr_t jmp_ret2alt;
 
-  void toggle_sidestep_lockon(bool enable);
+  // void toggle_sidestep_lockon(bool enable);
   void toggle_deathblow_lockon(bool enable);
+  void toggle_deathblow_lockon_start(bool enable);
   void toggle_parry_qte_lockon(bool enable);
 
   // mod name string for config
@@ -46,5 +48,5 @@ public:
   //void on_draw_debug_ui() override;
 private:
 	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
-	std::unique_ptr<Patch> patch0, patch1, patch2, patch3;
+	std::unique_ptr<Patch> patch1, patch2, patch3, patch4; // patch0
 };

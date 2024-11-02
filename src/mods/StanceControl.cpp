@@ -3,6 +3,7 @@
 bool StanceControl::mod_enabled = false;
 bool StanceControl::invert_input = false;
 bool StanceControl::invert_mid = false;
+bool StanceControl::show_new_ui = false;
 uintptr_t StanceControl::gpPad = NULL;
 uintptr_t StanceControl::jmp_ret1 = NULL;
 
@@ -150,6 +151,7 @@ void StanceControl::on_draw_ui() {
     help_marker("Swap low and high");
     ImGui::Checkbox("Invert Mid", &StanceControl::invert_mid);
     help_marker("Swap medium and low");
+    ImGui::Checkbox("Show Custom Stance UI", &StanceControl::show_new_ui);
 }
 
 // during load
@@ -157,17 +159,19 @@ void StanceControl::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("stance_control").value_or(false);
     toggle(mod_enabled);
     invert_input = cfg.get<bool>("stance_control_invert").value_or(false);
+    show_new_ui = cfg.get<bool>("stance_control_ui").value_or(true);
+    invert_mid = cfg.get<bool>("stance_control_invert_mid").value_or(true);
     highBound = cfg.get<float>("stance_control_high_bound").value_or(0.9f);
     lowBound = cfg.get<float>("stance_control_low_bound").value_or(-0.9f);
-    invert_mid = cfg.get<bool>("stance_control_invert_mid").value_or(true);
 }
 // during save
 void StanceControl::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("stance_control", mod_enabled);
     cfg.set<bool>("stance_control_invert", invert_input);
+    cfg.set<bool>("stance_control_ui", show_new_ui);
+    cfg.set<bool>("stance_control_invert_mid", invert_mid);
     cfg.set<float>("stance_control_high_bound", highBound);
     cfg.set<float>("stance_control_low_bound", lowBound);
-    cfg.set<bool>("stance_control_invert_mid", invert_mid);
 }
 
 void TextCentered(std::string text) {
@@ -181,7 +185,7 @@ void TextCentered(std::string text) {
 // do something every frame
 void StanceControl::on_frame() {
     if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
-        if (mHRPc->mOperate && StanceControl::mod_enabled) {
+        if (mHRPc->mOperate && StanceControl::mod_enabled && show_new_ui) {
             ImVec2 windowPos = ImVec2((ImGui::GetIO().DisplaySize.x * 0.924f), (ImGui::GetIO().DisplaySize.y * 0.2f));
             ImVec2 windowSize = (ImVec2((ImGui::GetIO().DisplaySize.x * 0.05f), (ImGui::GetIO().DisplaySize.y * 0.1f)));
             ImGui::SetNextWindowPos(windowPos);
