@@ -31,6 +31,10 @@ public:
   static bool wasL3PressedLastFrame;
   static bool invert_mid;
 
+  static uintptr_t jmp_ret3;
+  static uintptr_t jmp_jne3;
+  static uintptr_t clashing;
+
   void toggle(bool enable);
   void toggle_display_edit(bool enable);
 
@@ -54,6 +58,6 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
-	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3, m_patch4, m_patch5;
+	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3;
+	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3, m_patch4;
 };

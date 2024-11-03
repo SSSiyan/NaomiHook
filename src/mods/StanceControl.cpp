@@ -22,6 +22,10 @@ float StanceControl::invertGuard = 1.0f;
 uintptr_t StanceControl::jmp_ret2 = NULL;
 uintptr_t StanceControl::jmp2je = NULL;
 
+uintptr_t StanceControl::jmp_ret3 = NULL;
+uintptr_t StanceControl::jmp_jne3 = NULL;
+uintptr_t StanceControl::clashing = NULL;
+
 bool StanceControl::wasL3PressedLastFrame = false;
 
 void StanceControl::toggle(bool enable) {
@@ -29,22 +33,20 @@ void StanceControl::toggle(bool enable) {
         install_patch_offset(0x3DE09F, m_patch1, "\xEB\x10", 2); // jmp nmh.exe+3DE0B1 // disable low stance set
         install_patch_offset(0x3DE067, m_patch2, "\xEB\x0A", 2); // jmp nmh.exe+3DE073 // disable high stance set
         install_patch_offset(0x3D7E48, m_patch3, "\x80\xBE\x50\x13\x00\x00\x01", 7); // cmp byte ptr [esi+00001350],01 // force mid stance
-        install_patch_offset(0x3D7EC6, m_patch3, "\x90\x90", 2); // Kill movement check while guarding
     }
     else {
         install_patch_offset(0x3DE09F, m_patch1, "\x74\x10", 2); // jmp nmh.exe+3DE0B1 // enable low stance set
         install_patch_offset(0x3DE067, m_patch2, "\x74\x0A", 2); // je nmh.exe+3DE073 // enable high stance set
         install_patch_offset(0x3D7E48, m_patch3, "\x80\xBE\x49\x16\x00\x00\x01", 7); // cmp byte ptr [esi+00001649],01 // disable mid stance
-        install_patch_offset(0x3D7EC6, m_patch3, "\x75\x3C", 2); // Restore movement check while guarding
     }
 } 
 
 void StanceControl::toggle_display_edit(bool enable) {
     if (enable) {
-        install_patch_offset(0x409B70, m_patch5, "\x83\xE8\x01", 3); // sub eax,01
+        install_patch_offset(0x409B70, m_patch4, "\x83\xE8\x01", 3); // sub eax,01
     }
     else {
-        install_patch_offset(0x409B70, m_patch5, "\x83\xE8\x02", 3); // sub eax,02
+        install_patch_offset(0x409B70, m_patch4, "\x83\xE8\x02", 3); // sub eax,02
     }
 } 
 
@@ -63,7 +65,6 @@ naked void detour1() { //
         je guardMath
         divss xmm0, [StanceControl::r2Mult] // Gamepad reads 0-255
         subss xmm0, [StanceControl::r2Sub] // we need it to read -1 to 1
-
     contAfterMath:
         cmp byte ptr [StanceControl::invert_input], 0
         je skipInvert
@@ -155,10 +156,34 @@ naked void detour2() { // remap lock on cycle
         jmp dword ptr [StanceControl::jmp_ret2]
     }
 }
+
+naked void detour3() { // enable guard anim unless clashing
+    __asm {
+    //
+        cmp byte ptr [StanceControl::mod_enabled], 0
+        je originalcode
+    //
+        push eax
+        push ecx
+        push edx
+        call dword ptr [StanceControl::clashing]
+        cmp al, 1
+        pop edx
+        pop ecx
+        pop eax
+        jne jnecode
+    originalcode:
+        cmp dword ptr [esi+0x00002990],03
+        jmp dword ptr [StanceControl::jmp_ret3]
+    jnecode:
+        jmp dword ptr [StanceControl::jmp_jne3]
+    }
+}
  // clang-format on
 
 std::optional<std::string> StanceControl::on_initialize() {
     gpPad = g_framework->get_module().as<uintptr_t>() + 0x849D10;
+    clashing = g_framework->get_module().as<uintptr_t>() + 0x3DFFC0;
     if (!install_hook_offset(0x3D7D6B, m_hook1, &detour1, &StanceControl::jmp_ret1, 8)) {
         spdlog::error("Failed to init StanceControl mod\n");
         return "Failed to init StanceControl mod";
@@ -166,6 +191,12 @@ std::optional<std::string> StanceControl::on_initialize() {
 
     jmp2je = g_framework->get_module().as<uintptr_t>() + 0x3C46F8;
     if (!install_hook_offset(0x3C4645, m_hook2, &detour2, &StanceControl::jmp_ret2, 13)) {
+        spdlog::error("Failed to init StanceControl mod\n");
+        return "Failed to init StanceControl mod";
+    }
+
+    jmp_jne3 = g_framework->get_module().as<uintptr_t>() + 0x3D7EC8;
+    if (!install_hook_offset(0x3D7EBF, m_hook3, &detour3, &StanceControl::jmp_ret3, 7)) {
         spdlog::error("Failed to init StanceControl mod\n");
         return "Failed to init StanceControl mod";
     }
@@ -194,31 +225,6 @@ void StanceControl::on_draw_ui() {
     if (ImGui::Checkbox("Swap Vanilla Mid And Low UI", &StanceControl::edit_old_ui)) {
         toggle_display_edit(edit_old_ui);
     }
-}
-
-// during load
-void StanceControl::on_config_load(const utility::Config &cfg) {
-    mod_enabled = cfg.get<bool>("stance_control").value_or(false);
-    toggle(mod_enabled);
-    invert_input = cfg.get<bool>("stance_control_invert").value_or(false);
-    show_new_ui = cfg.get<bool>("stance_control_ui").value_or(true);
-    edit_old_ui = cfg.get<bool>("stance_control_edit_old_ui").value_or(false);
-    toggle_display_edit(edit_old_ui);
-    invert_mid = cfg.get<bool>("stance_control_invert_mid").value_or(true);
-    highBound = cfg.get<float>("stance_control_high_bound").value_or(0.9f);
-    lowBound = cfg.get<float>("stance_control_low_bound").value_or(-0.9f);
-    highBoundGuard = (highBound + 1.0f) / 2;
-    lowBoundGuard = (lowBound + 1.0f) / 2;
-}
-// during save
-void StanceControl::on_config_save(utility::Config &cfg) {
-    cfg.set<bool>("stance_control", mod_enabled);
-    cfg.set<bool>("stance_control_invert", invert_input);
-    cfg.set<bool>("stance_control_ui", show_new_ui);
-    cfg.set<bool>("stance_control_edit_old_ui", edit_old_ui);
-    cfg.set<bool>("stance_control_invert_mid", invert_mid);
-    cfg.set<float>("stance_control_high_bound", highBound);
-    cfg.set<float>("stance_control_low_bound", lowBound);
 }
 
 void TextCentered(std::string text) {
@@ -274,6 +280,31 @@ void StanceControl::on_frame() {
             ImGui::End();
         }
     }
+}
+
+// during load
+void StanceControl::on_config_load(const utility::Config &cfg) {
+    mod_enabled = cfg.get<bool>("stance_control").value_or(false);
+    toggle(mod_enabled);
+    invert_input = cfg.get<bool>("stance_control_invert").value_or(false);
+    show_new_ui = cfg.get<bool>("stance_control_ui").value_or(true);
+    edit_old_ui = cfg.get<bool>("stance_control_edit_old_ui").value_or(false);
+    toggle_display_edit(edit_old_ui);
+    invert_mid = cfg.get<bool>("stance_control_invert_mid").value_or(true);
+    highBound = cfg.get<float>("stance_control_high_bound").value_or(0.9f);
+    lowBound = cfg.get<float>("stance_control_low_bound").value_or(-0.9f);
+    highBoundGuard = (highBound + 1.0f) / 2;
+    lowBoundGuard = (lowBound + 1.0f) / 2;
+}
+// during save
+void StanceControl::on_config_save(utility::Config &cfg) {
+    cfg.set<bool>("stance_control", mod_enabled);
+    cfg.set<bool>("stance_control_invert", invert_input);
+    cfg.set<bool>("stance_control_ui", show_new_ui);
+    cfg.set<bool>("stance_control_edit_old_ui", edit_old_ui);
+    cfg.set<bool>("stance_control_invert_mid", invert_mid);
+    cfg.set<float>("stance_control_high_bound", highBound);
+    cfg.set<float>("stance_control_low_bound", lowBound);
 }
 
 // will show up in debug window, dump ImGui widgets you want here
