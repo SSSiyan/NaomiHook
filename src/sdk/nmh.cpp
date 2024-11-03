@@ -54,9 +54,7 @@ namespace nmh_sdk {
             }
         }
         // set player visible in case cutscenes have set you invisible
-        if (mHRPc* mHRPc = get_mHRPc()) {
-            SetVisible(true);
-        }
+        SetVisible(true);
     }
 
     void SetVisible(bool inVisible) {

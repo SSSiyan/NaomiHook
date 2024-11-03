@@ -8,11 +8,13 @@ bool StanceControl::edit_old_ui = false;
 uintptr_t StanceControl::gpPad = NULL;
 uintptr_t StanceControl::jmp_ret1 = NULL;
 
-float StanceControl::r2Mult = 127.5;
-float StanceControl::r2Sub = 1;
-float StanceControl::invert = -1;
-float StanceControl::highBound = 0.9;
-float StanceControl::lowBound = -0.9;
+float StanceControl::r2Mult = 127.5f;
+float StanceControl::r2Sub = 1.0f;
+float StanceControl::invert = -1.0f;
+float StanceControl::highBound = 0.9f;
+float StanceControl::lowBound = -0.9f;
+
+float StanceControl::r2MultGuard = 255.0f;
 
 uintptr_t StanceControl::jmp_ret2 = NULL;
 uintptr_t StanceControl::jmp2je = NULL;
@@ -24,20 +26,22 @@ void StanceControl::toggle(bool enable) {
         install_patch_offset(0x3DE09F, m_patch1, "\xEB\x10", 2); // jmp nmh.exe+3DE0B1 // disable low stance set
         install_patch_offset(0x3DE067, m_patch2, "\xEB\x0A", 2); // jmp nmh.exe+3DE073 // disable high stance set
         install_patch_offset(0x3D7E48, m_patch3, "\x80\xBE\x50\x13\x00\x00\x01", 7); // cmp byte ptr [esi+00001350],01 // force mid stance
+        install_patch_offset(0x3D7EC6, m_patch3, "\x90\x90", 2); // Kill movement check while guarding
     }
     else {
         install_patch_offset(0x3DE09F, m_patch1, "\x74\x10", 2); // jmp nmh.exe+3DE0B1 // enable low stance set
         install_patch_offset(0x3DE067, m_patch2, "\x74\x0A", 2); // je nmh.exe+3DE073 // enable high stance set
         install_patch_offset(0x3D7E48, m_patch3, "\x80\xBE\x49\x16\x00\x00\x01", 7); // cmp byte ptr [esi+00001649],01 // disable mid stance
+        install_patch_offset(0x3D7EC6, m_patch3, "\x75\x3C", 2); // Restore movement check while guarding
     }
 } 
 
 void StanceControl::toggle_display_edit(bool enable) {
     if (enable) {
-        install_patch_offset(0x409B70, m_patch4, "\x83\xE8\x01", 3); // sub eax,01
+        install_patch_offset(0x409B70, m_patch5, "\x83\xE8\x01", 3); // sub eax,01
     }
     else {
-        install_patch_offset(0x409B70, m_patch4, "\x83\xE8\x02", 3); // sub eax,02
+        install_patch_offset(0x409B70, m_patch5, "\x83\xE8\x02", 3); // sub eax,02
     }
 } 
 
@@ -52,8 +56,11 @@ naked void detour1() { //
         mov eax, [StanceControl::gpPad]
         movss xmm0, [eax+0x64]
         pop eax
+        cmp dword ptr [esi+0x18C], 48 // guarding
+        je guardMath
         divss xmm0, [StanceControl::r2Mult] // Gamepad reads 0-255
         subss xmm0, [StanceControl::r2Sub] // we need it to read -1 to 1
+    contAfterMath:
         cmp byte ptr [StanceControl::invert_input], 0
         je skipInvert
         mulss xmm0, [StanceControl::invert]
@@ -88,6 +95,10 @@ naked void detour1() { //
     originalcode:
         movss [esi+0x0000139C], xmm0
         jmp dword ptr [StanceControl::jmp_ret1]
+
+    guardMath:
+        divss xmm0, [StanceControl::r2MultGuard] // Gamepad reads 0-255
+        jmp contAfterMath
     }
 }
 
@@ -160,7 +171,7 @@ void StanceControl::on_draw_ui() {
     ImGui::Checkbox("Invert", &StanceControl::invert_input);
     help_marker("Swap low and high");
     ImGui::Checkbox("Invert Mid", &StanceControl::invert_mid);
-    help_marker("Swap Medium and low");
+    help_marker("Swap medium and low");
     ImGui::Checkbox("Show Custom Stance UI", &StanceControl::show_new_ui);
     if (ImGui::Checkbox("Swap Vanilla Mid And Low UI", &StanceControl::edit_old_ui)) {
         toggle_display_edit(edit_old_ui);

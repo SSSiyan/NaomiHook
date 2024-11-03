@@ -21,6 +21,8 @@ public:
   static float lowBound;
   static float invert;
 
+  static float r2MultGuard;
+
   static uintptr_t jmp_ret2;
   static uintptr_t jmp2je;
   static bool wasL3PressedLastFrame;
@@ -50,5 +52,5 @@ public:
   //void on_draw_debug_ui() override;
 private:
 	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
-	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3, m_patch4;
+	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3, m_patch4, m_patch5;
 };
