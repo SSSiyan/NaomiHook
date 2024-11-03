@@ -22,6 +22,9 @@ public:
   static float invert;
 
   static float r2MultGuard;
+  static float highBoundGuard;
+  static float lowBoundGuard;
+  static float invertGuard;
 
   static uintptr_t jmp_ret2;
   static uintptr_t jmp2je;

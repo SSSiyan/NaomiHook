@@ -11,10 +11,13 @@ uintptr_t StanceControl::jmp_ret1 = NULL;
 float StanceControl::r2Mult = 127.5f;
 float StanceControl::r2Sub = 1.0f;
 float StanceControl::invert = -1.0f;
-float StanceControl::highBound = 0.9f;
-float StanceControl::lowBound = -0.9f;
+float StanceControl::highBound = 0.0f;
+float StanceControl::lowBound = 0.0f;
 
 float StanceControl::r2MultGuard = 255.0f;
+float StanceControl::highBoundGuard = 0.0f;
+float StanceControl::lowBoundGuard = 0.0f;
+float StanceControl::invertGuard = 1.0f;
 
 uintptr_t StanceControl::jmp_ret2 = NULL;
 uintptr_t StanceControl::jmp2je = NULL;
@@ -60,6 +63,7 @@ naked void detour1() { //
         je guardMath
         divss xmm0, [StanceControl::r2Mult] // Gamepad reads 0-255
         subss xmm0, [StanceControl::r2Sub] // we need it to read -1 to 1
+
     contAfterMath:
         cmp byte ptr [StanceControl::invert_input], 0
         je skipInvert
@@ -69,7 +73,7 @@ naked void detour1() { //
         ja writeHigh
         comiss xmm0, [StanceControl::lowBound]
         jb writeLow
-    //writeMid:
+    writeMid:
         cmp byte ptr [StanceControl::invert_mid], 1
         je writeLowInstead
         mov dword ptr [esi+0x1350], 1 // 2
@@ -98,7 +102,17 @@ naked void detour1() { //
 
     guardMath:
         divss xmm0, [StanceControl::r2MultGuard] // Gamepad reads 0-255
-        jmp contAfterMath
+        cmp byte ptr [StanceControl::invert_input], 0
+        je skipInvert2
+        movss xmm3, [StanceControl::invertGuard]
+        subss xmm3, xmm0
+        movss xmm0, xmm3
+    skipInvert2:
+        comiss xmm0, [StanceControl::highBoundGuard]
+        ja writeHigh
+        comiss xmm0, [StanceControl::lowBoundGuard]
+        jb writeLow
+        jmp writeMid
     }
 }
 
@@ -164,9 +178,13 @@ void StanceControl::on_draw_ui() {
         toggle(mod_enabled);
     }
     help_marker("Remaps lock on cycle to R3");
-    ImGui::SliderFloat("highBound", &StanceControl::highBound, 0.0f, 1.0f);
+    if (ImGui::SliderFloat("highBound", &StanceControl::highBound, 0.0f, 1.0f)) {
+        highBoundGuard = (highBound + 1.0f) / 2;
+    }
     help_marker("How far should r2 be pushed to enter high stance");
-    ImGui::SliderFloat("lowBound", &StanceControl::lowBound, -1.0f, 0.0f);
+    if (ImGui::SliderFloat("lowBound", &StanceControl::lowBound, -1.0f, 0.0f)) {
+        lowBoundGuard = (lowBound + 1.0f) / 2;
+    }
     help_marker("How little should r2 be pushed to enter low stance");
     ImGui::Checkbox("Invert", &StanceControl::invert_input);
     help_marker("Swap low and high");
@@ -189,6 +207,8 @@ void StanceControl::on_config_load(const utility::Config &cfg) {
     invert_mid = cfg.get<bool>("stance_control_invert_mid").value_or(true);
     highBound = cfg.get<float>("stance_control_high_bound").value_or(0.9f);
     lowBound = cfg.get<float>("stance_control_low_bound").value_or(-0.9f);
+    highBoundGuard = (highBound + 1.0f) / 2;
+    lowBoundGuard = (lowBound + 1.0f) / 2;
 }
 // during save
 void StanceControl::on_config_save(utility::Config &cfg) {
