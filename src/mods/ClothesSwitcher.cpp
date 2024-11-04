@@ -220,7 +220,7 @@ static constexpr std::array<Equip_Item, 800> clothing_items = {
     Equip_Item  {JACKET5,    "ZEBRA"},
     Equip_Item  {JACKET6,    "GRIZZLY BEAR"},
     Equip_Item  {JACKET7,    "CRASH STAR"},
-    Equip_Item  {JACKET8,    "ROCK SBAJE"},
+    Equip_Item  {JACKET8,    "ROCK SNAKE"},
     Equip_Item  {JACKET9,    "BIZARRE JELLY"},
     Equip_Item  {JACKET10,   "Jacket 10"},
     Equip_Item  {JACKET11,   "Jacket 11"},
