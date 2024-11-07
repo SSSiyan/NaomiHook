@@ -832,10 +832,10 @@ static constexpr std::array<ComboInfo, 7> combo_boxes = {
     ComboInfo {"Sword ##Combo", 0, 100},
     ComboInfo {"Glasses ##Combo", 100, 200},
     ComboInfo {"Jacket ##Combo", 200, 300},
-    ComboInfo {"Shoes ##Combo", 300, 400},
-    ComboInfo {"Jeans ##Combo", 400, 500},
+    ComboInfo {"Shirt ##Combo", 600, 800},
     ComboInfo {"Belt ##Combo", 500, 600},
-    ComboInfo {"Shirt ##Combo", 600, 800}
+    ComboInfo {"Jeans ##Combo", 400, 500},
+    ComboInfo {"Shoes ##Combo", 300, 400},
 };
 
 std::optional<std::string> ClothesSwitcher::on_initialize() {

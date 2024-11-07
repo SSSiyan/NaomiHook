@@ -8,10 +8,9 @@ public:
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
   static bool mod_enabled;
   static bool invert_input;
+  static bool invert_mid;
   static bool show_new_ui;
   static bool edit_old_ui;
-  static float custom_fov;
-  static float default_fov;
   static uintptr_t gpPad;
   static uintptr_t jmp_ret1;
 
@@ -29,7 +28,6 @@ public:
   static uintptr_t jmp_ret2;
   static uintptr_t jmp2je;
   static bool wasL3PressedLastFrame;
-  static bool invert_mid;
 
   static uintptr_t jmp_ret3;
   static uintptr_t jmp_jne3;

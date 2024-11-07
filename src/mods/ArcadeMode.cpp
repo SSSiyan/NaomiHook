@@ -88,6 +88,8 @@ naked void detour1() {
         je noStageEdit
         cmp byte ptr [ecx+0x29a2], 1 // if mDeadPause, do not edit teleport
         je noStageEdit
+        push 1
+        call dword ptr [ArcadeMode::mSetVisible] // set char visible after cutscenes
         call dword ptr GetNextStage // put nextStage* in eax
         test eax, eax
         je noStageEdit
