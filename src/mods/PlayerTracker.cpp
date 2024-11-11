@@ -1176,8 +1176,8 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Tsuba Tick", &player->mPcStatus.tsubaTick);
                 ImGui::InputInt("Tsuba Tick Total", &player->mPcStatus.tsubaTickTotal);
                 ImGui::InputFloat("Tsuba Rate", &player->mPcStatus.tsubaRate);
-                ImGui::InputInt("Tsuba Number", (int*)&player->mPcStatus.tsubaNum);
-                ImGui::InputInt("Tsuba Rotation Number", (int*)&player->mPcStatus.tsubaRotNum);
+                ImGui::InputScalar("Tsuba Number", ImGuiDataType_S8, &player->mPcStatus.tsubaNum);
+                ImGui::InputScalar("Tsuba Rotation Number", ImGuiDataType_S8, &player->mPcStatus.tsubaRotNum);
                 ImGui::Text("Tsuba Wait Animation");
                 ImGui::InputFloat("Tsuba Wait Rate", &player->mPcStatus.tsubaWait.mMotionRate);
                 ImGui::Text("Tsuba Osare Animation");
@@ -1265,7 +1265,7 @@ void DrawPlayerStats() {
                 for (int i = 0; i < 7; i++) {
                     ImGui::Checkbox(("Skill K7 " + std::to_string(i)).c_str(), &player->mPcStatus.skillK7[i]);
                 }
-                ImGui::InputInt("Max Combo", (int*)&player->mPcStatus.maxCmb);
+                ImGui::InputScalar("Max Combo", ImGuiDataType_S8, &player->mPcStatus.maxCmb);
                 ImGui::InputInt("Swing Count", &player->mPcStatus.swingCount);
                 ImGui::InputFloat("Pad Rotation Y", &player->mPcStatus.padRotY);
                 ImGui::Text("Dash Projection Animation");
@@ -1280,13 +1280,13 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Throw Input Result", &player->mPcStatus.throwInputResult);
                 ImGui::InputFloat("Money Up Rate", &player->mPcStatus.moneyUpRate);
                 ImGui::InputFloat("Jump Down Attack Distance", &player->mPcStatus.jumpDownAttackDist);
-                ImGui::InputInt("Bomb Stock Number", (int*)&player->mPcStatus.bomStockNum);
+                ImGui::InputScalar("Bomb Stock Number", ImGuiDataType_S8, &player->mPcStatus.bomStockNum);
                 ImGui::Checkbox("Camera Vertical Reverse Control", &player->mPcStatus.cameraVReverseControl);
                 ImGui::Checkbox("Camera Y Reverse Control", &player->mPcStatus.cameraYReverseControl);
                 ImGui::Checkbox("Display Map", &player->mPcStatus.dispMap);
-                ImGui::InputInt("Bike Sight", (int*)&player->mPcStatus.bikeSight);
+                ImGui::InputScalar("Bike Sight", ImGuiDataType_S8, &player->mPcStatus.bikeSight);
                 ImGui::Checkbox("Dont Change Bike Camera", &player->mPcStatus.dontChangeBikeCamera);
-                ImGui::InputInt("Shadow Depth", (int*)&player->mPcStatus.shadowDepth);
+                ImGui::InputScalar("Shadow Depth", ImGuiDataType_S8, &player->mPcStatus.shadowDepth);
                 ImGui::InputInt("Idling Tick", &player->mPcStatus.idlingTick);
                 ImGui::InputInt("Joyuu Light Number", &player->mPcStatus.joyuuLightNo);
                 for (int i = 0; i < 4; i++) {
@@ -1294,7 +1294,7 @@ void DrawPlayerStats() {
                 }
                 ImGui::InputInt("Joyuu Light Disable Number Count", &player->mPcStatus.joyuuLightDisableNoNum);
                 ImGui::InputInt("Clear Number", (int*)&player->mPcStatus.clearNum);
-                ImGui::InputInt("Roulette Hit Rate", (int*)&player->mPcStatus.rouletteHitRate);
+                ImGui::InputScalar("Roulette Hit Rate", ImGuiDataType_S8, &player->mPcStatus.rouletteHitRate);
                 ImGui::Checkbox("Finish Bonus", &player->mPcStatus.finishBonus);
                 ImGui::Checkbox("Just Guard", &player->mPcStatus.justGuard);
                 ImGui::Checkbox("Just Attack", &player->mPcStatus.justAttack);
