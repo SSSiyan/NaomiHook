@@ -1260,10 +1260,10 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Lost Bike", &player->mPcStatus.lostBike);
                 ImGui::Checkbox("Bike Visible", &player->mPcStatus.bikeVisible);
                 for (int i = 0; i < 16; i++) {
-                    ImGui::Checkbox("Skill Catch", &player->mPcStatus.skillCatch[i]);
+                    ImGui::Checkbox(("Skill Catch " + std::to_string(i)).c_str(), &player->mPcStatus.skillCatch[i]);
                 }
                 for (int i = 0; i < 7; i++) {
-                    ImGui::Checkbox("Skill K7", &player->mPcStatus.skillK7[i]);
+                    ImGui::Checkbox(("Skill K7 " + std::to_string(i)).c_str(), &player->mPcStatus.skillK7[i]);
                 }
                 ImGui::InputInt("Max Combo", (int*)&player->mPcStatus.maxCmb);
                 ImGui::InputInt("Swing Count", &player->mPcStatus.swingCount);
@@ -1290,7 +1290,7 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Idling Tick", &player->mPcStatus.idlingTick);
                 ImGui::InputInt("Joyuu Light Number", &player->mPcStatus.joyuuLightNo);
                 for (int i = 0; i < 4; i++) {
-                    ImGui::InputInt("Joyuu Light Disable Number", &player->mPcStatus.joyuuLightDisableNo[i]);
+                    ImGui::InputInt(("Joyuu Light Disable Number " + std::to_string(i)).c_str(), &player->mPcStatus.joyuuLightDisableNo[i]);
                 }
                 ImGui::InputInt("Joyuu Light Disable Number Count", &player->mPcStatus.joyuuLightDisableNoNum);
                 ImGui::InputInt("Clear Number", (int*)&player->mPcStatus.clearNum);
