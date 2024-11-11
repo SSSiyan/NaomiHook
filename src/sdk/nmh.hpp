@@ -18,6 +18,7 @@ namespace nmh_sdk {
 	typedef bool(__thiscall* mCheckHajikareFunc)(mHRPc* mHRPc); // 0x3D4BA0 
 	typedef bool(__thiscall* mCheckTsubazeringFunc)(mHRPc* mHRPc, int unkn); // 0x3DFFC0 
 	typedef bool(__thiscall* mCheckSideStepFunc)(mHRPc* mHRPc, int unkn); // call this with -1 // 0x3E2730
+	typedef  int(__thiscall* mSetInitNpcDatFunc)(mHRBattle* mHRBattle, int inResNo, enCharaType inChType, int inRepop, const Vec* inPos, const Vec* inRot, enPopReqType inPopType, bool inDisEnableCollision);
 
 	void SetStage(const char* _StgName, int _StageAdd, int _Arg1, int _Arg2, bool inBossInfoDisp, int inFadeType, __int64 inSetVolRate, bool inPause, unsigned int a10);
 	void SetVisible(bool inVisible);
@@ -29,4 +30,5 @@ namespace nmh_sdk {
 	bool CheckHajikare();
 	bool CheckTsubazering(int unkn);
 	bool CheckSideStep(int unkn);
+	int setInitNpcDat(int inResNo, enCharaType inChType, int inRepop, const Vec* inPos, const Vec* inRot, enPopReqType inPopType, bool inDisEnableCollision);
 };

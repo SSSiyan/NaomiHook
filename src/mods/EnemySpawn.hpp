@@ -1,24 +1,16 @@
 #pragma once
 #include "Mod.hpp"
 #include "sdk/ReClass.hpp"
-class ForceFOV : public Mod {
+class EnemySpawn : public Mod {
 public:
-  ForceFOV() = default;
+  EnemySpawn() = default;
   
-  ModCategory get_category() { return ModCategory::COSMETICS; };
-  static bool force_fov;
-  static bool disable_attack_zoom;
-  static float custom_fov;
-  static float default_fov;
-  static uintptr_t jmp_ret1;
-  static uintptr_t jmp_ret2;
-
-  void toggle(bool enable);
+  ModCategory get_category() { return ModCategory::SYSTEM; };
 
   // mod name string for config
-  std::string get_mod_name() const override { return "ForceFOV"; }
-  std::string get_human_readable_name() const { return "Force FOV"; }
-  const char* get_description() const override { return R"(Force FOV)"; };
+  std::string get_mod_name() const override { return "EnemySpawner"; }
+  std::string get_human_readable_name() const { return "Enemy Spawner"; }
+  const char* get_description() const override { return R"(Enemy Spawner)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
@@ -35,6 +27,6 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
-	std::unique_ptr<Patch> m_patch;
+	// std::unique_ptr<FunctionHook> m_hook1;
+	// std::unique_ptr<Patch> m_patch;
 };

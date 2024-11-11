@@ -9,6 +9,7 @@
 // #include "mods/HpColor.hpp"
 #include "mods/PlayerTracker.hpp"
 #include "mods/EnemyTracker.hpp"
+#include "mods/EnemySpawn.hpp"
 #include "mods/DisableCrashDumps.hpp"
 #include "mods/AcceptPadInputsTabbedOut.hpp"
 #include "mods/WeaponSwitcher.hpp"
@@ -54,6 +55,7 @@ Mods::Mods()
     // ADD_MOD(HpColor);
     ADD_MOD(PlayerTracker); // keep first
     ADD_MOD(EnemyTracker); // keep second
+    ADD_MOD(EnemySpawn);
     ADD_MOD(DisableCrashDumps);
     ADD_MOD(AcceptPadInputsTabbedOut);
     ADD_MOD(WeaponSwitcher);

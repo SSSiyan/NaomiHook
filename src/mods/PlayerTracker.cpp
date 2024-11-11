@@ -94,6 +94,20 @@ void DrawPlayerStats() {
             ImGui::InputScalar("m_Process_id", ImGuiDataType_S32, &hrGameTask->m_Process_id);
             ImGui::InputScalar("m_Pro_Sts", ImGuiDataType_S32, &hrGameTask->m_Pro_Sts);
             ImGui::Text("mp_SaveData: %p", hrGameTask->mp_SaveData);
+            if (ImGui::CollapsingHeader("mp_SaveData")) { // @Siy
+                if (hrGameTask->mp_SaveData) {
+                    ImGui::InputInt("mp_SaveData->t_MainScenarioID", &hrGameTask->mp_SaveData->t_MainScenarioID);
+                }
+                else ImGui::Text("mp_SaveData is nullptr");
+                if (hrGameTask->mp_CheckPoint) {
+                    ImGui::InputInt("mp_CheckPoint->t_MainScenarioID", &hrGameTask->mp_CheckPoint->t_MainScenarioID);
+                }
+                else ImGui::Text("mp_CheckPoint is nullptr");
+                if (hrGameTask->mp_HikitugiSaveData) {
+                    ImGui::InputInt("mp_HikitugiSaveData->t_MainScenarioID", &hrGameTask->mp_HikitugiSaveData->t_MainScenarioID);
+                }
+                else ImGui::Text("mp_HikitugiSaveData is nullptr");
+            }
             ImGui::Text("mp_CheckPoint: %p", hrGameTask->mp_CheckPoint);
             ImGui::Text("mp_HikitugiSaveData: %p", hrGameTask->mp_HikitugiSaveData);
             for (int i = 0; i < 60; ++i)
@@ -116,8 +130,7 @@ void DrawPlayerStats() {
             ImGui::Text("mLastSaveResource: %p", &hrGameTask->mLastSaveResource);
             ImGui::Text("mpLastSave: %p", hrGameTask->mpLastSave);
             ImGui::InputInt("mLastLogoProcess", &hrGameTask->mLastLogoProcess);
-            for (int i = 0; i < 4; ++i)
-            {
+            for (int i = 0; i < 4; ++i) {
                 ImGui::Text("mLastLogoTex[%d]: %p", i, &hrGameTask->mLastLogoTex[i]);
             }
             ImGui::Separator();
@@ -1112,6 +1125,12 @@ void DrawPlayerStats() {
                 ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &player->mCharaStatus.dmgInfo.m_BikeDeadRequest);
             }
             if (ImGui::CollapsingHeader("mHRPc stPcStatus")) {
+                // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->mPcStatus.atkMot);
+                // ImGui::Text("Base Address: 0x%08X", baseAddress);
+                // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&player->mPcStatus.skillCatch);
+                // ImGui::Text("Target Address: 0x%08X", targetAddress);
+                // uintptr_t offsetDifference = targetAddress - baseAddress;
+                // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
                 if (ImGui::CollapsingHeader("Weapon Info")) {
                     for (int i = 0; i < 16; i++) {
                         ImGui::Text("Weapon Info %d", i);
@@ -1216,7 +1235,9 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Combo Flag", &player->mPcStatus.cmbFlag);
                 ImGui::InputInt("Step Key", &player->mPcStatus.stepKey);
                 ImGui::Checkbox("Step Flag", &player->mPcStatus.stepFlag);
+                help_marker("buffered roll");
                 ImGui::Checkbox("Fight Flag", &player->mPcStatus.fghFlag);
+                help_marker("beat attacks");
                 ImGui::Checkbox("Range Flag", &player->mPcStatus.rngFlag);
                 ImGui::Checkbox("Battou Demo", &player->mPcStatus.battouDemo);
                 ImGui::InputInt("Battou Demo Proc", &player->mPcStatus.battouDemoProc);
@@ -1231,6 +1252,7 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Slash Mode Only", &player->mPcStatus.slashModeOnly);
                 ImGui::Checkbox("Catch Mode Disable", &player->mPcStatus.catchModeDisEnable);
                 ImGui::Checkbox("Fight Tame Disable", &player->mPcStatus.fightTameDisEnable);
+                help_marker("beat attack charges");
                 ImGui::Checkbox("Slash Tame Disable", &player->mPcStatus.slashTameDisEnable);
                 ImGui::Checkbox("Tsuba Disable", &player->mPcStatus.tsubaDisEnable);
                 ImGui::Checkbox("Down Attack Disable", &player->mPcStatus.downAttackDisEnable);
@@ -1247,6 +1269,7 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Cant Charge Battery", &player->mPcStatus.cantChargeBattery);
                 ImGui::Checkbox("Cant Display Laser Effect", &player->mPcStatus.cantDispLaserEffect);
                 ImGui::Checkbox("Last Combo Cancel", &player->mPcStatus.lastComboCancel);
+                help_marker("black screen beat attacks");
                 ImGui::Checkbox("Hizageri Hit", &player->mPcStatus.hizageriHit);
                 ImGui::Checkbox("Back Homing Camera", &player->mPcStatus.backHomingCamera);
                 ImGui::Checkbox("Weapon Change Invisible", &player->mPcStatus.wepChangeUnVisible);
@@ -1259,11 +1282,40 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Attack Hit Absolute", &player->mPcStatus.atkHitAbsolute);
                 ImGui::Checkbox("Lost Bike", &player->mPcStatus.lostBike);
                 ImGui::Checkbox("Bike Visible", &player->mPcStatus.bikeVisible);
+                static const char* skillCatchHelpMarkers[16] {
+                    "default",  // Skill Catch 0
+                    "default",  // Skill Catch 1
+                    "default",  // Skill Catch 2
+                    "default",  // Skill Catch 3
+                    "unkn",     // Skill Catch 4
+                    "unkn",     // Skill Catch 5
+                    "unkn",     // Skill Catch 6
+                    "unkn",     // Skill Catch 7
+                    "unkn",     // Skill Catch 8
+                    "unkn",     // Skill Catch 9
+                    "unkn",     // Skill Catch 10
+                    "unkn",     // Skill Catch 11
+                    "unkn",     // Skill Catch 12
+                    "unkn",     // Skill Catch 13
+                    "unkn",     // Skill Catch 14
+                    "unkn",     // Skill Catch 15
+                };
                 for (int i = 0; i < 16; i++) {
                     ImGui::Checkbox(("Skill Catch " + std::to_string(i)).c_str(), &player->mPcStatus.skillCatch[i]);
+                    help_marker(skillCatchHelpMarkers[i]);
                 }
+                static const char* k7helpMarkers[7] {
+                    "unkn",     // K7 0
+                    "sprint",   // K7 1
+                    "mini map", // K7 2
+                    "unkn",     // K7 3
+                    "unkn",     // K7 4
+                    "unkn",     // K7 5
+                    "unkn",     // K7 6
+                };
                 for (int i = 0; i < 7; i++) {
                     ImGui::Checkbox(("Skill K7 " + std::to_string(i)).c_str(), &player->mPcStatus.skillK7[i]);
+                    help_marker(k7helpMarkers[i]);
                 }
                 ImGui::InputScalar("Max Combo", ImGuiDataType_S8, &player->mPcStatus.maxCmb);
                 ImGui::InputInt("Swing Count", &player->mPcStatus.swingCount);
@@ -1299,6 +1351,7 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Just Guard", &player->mPcStatus.justGuard);
                 ImGui::Checkbox("Just Attack", &player->mPcStatus.justAttack);
                 ImGui::InputInt("Just Input Tick", &player->mPcStatus.justInputTick);
+                help_marker("parry window");
                 ImGui::InputInt("Just Atk Input Start Tick", &player->mPcStatus.justAtkInputStartTick);
                 ImGui::InputInt("Just Atk Input End Tick", &player->mPcStatus.justAtkInputEndTick);
                 ImGui::Checkbox("Success Input Finish", &player->mPcStatus.successInputFinish);

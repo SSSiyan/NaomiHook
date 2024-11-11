@@ -44,6 +44,108 @@ enum enCharaCondition
   eConditionMax = 6,
 };
 
+enum enCharaType
+{
+  eCharaTypeNone = 0,
+  eCharaTypePC = 1,
+  eCharaTypeSLV = 2,
+  eCharaTypeNPC = 3,
+  eCharaTypeNPCNotMove = 4,
+  eCharaTypeOBJ = 5,
+  eCharaTypeOBJNotMove = 6,
+  eCharaTypeZKPipe = 7,
+  eCharaTypeTGR = 8,
+  eCharaTypeTYG = 9,
+  eCharaTypeJST = 10,
+  eCharaTypeSFF = 11,
+  eCharaTypeEFL = 12,
+  eCharaTypeOBJ700 = 13,
+  eCharaTypeMGE = 14,
+  eCharaTypeENX = 15,
+  eCharaTypeMAM = 16,
+  eCharaTypeZKClone = 17,
+  eCharaTypeTET = 18,
+  eCharaTypeGEN = 19,
+  eCharaTypeTKL = 20,
+  eCharaTypeZKKatana = 21,
+  eCharaTypeZKAxe = 22,
+  eCharaTypeZKBeamKatanaA = 23,
+  eCharaTypeZKBeamKatanaB = 24,
+  eCharaTypeZKHandGun = 25,
+  eCharaTypeZKSubMachineGun = 26,
+  eCharaTypeZKShotGun = 27,
+  eCharaTypeZKBall = 28,
+  eCharaTypeOBJ013_0 = 29,
+  eCharaTypeOBJ013_1 = 30,
+  eCharaTypeOBJ013_2 = 31,
+  eCharaTypeOBJ630 = 32,
+  eCharaTypeOBJ631 = 33,
+  eCharaTypeOBJ632 = 34,
+  eCharaTypeMAM_Jr = 35,
+  eCharaTypeHML = 36,
+  eCharaTypeNZN = 37,
+  eCharaTypeZakoBike = 38,
+  eCharaTypeOBJ161 = 39,
+  eCharaTypeOBJ162 = 40,
+  eCharaTypeSCP = 41,
+  eCharaTypeOBJ164 = 42,
+  eCharaTypeZKNone = 43,
+  eCharaTypeDAG = 44,
+  eCharaTypeOBJ169 = 45,
+  eCharaTypeZKHammer = 46,
+  eCharaTypeZKKakuzai = 47,
+  eCharaTypeZKBat = 48,
+  eCharaTypeZKSchop = 49,
+  eCharaTypeZKSignboard = 50,
+  eCharaTypeZKSword = 51,
+  eCharaTypeZKKaeinbin = 52,
+  eCharaTypeOBJ180 = 53,
+  eCharaTypeOBJ181 = 54,
+  eCharaTypeOBJ182 = 55,
+  eCharaTypeETG = 56,
+  eCharaTypeSCT = 57,
+  eCharaTypeOBJ955 = 58,
+  eCharaTypeSLV2 = 59,
+  eCharaTypeWEL = 60,
+  eCharaTypeSLV3 = 61,
+  eCharaTypeOBJ095 = 62,
+  eCharaTypeOBJ431 = 63,
+  eCharaTypeOBJ629 = 64,
+  eCharaTypeOBJ183 = 65,
+  eCharaTypeSubMissionNpc = 500,
+  eCharaTypeOBJ021 = 501,
+  eCharaTypeSMJ = 502,
+  eCharaTypeOBJ008 = 503,
+  eCharaTypeOBJ009 = 504,
+  eCharaTypeOBJ010 = 505,
+  eCharaTypeOBJ011 = 506,
+  eCharaTypeOBJ012 = 507,
+  eCharaTypeOBJ106 = 508,
+  eCharaTypeOBJ107 = 509,
+  eCharaTypeOBJ108 = 510,
+  eCharaTypeOBJ019 = 511,
+  eCharaTypeOBJ435 = 512,
+  eCharaTypeOBJ065_1 = 513,
+  eCharaTypeOBJ065_2 = 514,
+  eCharaTypeOBJ065_3 = 515,
+  eCharaTypeSML = 516,
+  eCharaTypeOBJ156_1 = 517,
+  eCharaTypeOBJ156_2 = 518,
+  eCharaTypeOBJ155 = 519,
+  eCharaTypeOBJ159 = 520,
+  eCharaTypeOBJ158 = 521,
+  eCharaTypeSMQ = 522,
+  eCharaTypeOBJ_GAS = 523,
+  eCharaTypeSM_CAT = 524,
+};
+
+enum enPopReqType {
+  ePopTypeDistance = 0,
+  ePopTypeAlways = 1,
+  ePopTypeOrder = 2,
+  ePopTypeMax = 3,
+};
+
 enum pcItem {
     // Swords
     BLOOD_BERRY = 0,
@@ -3810,6 +3912,183 @@ public:
   /* 0x0064 */ int m_Dag_Counter;
   /* 0x0068 */ bool m_Dag_LockFlag;
 }; /* size: 0x006c */
+
+struct HRSAVEDATA_SAVEHEADER
+{
+  /* 0x0000 */ unsigned char t_SaveBit;
+  /* 0x0001 */ unsigned char t_SaveDataVer;
+  /* 0x0002 */ char t_Header[4];
+}; /* size: 0x0006 */
+
+struct HRSAVEDATA_EVENTFLAG
+{
+  /* 0x0000 */ unsigned char t_Flag[128];
+}; /* size: 0x0080 */
+
+struct HRSAVEDATA_SM
+{
+  /* 0x0000 */ int mResultNum;
+  /* 0x0004 */ char mTopRanking;
+  /* 0x0005 */ char mNew;
+  union
+  {
+    struct /* bitfield */
+    {
+      /* 0x0006 */ unsigned char mVisible : 1; /* bit position: 0 */
+      /* 0x0006 */ unsigned char mAccept : 1; /* bit position: 1 */
+    }; /* bitfield */
+    /* 0x0006 */ unsigned char mFlag;
+  }; /* size: 0x0001 */
+  /* 0x0007 */ char Padding_1226;
+  /* 0x0008 */ int mPopTime;
+}; /* size: 0x000c */
+
+struct HRSTG_SCORE
+{
+  /* 0x0000 */ int t_Score;
+  /* 0x0004 */ char t_Name[4];
+}; /* size: 0x0008 */
+
+struct HRSAVEDATA_STG
+{
+  /* 0x0000 */ struct HRSTG_SCORE t_Score[10];
+}; /* size: 0x0050 */
+
+class hBjObjectManager
+{
+  /* 0x0000 */ long Padding_1215;
+  /* 0x0004 */ class hBjObject* mTop;
+  /* 0x0008 */ class hBjObject* mEnd;
+  /* 0x000c */ unsigned int mTexNum;
+  /* 0x0010 */ struct tagGHMR_TEX* mpTex;
+  /* 0x0014 */ class ghmResGroup* mpRes;
+}; /* size: 0x0018 */
+
+struct bjStar
+{
+  /* 0x0000 */ struct Vec mPos;
+  /* 0x000c */ float mSpeed;
+  /* 0x0010 */ float mSize;
+  /* 0x0014 */ unsigned char mR;
+  /* 0x0015 */ unsigned char mG;
+  /* 0x0016 */ unsigned char mB;
+  /* 0x0017 */ unsigned char mA;
+}; /* size: 0x0018 */
+
+class hBjStage
+{
+  /* 0x0000 */ long Padding_1216;
+  /* 0x0004 */ class hBjObjectManager* mManager;
+  /* 0x0008 */ class ghmResGroup* mpRes;
+  /* 0x000c */ struct tagGHMR_TEX* mpTex;
+  /* 0x0010 */ class hBjSys* mpSys;
+  /* 0x0014 */ int mStageID;
+  /* 0x0018 */ int mState;
+  /* 0x001c */ int mCount;
+  /* 0x0020 */ int mTableCount;
+  /* 0x0024 */ int mWarnCount;
+  /* 0x0028 */ int mWarnState;
+  /* 0x002c */ int* mpBGMHandle;
+  /* 0x0030 */ int mTableCnt;
+  /* 0x0034 */ int mEnemyOutCount;
+  /* 0x0038 */ int mEnemyDeadCount;
+  /* 0x003c */ struct bjStar mBgStar[50];
+}; /* size: 0x04ec */
+
+class hBjSys
+{
+  union
+  {
+    /* 0x0000 */ int mGlovalScore;
+    /* 0x0000 */ int mGlovalBomb;
+    struct
+    {
+      /* 0x0000 */ unsigned int mGlovalColor;
+      /* 0x0004 */ int mState;
+      /* 0x0008 */ int mSubState;
+      /* 0x000c */ int mCounter;
+      /* 0x0010 */ int mSubCounter;
+    }; /* size: 0x0014 */
+    /* 0x0000 */ int mScore;
+    /* 0x0000 */ int mHighScore;
+    /* 0x0000 */ int mPlayerNum;
+    /* 0x0000 */ int mBombGauge;
+    /* 0x0000 */ int mBombGaugeMax;
+    struct
+    {
+      /* 0x0000 */ int mBombGaugeFlash;
+      /* 0x0004 */ long Padding_1217[4];
+      /* 0x0014 */ int mCursor;
+      /* 0x0018 */ int mFadeCount;
+      /* 0x001c */ int mFadeDest;
+      /* 0x0020 */ int mFadeFlag;
+    }; /* size: 0x0014 */
+    /* 0x0000 */ bool mGameClearFlag;
+    /* 0x0000 */ bool mBossDeadFlag;
+    /* 0x0000 */ int mGameClearState;
+    /* 0x0000 */ int mGameOverState;
+    struct
+    {
+      /* 0x0000 */ int mContinueCount;
+      /* 0x0004 */ long Padding_1218[8];
+      /* 0x0024 */ int mGameClearCnt;
+      /* 0x0028 */ int mDeadWaitCnt;
+      /* 0x002c */ int mGameMode;
+      /* 0x0030 */ class ghmResGroup* pResource;
+      /* 0x0034 */ class hBjObjectManager mObjManager;
+      /* 0x004c */ class hBjPlayer* mPlayer;
+      /* 0x0050 */ class hBjStage mStage;
+      /* 0x053c */ unsigned int mGanNum;
+      /* 0x0540 */ class TGan** mpGan;
+    }; /* size: 0x0524 */
+    struct
+    {
+      /* 0x0000 */ struct tagGHMR_TEX* mTexture;
+      /* 0x0004 */ long Padding_1219[336];
+      /* 0x0544 */ unsigned int mTexNum;
+    }; /* size: 0x0008 */
+    /* 0x0000 */ bool mbPause;
+    /* 0x0000 */ bool mbGameOver;
+  }; /* size: 0x0524 */
+  /* 0x0524 */ long Padding_1220[9];
+  /* 0x0548 */ int mBGMHandle;
+  /* 0x054c */ struct HRSAVEDATA_STG mHiScore;
+  /* 0x059c */ int mChangeNum;
+  /* 0x05a0 */ int mSelNum;
+  /* 0x05a4 */ int mPadDataNum;
+  /* 0x05a8 */ int mPadDataCnt;
+  /* 0x05ac */ struct BjPadData* mpPadData;
+  /* 0x05b0 */ void* mpKey;
+}; /* size: 0x05b4 */
+
+struct tagHRSAVEDATA
+{
+  /* 0x0000 */ struct HRSAVEDATA_SAVEHEADER t_Header;
+  /* 0x0006 */ char Padding_1227[2];
+  /* 0x0008 */ int t_MainScenarioID;
+  /* 0x000c */ int t_StageID;
+  /* 0x0010 */ __int64 t_Time;
+  /* 0x0018 */ __int64 t_ScenarioTime;
+  /* 0x0020 */ struct Vec t_SavePosition;
+  /* 0x002c */ struct HRSAVEDATA_EVENTFLAG t_Event;
+  /* 0x00ac */ struct stPcSaveData t_PcData;
+  /* 0x1204 */ struct HRSAVEDATA_SM t_SMResult[56];
+  /* 0x14a4 */ int t_KenterTixNum;
+  /* 0x14a8 */ int t_GetTopRankingNum;
+  /* 0x14ac */ int t_SEVol;
+  /* 0x14b0 */ int t_BGMVol;
+  /* 0x14b4 */ int t_Difficult;
+  /* 0x14b8 */ struct HRSAVEDATA_STG t_StgData;
+  /* 0x1508 */ int t_Subtitles;
+  /* 0x150c */ int t_dummy;
+  /* 0x1510 */ int t_CamYAxis;
+  /* 0x1514 */ int t_CamXAxis;
+  /* 0x1518 */ int t_Trainig_B_Num;
+  /* 0x151c */ short t_Trainig_S_Num;
+  /* 0x151e */ short t_VisitedToilets;
+  /* 0x1520 */ int t_KaihatutyuuWeaponCounter;
+  /* 0x1524 */ int t_KaihatutyuuWeaponID;
+}; /* size: 0x1528 */
 
 class HrGameTask
 {

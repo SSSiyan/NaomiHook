@@ -141,4 +141,14 @@ namespace nmh_sdk {
         }
         return true; // player ptr is invalid, treat as if we're dodging
     }
+
+    // Spawn enemies
+    int setInitNpcDat(int inResNo, enCharaType inChType, int inRepop, const Vec* inPos, const Vec* inRot, enPopReqType inPopType, bool inDisEnableCollision) {
+        uintptr_t mSetInitNpcDatAddress = (g_framework->get_module().as<uintptr_t>() + 0x3B6B30);
+        mSetInitNpcDatFunc mSetInitNpcDat = (mSetInitNpcDatFunc)mSetInitNpcDatAddress;
+        if (mHRBattle* mHRBattle = get_mHRBattle()) {
+            return mSetInitNpcDat(mHRBattle, inResNo, inChType, inRepop, inPos, inRot, inPopType, inDisEnableCollision);
+        }
+        return 0;
+    }
 }

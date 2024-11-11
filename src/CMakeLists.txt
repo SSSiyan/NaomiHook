@@ -63,6 +63,8 @@ set(MODS_SRC
     mods/EnemyTracker.cpp 
     mods/StanceControl.hpp 
     mods/StanceControl.cpp 
+    mods/EnemySpawn.hpp 
+    mods/EnemySpawn.cpp 
 
 )
 
