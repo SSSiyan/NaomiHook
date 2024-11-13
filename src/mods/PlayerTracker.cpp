@@ -1174,6 +1174,7 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Attack 360 Tick", &player->mPcStatus.attack360Tick);
                 ImGui::SliderFloat("Heroes Meter", &player->mPcStatus.heroesMeter, 0.0f, 1000.0f);
                 ImGui::InputInt("Heroes Meter Tick", &player->mPcStatus.heroesMeterTick);
+                help_marker("Tick for Cranberry Chocolate Sundae Darkside");
                 ImGui::InputInt("Dark Side Use Num", &player->mPcStatus.darkSideUseNum);
                 ImGui::InputInt("Dark Side Key", &player->mPcStatus.darkSideKey);
                 ImGui::InputInt("Dark Side Key Tick", &player->mPcStatus.darkSideKeyTick);
@@ -1186,8 +1187,11 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Dark Side Success Input", &player->mPcStatus.darkSideSuccessInput);
                 ImGui::Checkbox("Rapid Finish End", &player->mPcStatus.rapidFinishEnd);
                 ImGui::InputInt("Light Side Charge Tick", &player->mPcStatus.lightSideChargeTick);
+                help_marker("Tick for Beam Katana charge effects");
                 ImGui::InputInt("Rapid Finish Tick", &player->mPcStatus.rapidFinishTick);
+                help_marker("Tick for unused Rapid Finish Melon Darkside");
                 ImGui::InputInt("Fast Action Tick", &player->mPcStatus.fastActionTick);
+                help_marker("Tick for Grasshopper Darkside");
                 ImGui::InputInt("Shinku Tick", &player->mPcStatus.shinkuTick);
                 ImGui::InputInt("Bullet Tick", &player->mPcStatus.bulletTick);
                 ImGui::InputInt("Money", &player->mPcStatus.money);
@@ -1205,10 +1209,14 @@ void DrawPlayerStats() {
                 ImGui::InputScalar("chargeShake", ImGuiDataType_U8, &player->mPcStatus.chargeShake);
                 ImGui::InputScalar("killCmb", ImGuiDataType_S8, &player->mPcStatus.killCmb);
                 ImGui::InputScalar("cmb", ImGuiDataType_U8, &player->mPcStatus.cmb);
+                help_marker("Displays how far you are into the current Beam Katana combo");
                 ImGui::InputScalar("cmbKind", ImGuiDataType_S32, &player->mPcStatus.cmbKind);
+                help_marker("Displays attack type. 1 = Beam Katana, 2 = Beat Attack");
                 ImGui::InputScalar("cmbKindOld", ImGuiDataType_S32, &player->mPcStatus.cmbKindOld);
                 ImGui::InputScalar("pose", ImGuiDataType_S32, &player->mPcStatus.pose);
+                help_marker("Displays High / Mid / Low stance");
                 ImGui::InputScalar("catchTick", ImGuiDataType_S32, &player->mPcStatus.catchTick);
+                help_marker("Displays Wrestling throw tick");
                 ImGui::InputScalar("beforeRotY", ImGuiDataType_Float, &player->mPcStatus.beforeRotY);
                 ImGui::InputScalar("beforeCamRotY", ImGuiDataType_Float, &player->mPcStatus.beforeCamRotY);
                 ImGui::InputScalar("easyDemoProc", ImGuiDataType_S32, &player->mPcStatus.easyDemoProc);
@@ -1221,6 +1229,7 @@ void DrawPlayerStats() {
                 ImGui::InputScalar("finishNpcIndex", ImGuiDataType_S8, &player->mPcStatus.finishNpcIndex);
                 ImGui::InputScalar("oldNpcAtkRate", ImGuiDataType_Float, &player->mPcStatus.oldNpcAtkRate);
                 ImGui::InputInt("Finish Motion No", &player->mPcStatus.finishMotNo);
+                help_marker("Death Blow animation number");
                 ImGui::InputInt("Fight Motion Number", &player->mPcStatus.fghMotNo);
                 ImGui::InputInt("Gacha Number", &player->mPcStatus.gachaNum);
                 ImGui::InputInt("Gacha Tick", &player->mPcStatus.gachaTick);
@@ -1230,15 +1239,18 @@ void DrawPlayerStats() {
                 ImGui::InputFloat3("Bike Position", (float*)&player->mPcStatus.bikePos);
                 ImGui::InputFloat("Bike Rotation", &player->mPcStatus.bikeRot);
                 ImGui::Checkbox("Dig Tool", &player->mPcStatus.digTool);
+                help_marker("Toggles the Dig Tool. Will only show up when the katana model is reloaded.");
                 ImGui::Checkbox("Rapid Finish", &player->mPcStatus.rapidFinish);
                 ImGui::Checkbox("Already Hit Rapid Finish", &player->mPcStatus.alreadyHitRapidFinish);
                 ImGui::Checkbox("Combo Flag", &player->mPcStatus.cmbFlag);
+                help_marker("Ticks when performing a Beam Katana combo");
                 ImGui::InputInt("Step Key", &player->mPcStatus.stepKey);
                 ImGui::Checkbox("Step Flag", &player->mPcStatus.stepFlag);
-                help_marker("buffered roll");
+                help_marker("Roll buffer");
                 ImGui::Checkbox("Fight Flag", &player->mPcStatus.fghFlag);
-                help_marker("beat attacks");
+                help_marker("Beat Attack buffer");
                 ImGui::Checkbox("Range Flag", &player->mPcStatus.rngFlag);
+                help_marker("Jumping Slash buffer");
                 ImGui::Checkbox("Battou Demo", &player->mPcStatus.battouDemo);
                 ImGui::InputInt("Battou Demo Proc", &player->mPcStatus.battouDemoProc);
                 ImGui::Checkbox("Battou Demo Pause Mode", &player->mPcStatus.battouDemoPauseMode);
@@ -1249,28 +1261,42 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Right Input", &player->mPcStatus.rInput);
                 ImGui::Checkbox("Lock On Order", &player->mPcStatus.lockOnOder);
                 ImGui::Checkbox("Throw Mode Only", &player->mPcStatus.throwModeOnly);
+                help_marker("Disable everything but Wrestling moves");
                 ImGui::Checkbox("Slash Mode Only", &player->mPcStatus.slashModeOnly);
+                help_marker("Disable everything but Beam Katana attacks");
                 ImGui::Checkbox("Catch Mode Disable", &player->mPcStatus.catchModeDisEnable);
+                help_marker("Disable Wrestling Throws");
                 ImGui::Checkbox("Fight Tame Disable", &player->mPcStatus.fightTameDisEnable);
-                help_marker("beat attack charges");
+                help_marker("Disable Beat Attack charges");
                 ImGui::Checkbox("Slash Tame Disable", &player->mPcStatus.slashTameDisEnable);
+                help_marker("Disable Beam Katana Attack charges");
                 ImGui::Checkbox("Tsuba Disable", &player->mPcStatus.tsubaDisEnable);
+                help_marker("Disable Clashes");
                 ImGui::Checkbox("Down Attack Disable", &player->mPcStatus.downAttackDisEnable);
+                help_marker("Disable Knockdown Executions");
                 ImGui::Checkbox("Dig Disable", &player->mPcStatus.digDisEnable);
+                help_marker("Disable digging in the overworld");
                 ImGui::Checkbox("Dig Disable 4 SM", &player->mPcStatus.digDisEnable4SM);
+                help_marker("Disable digging in the Mine Sweeper side job");
                 ImGui::Checkbox("Range Guard", &player->mPcStatus.rangeGuard);
+                help_marker("Ticks when guarding bullets");
                 ImGui::Checkbox("Dead Motion Play", &player->mPcStatus.deadMotionPlay);
                 ImGui::Checkbox("Telephone Walk", &player->mPcStatus.telephoneWalk);
+                help_marker("Toggles the phone walk animation");
                 ImGui::Checkbox("Electro Shock Walk", &player->mPcStatus.electroShockWalk);
+                help_marker("Toggles the electrified animation");
                 ImGui::Checkbox("Hug Walk", &player->mPcStatus.hugWalk);
+                help_marker("Toggles the Holly Summers body carry animation");
                 ImGui::Checkbox("Event Walk", &player->mPcStatus.eventWalk);
+                help_marker("Toggles the walk animation when exiting or entering interiors");
                 ImGui::Checkbox("Camera Operate Old", &player->mPcStatus.camOperateOld);
                 ImGui::Checkbox("Always Empty Battery", &player->mPcStatus.alwaysEmptyBattery);
                 ImGui::Checkbox("Cant Charge Battery", &player->mPcStatus.cantChargeBattery);
                 ImGui::Checkbox("Cant Display Laser Effect", &player->mPcStatus.cantDispLaserEffect);
                 ImGui::Checkbox("Last Combo Cancel", &player->mPcStatus.lastComboCancel);
-                help_marker("black screen beat attacks");
+                help_marker("Black screen Beat Attacks");
                 ImGui::Checkbox("Hizageri Hit", &player->mPcStatus.hizageriHit);
+                help_marker("Knee kick Beat Attack");
                 ImGui::Checkbox("Back Homing Camera", &player->mPcStatus.backHomingCamera);
                 ImGui::Checkbox("Weapon Change Invisible", &player->mPcStatus.wepChangeUnVisible);
                 ImGui::Checkbox("Finish Before Attack Already Hit", &player->mPcStatus.finishBeforeAttackAlreadyHit);
@@ -1287,31 +1313,31 @@ void DrawPlayerStats() {
                     "default",  // Skill Catch 1
                     "default",  // Skill Catch 2
                     "default",  // Skill Catch 3
-                    "unkn",     // Skill Catch 4
-                    "unkn",     // Skill Catch 5
-                    "unkn",     // Skill Catch 6
-                    "unkn",     // Skill Catch 7
-                    "unkn",     // Skill Catch 8
-                    "unkn",     // Skill Catch 9
-                    "unkn",     // Skill Catch 10
-                    "unkn",     // Skill Catch 11
-                    "unkn",     // Skill Catch 12
-                    "unkn",     // Skill Catch 13
-                    "unkn",     // Skill Catch 14
-                    "unkn",     // Skill Catch 15
+                    "Huracanrana",     // Skill Catch 4
+                    "Power Bomb",     // Skill Catch 5
+                    "Brain Buster Slam",     // Skill Catch 6
+                    "Quebradora Con Giro",     // Skill Catch 7
+                    "German Suplex",     // Skill Catch 8
+                    "Tiger Suplex",     // Skill Catch 9
+                    "Belly To Belly",     // Skill Catch 10
+                    "Front Neck Chancery Drop",     // Skill Catch 11
+                    "Captured",     // Skill Catch 12
+                    "Reverse Armsault",     // Skill Catch 13
+                    "Double Arm Suplex",     // Skill Catch 14
+                    "Double Wrist Armsault",     // Skill Catch 15
                 };
                 for (int i = 0; i < 16; i++) {
                     ImGui::Checkbox(("Skill Catch " + std::to_string(i)).c_str(), &player->mPcStatus.skillCatch[i]);
                     help_marker(skillCatchHelpMarkers[i]);
                 }
                 static const char* k7helpMarkers[7] {
-                    "unkn",     // K7 0
-                    "sprint",   // K7 1
-                    "mini map", // K7 2
-                    "unkn",     // K7 3
-                    "unkn",     // K7 4
-                    "unkn",     // K7 5
-                    "unkn",     // K7 6
+                    "Memory of Demon - Jumping Slash",     // K7 0
+                    "Memory of Child - Sprint",   // K7 1
+                    "Memory of Three - Mini Map", // K7 2
+                    "Memory of Woman - Darkside Extension",     // K7 3
+                    "Memory of Mask - Wrestling Grab Range",     // K7 4
+                    "Memory of Tattoo - Total Rank Bonus",     // K7 5
+                    "Memory of White - Jumping Down Attack",     // K7 6
                 };
                 for (int i = 0; i < 7; i++) {
                     ImGui::Checkbox(("Skill K7 " + std::to_string(i)).c_str(), &player->mPcStatus.skillK7[i]);
@@ -1348,10 +1374,13 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Clear Number", (int*)&player->mPcStatus.clearNum);
                 ImGui::InputScalar("Roulette Hit Rate", ImGuiDataType_S8, &player->mPcStatus.rouletteHitRate);
                 ImGui::Checkbox("Finish Bonus", &player->mPcStatus.finishBonus);
+                help_marker("Ticks when performing a second directional input during a Death Blow");
                 ImGui::Checkbox("Just Guard", &player->mPcStatus.justGuard);
+                help_marker("Ticks when a Parry is performed");
                 ImGui::Checkbox("Just Attack", &player->mPcStatus.justAttack);
+                help_marker("Parry reprisal");
                 ImGui::InputInt("Just Input Tick", &player->mPcStatus.justInputTick);
-                help_marker("parry window");
+                help_marker("Parry window length");
                 ImGui::InputInt("Just Atk Input Start Tick", &player->mPcStatus.justAtkInputStartTick);
                 ImGui::InputInt("Just Atk Input End Tick", &player->mPcStatus.justAtkInputEndTick);
                 ImGui::Checkbox("Success Input Finish", &player->mPcStatus.successInputFinish);
@@ -1368,6 +1397,7 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Ban Slot Bar", &player->mPcStatus.banSlotBar);
                 ImGui::Checkbox("Ban Slot 777", &player->mPcStatus.banSlot777);
                 ImGui::Checkbox("Weapon Stick", &player->mPcStatus.wepStick);
+                help_marker("Harvey stick gimmick. Only enables the SFX.");
                 ImGui::InputFloat3("Pad Y Offset", (float*)&player->mPcStatus.padYOffset);
                 ImGui::SliderFloat("Rot Y Offset", &player->mPcStatus.rotYOffset, -360.0f, 360.0f);
                 ImGui::Checkbox("Tsuba Se 0", &player->mPcStatus.tsubaSe0);
