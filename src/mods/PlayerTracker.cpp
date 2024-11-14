@@ -89,8 +89,10 @@ void DrawPlayerStats() {
             ImGui::Checkbox("mMainScenarioRun", &hrGameTask->mMainScenarioRun);
             ImGui::Checkbox("mSubMissionRun", &hrGameTask->mSubMissionRun);
             ImGui::InputInt("mSetSubMissionID", &hrGameTask->mSetSubMissionID);
+            help_marker("Part-Time Job and K-Entertainment Job ID");
             ImGui::InputInt("mGameLevel", &hrGameTask->mGameLevel);
             ImGui::Checkbox("mHomeButtonDisEnable", &hrGameTask->mHomeButtonDisEnable);
+            help_marker("Leftover Wii toggle. Prevents player from pressing the Home button on a Wiimote.");
             ImGui::InputScalar("m_Process_id", ImGuiDataType_S32, &hrGameTask->m_Process_id);
             ImGui::InputScalar("m_Pro_Sts", ImGuiDataType_S32, &hrGameTask->m_Pro_Sts);
             ImGui::Text("mp_SaveData: %p", hrGameTask->mp_SaveData);
@@ -361,6 +363,7 @@ void DrawPlayerStats() {
             ImGui::InputInt("m_StageSndGroupID", &CBgCtrl->m_StageSndGroupID);
             ImGui::InputInt("m_StageSubSndGroupID", &CBgCtrl->m_StageSubSndGroupID);
             ImGui::InputInt("m_StageGayaID", &CBgCtrl->m_StageGayaID);
+            help_marker("ID for Stage ambiance");
             ImGui::Checkbox("m_bChanged", &CBgCtrl->m_bChanged);
             ImGui::InputInt("m_Status", (int*)&CBgCtrl->m_Status);
             ImGui::InputInt("m_LDstatus", (int*)&CBgCtrl->m_LDstatus);
@@ -607,7 +610,9 @@ void DrawPlayerStats() {
                 ImGui::InputScalar("Line Mode", ImGuiDataType_S32, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_LineMode);
                 ImGui::InputScalar("Line SubJob Mode", ImGuiDataType_S32, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_LineSubJobMode);
                 ImGui::Checkbox("Draw V Line Flag", &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_DrawVLineFlag);
+                help_marker("Toggle the vertical line in the pause menu");
                 ImGui::Checkbox("Draw H Line Flag", &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_DrawHLineFlag);
+                help_marker("Toggle the horizontal line in the pause menu");
                 ImGui::Checkbox("Debug Draw Flag", &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_DebugDrawFlag);
                 for (int i = 0; i < 2; i++) {
                     ImGui::InputScalar(("Select Menu " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_SelectMenu[i]);
@@ -690,16 +695,21 @@ void DrawPlayerStats() {
                 ImGui::InputScalar("mEscapeOnButton", ImGuiDataType_S32, &player->mEscapeOnButton);
                 ImGui::Text("mpBike: %p", player->mpBike);
                 ImGui::InputInt("mInputMode", (int*)&player->mInputMode, 1);
+                help_marker("Displays and controls current playmode. 0 = Idle, 1 = FPS, 3 = Walking, 4 = Battle, 5 = Bike");
                 ImGui::InputInt("mInputModeOld", (int*)&player->mInputModeOld, 1);
                 ImGui::InputInt("mInputModeBefore", (int*)&player->mInputModeBefore, 1);
                 ImGui::Checkbox("mPauseAll", &player->mPauseAll);
                 ImGui::Checkbox("mPauseNpc", &player->mPauseNpc);
                 ImGui::Checkbox("mOperate", &player->mOperate);
+                help_marker("Tick to give control over Travis");
                 ImGui::Checkbox("mOnlyMove", &player->mOnlyMove);
                 ImGui::Checkbox("mMotSpdAdj", &player->mMotSpdAdj);
                 ImGui::Checkbox("mDead", &player->mDead);
+                help_marker("Kill Travis");
                 ImGui::Checkbox("mDeadPause", &player->mDeadPause);
+                help_marker("Enables the pause used when dying.");
                 ImGui::Checkbox("mCameraOperate", &player->mCameraOperate);
+                help_marker("Ticks when camera control is taken away.");
                 ImGui::Checkbox("mBattouDemoRequest", &player->mBattouDemoRequest);
                 ImGui::Checkbox("mStageChangeInitEnd", &player->mStageChangeInitEnd);
                 ImGui::Checkbox("mStageChangeTermEnd", &player->mStageChangeTermEnd);
@@ -1102,10 +1112,15 @@ void DrawPlayerStats() {
             if (ImGui::CollapsingHeader("mHRPc mCharaStatus.dmgInfo")) {
                 ImGui::SliderFloat("Damage", &player->mCharaStatus.dmgInfo.dmg, 0.0f, 100.0f);
                 ImGui::InputInt("Damage Motion", &player->mCharaStatus.dmgInfo.dmgMot);
+                help_marker("Displays MotionID for current damage animation");
                 ImGui::InputInt("Guard Motion", &player->mCharaStatus.dmgInfo.grdMot);
+                help_marker("Displays MotionID for current guard animation");
                 ImGui::InputInt("Attack Motion", &player->mCharaStatus.dmgInfo.atkMot);
+                help_marker("Displays MotionID for current attack animation");
                 ImGui::SliderFloat("Damage Direction", &player->mCharaStatus.dmgInfo.dmgDirec, -360.0f, 360.0f);
+                help_marker("Displays the direction that the object or pawn is pushed towards when attacked.");
                 ImGui::SliderFloat("Knockback Distance", &player->mCharaStatus.dmgInfo.nockBackDst, 0.0f, 100.0f);
+                help_marker("Displays the distance that an object or pawn is pushed when attacked.");
                 ImGui::SliderFloat("Upper Power", &player->mCharaStatus.dmgInfo.upperPow, 0.0f, 100.0f);
                 ImGui::SliderFloat("Upper Position Y", &player->mCharaStatus.dmgInfo.upperPosY, -50.0f, 50.0f);
                 ImGui::SliderFloat("Gravity", &player->mCharaStatus.dmgInfo.grav, 0.0f, 20.0f);
@@ -1138,7 +1153,9 @@ void DrawPlayerStats() {
                         ImGui::InputScalar(("Battery ##" + std::to_string(i)).c_str(), ImGuiDataType_S16, &player->mPcStatus.wepInfo[i].battery);
                         ImGui::InputScalar(("Battery Max ##" + std::to_string(i)).c_str(), ImGuiDataType_S16, &player->mPcStatus.wepInfo[i].batteryMax);
                         ImGui::SliderFloat(("Power ##" + std::to_string(i)).c_str(), &player->mPcStatus.wepInfo[i].power, 0.0f, 100.0f);
+                        help_marker("Strength of the Beam Katana. This strength value is independent from Travis' own strength.");
                         ImGui::Checkbox(("Combo Extend ##" + std::to_string(i)).c_str(), &player->mPcStatus.wepInfo[i].cmbExtend);
+                        help_marker("Ticks when the Beam Katana has had its Slash Combos extended through the Gym dumbell exercise.");
                     }
                     ImGui::Separator();
                 }
@@ -1195,7 +1212,9 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Shinku Tick", &player->mPcStatus.shinkuTick);
                 ImGui::InputInt("Bullet Tick", &player->mPcStatus.bulletTick);
                 ImGui::InputInt("Money", &player->mPcStatus.money);
+                help_marker("The money you currently have in your wallet.");
                 ImGui::InputInt("Money Max", &player->mPcStatus.moneyMax);
+                help_marker("The maximum amount of money allowed in your wallet.");
                 ImGui::InputInt("Tsuba Tick", &player->mPcStatus.tsubaTick);
                 ImGui::InputInt("Tsuba Tick Total", &player->mPcStatus.tsubaTickTotal);
                 ImGui::InputFloat("Tsuba Rate", &player->mPcStatus.tsubaRate);
@@ -1292,6 +1311,7 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Camera Operate Old", &player->mPcStatus.camOperateOld);
                 ImGui::Checkbox("Always Empty Battery", &player->mPcStatus.alwaysEmptyBattery);
                 ImGui::Checkbox("Cant Charge Battery", &player->mPcStatus.cantChargeBattery);
+                help_marker("Disables battery charging");
                 ImGui::Checkbox("Cant Display Laser Effect", &player->mPcStatus.cantDispLaserEffect);
                 ImGui::Checkbox("Last Combo Cancel", &player->mPcStatus.lastComboCancel);
                 help_marker("Black screen Beat Attacks");
@@ -1344,19 +1364,25 @@ void DrawPlayerStats() {
                     help_marker(k7helpMarkers[i]);
                 }
                 ImGui::InputScalar("Max Combo", ImGuiDataType_S8, &player->mPcStatus.maxCmb);
+                help_marker("Current killstreak count");
                 ImGui::InputInt("Swing Count", &player->mPcStatus.swingCount);
                 ImGui::InputFloat("Pad Rotation Y", &player->mPcStatus.padRotY);
                 ImGui::Text("Dash Projection Animation");
                 ImGui::InputFloat("Dash Projection Rate", &player->mPcStatus.dashProjection.mMotionRate);
                 ImGui::InputInt("Hajikare Tick", &player->mPcStatus.hajikareTick);
+                help_marker("Tick that displays the duration of Travis' stagger when an enemy repels his block string");
                 ImGui::InputInt("Guard Tick", &player->mPcStatus.guardTick);
+                help_marker("Tick that displays the duration of block stun");
                 ImGui::InputFloat("Received Damage", &player->mPcStatus.receiveDmg);
                 ImGui::Checkbox("Puppet Mode", &player->mPcStatus.puppetMode);
                 ImGui::Checkbox("Use Weapon Effect", &player->mPcStatus.useWeaponEffect);
                 ImGui::Checkbox("Todome Prepare Mode", &player->mPcStatus.todomePrepareMode);
+                help_marker("Ticks when entering Deathblow");
                 ImGui::Checkbox("Throw Prepare Mode", &player->mPcStatus.throwPrepareMode);
+                help_marker("Ticks when entering Wrestling move");
                 ImGui::InputInt("Throw Input Result", &player->mPcStatus.throwInputResult);
                 ImGui::InputFloat("Money Up Rate", &player->mPcStatus.moneyUpRate);
+                help_marker("Increases from 1 to 90 when performing an enhanced Deathblow");
                 ImGui::InputFloat("Jump Down Attack Distance", &player->mPcStatus.jumpDownAttackDist);
                 ImGui::InputScalar("Bomb Stock Number", ImGuiDataType_S8, &player->mPcStatus.bomStockNum);
                 ImGui::Checkbox("Camera Vertical Reverse Control", &player->mPcStatus.cameraVReverseControl);
@@ -1366,6 +1392,7 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Dont Change Bike Camera", &player->mPcStatus.dontChangeBikeCamera);
                 ImGui::InputScalar("Shadow Depth", ImGuiDataType_S8, &player->mPcStatus.shadowDepth);
                 ImGui::InputInt("Idling Tick", &player->mPcStatus.idlingTick);
+                help_marker("Tick for displaying when Travis begins an Idle action");
                 ImGui::InputInt("Joyuu Light Number", &player->mPcStatus.joyuuLightNo);
                 for (int i = 0; i < 4; i++) {
                     ImGui::InputInt(("Joyuu Light Disable Number " + std::to_string(i)).c_str(), &player->mPcStatus.joyuuLightDisableNo[i]);
@@ -1411,7 +1438,9 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Tel Ramble", &player->mPcStatus.telRamble);
                 ImGui::Checkbox("Cherry", &player->mPcStatus.cherry);
                 ImGui::Checkbox("Hit Normal Dash Attack", &player->mPcStatus.hitNormalDashAttack);
+                help_marker("Ticks when hitting Running Slash");
                 ImGui::Checkbox("Just Avoid", &player->mPcStatus.justAvoid);
+                help_marker("Ticks when performing a black screen Darkstep");
                 ImGui::Checkbox("Don't Sub Battery", &player->mPcStatus.dontSubBattey);
                 ImGui::Checkbox("Auto Sub Battery", &player->mPcStatus.autoSubBattey);
                 ImGui::Checkbox("Init Camera", &player->mPcStatus.initCamera);
@@ -1419,9 +1448,13 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Don't Restore Motion", &player->mPcStatus.dontRestoreMotion);
                 ImGui::Checkbox("Bike Clash 2 Battou", &player->mPcStatus.bikeClash2battou);
                 ImGui::Checkbox("Win Tsubazeri", &player->mPcStatus.winTsubazeri);
+                help_marker("Ticks when winning a sword to sword clash");
                 ImGui::Checkbox("Just Guard Dis Enable", &player->mPcStatus.justGuardDisEnable);
+                help_marker("Disables Parry");
                 ImGui::Checkbox("Dash Atk Dis Enable", &player->mPcStatus.dashAtkDisEnable);
+                help_marker("Disables Running Slash");
                 ImGui::Checkbox("Just Escape Dis Enable", &player->mPcStatus.justEscapeDisEnable);
+                help_marker("Disables the Right Stick Darkstep");
                 ImGui::InputInt("Ikasama Slot", &player->mPcStatus.ikasamaSlot);
                 ImGui::InputInt("Fire Man Tick", &player->mPcStatus.fireManTick);
             }
@@ -1464,10 +1497,12 @@ void DrawPlayerStats() {
                         ImGui::Combo("process", (int*)&player->mpBike->mBike.process, "Process 0\0Process 1\0Process 2\0Process 3\0");
                         ImGui::Combo("fallProcess", (int*)&player->mpBike->mBike.fallProcess, "Fall 0\0Fall 1\0Fall 2\0Fall 3\0");
                         ImGui::InputInt("motionNo", &player->mpBike->mBike.motionNo);
+                        help_marker("Displays the MotionID for Travis' current animation on the bike.");
                         ImGui::InputInt("motionNumMax", &player->mpBike->mBike.motionNumMax);
                         ImGui::InputInt("motionBrendNum", &player->mpBike->mBike.motionBrendNum);
                         ImGui::InputInt("restoreMotionNo", &player->mpBike->mBike.restoreMotionNo);
                         ImGui::InputFloat("spd", &player->mpBike->mBike.spd);
+                        help_marker("Displays current bike speed");
                         ImGui::InputFloat("posYF", &player->mpBike->mBike.posYF);
                         ImGui::InputFloat("posYB", &player->mpBike->mBike.posYB);
                         ImGui::InputFloat3("pos", &player->mpBike->mBike.pos.x);
@@ -1513,16 +1548,24 @@ void DrawPlayerStats() {
                         ImGui::Combo("spinDir", (int*)&player->mpBike->mBike.spinDir, "Spin 0\0Spin 1\0Spin 2\0Spin 3\0");
                         ImGui::InputFloat("spinY", &player->mpBike->mBike.spinY);
                         ImGui::Checkbox("wiry", &player->mpBike->mBike.wiry);
+                        help_marker("Ticks when performing a Wheelie Jump.");
                         ImGui::Checkbox("clashMySelf", &player->mpBike->mBike.clashMySelf);
                         ImGui::Checkbox("battle", &player->mpBike->mBike.battle);
+                        help_marker("Ticks when in battle on the Schpeltiger");
                         ImGui::Checkbox("rideOnStart", &player->mpBike->mBike.rideOnStart);
                         ImGui::Checkbox("initHitJudge", &player->mpBike->mBike.initHitJudge);
                         ImGui::Checkbox("pushAcceling", &player->mpBike->mBike.pushAcceling);
+                        help_marker("Ticks when acceclerating");
                         ImGui::Checkbox("pushBreaking", &player->mpBike->mBike.pushBreaking);
+                        help_marker("Ticks when braking.");
                         ImGui::Checkbox("cantRideOn", &player->mpBike->mBike.cantRideOn);
+                        help_marker("Tick to prevent mounting the bike");
                         ImGui::Checkbox("cantGetOff", &player->mpBike->mBike.cantGetOff);
+                        help_marker("Tick to prevent dismounting the bike");
                         ImGui::Checkbox("cantHandling", &player->mpBike->mBike.cantHandling);
+                        help_marker("Tick to prevent steering");
                         ImGui::Checkbox("dispCantGetOff", &player->mpBike->mBike.dispCantGetOff);
+                        help_marker("Tick to display the speech bubble indicating that dismounting is prohibited.");
                         ImGui::Checkbox("crash2Stand", &player->mpBike->mBike.crash2Stand);
                         ImGui::Checkbox("changeVolEngine", &player->mpBike->mBike.changeVolEngine);
                         ImGui::Checkbox("changeVolEngineIdle", &player->mpBike->mBike.changeVolEngineIdle);
@@ -1555,6 +1598,7 @@ void DrawPlayerStats() {
                     }
                     ImGui::Checkbox("mhitStage", &player->mpBike->mhitStage);
                     ImGui::InputFloat("mWryRate", &player->mpBike->mWryRate);
+                    help_marker("Value that determines the height of a Wheelie Jump.");
                     ImGui::InputFloat("mBankRate", &player->mpBike->mBankRate);
                     if (ImGui::CollapsingHeader("mDamegeDir")) {
                         ImGui::InputFloat3("mDamegeDir", &player->mpBike->mDamegeDir.x);
