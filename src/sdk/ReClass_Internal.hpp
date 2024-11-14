@@ -2700,6 +2700,92 @@ public:
   }; /* size: 0x0004 */
 }; /* size: 0x04cc */
 
+class rLineList
+{
+  /* 0x0000 */ char Padding_1385[0x10];
+  /* 0x0010 */ struct Vec m_Position[2];
+  /* 0x0028 */ struct rColor m_Color[2];
+  /* 0x0048 */ struct rST m_ST[2];
+  /* 0x0058 */ struct rColorAnime m_ColorAnime[2];
+}; /* size: 0x00a8 */
+
+class HRJST
+{
+public:
+enum LiftMode
+{
+  Boss = 0,
+  Light = 1,
+  ConA = 2,
+  ConB = 3,
+};
+  /* 0x0000 */ char Padding_1542[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ float m_AttackWait;
+  /* 0x0408 */ int m_MotionFrame;
+  /* 0x040c */ struct Vec m_MoveVec;
+  /* 0x0418 */ struct Vec m_TackleMove;
+  /* 0x0424 */ struct Vec m_BrainPos;
+  /* 0x0430 */ bool m_JumpEnable;
+  /* 0x0431 */ bool m_JumpFlag;
+  /* 0x0432 */ bool m_Elevator;
+  /* 0x0433 */ char Padding_1543;
+  /* 0x0434 */ int m_PcElectSEID;
+  /* 0x0438 */ int m_EyeBeamSEID;
+  /* 0x043c */ int m_BeamHitSEID;
+  /* 0x0440 */ int m_JstBeamSEID;
+  /* 0x0444 */ int m_DemoCut;
+  /* 0x0448 */ bool m_Demo;
+  /* 0x0449 */ char Padding_1544[3];
+  /* 0x044c */ int m_DemoCount;
+  /* 0x0450 */ bool m_Lift[4];
+  /* 0x0454 */ int m_RandLift[3];
+  /* 0x0460 */ enum enPcPose m_BeforePcPose;
+  /* 0x0464 */ enum HRJST::LiftMode m_CameraEndWait;
+  /* 0x0468 */ bool m_BefGuard;
+  /* 0x0469 */ char Padding_1545[3];
+  /* 0x046c */ struct Vec m_PcPosition;
+  /* 0x0478 */ struct Vec m_PcNavel;
+  /* 0x0484 */ struct Vec m_PcDirection;
+  /* 0x0490 */ float m_PcDistance;
+  /* 0x0494 */ float m_PcRandTime;
+  /* 0x0498 */ bool m_PcShare;
+  /* 0x0499 */ char Padding_1546[3];
+  /* 0x049c */ int m_PcMotionNo;
+  /* 0x04a0 */ float m_HitWait;
+  /* 0x04a4 */ int m_SoundID;
+  /* 0x04a8 */ class EffectEyeBeam* m_pRightEyeBeam;
+  /* 0x04ac */ class EffectEyeBeam* m_pLeftEyeBeam;
+  /* 0x04b0 */ class EffectHadoken* m_pHadoKen;
+  /* 0x04b4 */ class EffectFinalFlash* m_pFinalFlash;
+  /* 0x04b8 */ class EffectLamp* m_pLamp[4];
+  /* 0x04c8 */ class EffectFlashBlur* m_FlashBlur;
+  /* 0x04cc */ class EffectMetalElect* m_pElect;
+  /* 0x04d0 */ class EffectPaund* m_pPaund;
+  /* 0x04d4 */ struct tagHRTASKCHECK m_RightEyeCheck;
+  /* 0x04dc */ struct tagHRTASKCHECK m_LeftEyeCheck;
+  /* 0x04e4 */ struct tagHRTASKCHECK m_HadokenCheck;
+  /* 0x04ec */ struct tagHRTASKCHECK m_FinalFlashCheck;
+  /* 0x04f4 */ struct tagHRTASKCHECK m_PaundCheck;
+  /* 0x04fc */ class rPrimUnific m_LineUni[4];
+  /* 0x057c */ class rLineList m_Line[2][4];
+  /* 0x0abc */ class TGan* m_DemoCamera;
+  /* 0x0ac0 */ class TGmf* m_ContainerA;
+  /* 0x0ac4 */ class TGmf* m_ContainerB;
+  /* 0x0ac8 */ class TGmf* m_Light;
+  /* 0x0acc */ class TGan* m_ContainerAUp;
+  /* 0x0ad0 */ class TGan* m_ContainerBUp;
+  /* 0x0ad4 */ class TGan* m_ContainerALoop;
+  /* 0x0ad8 */ class TGan* m_ContainerBLoop;
+  /* 0x0adc */ class TGan* m_ContainerADown;
+  /* 0x0ae0 */ class TGan* m_ContainerBDown;
+  /* 0x0ae4 */ class TGan* m_LightUp;
+  /* 0x0ae8 */ class TGan* m_LightLoop;
+  /* 0x0aec */ class TGan* m_LightDown;
+}; /* size: 0x0af0 */
+
 class stCharaFileData
 {
   /* 0x0000 */ class ghmGcFile* file;
@@ -2859,7 +2945,6 @@ public:
       /* 0x03ec */ enum enCharaInitProc mInitProc;
       /* 0x03f0 */ float mDistFromPc;
       /* 0x03f4 */ float mDirecYFromPc;
-      /* 0x03f8 */ //struct HRZAKO hrZako; // added, only on enemies
     }; /* size: 0x040c */
     /* 0x0000 */ // class ghmGcCollObjHitResult mHitResult; // edited out because static_assert(sizeof(mHRChara) == 38912); // bruh
   // }; /* size: 0x040c */
