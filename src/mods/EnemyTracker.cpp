@@ -182,6 +182,80 @@ void DrawEnemyStats() {
             if (ImGui::Checkbox("jpnDead", &jpnDead)) setBit(mpLockOnNpc->mStatus.flag2, 1, jpnDead);
         }
     }
+    static const char* HRZAKOWarningText = "if locked on enemy isn't a zako, you're on your own";
+    if (ImGui::CollapsingHeader("mpLockOnNpc HRZAKO")) {
+        help_marker(HRZAKOWarningText);
+        HRZAKO* hrZako = (HRZAKO*)mpLockOnNpc;
+        if (hrZako) {
+            // For HRZAKO class
+            ImGui::Checkbox("Landing Smoke", &hrZako->mRandingSmoke);
+            ImGui::Checkbox("Start Attack", &hrZako->mStartAttack);
+            ImGui::Checkbox("First Voice", &hrZako->mFirstVoice);
+            ImGui::InputInt("Idle Motion", &hrZako->mIdleMot);
+            ImGui::InputInt("Standby Tick", &hrZako->mStandbyTick);
+            ImGui::InputInt("Shot Number", &hrZako->mShotNum);
+            ImGui::InputInt("Shot Number Max", &hrZako->mShotNumMax);
+            ImGui::InputInt("Reload Number", &hrZako->mReloadNum);
+            ImGui::InputInt("Ball Number", &hrZako->mBallNum);
+            ImGui::InputInt("Ball Number Max", &hrZako->mBallNumMax);
+            if (ImGui::CollapsingHeader("ZakoAi")) {
+                ImGui::Combo("Mode", (int*)&hrZako->mAi.mMode, "Init\0Wait\0DarkSide\0");
+                ImGui::InputInt("Recast Count", &hrZako->mAi.mRecastCnt);
+                ImGui::InputInt("Attack Cast Count", &hrZako->mAi.mAtkCastCnt);
+                ImGui::InputInt("Run Count", &hrZako->mAi.mRunCount);
+                ImGui::InputInt("Asibumi Count", &hrZako->mAi.mAsibumiCount);
+                ImGui::InputFloat3("Asibumi Start Pos", &hrZako->mAi.mAsibumiStartPos.x);
+                ImGui::InputFloat("Asibumi Length", &hrZako->mAi.mAsibumiLength);
+                ImGui::InputInt("Restore Direction Count", &hrZako->mAi.mRestoreDirecCount);
+                ImGui::InputFloat("Boid Target Direction", &hrZako->mAi.mBoidTargetDirec);
+                ImGui::InputFloat("Boid Now Direction", &hrZako->mAi.mBoidNowDirec);
+                ImGui::Checkbox("Zako Boss", &hrZako->mAi.mZakoBoss);
+                ImGui::InputInt("Dark Side Type", &hrZako->mAi.mDarkSideType);
+                ImGui::InputInt("Dark Side Proc", &hrZako->mAi.mDarkSideProc);
+                ImGui::InputInt("Dark Side Frame", &hrZako->mAi.mDarkSideFrame);
+                ImGui::Checkbox("Down Attack Move", &hrZako->mAi.mDownAtkMove);
+                ImGui::Checkbox("Long Attack Move", &hrZako->mAi.mLongAtkMove);
+                ImGui::InputInt("Long Attack Wait Count", &hrZako->mAi.mLongAtkWaitCount);
+                ImGui::InputInt("Mawari Kinshi Count", &hrZako->mAi.mMawariKinshiCount);
+                ImGui::Checkbox("Endurance", &hrZako->mAi.mEndurance);
+                ImGui::InputFloat("Mawarikomi Direction", &hrZako->mAi.mMawarikomiDirec);
+                ImGui::Checkbox("Back Step Check", &hrZako->mAi.mBackStepChk);
+                ImGui::Separator();
+            }
+            ImGui::InputFloat3("Boid Position", &hrZako->mBoidPos.x);
+            ImGui::InputFloat("Walk Speed", &hrZako->mWalkSpeed);
+            ImGui::InputFloat("Run Speed Rate", &hrZako->mRunSpeedRate);
+            ImGui::InputScalar("Bit Move Update", ImGuiDataType_U8, &hrZako->mBitMoveUpDate);
+            ImGui::InputFloat("Target Direction", &hrZako->mTargetDirec);
+            ImGui::InputFloat("Now Direction Y", &hrZako->mNowDirecY);
+            ImGui::InputInt("Basic Motion ID", &hrZako->mBasicMotionID);
+            ImGui::InputInt("Damage Wait Tick", &hrZako->mDamageWaitTick);
+            ImGui::Checkbox("Quick Stand Up", &hrZako->mQuickStandUp);
+            ImGui::Checkbox("Down SE", &hrZako->mDownSE);
+            ImGui::InputInt("Piyori Tick", &hrZako->mPiyoriTick);
+            ImGui::InputInt("Lose Sight Tick", &hrZako->mLoseSightTick);
+            ImGui::Checkbox("Damage Voice", &hrZako->mDmgVoice);
+            ImGui::InputInt("Dead Model Type", &hrZako->mDeadModelType);
+            ImGui::InputFloat("Piyori Store Damage", &hrZako->mPiyoriStoreDamage);
+            ImGui::InputInt("Piyori Store Tick", &hrZako->mPiyoriStoreTick);
+            ImGui::Checkbox("Already Hit Down Attack", &hrZako->mAlreadyHitDownAttack);
+            if (ImGui::TreeNode("Union Fields")) {
+                ImGui::InputInt("En Count Voice Tick", &hrZako->mEnCountVoiceTick);
+                ImGui::Checkbox("AI Kyousei Up Guard", &hrZako->mAiKyouseiUpGuard);
+                ImGui::Checkbox("AI Kyousei Down Guard", &hrZako->mAiKyouseiDownGuard);
+                ImGui::Checkbox("AI Kyousei Rash", &hrZako->mAiKyouseiRash);
+                ImGui::Checkbox("AI Event Run Mode", &hrZako->mAiEventRunMode);
+                ImGui::InputFloat("AI Event Run Direction", &hrZako->mAiEventRunDirec);
+                ImGui::Checkbox("AI Ikasama Throw Down", &hrZako->mAiIkasamaThrowDown);
+                ImGui::Checkbox("AI Kyousei Guard Only", &hrZako->mAiKyouseiGuardOnly);
+                ImGui::Checkbox("Money Far Too Little", &hrZako->mMoneyFarTooLittle);
+                ImGui::Separator();
+                ImGui::TreePop();
+            }
+        }
+    }
+    else
+        help_marker(HRZAKOWarningText);
     if (ImGui::CollapsingHeader("mpLockOnNpc mEffect.pBattleIcon")) {
         if (mpLockOnNpc && mpLockOnNpc->mEffect.pBattleIcon) {
             uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mpLockOnNpc->mEffect.pBattleIcon->Padding_175);
@@ -291,7 +365,6 @@ void EnemyTracker::on_draw_ui() {
 }
 
 void EnemyTracker::custom_imgui_window() {
-    static bool testbool = false;
     if (imguiPopout) {
         ImGui::Begin("Enemy Stats", &imguiPopout);
         DrawEnemyStats();

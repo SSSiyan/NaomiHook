@@ -1,13 +1,13 @@
 #include "EnemySpawn.hpp"
 #if 1
-int inResNo = 0;
-int inRepop = 1;
-int inChType = 7;
-bool spawnAtPlayerPos = true;
-Vec inPos{ 0.0f, 0.0f, 0.0f };
-Vec inRot{ 0.0f, 0.0f, 0.0f };
-int inPopType = ePopTypeAlways;
-bool inDisEnableCollision = false;
+int EnemySpawn::inResNo = 0;
+int EnemySpawn::inRepop = 0;
+int EnemySpawn::inChType = 0;
+bool EnemySpawn::spawnAtPlayerPos = false;
+Vec EnemySpawn::inPos{ 0.0f, 0.0f, 0.0f };
+Vec EnemySpawn::inRot{ 0.0f, 0.0f, 0.0f };
+int EnemySpawn::inPopType = 0;
+bool EnemySpawn::inDisEnableCollision = false;
 
 static const char* charaTypeStrings[91] {
   "eCharaTypeNone", // 0,
@@ -103,15 +103,10 @@ static const char* charaTypeStrings[91] {
   "eCharaTypeSM_CAT", // 524,
 };
 
-static const char* charaTypeStringsB[25] {
-
-};
-
-static const char* enPopReqTypeStrings[4] {
+static const char* enPopReqTypeStrings[3] {
   "ePopTypeDistance", // 0
   "ePopTypeAlways",   // 1
   "ePopTypeOrder",    // 2
-  "ePopTypeMax",      // 3
 };
 
 std::optional<std::string> EnemySpawn::on_initialize() {
@@ -135,7 +130,7 @@ void EnemySpawn::on_draw_ui() {
     ImGui::Checkbox("inDisEnableCollision", &inDisEnableCollision);
 
     if (ImGui::BeginCombo("enPopReqType", enPopReqTypeStrings[inPopType])) {
-        for (int i = 0; i < IM_ARRAYSIZE(enPopReqTypeStrings) - 1; i++) {
+        for (int i = 0; i < IM_ARRAYSIZE(enPopReqTypeStrings); i++) {
             bool isSelected = (inPopType == i);
             if (ImGui::Selectable(enPopReqTypeStrings[i], isSelected)) {
                 inPopType = i;
@@ -169,12 +164,22 @@ void EnemySpawn::on_draw_ui() {
 
 // during load
 void EnemySpawn::on_config_load(const utility::Config &cfg) {
-
+    inResNo = cfg.get<int>("inResNo").value_or(0);
+    inRepop = cfg.get<int>("inRepop").value_or(1);
+    inChType = cfg.get<int>("inChType").value_or(7);
+    spawnAtPlayerPos = cfg.get<bool>("spawnAtPlayerPos").value_or(true);
+    inPopType = cfg.get<int>("inPopType").value_or(1);
 }
+
 // during save
 void EnemySpawn::on_config_save(utility::Config &cfg) {
-
+    cfg.set<int>("inResNo", inResNo);
+    cfg.set<int>("inRepop", inRepop);
+    cfg.set<int>("inChType", inChType);
+    cfg.set<bool>("spawnAtPlayerPos", spawnAtPlayerPos);
+    cfg.set<int>("inPopType", inPopType);
 }
+
 // do something every frame
 //void EnemySpawn::on_frame() {}
 // will show up in debug window, dump ImGui widgets you want here

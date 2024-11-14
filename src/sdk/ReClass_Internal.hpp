@@ -2610,6 +2610,95 @@ struct stCharaStatus
   }; /* size: 0x0008 */
 }; /* size: 0x0304 */
 
+enum AiMode {
+  AI_INIT = 0,
+  AI_WAIT = 1,
+  AI_DARKSIDE = 2,
+};
+
+struct ZakoAi
+{
+  /* 0x0000 */ enum AiMode mMode;
+  /* 0x0004 */ int mRecastCnt;
+  /* 0x0008 */ int mAtkCastCnt;
+  /* 0x000c */ int mRunCount;
+  /* 0x0010 */ int mAsibumiCount;
+  /* 0x0014 */ struct Vec mAsibumiStartPos;
+  /* 0x0020 */ float mAsibumiLength;
+  /* 0x0024 */ int mRestoreDirecCount;
+  /* 0x0028 */ float mBoidTargetDirec;
+  /* 0x002c */ float mBoidNowDirec;
+  /* 0x0030 */ bool mZakoBoss;
+  /* 0x0031 */ char Padding_1405[3];
+  /* 0x0034 */ int mDarkSideType;
+  /* 0x0038 */ int mDarkSideProc;
+  /* 0x003c */ int mDarkSideFrame;
+  /* 0x0040 */ bool mDownAtkMove;
+  /* 0x0041 */ bool mLongAtkMove;
+  /* 0x0042 */ char Padding_1406[2];
+  /* 0x0044 */ int mLongAtkWaitCount;
+  /* 0x0048 */ int mMawariKinshiCount;
+  /* 0x004c */ bool mEndurance;
+  /* 0x004d */ char Padding_1407[3];
+  /* 0x0050 */ float mMawarikomiDirec;
+  /* 0x0054 */ bool mBackStepChk;
+  /* 0x0055 */ char __PADDING__[3];
+}; /* size: 0x0058 */
+
+class HRZAKO
+{
+public:
+  /* 0x0000 */ char Padding_1408[0x3f8];
+  /* 0x03f8 */ bool mRandingSmoke;
+  /* 0x03f9 */ bool mStartAttack;
+  /* 0x03fa */ bool mFirstVoice;
+  /* 0x03fb */ char Padding_1409;
+  /* 0x03fc */ int mIdleMot;
+  /* 0x0400 */ int mStandbyTick;
+  /* 0x0404 */ int mShotNum;
+  /* 0x0408 */ int mShotNumMax;
+  /* 0x040c */ int mReloadNum;
+  /* 0x0410 */ int mBallNum;
+  /* 0x0414 */ int mBallNumMax;
+  /* 0x0418 */ struct ZakoAi mAi;
+  /* 0x0470 */ struct Vec mBoidPos;
+  /* 0x047c */ float mWalkSpeed;
+  /* 0x0480 */ float mRunSpeedRate;
+  /* 0x0484 */ unsigned char mBitMoveUpDate;
+  /* 0x0485 */ char Padding_1410[3];
+  /* 0x0488 */ float mTargetDirec;
+  /* 0x048c */ float mNowDirecY;
+  /* 0x0490 */ int mBasicMotionID;
+  /* 0x0494 */ int mDamageWaitTick;
+  /* 0x0498 */ bool mQuickStandUp;
+  /* 0x0499 */ bool mDownSE;
+  /* 0x049a */ char Padding_1411[2];
+  /* 0x049c */ class EffectHandGun** mppEfHandGun;
+  /* 0x04a0 */ struct tagHRTASKCHECK* mpEfHandGunTaskCheck;
+  /* 0x04a4 */ class EffectBall** mppEfBall;
+  /* 0x04a8 */ struct tagHRTASKCHECK* mpEfBallTaskCheck;
+  /* 0x04ac */ class EffectQuestion* mpEfQuestion;
+  /* 0x04b0 */ int mPiyoriTick;
+  /* 0x04b4 */ int mLoseSightTick;
+  /* 0x04b8 */ bool mDmgVoice;
+  /* 0x04b9 */ char Padding_1412[3];
+  /* 0x04bc */ int mDeadModelType;
+  /* 0x04c0 */ float mPiyoriStoreDamage;
+  /* 0x04c4 */ int mPiyoriStoreTick;
+  /* 0x04c8 */ bool mAlreadyHitDownAttack;
+  union
+  {
+    /* 0x0000 */ int mEnCountVoiceTick;
+    /* 0x0000 */ bool mAiKyouseiUpGuard;
+    /* 0x0000 */ bool mAiKyouseiDownGuard;
+    /* 0x0000 */ bool mAiKyouseiRash;
+    /* 0x0000 */ bool mAiEventRunMode;
+    /* 0x0000 */ float mAiEventRunDirec;
+    /* 0x0000 */ bool mAiIkasamaThrowDown;
+    /* 0x0000 */ bool mAiKyouseiGuardOnly;
+    /* 0x0000 */ bool mMoneyFarTooLittle;
+  }; /* size: 0x0004 */
+}; /* size: 0x04cc */
 
 class stCharaFileData
 {
@@ -2770,6 +2859,7 @@ public:
       /* 0x03ec */ enum enCharaInitProc mInitProc;
       /* 0x03f0 */ float mDistFromPc;
       /* 0x03f4 */ float mDirecYFromPc;
+      /* 0x03f8 */ //struct HRZAKO hrZako; // added, only on enemies
     }; /* size: 0x040c */
     /* 0x0000 */ // class ghmGcCollObjHitResult mHitResult; // edited out because static_assert(sizeof(mHRChara) == 38912); // bruh
   // }; /* size: 0x040c */

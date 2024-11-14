@@ -7,6 +7,15 @@ public:
   
   ModCategory get_category() { return ModCategory::SYSTEM; };
 
+  static int inResNo;
+  static int inRepop;
+  static int inChType;
+  static bool spawnAtPlayerPos;
+  static Vec inPos;
+  static Vec inRot;
+  static int inPopType;
+  static bool inDisEnableCollision;
+
   // mod name string for config
   std::string get_mod_name() const override { return "EnemySpawner"; }
   std::string get_human_readable_name() const { return "Enemy Spawner"; }
