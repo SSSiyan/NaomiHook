@@ -182,10 +182,11 @@ naked void detour3() { // enable guard stance blend unless clashing
  // clang-format on
 
 void StanceControl::on_draw_ui() {
+    
     if (ImGui::Checkbox("Stance Control on R2", &mod_enabled)) {
         toggle(mod_enabled);
     }
-    help_marker("Remaps lock on cycle to R3");
+    help_marker("Remaps lock on cycle to R3. This is needed to avoid switching targets with every press of R2 when using this feature.");
     if (ImGui::SliderFloat("highBound", &StanceControl::highBound, 0.0f, 1.0f)) {
         highBoundGuard = (highBound + 1.0f) / 2.0f;
     }
@@ -195,9 +196,9 @@ void StanceControl::on_draw_ui() {
     }
     help_marker("How little should r2 be pushed to enter low stance\n-0.9 default");
     ImGui::Checkbox("Invert", &StanceControl::invert_input);
-    help_marker("Swap low and high");
+    help_marker("Swap Low and High");
     ImGui::Checkbox("Invert Mid", &StanceControl::invert_mid);
-    help_marker("Swap medium and low");
+    help_marker("Swap Mid and Low. The unused combos assigned to Mid stance are actually the original Low attacks. For this feature to make more sense, you can tick this to reorganize the stance order. ");
     ImGui::Checkbox("Show Custom Stance UI", &StanceControl::show_new_ui);
     if (ImGui::Checkbox("Swap Vanilla Mid And Low UI", &StanceControl::edit_old_ui)) {
         toggle_display_edit(edit_old_ui);

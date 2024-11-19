@@ -27,6 +27,8 @@ void DrawPlayerStats() {
             ImGui::SliderFloat("Player HP ##Useful", &player->mCharaStatus.hp, 0.0f, player->mCharaStatus.maxHp);
             ImGui::InputInt("mInputMode ##Useful", (int*)&player->mInputMode, 1);
             ImGui::InputInt("motionNo ##Useful", (int*)&player->mCharaStatus.motionNo, 1);
+            ImGui::InputScalar("Roulette Hit Rate", ImGuiDataType_S8, &player->mPcStatus.rouletteHitRate);
+            ImGui::InputInt("Ikasama Slot", &player->mPcStatus.ikasamaSlot);
             ImGui::Checkbox("mOperate ##Useful", &player->mOperate);
             ImGui::Checkbox("mCameraOperate ##Useful", &player->mCameraOperate);
             ImGui::Checkbox("mDead ## Useful", &player->mDead);
@@ -1366,6 +1368,7 @@ void DrawPlayerStats() {
                 ImGui::InputScalar("Max Combo", ImGuiDataType_S8, &player->mPcStatus.maxCmb);
                 help_marker("Current killstreak count");
                 ImGui::InputInt("Swing Count", &player->mPcStatus.swingCount);
+                help_marker("Displays number of times you've swung Beam Katanas");
                 ImGui::InputFloat("Pad Rotation Y", &player->mPcStatus.padRotY);
                 ImGui::Text("Dash Projection Animation");
                 ImGui::InputFloat("Dash Projection Rate", &player->mPcStatus.dashProjection.mMotionRate);
@@ -1382,8 +1385,9 @@ void DrawPlayerStats() {
                 help_marker("Ticks when entering Wrestling move");
                 ImGui::InputInt("Throw Input Result", &player->mPcStatus.throwInputResult);
                 ImGui::InputFloat("Money Up Rate", &player->mPcStatus.moneyUpRate);
-                help_marker("Increases from 1 to 90 when performing an enhanced Deathblow");
+                help_marker("Increases from 1 to 90 when performing a strong Deathblow");
                 ImGui::InputFloat("Jump Down Attack Distance", &player->mPcStatus.jumpDownAttackDist);
+                help_marker("Displays the distance for Memory of White skill");
                 ImGui::InputScalar("Bomb Stock Number", ImGuiDataType_S8, &player->mPcStatus.bomStockNum);
                 ImGui::Checkbox("Camera Vertical Reverse Control", &player->mPcStatus.cameraVReverseControl);
                 ImGui::Checkbox("Camera Y Reverse Control", &player->mPcStatus.cameraYReverseControl);
@@ -1400,6 +1404,7 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Joyuu Light Disable Number Count", &player->mPcStatus.joyuuLightDisableNoNum);
                 ImGui::InputInt("Clear Number", (int*)&player->mPcStatus.clearNum);
                 ImGui::InputScalar("Roulette Hit Rate", ImGuiDataType_S8, &player->mPcStatus.rouletteHitRate);
+                help_marker("Chances of winning slots are increased with each successful wrestling move performed. The higher the number, the greater your chances are of winning slots. Max is 100 and will reset when ranking up.");
                 ImGui::Checkbox("Finish Bonus", &player->mPcStatus.finishBonus);
                 help_marker("Ticks when performing a second directional input during a Death Blow");
                 ImGui::Checkbox("Just Guard", &player->mPcStatus.justGuard);
@@ -1419,10 +1424,15 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Play Shake Input", &player->mPcStatus.playShakeInput);
                 ImGui::InputInt("Play Shake Input Wait", &player->mPcStatus.playShakeInputWait);
                 ImGui::Checkbox("Ban Slot Cry", &player->mPcStatus.banSlotCry);
+                help_marker("Disables rolling Cherries");
                 ImGui::Checkbox("Ban Slot Hop", &player->mPcStatus.banSlotHop);
+                help_marker("Disables rolling Strawberry on the Shortcake");
                 ImGui::Checkbox("Ban Slot Bel", &player->mPcStatus.banSlotBel);
+                help_marker("Disables rolling Blueberry Cheese Brownie");
                 ImGui::Checkbox("Ban Slot Bar", &player->mPcStatus.banSlotBar);
+                help_marker("Disables rolling Cranberry Chocolate Sundae");
                 ImGui::Checkbox("Ban Slot 777", &player->mPcStatus.banSlot777);
+                help_marker("Disables rolling Anarchy in the Galaxy");
                 ImGui::Checkbox("Weapon Stick", &player->mPcStatus.wepStick);
                 help_marker("Harvey stick gimmick. Only enables the SFX.");
                 ImGui::InputFloat3("Pad Y Offset", (float*)&player->mPcStatus.padYOffset);

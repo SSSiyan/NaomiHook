@@ -149,6 +149,7 @@ std::optional<std::string> RollForward::on_initialize() {
 
 void RollForward::on_draw_ui() {
     ImGui::Checkbox("Roll Forward", &mod_enabled);
+    help_marker("Restores the unused forward roll and works exactly as it does in NMH2. Bound to Lock On + Forward (Right Stick)");
 }
 
 // during load

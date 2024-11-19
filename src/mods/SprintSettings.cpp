@@ -200,6 +200,7 @@ std::optional<std::string> SprintSettings::on_initialize() {
 
 void SprintSettings::on_draw_ui() {
     ImGui::Checkbox("Battle Sprint", &battleSprint);
+    help_marker("Enable sprinting in combat that consumes no Stamina, similar to NMH3. Requires Memory of Child. Click in the Left Stick to initiate.");
     if (battleSprint) {
         ImGui::Text("Sprint Speed");
         ImGui::SliderFloat("##SprintSpeedSliderFloat", &sprintSpeed, 0, 5, "%.2f");

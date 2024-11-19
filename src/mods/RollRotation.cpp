@@ -42,6 +42,7 @@ std::optional<std::string> RollRotation::on_initialize() {
 
 void RollRotation::on_draw_ui() {
     ImGui::Checkbox("Roll Rotation", &mod_enabled);
+    help_marker("Make rolls orbit around your locked on target. Functions in a similar manner to NMH2.");
 }
 
 // during load

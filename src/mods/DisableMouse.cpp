@@ -33,6 +33,7 @@ std::optional<std::string> DisableMouse::on_initialize() {
 
 void DisableMouse::on_draw_ui() {
     ImGui::Checkbox("Disable Mouse While GUI is open", &mod_enabled);
+    help_marker("Prevents you from accidentally clicking on the game's UI while tinkering with NaomiHook.");
 }
 
 // during load

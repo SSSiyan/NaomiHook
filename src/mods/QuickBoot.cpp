@@ -26,7 +26,7 @@ std::optional<std::string> QuickBoot::on_initialize() {
 
 void QuickBoot::on_draw_ui() {
     ImGui::Checkbox("Quick Boot", &mod_enabled);
-    help_marker("Load into a stage on boot rather than the motel");
+    help_marker("Load into the stage of your choice on boot rather than the default Motel. This skips the intro toilet sequences and loads your last checkpoint.");
     if (mod_enabled) {
         ImGui::Combo("Boot Stage", &newBootStageIndex, stage_display_names_cstr.data(), stage_display_names_cstr.size());
     }

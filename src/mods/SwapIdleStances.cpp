@@ -21,6 +21,8 @@ void SwapIdleStances::on_draw_ui() {
     if (ImGui::Checkbox("Swap Idle Stances", &mod_enabled)) {
         toggle(mod_enabled);
     }
+    help_marker("The High/Low stances are mistakenly inverted by default, forcing Travis to take on the incorrect stance. This setting "
+                "corrects that issue and is purely cosmetic.");
 }
 
 // during load

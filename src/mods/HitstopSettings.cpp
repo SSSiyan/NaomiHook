@@ -53,6 +53,7 @@ std::optional<std::string> HitstopSettings::on_initialize() {
 
 void HitstopSettings::on_draw_ui() {
     ImGui::Checkbox("Custom Hitstop On Normal Attacks", &mod_enabled);
+    help_marker("Adjust the duration of hitstop on attacks.");
     if (mod_enabled) {
         ImGui::Text("Custom Hitstop Amount");
         ImGui::SliderInt("##customBasicHitstopAmountSliderInt", &customBasicHitstopAmount, 0, 20);

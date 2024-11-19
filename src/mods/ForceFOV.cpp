@@ -71,6 +71,7 @@ void ForceFOV::on_draw_ui() {
     if (ImGui::Checkbox("Disable Attack Camera Zoom", &disable_attack_zoom)) {
         toggle(disable_attack_zoom);
     }
+    help_marker("Attacking enemies zooms the camera in with each hit if you're not locked on. This setting disables that.");
 }
 
 // during load

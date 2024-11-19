@@ -189,13 +189,19 @@ void DrawEnemyStats() {
         if (hrZako) {
             // For HRZAKO class
             ImGui::Checkbox("Landing Smoke", &hrZako->mRandingSmoke);
+            help_marker("Smoke that emits when an enemy spawns.");
             ImGui::Checkbox("Start Attack", &hrZako->mStartAttack);
             ImGui::Checkbox("First Voice", &hrZako->mFirstVoice);
+            help_marker("The initial quip said by an enemy when spawning.");
             ImGui::InputInt("Idle Motion", &hrZako->mIdleMot);
+            help_marker("MotionID for enemy idle.");
             ImGui::InputInt("Standby Tick", &hrZako->mStandbyTick);
             ImGui::InputInt("Shot Number", &hrZako->mShotNum);
+            help_marker("Displays the current shot number of the burst being fired. This is different each time a gunman attacks.");
             ImGui::InputInt("Shot Number Max", &hrZako->mShotNumMax);
+            help_marker("Total number of bullets that will be fired for the current burst.");
             ImGui::InputInt("Reload Number", &hrZako->mReloadNum);
+            help_marker("Maximum ammo capacity of enemy gun clip/magazine.");
             ImGui::InputInt("Ball Number", &hrZako->mBallNum);
             ImGui::InputInt("Ball Number Max", &hrZako->mBallNumMax);
             if (ImGui::CollapsingHeader("ZakoAi")) {
@@ -215,9 +221,11 @@ void DrawEnemyStats() {
                 ImGui::InputInt("Dark Side Frame", &hrZako->mAi.mDarkSideFrame);
                 ImGui::Checkbox("Down Attack Move", &hrZako->mAi.mDownAtkMove);
                 ImGui::Checkbox("Long Attack Move", &hrZako->mAi.mLongAtkMove);
+                help_marker("Tick to proc the ZAKO's special move. Usually their unblockable attack.");
                 ImGui::InputInt("Long Attack Wait Count", &hrZako->mAi.mLongAtkWaitCount);
                 ImGui::InputInt("Mawari Kinshi Count", &hrZako->mAi.mMawariKinshiCount);
                 ImGui::Checkbox("Endurance", &hrZako->mAi.mEndurance);
+                help_marker("Endurance is the mechanic that gives enemies extra resistance to attacks and immunity to Death Blow insta-kills. While only applied to specific enemies by default, this can be ticked on any Zako type.");
                 ImGui::InputFloat("Mawarikomi Direction", &hrZako->mAi.mMawarikomiDirec);
                 ImGui::Checkbox("Back Step Check", &hrZako->mAi.mBackStepChk);
                 ImGui::Separator();
@@ -354,6 +362,7 @@ void DrawEnemyStats() {
             ImGui::InputScalarN("Con Act Count", ImGuiDataType_S16, mpLockOnNpc->mEffect.pBattleIcon->m_ConActCount, 2);
             ImGui::InputScalar("Counter", ImGuiDataType_S16, &mpLockOnNpc->mEffect.pBattleIcon->m_Counter);
             ImGui::InputScalar("Del Counter", ImGuiDataType_S16, &mpLockOnNpc->mEffect.pBattleIcon->m_DelCounter);
+            help_marker("Setting this value begins the timer for how long the lock on blocks should spin.");
             ImGui::InputScalar("Arrow Appear Count", ImGuiDataType_S32, &mpLockOnNpc->mEffect.pBattleIcon->m_Arrow_AppearCnt);
             ImGui::InputScalar("Rotate Anim Count", ImGuiDataType_S32, &mpLockOnNpc->mEffect.pBattleIcon->m_Rotate_AnimCnt);
             ImGui::InputScalar("Tmp Jst Vec X", ImGuiDataType_Float, &mpLockOnNpc->mEffect.pBattleIcon->m_TmpJstVec.x);
