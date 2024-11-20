@@ -262,88 +262,6 @@ void DrawEnemyStats() {
             }
         }
     }
-    else
-        help_marker(HRZAKOWarningText);
-    static const char* HRJSTWarningText = "if locked on enemy isn't Destroybong, you're on your own";
-    if (ImGui::CollapsingHeader("mpLockOnNpc HRJST")) {
-        help_marker(HRJSTWarningText);
-        HRJST* hrJst = (HRJST*)mpLockOnNpc;
-        if (hrJst) {
-            ImGui::InputInt("Action Mode", &hrJst->m_ActionMode);
-            ImGui::InputFloat("Action Time", &hrJst->m_ActionTime);
-            ImGui::InputFloat("Rand Time", &hrJst->m_RandTime);
-            ImGui::InputFloat("Attack Wait", &hrJst->m_AttackWait);
-            ImGui::InputInt("Motion Frame", &hrJst->m_MotionFrame);
-            ImGui::InputFloat3("Move Vec", &hrJst->m_MoveVec.x);
-            ImGui::InputFloat3("Tackle Move", &hrJst->m_TackleMove.x);
-            ImGui::InputFloat3("Brain Pos", &hrJst->m_BrainPos.x);
-            ImGui::Checkbox("Jump Enable", (bool*)&hrJst->m_JumpEnable);
-            ImGui::Checkbox("Jump Flag", (bool*)&hrJst->m_JumpFlag);
-            ImGui::Checkbox("Elevator", (bool*)&hrJst->m_Elevator);
-            ImGui::InputInt("Pc Elect SEID", &hrJst->m_PcElectSEID);
-            ImGui::InputInt("Eye Beam SEID", &hrJst->m_EyeBeamSEID);
-            ImGui::InputInt("Beam Hit SEID", &hrJst->m_BeamHitSEID);
-            ImGui::InputInt("Jst Beam SEID", &hrJst->m_JstBeamSEID);
-            ImGui::InputInt("Demo Cut", &hrJst->m_DemoCut);
-
-            ImGui::Checkbox("Demo", (bool*)&hrJst->m_Demo);
-            ImGui::InputInt("Demo Count", &hrJst->m_DemoCount);
-            for (int i = 0; i < 4; i++) {
-                ImGui::Checkbox(("Lift[" + std::to_string(i) + "]").c_str(), (bool*)&hrJst->m_Lift[i]);
-            }
-            for (int i = 0; i < 3; i++) {
-                ImGui::InputInt(("Rand Lift[" + std::to_string(i) + "]").c_str(), &hrJst->m_RandLift[i]);
-            }
-            ImGui::InputInt("Before Pc Pose", (int*)&hrJst->m_BeforePcPose);
-            ImGui::InputInt("Camera End Wait", (int*)&hrJst->m_CameraEndWait);
-            ImGui::Checkbox("Bef Guard", (bool*)&hrJst->m_BefGuard);
-            ImGui::InputFloat3("Pc Position", &hrJst->m_PcPosition.x);
-            ImGui::InputFloat3("Pc Navel", &hrJst->m_PcNavel.x);
-            ImGui::InputFloat3("Pc Direction", &hrJst->m_PcDirection.x);
-            ImGui::InputFloat("Pc Distance", &hrJst->m_PcDistance);
-            ImGui::InputFloat("Pc Rand Time", &hrJst->m_PcRandTime);
-            ImGui::Checkbox("Pc Share", (bool*)&hrJst->m_PcShare);
-            ImGui::InputInt("Pc Motion No", &hrJst->m_PcMotionNo);
-            ImGui::InputFloat("Hit Wait", &hrJst->m_HitWait);
-            ImGui::InputInt("Sound ID", &hrJst->m_SoundID);
-            ImGui::InputScalar("Right Eye Beam", ImGuiDataType_U32, &hrJst->m_pRightEyeBeam);
-            ImGui::InputScalar("Left Eye Beam", ImGuiDataType_U32, &hrJst->m_pLeftEyeBeam);
-            ImGui::InputScalar("HadoKen", ImGuiDataType_U32, &hrJst->m_pHadoKen);
-            ImGui::InputScalar("Final Flash", ImGuiDataType_U32, &hrJst->m_pFinalFlash);
-            for (int i = 0; i < 4; i++) {
-                ImGui::InputScalar(("Lamp[" + std::to_string(i) + "]").c_str(), ImGuiDataType_U32, &hrJst->m_pLamp[i]);
-            }
-            ImGui::InputScalar("Flash Blur", ImGuiDataType_U32, &hrJst->m_FlashBlur);
-            ImGui::InputScalar("Elect", ImGuiDataType_U32, &hrJst->m_pElect);
-            ImGui::InputScalar("Paund", ImGuiDataType_U32, &hrJst->m_pPaund);
-            ImGui::InputInt("Right Eye Check", (int*)&hrJst->m_RightEyeCheck);
-            ImGui::InputInt("Left Eye Check", (int*)&hrJst->m_LeftEyeCheck);
-            ImGui::InputInt("Hadoken Check", (int*)&hrJst->m_HadokenCheck);
-            ImGui::InputInt("Final Flash Check", (int*)&hrJst->m_FinalFlashCheck);
-            ImGui::InputInt("Paund Check", (int*)&hrJst->m_PaundCheck);
-            for (int i = 0; i < 4; i++) {
-                ImGui::InputScalar(("Line Uni[" + std::to_string(i) + "]").c_str(), ImGuiDataType_U32, &hrJst->m_LineUni[i]);
-            }
-            for (int i = 0; i < 2; i++) {
-                for (int j = 0; j < 4; j++) {
-                    ImGui::InputScalar(("Line[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), ImGuiDataType_U32, &hrJst->m_Line[i][j]);
-                }
-            }
-            ImGui::InputScalar("Demo Camera", ImGuiDataType_U32, &hrJst->m_DemoCamera);
-            ImGui::InputScalar("Container A", ImGuiDataType_U32, &hrJst->m_ContainerA);
-            ImGui::InputScalar("Container B", ImGuiDataType_U32, &hrJst->m_ContainerB);
-            ImGui::InputScalar("Light", ImGuiDataType_U32, &hrJst->m_Light);
-            ImGui::InputScalar("Container A Up", ImGuiDataType_U32, &hrJst->m_ContainerAUp);
-            ImGui::InputScalar("Container B Up", ImGuiDataType_U32, &hrJst->m_ContainerBUp);
-            ImGui::InputScalar("Container A Loop", ImGuiDataType_U32, &hrJst->m_ContainerALoop);
-            ImGui::InputScalar("Container B Loop", ImGuiDataType_U32, &hrJst->m_ContainerBLoop);
-            ImGui::InputScalar("Container A Down", ImGuiDataType_U32, &hrJst->m_ContainerADown);
-            ImGui::InputScalar("Container B Down", ImGuiDataType_U32, &hrJst->m_ContainerBDown);
-            ImGui::InputScalar("Light Up", ImGuiDataType_U32, &hrJst->m_LightUp);
-            ImGui::InputScalar("Light Loop", ImGuiDataType_U32, &hrJst->m_LightLoop);
-            ImGui::InputScalar("Light Down", ImGuiDataType_U32, &hrJst->m_LightDown);
-        }
-    }
     if (ImGui::CollapsingHeader("mpLockOnNpc mEffect.pBattleIcon")) {
         if (mpLockOnNpc && mpLockOnNpc->mEffect.pBattleIcon) {
             uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mpLockOnNpc->mEffect.pBattleIcon->Padding_175);
@@ -441,6 +359,94 @@ void DrawEnemyStats() {
             ImGui::InputInt("Restore Damage Tick", &mpLockOnNpc->mStatus.dmgInfo.restoreDamegeTick);
             ImGui::InputInt("Restore Damage Basic Tick", &mpLockOnNpc->mStatus.dmgInfo.restoreDamegeBasicTick);
             ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &mpLockOnNpc->mStatus.dmgInfo.m_BikeDeadRequest);
+        }
+    }
+    ImGui::Text("Enemy Specific:");
+    if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeJST) {
+        if (ImGui::CollapsingHeader("mpLockOnNpc HRJST")) {
+            HRJST* hrJst = (HRJST*)mpLockOnNpc;
+            if (hrJst) {
+                ImGui::InputInt("Action Mode", &hrJst->m_ActionMode);
+                ImGui::InputFloat("Action Time", &hrJst->m_ActionTime);
+                ImGui::InputFloat("Rand Time", &hrJst->m_RandTime);
+                ImGui::InputFloat("Attack Wait", &hrJst->m_AttackWait);
+                ImGui::InputInt("Motion Frame", &hrJst->m_MotionFrame);
+                ImGui::InputFloat3("Move Vec", &hrJst->m_MoveVec.x);
+                ImGui::InputFloat3("Tackle Move", &hrJst->m_TackleMove.x);
+                ImGui::InputFloat3("Brain Pos", &hrJst->m_BrainPos.x);
+                ImGui::Checkbox("Jump Enable", (bool*)&hrJst->m_JumpEnable);
+                ImGui::Checkbox("Jump Flag", (bool*)&hrJst->m_JumpFlag);
+                ImGui::Checkbox("Elevator", (bool*)&hrJst->m_Elevator);
+                ImGui::InputInt("Pc Elect SEID", &hrJst->m_PcElectSEID);
+                ImGui::InputInt("Eye Beam SEID", &hrJst->m_EyeBeamSEID);
+                ImGui::InputInt("Beam Hit SEID", &hrJst->m_BeamHitSEID);
+                ImGui::InputInt("Jst Beam SEID", &hrJst->m_JstBeamSEID);
+                ImGui::InputInt("Demo Cut", &hrJst->m_DemoCut);
+                ImGui::Checkbox("Demo", (bool*)&hrJst->m_Demo);
+                ImGui::InputInt("Demo Count", &hrJst->m_DemoCount);
+                for (int i = 0; i < 4; i++) {
+                    ImGui::Checkbox(("Lift[" + std::to_string(i) + "]").c_str(), (bool*)&hrJst->m_Lift[i]);
+                }
+                for (int i = 0; i < 3; i++) {
+                    ImGui::InputInt(("Rand Lift[" + std::to_string(i) + "]").c_str(), &hrJst->m_RandLift[i]);
+                }
+                ImGui::InputInt("Before Pc Pose", (int*)&hrJst->m_BeforePcPose);
+                ImGui::InputInt("Camera End Wait", (int*)&hrJst->m_CameraEndWait);
+                ImGui::Checkbox("Bef Guard", (bool*)&hrJst->m_BefGuard);
+                ImGui::InputFloat3("Pc Position", &hrJst->m_PcPosition.x);
+                ImGui::InputFloat3("Pc Navel", &hrJst->m_PcNavel.x);
+                ImGui::InputFloat3("Pc Direction", &hrJst->m_PcDirection.x);
+                ImGui::InputFloat("Pc Distance", &hrJst->m_PcDistance);
+                ImGui::InputFloat("Pc Rand Time", &hrJst->m_PcRandTime);
+                ImGui::Checkbox("Pc Share", (bool*)&hrJst->m_PcShare);
+                ImGui::InputInt("Pc Motion No", &hrJst->m_PcMotionNo);
+                ImGui::InputFloat("Hit Wait", &hrJst->m_HitWait);
+                ImGui::InputInt("Sound ID", &hrJst->m_SoundID);
+                ImGui::Text("Right Eye Beam", ImGuiDataType_U32, &hrJst->m_pRightEyeBeam);
+                ImGui::Text("Left Eye Beam", ImGuiDataType_U32, &hrJst->m_pLeftEyeBeam);
+                ImGui::Text("HadoKen", ImGuiDataType_U32, &hrJst->m_pHadoKen);
+                ImGui::Text("Final Flash", ImGuiDataType_U32, &hrJst->m_pFinalFlash);
+                for (int i = 0; i < 4; i++) {
+                    ImGui::InputScalar(("Lamp[" + std::to_string(i) + "]").c_str(), ImGuiDataType_U32, &hrJst->m_pLamp[i]);
+                }
+                ImGui::Text("Flash Blur", ImGuiDataType_U32, &hrJst->m_FlashBlur);
+                ImGui::Text("Elect", ImGuiDataType_U32, &hrJst->m_pElect);
+                ImGui::Text("Paund", ImGuiDataType_U32, &hrJst->m_pPaund);
+                ImGui::Text("Right Eye Check", (int*)&hrJst->m_RightEyeCheck);
+                ImGui::Text("Left Eye Check", (int*)&hrJst->m_LeftEyeCheck);
+                ImGui::Text("Hadoken Check", (int*)&hrJst->m_HadokenCheck);
+                ImGui::Text("Final Flash Check", (int*)&hrJst->m_FinalFlashCheck);
+                ImGui::Text("Paund Check", (int*)&hrJst->m_PaundCheck);
+                for (int i = 0; i < 4; i++) {
+                    ImGui::Text(("Line Uni[" + std::to_string(i) + "]").c_str(), ImGuiDataType_U32, &hrJst->m_LineUni[i]);
+                }
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 4; j++) {
+                        ImGui::Text(("Line[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), ImGuiDataType_U32, &hrJst->m_Line[i][j]);
+                    }
+                }
+                ImGui::Text("Demo Camera", ImGuiDataType_U32, &hrJst->m_DemoCamera);
+                ImGui::Text("Container A", ImGuiDataType_U32, &hrJst->m_ContainerA);
+                ImGui::Text("Container B", ImGuiDataType_U32, &hrJst->m_ContainerB);
+                ImGui::Text("Light", ImGuiDataType_U32, &hrJst->m_Light);
+                ImGui::Text("Container A Up", ImGuiDataType_U32, &hrJst->m_ContainerAUp);
+                ImGui::Text("Container B Up", ImGuiDataType_U32, &hrJst->m_ContainerBUp);
+                ImGui::Text("Container A Loop", ImGuiDataType_U32, &hrJst->m_ContainerALoop);
+                ImGui::Text("Container B Loop", ImGuiDataType_U32, &hrJst->m_ContainerBLoop);
+                ImGui::Text("Container A Down", ImGuiDataType_U32, &hrJst->m_ContainerADown);
+                ImGui::Text("Container B Down", ImGuiDataType_U32, &hrJst->m_ContainerBDown);
+                ImGui::Text("Light Up", ImGuiDataType_U32, &hrJst->m_LightUp);
+                ImGui::Text("Light Loop", ImGuiDataType_U32, &hrJst->m_LightLoop);
+                ImGui::Text("Light Down", ImGuiDataType_U32, &hrJst->m_LightDown);
+            }
+        }
+    }
+    if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeJST) {
+        if (ImGui::CollapsingHeader("mpLockOnNpc HRJST")) {
+            HRJST* hrJst = (HRJST*)mpLockOnNpc;
+            if (hrJst) {
+
+            }
         }
     }
 }

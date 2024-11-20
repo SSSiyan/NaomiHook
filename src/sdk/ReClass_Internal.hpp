@@ -4432,3 +4432,154 @@ public:
     /* 0x0000 */ int mRefreshCounter;
   //}; /* size: 0x0256 */ // edited
 }; /* size: 0x02ec */
+
+struct HRCAMERA_BATTLE2_INFO
+{
+  /* 0x0000 */ float Length;
+  /* 0x0004 */ struct Vec CameraPos;
+  /* 0x0010 */ struct Vec TargetPos;
+}; /* size: 0x001c */
+
+struct HrCamera {
+    struct MOVE2 {
+      /* 0x0000 */ struct Vec PcPos;
+      /* 0x000c */ float PcAngle;
+      /* 0x0010 */ float CamAngle;
+      /* 0x0014 */ float CamTargLength;
+      /* 0x0018 */ float CamYAngleRate;
+      /* 0x001c */ struct Vec AbsCamPos;
+      /* 0x0028 */ struct Vec AbsTargPos;
+      /* 0x0034 */ float PcLookRate;
+    }; /* size: 0x0038 */
+
+    struct MAIN {
+        struct BATTLE2 {
+          /* 0x0000 */ struct Vec PPos;
+          /* 0x000c */ struct Vec PPosOffset;
+          /* 0x0018 */ struct Vec EPos;
+          /* 0x0024 */ bool DebugMode;
+          /* 0x0025 */ char Padding_238[3];
+          /* 0x0028 */ struct HRCAMERA_BATTLE2_INFO DebugInfo;
+        }; /* size: 0x0044 */
+
+        struct MOTION {
+          /* 0x0000 */ class TGan* pGan;
+          /* 0x0004 */ class TGanPlay* pGanPlay;
+          /* 0x0008 */ class TGanPlayNode* pGanPlayNode;
+          /* 0x000c */ struct Vec Translate;
+          /* 0x0018 */ float RotateY;
+          /* 0x001c */ float Fov;
+          /* 0x0020 */ float Roll;
+          /* 0x0024 */ float MotionRateTime;
+          /* 0x0028 */ bool ValidFov;
+          /* 0x0029 */ bool ValidRoll;
+          /* 0x002a */ bool pause;
+          /* 0x002b */ bool coll;
+        }; /* size: 0x002c */
+
+        struct NORMAL
+        {
+          /* 0x0000 */ struct Vec CPos;
+          /* 0x000c */ struct Vec TPos;
+          /* 0x0018 */ bool ValidFov;
+          /* 0x0019 */ char Padding_239[3];
+          /* 0x001c */ float Fov;
+        }; /* size: 0x0020 */
+
+        struct HOMING
+        {
+            /* 0x0000 */ struct Vec T_Pos;
+            /* 0x000c */ struct Vec C_Pos;
+            /* 0x0018 */ float C_T_MaxLen;
+            /* 0x001c */ float C_T_LimitLen;
+            /* 0x0020 */ float C_T_MinLen;
+            /* 0x0024 */ float C_T_OrderLen;
+            /* 0x0028 */ float C_T_Angle;
+            /* 0x002c */ float T_PosAddY;
+            /* 0x0030 */ int MaxOverCount;
+            /* 0x0034 */ bool Setup;
+            /* 0x0035 */ bool MoveFlag;
+            /* 0x0036 */ char Padding_240[2];
+            /* 0x0038 */ struct Vec T_PosLog[20];
+        }; /* size: 0x0128 */
+
+        struct FREE
+        {
+          /* 0x0000 */ struct Vec C_T_Pos;
+          /* 0x000c */ float T_VDir;
+          /* 0x0010 */ float VDir;
+          /* 0x0014 */ float T_YDir;
+          /* 0x0018 */ float YDir;
+        }; /* size: 0x001c */
+
+        struct MOVE
+        {
+          /* 0x0000 */ struct Vec P_Pos;
+          /* 0x000c */ bool P_PosValid;
+          /* 0x000d */ bool CollValid;
+          /* 0x000e */ char Padding_241[2];
+          /* 0x0010 */ struct Vec T_Pos;
+          /* 0x001c */ float T_PosAddY;
+          /* 0x0020 */ struct Vec T_Dir;
+          /* 0x002c */ float T_RotY;
+          /* 0x0030 */ struct Vec Now_T_Dir;
+          /* 0x003c */ float C_T_Angle;
+          /* 0x0040 */ float C_T_Len;
+          /* 0x0044 */ float C_T_Now_Len;
+        }; /* size: 0x0048 */
+
+        struct BATTLE
+        {
+          /* 0x0000 */ struct Vec PlayerPos;
+          /* 0x000c */ struct Vec EnemyPos;
+          /* 0x0018 */ float T_PosAddY;
+          /* 0x001c */ float T_PosZ;
+          /* 0x0020 */ struct Vec T_Pos;
+          /* 0x002c */ float T_YRotMax;
+          /* 0x0030 */ float T_YRot;
+          /* 0x0034 */ float Now_T_YRot;
+          /* 0x0038 */ struct Vec T;
+          /* 0x0044 */ float C_T_Angle;
+          /* 0x0048 */ float C_T_Len;
+          /* 0x004c */ float C_T_Now_Len;
+        }; /* size: 0x0050 */
+
+        struct SHAKE
+        {
+          /* 0x0000 */ int Total;
+          /* 0x0004 */ int TotalCounter;
+          /* 0x0008 */ int Wait;
+          /* 0x000c */ int WaitCounter;
+          /* 0x0010 */ float YSize;
+          /* 0x0014 */ float XZSize;
+          /* 0x0018 */ struct Vec Pos;
+        }; /* size: 0x0024 */
+
+        /* 0x0000 */ enum HRCAMERA_MODE Mode;
+        /* 0x0004 */ struct MOVE2 mov2;
+        /* 0x003c */ struct HrCamera::MAIN::BATTLE2 bat2;
+        /* 0x0080 */ struct HrCamera::MAIN::MOTION motion;
+        /* 0x00ac */ struct HrCamera::MAIN::NORMAL nrm;
+        /* 0x00cc */ struct HrCamera::MAIN::HOMING homing;
+        /* 0x01f4 */ struct HrCamera::MAIN::FREE free;
+        /* 0x0210 */ struct HrCamera::MAIN::MOVE mov;
+        /* 0x0258 */ struct HrCamera::MAIN::BATTLE bat;
+        /* 0x02a8 */ struct HrCamera::MAIN::SHAKE shk;
+        /* 0x02cc */ struct Vec Pos;
+        /* 0x02d8 */ struct Vec Targ;
+        /* 0x02e4 */ float TwistAngle;
+        /* 0x02e8 */ struct Vec NowPos;
+        /* 0x02f4 */ struct Vec NowTarg;
+        /* 0x0300 */ struct Vec OldPos;
+        /* 0x030c */ struct Vec OldTarg;
+        /* 0x0318 */ bool Always;
+        /* 0x0319 */ bool Change;
+        /* 0x031a */ char Padding_242[2];
+        /* 0x031c */ float ChangeRate;
+        /* 0x0320 */ float ChangeSpeed;
+        /* 0x0324 */ int FrameCounter;
+        /* 0x0328 */ class ghmGcCollObjSphere* pCollSphereObj;
+        /* 0x032c */ bool IsHrAppCollAddObj;
+        /* 0x032d */ char __PADDING__[3];
+    } MAIN; /* size: 0x0330 */
+};

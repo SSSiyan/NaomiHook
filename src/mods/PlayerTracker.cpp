@@ -1331,35 +1331,35 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Lost Bike", &player->mPcStatus.lostBike);
                 ImGui::Checkbox("Bike Visible", &player->mPcStatus.bikeVisible);
                 static const char* skillCatchHelpMarkers[16] {
-                    "default",  // Skill Catch 0
-                    "default",  // Skill Catch 1
-                    "default",  // Skill Catch 2
-                    "default",  // Skill Catch 3
-                    "Huracanrana",     // Skill Catch 4
-                    "Power Bomb",     // Skill Catch 5
-                    "Brain Buster Slam",     // Skill Catch 6
-                    "Quebradora Con Giro",     // Skill Catch 7
-                    "German Suplex",     // Skill Catch 8
-                    "Tiger Suplex",     // Skill Catch 9
-                    "Belly To Belly",     // Skill Catch 10
-                    "Front Neck Chancery Drop",     // Skill Catch 11
-                    "Captured",     // Skill Catch 12
-                    "Reverse Armsault",     // Skill Catch 13
-                    "Double Arm Suplex",     // Skill Catch 14
-                    "Double Wrist Armsault",     // Skill Catch 15
+                    "default",                  // Skill Catch 0
+                    "default",                  // Skill Catch 1
+                    "default",                  // Skill Catch 2
+                    "default",                  // Skill Catch 3
+                    "Huracanrana",              // Skill Catch 4
+                    "Power Bomb",               // Skill Catch 5
+                    "Brain Buster Slam",        // Skill Catch 6
+                    "Quebradora Con Giro",      // Skill Catch 7
+                    "German Suplex",            // Skill Catch 8
+                    "Tiger Suplex",             // Skill Catch 9
+                    "Belly To Belly",           // Skill Catch 10
+                    "Front Neck Chancery Drop", // Skill Catch 11
+                    "Captured",                 // Skill Catch 12
+                    "Reverse Armsault",         // Skill Catch 13
+                    "Double Arm Suplex",        // Skill Catch 14
+                    "Double Wrist Armsault",    // Skill Catch 15
                 };
                 for (int i = 0; i < 16; i++) {
                     ImGui::Checkbox(("Skill Catch " + std::to_string(i)).c_str(), &player->mPcStatus.skillCatch[i]);
                     help_marker(skillCatchHelpMarkers[i]);
                 }
                 static const char* k7helpMarkers[7] {
-                    "Memory of Demon - Jumping Slash",     // K7 0
-                    "Memory of Child - Sprint",   // K7 1
-                    "Memory of Three - Mini Map", // K7 2
-                    "Memory of Woman - Darkside Extension",     // K7 3
-                    "Memory of Mask - Wrestling Grab Range",     // K7 4
-                    "Memory of Tattoo - Total Rank Bonus",     // K7 5
-                    "Memory of White - Jumping Down Attack",     // K7 6
+                    "Memory of Demon - Jumping Slash",       // K7 0
+                    "Memory of Child - Sprint",              // K7 1
+                    "Memory of Three - Mini Map",            // K7 2
+                    "Memory of Woman - Darkside Extension",  // K7 3
+                    "Memory of Mask - Wrestling Grab Range", // K7 4
+                    "Memory of Tattoo - Total Rank Bonus",   // K7 5
+                    "Memory of White - Jumping Down Attack", // K7 6
                 };
                 for (int i = 0; i < 7; i++) {
                     ImGui::Checkbox(("Skill K7 " + std::to_string(i)).c_str(), &player->mPcStatus.skillK7[i]);
@@ -1753,6 +1753,92 @@ void DrawPlayerStats() {
                 ImGui::Text("Lock On Effect 2: SoonTM");
             }
         }
+    }
+    if (ImGui::CollapsingHeader("HrCamera")) {
+        uintptr_t baseAddress = g_framework->get_module().as<uintptr_t>();
+        HrCamera* hrCamera = reinterpret_cast<HrCamera*>(baseAddress + 0x82A4A0);
+        if (ImGui::TreeNode("MOVE2")) {
+            ImGui::InputFloat3("Pc Pos", &hrCamera->MAIN.mov2.PcPos.x);
+            ImGui::InputFloat("Pc Angle", &hrCamera->MAIN.mov2.PcAngle);
+            ImGui::InputFloat("Cam Angle", &hrCamera->MAIN.mov2.CamAngle);
+            ImGui::InputFloat("Cam Targ Length", &hrCamera->MAIN.mov2.CamTargLength);
+            ImGui::InputFloat("Cam Y Angle Rate", &hrCamera->MAIN.mov2.CamYAngleRate);
+            ImGui::InputFloat3("Abs Cam Pos", &hrCamera->MAIN.mov2.AbsCamPos.x);
+            ImGui::InputFloat3("Abs Targ Pos", &hrCamera->MAIN.mov2.AbsTargPos.x);
+            ImGui::InputFloat("Pc Look Rate", &hrCamera->MAIN.mov2.PcLookRate);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("BATTLE2")) {
+            ImGui::InputFloat3("Player Pos", &hrCamera->MAIN.bat2.PPos.x);
+            ImGui::InputFloat3("Player Pos Offset", &hrCamera->MAIN.bat2.PPosOffset.x);
+            ImGui::InputFloat3("Enemy Pos", &hrCamera->MAIN.bat2.EPos.x);
+            ImGui::Checkbox("Debug Mode", &hrCamera->MAIN.bat2.DebugMode);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("MOTION")) {
+            ImGui::InputScalar("Gan Pointer", ImGuiDataType_U32, &hrCamera->MAIN.motion.pGan);
+            ImGui::InputScalar("GanPlay Pointer", ImGuiDataType_U32, &hrCamera->MAIN.motion.pGanPlay);
+            ImGui::InputScalar("GanPlayNode Pointer", ImGuiDataType_U32, &hrCamera->MAIN.motion.pGanPlayNode);
+            ImGui::InputFloat3("Translate", &hrCamera->MAIN.motion.Translate.x);
+            ImGui::InputFloat("Rotate Y", &hrCamera->MAIN.motion.RotateY);
+            ImGui::InputFloat("Fov", &hrCamera->MAIN.motion.Fov);
+            ImGui::InputFloat("Roll", &hrCamera->MAIN.motion.Roll);
+            ImGui::InputFloat("Motion Rate Time", &hrCamera->MAIN.motion.MotionRateTime);
+            ImGui::Checkbox("Valid Fov", &hrCamera->MAIN.motion.ValidFov);
+            ImGui::Checkbox("Valid Roll", &hrCamera->MAIN.motion.ValidRoll);
+            ImGui::Checkbox("Pause", &hrCamera->MAIN.motion.pause);
+            ImGui::Checkbox("Coll", &hrCamera->MAIN.motion.coll);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("NORMAL")) {
+            ImGui::InputFloat3("Camera Pos", &hrCamera->MAIN.nrm.CPos.x);
+            ImGui::InputFloat3("Target Pos", &hrCamera->MAIN.nrm.TPos.x);
+            ImGui::Checkbox("Valid Fov", &hrCamera->MAIN.nrm.ValidFov);
+            ImGui::InputFloat("Fov", &hrCamera->MAIN.nrm.Fov);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("HOMING")) {
+            ImGui::InputFloat3("Target Pos", &hrCamera->MAIN.homing.T_Pos.x);
+            ImGui::InputFloat3("Camera Pos", &hrCamera->MAIN.homing.C_Pos.x);
+            ImGui::InputFloat("Max Length", &hrCamera->MAIN.homing.C_T_MaxLen);
+            ImGui::InputFloat("Limit Length", &hrCamera->MAIN.homing.C_T_LimitLen);
+            ImGui::InputFloat("Min Length", &hrCamera->MAIN.homing.C_T_MinLen);
+            ImGui::InputFloat("Order Length", &hrCamera->MAIN.homing.C_T_OrderLen);
+            ImGui::InputFloat("Angle", &hrCamera->MAIN.homing.C_T_Angle);
+            ImGui::InputFloat("Add Y", &hrCamera->MAIN.homing.T_PosAddY);
+            ImGui::InputInt("Max Over Count", &hrCamera->MAIN.homing.MaxOverCount);
+            ImGui::Checkbox("Setup", &hrCamera->MAIN.homing.Setup);
+            ImGui::Checkbox("Move Flag", &hrCamera->MAIN.homing.MoveFlag);
+            for (int i = 0; i < 20; i++) {
+                ImGui::InputFloat3(("T_PosLog[" + std::to_string(i) + "]").c_str(), &hrCamera->MAIN.homing.T_PosLog[i].x);
+            }
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("FREE")) {
+            ImGui::InputFloat3("Camera-Target Pos", &hrCamera->MAIN.free.C_T_Pos.x);
+            ImGui::InputFloat("Target VDir", &hrCamera->MAIN.free.T_VDir);
+            ImGui::InputFloat("VDir", &hrCamera->MAIN.free.VDir);
+            ImGui::InputFloat("Target YDir", &hrCamera->MAIN.free.T_YDir);
+            ImGui::InputFloat("YDir", &hrCamera->MAIN.free.YDir);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("MOVE")) {
+            ImGui::InputFloat3("Player Pos", &hrCamera->MAIN.mov.P_Pos.x);
+            ImGui::Checkbox("Player Pos Valid", &hrCamera->MAIN.mov.P_PosValid);
+            ImGui::Checkbox("Coll Valid", &hrCamera->MAIN.mov.CollValid);
+            ImGui::InputFloat3("Target Pos", &hrCamera->MAIN.mov.T_Pos.x);
+            ImGui::InputFloat("Add Y", &hrCamera->MAIN.mov.T_PosAddY);
+            ImGui::InputFloat3("Target Dir", &hrCamera->MAIN.mov.T_Dir.x);
+            ImGui::InputFloat("Target Rot Y", &hrCamera->MAIN.mov.T_RotY);
+            ImGui::TreePop();
+        }
+        ImGui::Combo("Mode", (int*)&hrCamera->MAIN.Mode, "HRCAMERA_MODE_HOMING\0HRCAMERA_MODE_MOTION\0HRCAMERA_MODE_FREE\0HRCAMERA_MODE_MOVE\0HRCAMERA_MODE_BATTLE\0HRCAMERA_MODE_IDLE\0HRCAMERA_MODE_NORMAL\0HRCAMERA_MODE_BATTLE2\0HRCAMERA_MODE_MOVE2\0");
+        ImGui::InputFloat3("Position", &hrCamera->MAIN.Pos.x);
+        ImGui::InputFloat3("Target", &hrCamera->MAIN.Targ.x);
+        ImGui::InputFloat("Twist Angle", &hrCamera->MAIN.TwistAngle);
+        ImGui::InputInt("Frame Counter", &hrCamera->MAIN.FrameCounter);
+        ImGui::Checkbox("Always", &hrCamera->MAIN.Always);
+        ImGui::Checkbox("Change", &hrCamera->MAIN.Change);
     }
 }
 
