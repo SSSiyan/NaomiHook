@@ -654,6 +654,210 @@ void DrawEnemyStats() {
             }
         }
     }
+    if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeTGR) {
+        if (ImGui::CollapsingHeader("mpLockOnNpc HRTGR (Shinobu)")) {
+            HRTGR* hrTgr = (HRTGR*)mpLockOnNpc;
+            if (hrTgr) {
+                ImGui::Checkbox("mStartAttack", &hrTgr->mStartAttack);
+                ImGui::Checkbox("mAlreadyStandby", &hrTgr->mAlreadyStandby);
+                ImGui::Checkbox("mGuardMode", &hrTgr->mGuardMode);
+                ImGui::InputScalar("mRanbuRateOffset", ImGuiDataType_S16, &hrTgr->mRanbuRateOffset);
+                ImGui::InputScalar("mRapidStepNum", ImGuiDataType_U8, &hrTgr->mRapidStepNum);
+                ImGui::InputScalar("mRapidSonicNum", ImGuiDataType_U8, &hrTgr->mRapidSonicNum);
+                ImGui::InputInt("mStandbyTick", &hrTgr->mStandbyTick);
+                ImGui::InputFloat("mPiyoriFrame", &hrTgr->mPiyoriFrame);
+                ImGui::InputInt("mGuardTick", &hrTgr->mGuardTick);
+                ImGui::Checkbox("m_BefGuard", &hrTgr->m_BefGuard);
+                bool mAdvAtk0 = getBit(hrTgr->mFlag, 0);
+                if (ImGui::Checkbox("mAdvAtk0", &mAdvAtk0)) setBit(hrTgr->mFlag, 0, mAdvAtk0);
+                bool mAdvAtk1 = getBit(hrTgr->mFlag, 1);
+                if (ImGui::Checkbox("mAdvAtk1", &mAdvAtk1)) setBit(hrTgr->mFlag, 1, mAdvAtk1);
+                bool mAdvAtk2 = getBit(hrTgr->mFlag, 2);
+                if (ImGui::Checkbox("mAdvAtk2", &mAdvAtk2)) setBit(hrTgr->mFlag, 2, mAdvAtk2);
+                bool mBlwAtk = getBit(hrTgr->mFlag, 3);
+                if (ImGui::Checkbox("mBlwAtk", &mBlwAtk)) setBit(hrTgr->mFlag, 3, mBlwAtk);
+                bool mBlwUsed = getBit(hrTgr->mFlag, 4);
+                if (ImGui::Checkbox("mBlwUsed", &mBlwUsed)) setBit(hrTgr->mFlag, 4, mBlwUsed);
+                bool mUseBlwRapid = getBit(hrTgr->mFlag, 5);
+                if (ImGui::Checkbox("mUseBlwRapid", &mUseBlwRapid)) setBit(hrTgr->mFlag, 5, mUseBlwRapid);
+                bool mBlwAtkRpd0 = getBit(hrTgr->mFlag, 6);
+                if (ImGui::Checkbox("mBlwAtkRpd0", &mBlwAtkRpd0)) setBit(hrTgr->mFlag, 6, mBlwAtkRpd0);
+                bool mBlwAtkRpd1 = getBit(hrTgr->mFlag, 7);
+                if (ImGui::Checkbox("mBlwAtkRpd1", &mBlwAtkRpd1)) setBit(hrTgr->mFlag, 7, mBlwAtkRpd1);
+                bool mWallTurn = getBit(hrTgr->mFlag, 8);
+                if (ImGui::Checkbox("mWallTurn", &mWallTurn)) setBit(hrTgr->mFlag, 8, mWallTurn);
+                ImGui::InputText("mTraceTex", (char*)&hrTgr->mTraceTex, sizeof(hrTgr->mTraceTex));
+                for (int i = 0; i < 8; ++i) {
+                    ImGui::InputText(("mpEfWaveBlow[" + std::to_string(i) + "]").c_str(), (char*)&hrTgr->mpEfWaveBlow[i], sizeof(hrTgr->mpEfWaveBlow[i]));
+                    ImGui::InputText(("mTaskCheckWaveBlow[" + std::to_string(i) + "]").c_str(), (char*)&hrTgr->mTaskCheckWaveBlow[i], sizeof(hrTgr->mTaskCheckWaveBlow[i]));
+                }
+            }
+        }
+    }
+    if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeSFF) {
+        if (ImGui::CollapsingHeader("mpLockOnNpc HRSFF (Holly Summers)")) {
+            HRSFF* hrSff = (HRSFF*)mpLockOnNpc;
+            if (hrSff) {
+                const char* holeStateNames[] = { "Lid", "Open", "Bury" };
+                for (int i = 0; i < 14; ++i) {
+                    ImGui::Combo(("m_HoleState[" + std::to_string(i) + "]").c_str(), (int*)&hrSff->m_HoleState[i], holeStateNames, IM_ARRAYSIZE(holeStateNames));
+                }
+                const char* randKeyNames[] = { "RightCon", "LeftCon", "AButton", "NonKey" };
+                ImGui::Combo("m_RandKey", (int*)&hrSff->m_RandKey, randKeyNames, IM_ARRAYSIZE(randKeyNames));
+                for (int i = 0; i < 14; ++i) {
+                    ImGui::InputFloat3(("m_HolePos[" + std::to_string(i) + "]").c_str(), &hrSff->m_HolePos[i].x);
+                }
+                for (int i = 0; i < 6; ++i) {
+                    ImGui::InputFloat3(("m_SafePos[" + std::to_string(i) + "]").c_str(), &hrSff->m_SafePos[i].x);
+                }
+                ImGui::InputInt("m_ActionMode", &hrSff->m_ActionMode);
+                ImGui::InputFloat("m_ActionTime", &hrSff->m_ActionTime);
+                ImGui::InputFloat("m_RandTime", &hrSff->m_RandTime);
+                ImGui::InputInt("m_MotionFrame", &hrSff->m_MotionFrame);
+                ImGui::InputFloat3("m_MoveVec", &hrSff->m_MoveVec.x);
+                ImGui::InputInt("m_TargetHoleNum", &hrSff->m_TargetHoleNum);
+                ImGui::InputInt("m_TargetSafePos", &hrSff->m_TargetSafePos);
+                ImGui::Checkbox("m_ColHole", &hrSff->m_ColHole);
+                for (int i = 0; i < 14; ++i) {
+                    ImGui::Checkbox(("m_HoleReq[" + std::to_string(i) + "]").c_str(), &hrSff->m_HoleReq[i]);
+                }
+                ImGui::Checkbox("m_SmokeHit", &hrSff->m_SmokeHit);
+                ImGui::Checkbox("m_Demo", &hrSff->m_Demo);
+                ImGui::Checkbox("m_PcDead", &hrSff->m_PcDead);
+                ImGui::Checkbox("m_PineapReq", &hrSff->m_PineapReq);
+                ImGui::Checkbox("m_StoneUp", &hrSff->m_StoneUp);
+                ImGui::Checkbox("m_BefGuard", &hrSff->m_BefGuard);
+                ImGui::Checkbox("m_PcShare", &hrSff->m_PcShare);
+                ImGui::InputFloat3("m_PcPosition", &hrSff->m_PcPosition.x);
+                ImGui::InputFloat3("m_PcNavel", &hrSff->m_PcNavel.x);
+                ImGui::InputFloat3("m_PcDirection", &hrSff->m_PcDirection.x);
+                ImGui::InputFloat("m_PcDistance", &hrSff->m_PcDistance);
+                ImGui::InputFloat("m_HitWait", &hrSff->m_HitWait);
+                ImGui::InputInt("m_PcMotionNo", &hrSff->m_PcMotionNo);
+                ImGui::InputFloat("m_PcRandTime", &hrSff->m_PcRandTime);
+                ImGui::InputFloat("m_PineapleTime", &hrSff->m_PineapleTime);
+                ImGui::InputInt("m_HoleDownNum", &hrSff->m_HoleDownNum);
+                ImGui::InputFloat3("m_BeforePos", &hrSff->m_BeforePos.x);
+                for (int i = 0; i < 10; ++i) {
+                    ImGui::InputText(("m_pMacross[" + std::to_string(i) + "]").c_str(), (char*)&hrSff->m_pMacross[i], sizeof(hrSff->m_pMacross[i]));
+                }
+                for (int i = 0; i < 4; ++i) {
+                    ImGui::InputText(("m_pPineaple[" + std::to_string(i) + "]").c_str(), (char*)&hrSff->m_pPineaple[i], sizeof(hrSff->m_pPineaple[i]));
+                }
+                ImGui::InputText("m_pSmoke", (char*)&hrSff->m_pSmoke, sizeof(hrSff->m_pSmoke));
+                ImGui::InputText("m_pKnife", (char*)&hrSff->m_pKnife, sizeof(hrSff->m_pKnife));
+                for (int i = 0; i < 28; ++i) {
+                    ImGui::InputText(("m_pPcSmoke[" + std::to_string(i) + "]").c_str(), (char*)&hrSff->m_pPcSmoke[i], sizeof(hrSff->m_pPcSmoke[i]));
+                }
+                for (int i = 0; i < 10; ++i) {
+                    ImGui::InputText(("m_pMacrossCheck[" + std::to_string(i) + "]").c_str(), (char*)&hrSff->m_pMacrossCheck[i], sizeof(hrSff->m_pMacrossCheck[i]));
+                }
+                for (int i = 0; i < 4; ++i) {
+                    ImGui::InputText(("m_pPineapleCheck[" + std::to_string(i) + "]").c_str(), (char*)&hrSff->m_pPineapleCheck[i], sizeof(hrSff->m_pPineapleCheck[i]));
+                }
+                ImGui::InputText("m_pSmokeCheck", (char*)&hrSff->m_pSmokeCheck, sizeof(hrSff->m_pSmokeCheck));
+                ImGui::InputText("m_pKnifeCheck", (char*)&hrSff->m_pKnifeCheck, sizeof(hrSff->m_pKnifeCheck));
+                for (int i = 0; i < 28; ++i) {
+                    ImGui::InputText(("m_pPcSmokeCheck[" + std::to_string(i) + "]").c_str(), (char*)&hrSff->m_pPcSmokeCheck[i], sizeof(hrSff->m_pPcSmokeCheck[i]));
+                }
+                ImGui::InputText("m_pPineapleGmf", (char*)&hrSff->m_pPineapleGmf, sizeof(hrSff->m_pPineapleGmf));
+                ImGui::InputText("m_pMineGmf", (char*)&hrSff->m_pMineGmf, sizeof(hrSff->m_pMineGmf));
+                ImGui::Checkbox("m_MineVisible", &hrSff->m_MineVisible);
+            }
+        }
+    }
+    if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeTET) {
+        if (ImGui::CollapsingHeader("mpLockOnNpc HRTET (Harvey)")) {
+            HRTET* hrTet = (HRTET*)mpLockOnNpc;
+            if (hrTet) {
+                ImGui::Combo("m_SetDemoNum", (int*)&hrTet->m_SetDemoNum, "DemoInit\0ShowIn\0ShortShowIn\0ShowTrue\0ShowFalse\0");
+                ImGui::Combo("m_RandKey", (int*)&hrTet->m_RandKey, "RightCon\0LeftCon\0AButton\0");
+                ImGui::Checkbox("ItemMagic.Active", &hrTet->m_ItemMagic.Active);
+                ImGui::InputFloat3("ItemMagic.Pos", &hrTet->m_ItemMagic.Pos.x);
+                ImGui::InputInt("m_ActionMode", &hrTet->m_ActionMode);
+                ImGui::InputFloat("m_ActionTime", &hrTet->m_ActionTime);
+                ImGui::InputFloat("m_RandTime", &hrTet->m_RandTime);
+                ImGui::InputInt("m_MotionFrame", &hrTet->m_MotionFrame);
+                ImGui::InputFloat3("m_MoveVec", &hrTet->m_MoveVec.x);
+                ImGui::InputFloat3("m_BeforePos", &hrTet->m_BeforePos.x);
+                ImGui::InputFloat("m_BeforeRotY", &hrTet->m_BeforeRotY);
+                ImGui::InputFloat("m_ShowHitCount", &hrTet->m_ShowHitCount);
+                ImGui::InputInt("m_AmbCount", &hrTet->m_AmbCount);
+                ImGui::Checkbox("m_BossVisible", &hrTet->m_BossVisible);
+                ImGui::Checkbox("m_PigionEnable", &hrTet->m_PigionEnable);
+                ImGui::Checkbox("m_FirstShow", &hrTet->m_FirstShow);
+                ImGui::Checkbox("m_BossPause", &hrTet->m_BossPause);
+                ImGui::InputFloat3("m_BeforeAcc", &hrTet->m_BeforeAcc.x);
+                ImGui::InputInt("m_FadeFrame", &hrTet->m_FadeFrame);
+                ImGui::InputInt("m_ShowTimeCount", &hrTet->m_ShowTimeCount);
+                ImGui::InputInt("m_ReverseWait", &hrTet->m_ReverseWait);
+                ImGui::InputInt("m_BaseBGMHandle", &hrTet->m_BaseBGMHandle);
+                ImGui::InputInt("m_SpBGMHandle", &hrTet->m_SpBGMHandle);
+                ImGui::Checkbox("m_BefGuard", &hrTet->m_BefGuard);
+                ImGui::Checkbox("m_FirstShowTime", &hrTet->m_FirstShowTime);
+                ImGui::InputFloat3("m_PcPosition", &hrTet->m_PcPosition.x);
+                ImGui::InputFloat3("m_PcNavel", &hrTet->m_PcNavel.x);
+                ImGui::InputFloat3("m_PcDirection", &hrTet->m_PcDirection.x);
+                ImGui::InputFloat3("m_PcBeforePos", &hrTet->m_PcBeforePos.x);
+                ImGui::InputFloat("m_PcBeforeRotY", &hrTet->m_PcBeforeRotY);
+                ImGui::InputFloat("m_PcDistance", &hrTet->m_PcDistance);
+                ImGui::InputFloat("m_HitWait", &hrTet->m_HitWait);
+                ImGui::Checkbox("m_PcShare", &hrTet->m_PcShare);
+                ImGui::InputInt("m_PcMotionNo", &hrTet->m_PcMotionNo);
+                ImGui::InputFloat("m_PcRandTime", &hrTet->m_PcRandTime);
+                ImGui::InputInt("m_LoopSEID", &hrTet->m_LoopSEID);
+                ImGui::InputText("m_pBoxGmf", (char*)&hrTet->m_pBoxGmf, sizeof(hrTet->m_pBoxGmf));
+                ImGui::InputInt("m_BoxMotionNo", &hrTet->m_BoxMotionNo);
+                ImGui::InputInt("m_ShakeCount", &hrTet->m_ShakeCount);
+                ImGui::InputFloat("m_ShakeAcc", &hrTet->m_ShakeAcc);
+                ImGui::InputText("m_pAssistAGmf", (char*)&hrTet->m_pAssistAGmf, sizeof(hrTet->m_pAssistAGmf));
+                ImGui::InputText("m_pAssistBGmf", (char*)&hrTet->m_pAssistBGmf, sizeof(hrTet->m_pAssistBGmf));
+                ImGui::InputFloat3("m_AssistAPos", &hrTet->m_AssistAPos.x);
+                ImGui::InputFloat3("m_AssistBPos", &hrTet->m_AssistBPos.x);
+                ImGui::InputFloat3("m_AssistARot", &hrTet->m_AssistARot.x);
+                ImGui::InputFloat3("m_AssistBRot", &hrTet->m_AssistBRot.x);
+                ImGui::InputText("m_pLeftArmsGmf", (char*)&hrTet->m_pLeftArmsGmf, sizeof(hrTet->m_pLeftArmsGmf));
+                ImGui::InputText("m_pRightArmsGmf", (char*)&hrTet->m_pRightArmsGmf, sizeof(hrTet->m_pRightArmsGmf));
+                ImGui::Checkbox("m_RArmVisible", &hrTet->m_RArmVisible);
+                ImGui::Checkbox("m_LArmVisible", &hrTet->m_LArmVisible);
+                ImGui::Checkbox("m_AssistAVisible", &hrTet->m_AssistAVisible);
+                ImGui::Checkbox("m_AssistBVisible", &hrTet->m_AssistBVisible);
+                ImGui::Checkbox("m_BoxVisible", &hrTet->m_BoxVisible);
+                ImGui::Checkbox("m_ArmVisible", &hrTet->m_ArmVisible);
+                for (int i = 0; i < 4; ++i) {
+                    ImGui::InputText(("m_Light[" + std::to_string(i) + "]").c_str(), (char*)&hrTet->m_Light[i], sizeof(hrTet->m_Light[i]));
+                }
+                ImGui::Checkbox("m_FadeFlag", &hrTet->m_FadeFlag);
+                ImGui::InputText("m_pStageMotion", (char*)&hrTet->m_pStageMotion, sizeof(hrTet->m_pStageMotion));
+                ImGui::InputText("m_RSlash", (char*)&hrTet->m_RSlash, sizeof(hrTet->m_RSlash));
+                ImGui::InputText("m_LSlash", (char*)&hrTet->m_LSlash, sizeof(hrTet->m_LSlash));
+                ImGui::InputText("m_EnemySpot", (char*)&hrTet->m_EnemySpot, sizeof(hrTet->m_EnemySpot));
+                ImGui::InputText("m_PcSpot", (char*)&hrTet->m_PcSpot, sizeof(hrTet->m_PcSpot));
+                ImGui::InputText("m_AsiASpot", (char*)&hrTet->m_AsiASpot, sizeof(hrTet->m_AsiASpot));
+                ImGui::InputText("m_AsiBSpot", (char*)&hrTet->m_AsiBSpot, sizeof(hrTet->m_AsiBSpot));
+                ImGui::InputText("m_ViewReverse", (char*)&hrTet->m_ViewReverse, sizeof(hrTet->m_ViewReverse));
+                ImGui::InputText("m_SwordR", (char*)&hrTet->m_SwordR, sizeof(hrTet->m_SwordR));
+                ImGui::InputText("m_SwordB", (char*)&hrTet->m_SwordB, sizeof(hrTet->m_SwordB));
+                ImGui::InputText("m_pStar", (char*)&hrTet->m_pStar, sizeof(hrTet->m_pStar));
+                ImGui::InputText("m_pHeart", (char*)&hrTet->m_pHeart, sizeof(hrTet->m_pHeart));
+                for (int i = 0; i < 6; ++i) {
+                    ImGui::InputText(("m_Pigeon[" + std::to_string(i) + "]").c_str(), (char*)&hrTet->m_Pigeon[i], sizeof(hrTet->m_Pigeon[i]));
+                }
+                for (int i = 0; i < 6; ++i) {
+                    ImGui::InputText(("m_PigeonCheck[" + std::to_string(i) + "]").c_str(), (char*)&hrTet->m_PigeonCheck[i], sizeof(hrTet->m_PigeonCheck[i]));
+                }
+                ImGui::InputText("m_pAmbGmf", (char*)&hrTet->m_pAmbGmf, sizeof(hrTet->m_pAmbGmf));
+                ImGui::Checkbox("m_AmbVisible", &hrTet->m_AmbVisible);
+                ImGui::InputText("m_pSlvGmf", (char*)&hrTet->m_pSlvGmf, sizeof(hrTet->m_pSlvGmf));
+                for (int i = 0; i < 2; ++i) {
+                    ImGui::InputText(("m_pSlvMotion[" + std::to_string(i) + "]").c_str(), (char*)&hrTet->m_pSlvMotion[i], sizeof(hrTet->m_pSlvMotion[i]));
+                }
+                ImGui::InputFloat("m_SlvRandTime", &hrTet->m_SlvRandTime);
+                ImGui::InputText("m_pTopSpin", (char*)&hrTet->m_pTopSpin, sizeof(hrTet->m_pTopSpin));
+                ImGui::InputText("m_pSmoke", (char*)&hrTet->m_pSmoke, sizeof(hrTet->m_pSmoke));
+            }
+        }
+    }
 }
 
 void EnemyTracker::on_draw_ui() {

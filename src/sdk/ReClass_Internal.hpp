@@ -2973,6 +2973,226 @@ public:
   /* 0x0708 */ class rQuad m_Quad;
 }; /* size: 0x07b8 */
 
+class HRTGR
+{
+public:
+  /* 0x0000 */ char Padding_891[0x3f8];
+  /* 0x03f8 */ bool mStartAttack;
+  /* 0x03f9 */ bool mAlreadyStandby;
+  /* 0x03fa */ bool mGuardMode;
+  /* 0x03fb */ char Padding_892;
+  /* 0x03fc */ short mRanbuRateOffset;
+  /* 0x03fe */ unsigned char mRapidStepNum;
+  /* 0x03ff */ unsigned char mRapidSonicNum;
+  /* 0x0400 */ int mStandbyTick;
+  /* 0x0404 */ float mPiyoriFrame;
+  /* 0x0408 */ int mGuardTick;
+  /* 0x040c */ bool m_BefGuard;
+  /* 0x040d */ char Padding_893[3];
+  /* 0x0410 */ struct tagGHMR_TEX mTraceTex;
+  /* 0x0438 */ class EffectWaveBlow* mpEfWaveBlow[8];
+  /* 0x0458 */ struct tagHRTASKCHECK mTaskCheckWaveBlow[8];
+  union
+  {
+    struct /* bitfield */
+    {
+      /* 0x0498 */ unsigned int mAdvAtk0 : 1; /* bit position: 0 */
+      /* 0x0498 */ unsigned int mAdvAtk1 : 1; /* bit position: 1 */
+      /* 0x0498 */ unsigned int mAdvAtk2 : 1; /* bit position: 2 */
+      /* 0x0498 */ unsigned int mBlwAtk : 1; /* bit position: 3 */
+      /* 0x0498 */ unsigned int mBlwUsed : 1; /* bit position: 4 */
+      /* 0x0498 */ unsigned int mUseBlwRapid : 1; /* bit position: 5 */
+      /* 0x0498 */ unsigned int mBlwAtkRpd0 : 1; /* bit position: 6 */
+      /* 0x0498 */ unsigned int mBlwAtkRpd1 : 1; /* bit position: 7 */
+      /* 0x0498 */ unsigned int mWallTurn : 1; /* bit position: 8 */
+      /* 0x0498 */ unsigned int mPadding : 23; /* bit position: 9 */
+    }; /* bitfield */
+    /* 0x0498 */ unsigned int mFlag;
+  }; /* size: 0x0004 */
+}; /* size: 0x049c */
+
+class HRSFF
+{
+public:
+enum HoleState
+{
+  Lid = 0,
+  Open = 1,
+  Bury = 2,
+};
+enum RandKey
+{
+  RightCon = 0,
+  LeftCon = 1,
+  AButton = 2,
+  NonKey = 3,
+};
+  /* 0x0000 */ long Padding_1558[0x3f8];
+  /* 0x03f8 */ struct Vec m_HolePos[14];
+  /* 0x04a0 */ enum HRSFF::HoleState m_HoleState[14];
+  /* 0x04d8 */ struct Vec m_SafePos[6];
+  /* 0x0520 */ int m_ActionMode;
+  /* 0x0524 */ float m_ActionTime;
+  /* 0x0528 */ float m_RandTime;
+  /* 0x052c */ int m_MotionFrame;
+  /* 0x0530 */ struct Vec m_MoveVec;
+  /* 0x053c */ int m_TargetHoleNum;
+  /* 0x0540 */ int m_TargetSafePos;
+  /* 0x0544 */ bool m_ColHole;
+  /* 0x0545 */ bool m_HoleReq[14];
+  /* 0x0553 */ char Padding_1559;
+  /* 0x0554 */ int m_HoleReqFrame[14];
+  /* 0x058c */ bool m_SmokeHit;
+  /* 0x058d */ bool m_Demo;
+  /* 0x058e */ char Padding_1560[2];
+  /* 0x0590 */ enum enPcPose m_BeforePcPose;
+  /* 0x0594 */ bool m_PcDead;
+  /* 0x0595 */ char Padding_1561[3];
+  /* 0x0598 */ enum HRSFF::RandKey m_RandKey;
+  /* 0x059c */ int m_CallBackID;
+  /* 0x05a0 */ bool m_PineapReq;
+  /* 0x05a1 */ bool m_StoneUp;
+  /* 0x05a2 */ bool m_BefGuard;
+  /* 0x05a3 */ char Padding_1562;
+  /* 0x05a4 */ struct Vec m_PcPosition;
+  /* 0x05b0 */ struct Vec m_PcNavel;
+  /* 0x05bc */ struct Vec m_PcDirection;
+  /* 0x05c8 */ float m_PcDistance;
+  /* 0x05cc */ float m_HitWait;
+  /* 0x05d0 */ bool m_PcShare;
+  /* 0x05d1 */ char Padding_1563[3];
+  /* 0x05d4 */ int m_PcMotionNo;
+  /* 0x05d8 */ float m_PcRandTime;
+  /* 0x05dc */ float m_PineapleTime;
+  /* 0x05e0 */ int m_HoleDownNum;
+  /* 0x05e4 */ struct Vec m_BeforePos;
+  /* 0x05f0 */ class EffectMacross* m_pMacross[10];
+  /* 0x0618 */ class EffectPineaple* m_pPineaple[4];
+  /* 0x0628 */ class EffectSmoke* m_pSmoke;
+  /* 0x062c */ class EffectKnife* m_pKnife;
+  /* 0x0630 */ class EffectSmoke* m_pPcSmoke[28];
+  /* 0x06a0 */ struct tagHRTASKCHECK m_pMacrossCheck[10];
+  /* 0x06f0 */ struct tagHRTASKCHECK m_pPineapleCheck[4];
+  /* 0x0710 */ struct tagHRTASKCHECK m_pSmokeCheck;
+  /* 0x0718 */ struct tagHRTASKCHECK m_pKnifeCheck;
+  /* 0x0720 */ struct tagHRTASKCHECK m_pPcSmokeCheck[28];
+  /* 0x0800 */ class TGmf* m_pPineapleGmf;
+  /* 0x0804 */ class TGmf* m_pMineGmf;
+  /* 0x0808 */ bool m_MineVisible;
+}; /* size: 0x080c */
+
+class HRTET
+{
+public:
+enum DemoEnum
+{
+  DemoInit = 0,
+  ShowIn = 1,
+  ShortShowIn = 2,
+  ShowTrue = 3,
+  ShowFalse = 4,
+};
+
+enum RandKey
+{
+  RightCon = 0,
+  LeftCon = 1,
+  AButton = 2,
+};
+
+struct ItemMagic
+{
+  /* 0x0000 */ bool Active;
+  /* 0x0001 */ char Padding_1602[3];
+  /* 0x0004 */ struct Vec Pos;
+}; /* size: 0x0010 */
+
+  /* 0x0000 */ char Padding_1603[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ int m_MotionFrame;
+  /* 0x0408 */ struct Vec m_MoveVec;
+  /* 0x0414 */ struct Vec m_BeforePos;
+  /* 0x0420 */ float m_BeforeRotY;
+  /* 0x0424 */ float m_ShowHitCount;
+  /* 0x0428 */ int m_AmbCount;
+  /* 0x042c */ bool m_BossVisible;
+  /* 0x042d */ bool m_PigionEnable;
+  /* 0x042e */ bool m_FirstShow;
+  /* 0x042f */ bool m_BossPause;
+  /* 0x0430 */ struct Vec m_BeforeAcc;
+  /* 0x043c */ enum enPcPose m_BeforePcPose;
+  /* 0x0440 */ enum HRTET::DemoEnum m_SetDemoNum;
+  /* 0x0444 */ int m_FadeFrame;
+  /* 0x0448 */ enum HRTET::RandKey m_RandKey;
+  /* 0x044c */ int m_ShowTimeCount;
+  /* 0x0450 */ int m_ReverseWait;
+  /* 0x0454 */ struct HRTET::ItemMagic m_ItemMagic;
+  /* 0x0464 */ int m_BaseBGMHandle;
+  /* 0x0468 */ int m_SpBGMHandle;
+  /* 0x046c */ bool m_BefGuard;
+  /* 0x046d */ bool m_FirstShowTime;
+  /* 0x046e */ char Padding_1604[2];
+  /* 0x0470 */ struct Vec m_PcPosition;
+  /* 0x047c */ struct Vec m_PcNavel;
+  /* 0x0488 */ struct Vec m_PcDirection;
+  /* 0x0494 */ struct Vec m_PcBeforePos;
+  /* 0x04a0 */ float m_PcBeforeRotY;
+  /* 0x04a4 */ float m_PcDistance;
+  /* 0x04a8 */ float m_HitWait;
+  /* 0x04ac */ bool m_PcShare;
+  /* 0x04ad */ char Padding_1605[3];
+  /* 0x04b0 */ int m_PcMotionNo;
+  /* 0x04b4 */ float m_PcRandTime;
+  /* 0x04b8 */ int m_LoopSEID;
+  /* 0x04bc */ class TGmf* m_pBoxGmf;
+  /* 0x04c0 */ int m_BoxMotionNo;
+  /* 0x04c4 */ int m_ShakeCount;
+  /* 0x04c8 */ float m_ShakeAcc;
+  /* 0x04cc */ class TGmf* m_pAssistAGmf;
+  /* 0x04d0 */ class TGmf* m_pAssistBGmf;
+  /* 0x04d4 */ struct Vec m_AssistAPos;
+  /* 0x04e0 */ struct Vec m_AssistBPos;
+  /* 0x04ec */ struct Vec m_AssistARot;
+  /* 0x04f8 */ struct Vec m_AssistBRot;
+  /* 0x0504 */ class TGmf* m_pLeftArmsGmf;
+  /* 0x0508 */ class TGmf* m_pRightArmsGmf;
+  /* 0x050c */ bool m_RArmVisible;
+  /* 0x050d */ bool m_LArmVisible;
+  /* 0x050e */ bool m_AssistAVisible;
+  /* 0x050f */ bool m_AssistBVisible;
+  /* 0x0510 */ bool m_BoxVisible;
+  /* 0x0511 */ bool m_ArmVisible;
+  /* 0x0512 */ char Padding_1606[2];
+  /* 0x0514 */ int m_AssistMotionNo;
+  /* 0x0518 */ class TGmf* m_Light[4];
+  /* 0x0528 */ bool m_FadeFlag;
+  /* 0x0529 */ char Padding_1607[3];
+  /* 0x052c */ class TGan* m_pStageMotion;
+  /* 0x0530 */ class EffectSlashTrack* m_RSlash;
+  /* 0x0534 */ class EffectSlashTrack* m_LSlash;
+  /* 0x0538 */ class EffectTheaterSpot* m_EnemySpot;
+  /* 0x053c */ class EffectTheaterSpot* m_PcSpot;
+  /* 0x0540 */ class EffectTheaterSpot* m_AsiASpot;
+  /* 0x0544 */ class EffectTheaterSpot* m_AsiBSpot;
+  /* 0x0548 */ class EffectViewReverse* m_ViewReverse;
+  /* 0x054c */ class EffectSwordLaser* m_SwordR;
+  /* 0x0550 */ class EffectSwordLaser* m_SwordB;
+  /* 0x0554 */ class EffectHarveyStar* m_pStar;
+  /* 0x0558 */ class EffectMagicHeart* m_pHeart;
+  /* 0x055c */ class EffectPigeon* m_Pigeon[6];
+  /* 0x0574 */ struct tagHRTASKCHECK m_PigeonCheck[6];
+  /* 0x05a4 */ class TGmf* m_pAmbGmf;
+  /* 0x05a8 */ bool m_AmbVisible;
+  /* 0x05a9 */ char Padding_1608[3];
+  /* 0x05ac */ class TGmf* m_pSlvGmf;
+  /* 0x05b0 */ class TGan* m_pSlvMotion[2];
+  /* 0x05b8 */ float m_SlvRandTime;
+  /* 0x05bc */ class EffectTopSpin* m_pTopSpin;
+  /* 0x05c0 */ class EffectKeepSmoke* m_pSmoke;
+}; /* size: 0x05c4 */
+
 class stCharaFileData
 {
   /* 0x0000 */ class ghmGcFile* file;
