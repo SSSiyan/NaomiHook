@@ -2866,6 +2866,7 @@ public:
 
 class HRMAMJR
 {
+public:
   /* 0x0000 */ char Padding_1615[0x3f8];
   /* 0x03f8 */ int m_ActionMode;
   /* 0x03fc */ float m_ActionTime;
@@ -2892,6 +2893,85 @@ class HRMAMJR
   /* 0x047c */ float m_HitWait;
   /* 0x0480 */ struct tagGHMR_TEX mTraceTex;
 }; /* size: 0x04a8 */
+
+class HRMGE
+{
+public:
+    enum DemoEnum
+    {
+      DemoInit = 0,
+      ShotAIn = 1,
+      ShotAOut = 2,
+      ShotBIn = 3,
+      ShotBOut = 4,
+      ShotCIn = 5,
+      ShotCOut = 6,
+      ShotDIn = 7,
+      ShotDOut = 8,
+      ShortShotIn = 9,
+    };
+    enum ShootMode
+    {
+      InitShoot = 0,
+      RightShoot = 1,
+      LeftShoot = 2,
+    };
+  /* 0x0000 */ char Padding_1578[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ float m_AttackWait;
+  /* 0x0408 */ int m_MotionFrame;
+  /* 0x040c */ int m_DamageAccum;
+  /* 0x0410 */ float m_RotDiv;
+  /* 0x0414 */ bool m_SongMode;
+  /* 0x0415 */ char Padding_1579[3];
+  /* 0x0418 */ struct Vec m_MoveVec;
+  /* 0x0424 */ struct Vec m_MoundPos;
+  /* 0x0430 */ int m_RandKey;
+  /* 0x0434 */ struct Vec m_BeforePos;
+  /* 0x0440 */ int m_WepNum;
+  /* 0x0444 */ bool m_SongWait;
+  /* 0x0445 */ char Padding_1580[3];
+  /* 0x0448 */ enum enPcPose m_BeforePcPose;
+  /* 0x044c */ int m_BGMHandle;
+  /* 0x0450 */ int m_SubBGMHandle;
+  /* 0x0454 */ enum HRMGE::DemoEnum m_SetDemoNum;
+  /* 0x0458 */ bool m_FirstDemoIn;
+  /* 0x0459 */ char Padding_1581[3];
+  /* 0x045c */ int m_FadeCount;
+  /* 0x0460 */ float m_ReloadSpeed;
+  /* 0x0464 */ float m_BackDmgCount;
+  /* 0x0468 */ bool m_BefGuard;
+  /* 0x0469 */ char Padding_1582[3];
+  /* 0x046c */ float m_FirtRotDamage;
+  /* 0x0470 */ struct Vec m_PcPosition;
+  /* 0x047c */ struct Vec m_PcNavel;
+  /* 0x0488 */ struct Vec m_PcDirection;
+  /* 0x0494 */ struct Vec m_PcBeforePos;
+  /* 0x04a0 */ float m_PcDistance;
+  /* 0x04a4 */ float m_PcRotY;
+  /* 0x04a8 */ float m_PcRandTime;
+  /* 0x04ac */ float m_HitWait;
+  /* 0x04b0 */ int m_Battery;
+  /* 0x04b4 */ class TGmf* m_pRightGunGmf;
+  /* 0x04b8 */ class TGmf* m_pLeftGunGmf;
+  /* 0x04bc */ class TGmf* m_pMicGmf;
+  /* 0x04c0 */ class EffectCartridge* m_pCart[20];
+  /* 0x0510 */ class EffectGun* m_Gun[20];
+  /* 0x0560 */ int m_ShootFrame;
+  /* 0x0564 */ enum HRMGE::ShootMode m_ShootMode;
+  /* 0x0568 */ struct Vec m_RightGunPos;
+  /* 0x0574 */ struct Vec m_LeftGunPos;
+  /* 0x0580 */ struct Vec m_RightGunCart;
+  /* 0x058c */ struct Vec m_LeftGunCart;
+  /* 0x0598 */ struct Vec m_MicPos;
+  /* 0x05a4 */ struct tagHRTASKCHECK m_CartCheck[20];
+  /* 0x0644 */ struct tagHRTASKCHECK m_GunCheck[20];
+  /* 0x06e4 */ class EffectStadiumScreen* m_Screen;
+  /* 0x06e8 */ class rPrimUnific m_PrimUni;
+  /* 0x0708 */ class rQuad m_Quad;
+}; /* size: 0x07b8 */
 
 class stCharaFileData
 {
