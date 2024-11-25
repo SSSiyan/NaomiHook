@@ -1425,6 +1425,12 @@ struct Vec
   /* 0x0008 */ float z;
 }; /* size: 0x000c */
 
+struct Vec2D
+{
+  /* 0x0000 */ float x;
+  /* 0x0004 */ float y;
+}; /* size: 0x0008 */
+
 struct stRovicofInfo
 {
   /* 0x0000 */ bool questOffer;
@@ -2406,7 +2412,7 @@ struct Quaternion
 
 class ghmListObj
 {
-  /* 0x0000 */ long Padding_9;
+  /* 0x0000 */ int Padding_9;
   /* 0x0004 */ class ghmListObj* mpPrev;
   /* 0x0008 */ class ghmListObj* mpNext;
   /* 0x000c */ int mPriority;
@@ -2494,7 +2500,7 @@ class ghmCapsule
 class ghmGcCollObjCapsule
 {
   /* 0x0000 */ class ghmLozenge mMoveShape;
-  /* 0x0030 */ long Padding_152[4];
+  /* 0x0030 */ char Padding_152[0x10];
   /* 0x0040 */ class ghmCapsule mShape;
 }; /* size: 0x0060 */
 
@@ -3143,7 +3149,7 @@ struct stBikeEffect
 
 class hPath
 {
-  /* 0x0000 */ long Padding_1121;
+  /* 0x0000 */ int Padding_1121;
   /* 0x0004 */ char* mName;
   /* 0x0008 */ int mPointNum;
   /* 0x000c */ struct Vec* mPointList;
@@ -3338,7 +3344,7 @@ public: // edited
 
 class HsMessage
 {
-  /* 0x0000 */ long Padding_1049[8];
+  /* 0x0000 */ char Padding_1049[0x20];
   /* 0x0020 */ unsigned int m_MesHndl[2];
   /* 0x0028 */ unsigned int m_ItemAtt;
   /* 0x002c */ unsigned int m_Item_Endian_No;
@@ -3404,7 +3410,7 @@ public: // edited
       /* 0x017c */ class HrMenuCurBox m_CurBox[7];
       /* 0x0278 */ class HrMenuCurBox m_CurBoxConfig[2][4];
       /* 0x0398 */ const int layoutOffset;
-      /* 0x039c */ long Padding_1057;
+      /* 0x039c */ int Padding_1057;
       /* 0x03a0 */ __int64 m_SecTemp[2];
       /* 0x03b0 */ bool m_StartWBFlag;
       /* 0x03b1 */ bool m_TitleWBFlag;
@@ -3570,7 +3576,7 @@ public: // edited
       /* 0x3c10 */ char pad_3c10[0xC]; // class MouseDeltaTracker mouseDeltaTracker; // edited
       /* 0x3c1c */ const int MouseInteractionsCount[11];
       /* 0x3c48 */ class NMH1MouseInteractionObject* MouseInteractions[11];
-      /* 0x3c74 */ long Padding_1074;
+      /* 0x3c74 */ int Padding_1074;
       /* 0x3c78 */ char pad_3c78[0x1DCE]; // class NMH1MouseInteractionObject miMain[8];                 // edited
       /* 0x4138 */ // class NMH1MouseInteractionObject miMap[3];                  // edited
       /* 0x4300 */ // class NMH1MouseInteractionObject miRanking[1];              // edited
@@ -4025,7 +4031,7 @@ public:
       Data_Load = 10,
       Num = 11,
     };
-  /* 0x0000 */ long Padding_1229[2];
+  /* 0x0000 */ int Padding_1229[2];
   /* 0x0008 */ bool m_Access_f;
   /* 0x0009 */ char Padding_1230[3];
   /* 0x000c */ unsigned int m_Access_No;
@@ -4131,7 +4137,7 @@ struct HRSAVEDATA_STG
 
 class hBjObjectManager
 {
-  /* 0x0000 */ long Padding_1215;
+  /* 0x0000 */ int Padding_1215;
   /* 0x0004 */ class hBjObject* mTop;
   /* 0x0008 */ class hBjObject* mEnd;
   /* 0x000c */ unsigned int mTexNum;
@@ -4152,7 +4158,7 @@ struct bjStar
 
 class hBjStage
 {
-  /* 0x0000 */ long Padding_1216;
+  /* 0x0000 */ int Padding_1216;
   /* 0x0004 */ class hBjObjectManager* mManager;
   /* 0x0008 */ class ghmResGroup* mpRes;
   /* 0x000c */ struct tagGHMR_TEX* mpTex;
@@ -4192,7 +4198,7 @@ class hBjSys
     struct
     {
       /* 0x0000 */ int mBombGaugeFlash;
-      /* 0x0004 */ long Padding_1217[4];
+      /* 0x0004 */ char Padding_1217[0x10];
       /* 0x0014 */ int mCursor;
       /* 0x0018 */ int mFadeCount;
       /* 0x001c */ int mFadeDest;
@@ -4205,7 +4211,7 @@ class hBjSys
     struct
     {
       /* 0x0000 */ int mContinueCount;
-      /* 0x0004 */ long Padding_1218[8];
+      /* 0x0004 */ char Padding_1218[0x20];
       /* 0x0024 */ int mGameClearCnt;
       /* 0x0028 */ int mDeadWaitCnt;
       /* 0x002c */ int mGameMode;
@@ -4219,13 +4225,13 @@ class hBjSys
     struct
     {
       /* 0x0000 */ struct tagGHMR_TEX* mTexture;
-      /* 0x0004 */ long Padding_1219[336];
+      /* 0x0004 */ char Padding_1219[0x540];
       /* 0x0544 */ unsigned int mTexNum;
     }; /* size: 0x0008 */
     /* 0x0000 */ bool mbPause;
     /* 0x0000 */ bool mbGameOver;
   }; /* size: 0x0524 */
-  /* 0x0524 */ long Padding_1220[9];
+  /* 0x0524 */ char Padding_1220[0x24];
   /* 0x0548 */ int mBGMHandle;
   /* 0x054c */ struct HRSAVEDATA_STG mHiScore;
   /* 0x059c */ int mChangeNum;
@@ -4583,3 +4589,287 @@ struct HrCamera {
         /* 0x032d */ char __PADDING__[3];
     } MAIN; /* size: 0x0330 */
 };
+
+class HsLineBox
+{
+public:
+  /* 0x0000 */ char Padding_915[0x20];
+  /* 0x0020 */ float m_w;
+  /* 0x0024 */ float m_h;
+  /* 0x0028 */ float m_Line;
+  /* 0x002c */ unsigned int m_LineColor;
+  /* 0x0030 */ enum HS_COLOR_DRAW_POINT m_Alpha_Point;
+  /* 0x0034 */ enum HS_MODEL_ALPHA_TYPE m_Line_Alpha_Type;
+  /* 0x0038 */ int m_Line_Alpha_Num;
+  /* 0x003c */ int m_Line_Alpha_Max_Num;
+  /* 0x0040 */ int m_Line_Alpha_1F_Num;
+}; /* size: 0x0044 */
+
+class HsPosBase
+{
+public:
+  /* 0x0000 */ int Padding_948;
+  /* 0x0004 */ float m_x;
+  /* 0x0008 */ float m_y;
+}; /* size: 0x000c */
+
+class HrTV
+{
+public:
+  /* 0x0000 */ char Padding_1331[0x4900];
+  /* 0x4900 */ class ghmResGroup* m_Tv_Res;
+  /* 0x4904 */ class HrSysMessage* m_pVideoMesDemo;
+  /* 0x4908 */ char m_InDemoLabel[128];
+  /* 0x4988 */ class HsMessage* m_pAllVideo;
+  /* 0x498c */ unsigned int m_DispVideoNum;
+  /* 0x4990 */ bool m_BGM_Vol_Off_f;
+  /* 0x4991 */ char Padding_1332[3];
+  /* 0x4994 */ class HsLineBox m_Item_Video_Box[6];
+  /* 0x4b2c */ class HsPosBase m_HsNextVideo[6];
+  /* 0x4b74 */ struct Vec2D m_HsVideoMoveAry[6];
+  /* 0x4ba4 */ class HsLineBox m_Video_Tri[6];
+  /* 0x4d3c */ enum HS_COMMAND_MOTION_STATE m_Command_Motion_State;
+  /* 0x4d40 */ enum HS_COMMAND_MOTION_TASK m_Command_Motion_Task;
+  /* 0x4d44 */ bool m_Films_Visible_f;
+  /* 0x4d45 */ bool m_Disp_ReflectedLight_f;
+  /* 0x4d46 */ bool m_PV_f;
+  /* 0x4d47 */ char Padding_1333;
+  /* 0x4d48 */ unsigned int mMessHndle;
+}; /* size: 0x4d50 */
+
+class HsModelMotion
+{
+public:
+  /* 0x0000 */ char Padding_945[0x2C];
+  /* 0x002c */ bool m_Loop_f;
+  /* 0x002d */ char Padding_946[3];
+  /* 0x0030 */ float m_StartMotionframe;
+}; /* size: 0x0034 */
+
+struct tagSICHR
+{
+  /* 0x0000 */ unsigned short Code;
+  /* 0x0002 */ unsigned short x;
+  /* 0x0004 */ unsigned short y;
+  /* 0x0006 */ unsigned short w;
+  /* 0x0008 */ unsigned short h;
+  /* 0x000a */ short dx;
+  /* 0x000c */ short dy;
+  /* 0x000e */ unsigned short addx;
+  /* 0x0010 */ unsigned char addw;
+  /* 0x0011 */ char Padding_124;
+  /* 0x0012 */ unsigned short Code2;
+}; /* size: 0x0014 */
+
+struct tagEXECHARAINFO
+{
+  /* 0x0000 */ struct tagGHMR_TEX Tex;
+  /* 0x0028 */ struct tagSICHR BaseInfo;
+}; /* size: 0x003c */
+
+struct tagFONTDRAWINFO
+{
+  /* 0x0000 */ float x;
+  /* 0x0004 */ float y;
+  /* 0x0008 */ unsigned int color;
+}; /* size: 0x000c */
+
+class ghmGcFont
+{
+  /* 0x0000 */ int Padding_125;
+  /* 0x0004 */ bool initflag;
+  /* 0x0005 */ char Padding_126[3];
+  /* 0x0008 */ struct tagSTRIMAGEFILEHEAD* head;
+  /* 0x000c */ struct tagSTRIMAGEFILEHEAD2* head2;
+  /* 0x0010 */ struct tagSISTRPACK* strpack;
+  /* 0x0014 */ struct tagSISTR* str;
+  /* 0x0018 */ struct tagSICHR* chr;
+  /* 0x001c */ class ghmGcFile* File;
+  /* 0x0020 */ struct GhmGcTexHeader* THeader;
+  /* 0x0024 */ struct tagGHMR_TEX Tex;
+  /* 0x004c */ struct GXColor color;
+  /* 0x0050 */ float exX;
+  /* 0x0054 */ float exY;
+  /* 0x0058 */ float LODBias;
+  /* 0x005c */ float jikan;
+  /* 0x0060 */ int kanaY;
+  /* 0x0064 */ bool ReverseFlag;
+  /* 0x0065 */ bool MemImageFlag;
+  /* 0x0066 */ bool fastDraw;
+  /* 0x0067 */ char Padding_127;
+  /* 0x0068 */ struct tagEXECHARAINFO ExeCharaInfo[16];
+  /* 0x0428 */ int ExeCharaInfoNum;
+  /* 0x042c */ struct tagFONTDRAWINFO drawInfo[128];
+  /* 0x0a2c */ int drawInfoNum;
+}; /* size: 0x0a30 */
+
+class HrCat
+{
+public:
+  /* 0x0000 */ char Padding_1334[0x3748];
+  /* 0x3748 */ enum HS_CAT_STATE m_HsCatState;
+  /* 0x374c */ class ghmResGroup* m_Cat_Res;
+  /* 0x3750 */ class TGmf* m_Etc_Model;
+  /* 0x3754 */ enum HS_CAT_FLOW_TYPE m_FlowType;
+  /* 0x3758 */ class HsModelMotion m_Trv_Motion[7];
+  /* 0x38c4 */ enum HS_COMMAND_MOTION_STATE m_Command_Motion_State;
+  /* 0x38c8 */ enum HS_COMMAND_MOTION_TASK m_Command_Motion_Task;
+  /* 0x38cc */ bool m_KeyLock_f;
+  /* 0x38cd */ char Padding_1335[3];
+  /* 0x38d0 */ int m_Motel_Cat_Orders;
+  /* 0x38d4 */ float m_Cntrol_ShakeSpd;
+  /* 0x38d8 */ bool m_Guide_Disp_f;
+  /* 0x38d9 */ bool m_Cont_Start_f;
+  /* 0x38da */ char Padding_1336[2];
+  /* 0x38dc */ float m_Alpha_Num;
+  /* 0x38e0 */ bool m_Alpha_Type;
+  /* 0x38e1 */ char Padding_1337[3];
+  /* 0x38e4 */ struct Vec m_Plus_Pos;
+  /* 0x38f0 */ bool m_Cat_Neck_Start_f;
+  /* 0x38f1 */ bool m_Cat_Jara_Swing_f;
+  /* 0x38f2 */ char Padding_1338[2];
+  /* 0x38f4 */ class ghmGcFont m_Guide_Font;
+  /* 0x4324 */ class HsLineBox m_Line_Box;
+}; /* size: 0x4368 */
+
+class HsCameraMotion
+{
+  /* 0x0000 */ char Padding_947[0x36];
+  /* 0x0034 */ char m_CameraName[0xA];
+}; /* size: 0x0040 */
+
+class HsTexture
+{
+  /* 0x0000 */ char Padding_914[0x20];
+  /* 0x0020 */ struct tagGHMR_TEX* m_pTex;
+  /* 0x0024 */ float m_Tex_w;
+  /* 0x0028 */ float m_Tex_h;
+  /* 0x002c */ float m_Tex_Max_w;
+  /* 0x0030 */ float m_Tex_Max_h;
+}; /* size: 0x0034 */
+
+class HsMoveTetris
+{
+  /* 0x0000 */ char Padding_949[0x18];
+  /* 0x0018 */ enum HS_MOTEL_TETRIS_TYPE m_Type;
+  /* 0x001c */ int m_No;
+  /* 0x0020 */ bool m_MoveFinish_f;
+}; /* size: 0x0024 */
+
+class HrMotel
+{
+public:
+  /* 0x0000 */ char Padding_1345[0x3748];
+  /* 0x3748 */ enum HS_MOTEL_STATE m_HrMotelState;
+  /* 0x374c */ class TGmf* m_pNeked_Trv_Model[2];
+  /* 0x3754 */ class TGmf* m_pD_Pants_Model;
+  /* 0x3758 */ class TGmf* m_pStg_Model;
+  /* 0x375c */ class TGmf* m_pFan_Model;
+  /* 0x3760 */ class TGmf* m_pCat_Model;
+  /* 0x3764 */ class TGmf* m_Etc_Model;
+  /* 0x3768 */ class HsModelMotion m_Trv_Motion_TOILET[3];
+  /* 0x3804 */ class HsModelMotion m_Trv_Motion_TV[3];
+  /* 0x38a0 */ class HsModelMotion m_Trv_Motion_FRIDGE[3];
+  /* 0x393c */ class HsModelMotion m_Trv_Motion_CAT[4];
+  /* 0x3a0c */ class HsModelMotion m_Trv_Motion_Collec;
+  /* 0x3a40 */ class HsModelMotion m_Trv_Motion_EXIT;
+  /* 0x3a74 */ class HsModelMotion m_Trv_Motion_CLOSET[4];
+  /* 0x3b44 */ class HsModelMotion m_Trv_Motion_DRAWER[4];
+  /* 0x3c14 */ class HsModelMotion m_Trv_Motion_MAP[3];
+  /* 0x3cb0 */ class HsModelMotion m_Trv_Motion_FAX[2];
+  /* 0x3d18 */ class HsModelMotion m_Trv_Motion_LIVING;
+  /* 0x3d4c */ class HsCameraMotion m_CameraMotion_TOILET[5];
+  /* 0x3e8c */ class HsCameraMotion m_CameraMotion_TV[3];
+  /* 0x3f4c */ class HsCameraMotion m_CameraMotion_FRIDGE[2];
+  /* 0x3fcc */ class HsCameraMotion m_CameraMotion_CAT[8];
+  /* 0x41cc */ class HsCameraMotion m_CameraMotion_Collec[2];
+  /* 0x424c */ class HsCameraMotion m_CameraMotion_BED[2];
+  /* 0x42cc */ class HsCameraMotion m_CameraMotion_EXIT;
+  /* 0x430c */ class HsCameraMotion m_CameraMotion_CLOSET[3];
+  /* 0x43cc */ class HsCameraMotion m_CameraMotion_DRAWER[4];
+  /* 0x44cc */ class HsCameraMotion m_CameraMotion_MAP[2];
+  /* 0x454c */ class HsCameraMotion m_CameraMotion_FAX[2];
+  /* 0x45cc */ class HsCameraMotion m_CameraMotion_LIVING;
+  /* 0x460c */ class HsModelMotion m_Fan_Motion[4];
+  /* 0x46dc */ class HsModelMotion m_Jara_Motion[7];
+  /* 0x4848 */ int m_EquParts[7];
+  /* 0x4864 */ class HsLineBox m_CursorBox;
+  /* 0x48a8 */ class HsLineBox m_BG_Tex;
+  /* 0x48ec */ class HsLineBox m_Arrow_Line[2];
+  /* 0x4974 */ class HsLineBox m_BG_Box[9];
+  /* 0x4bd8 */ class HsLineBox m_BG_Line_Y[2];
+  /* 0x4c60 */ class HsLineBox m_BG_Tri[6];
+  /* 0x4df8 */ class HsPosBase m_HsNextBg;
+  /* 0x4e04 */ struct Vec2D m_HsBgMoveAry;
+  /* 0x4e0c */ class HsPosBase m_HsNextBox[9];
+  /* 0x4e78 */ struct Vec2D m_HsBoxMoveAry[9];
+  /* 0x4ec0 */ class HsPosBase m_HsNextCur;
+  /* 0x4ecc */ struct Vec2D m_HsCurMoveAry;
+  /* 0x4ed4 */ class HsMessage** m_pHsMenuFontMes;
+  /* 0x4ed8 */ class HsMessage* m_pNextMenuFontMes;
+  /* 0x4edc */ struct Vec2D* m_pMenuFontMoveAry;
+  /* 0x4ee0 */ class HsMessage* m_pAllSysMes;
+  /* 0x4ee4 */ class HsTexture m_Guide_Tex[6];
+  /* 0x501c */ class ghmGcFont m_Guide_Font;
+  /* 0x5a4c */ unsigned int m_MesAryNum;
+  /* 0x5a50 */ struct Vec m_Hs_Trv_Pos;
+  /* 0x5a5c */ struct Vec m_Hs_Trv_Rot;
+  /* 0x5a68 */ unsigned int m_PointCurNum;
+  /* 0x5a6c */ enum HS_MOVE_TYPE m_CurMoveVec;
+  /* 0x5a70 */ enum HS_MOVE_TYPE m_MotMoveVec;
+  /* 0x5a74 */ enum HS_CUR_POINT m_CurPoint;
+  /* 0x5a78 */ enum HS_MENU_BAR_STATE m_LeftBar_state;
+  /* 0x5a7c */ enum HS_MOTEL_ROOM_TYPE m_RoomType;
+  /* 0x5a80 */ enum HS_MOTEL_COMMAND_TYPE m_RoomPoint[2];
+  /* 0x5a88 */ enum HS_MOTEL_CAMERA_VEC m_CameraState;
+  /* 0x5a8c */ enum HS_MOTEL_DIR_TYPE m_Room_Dir_Type;
+  /* 0x5a90 */ enum HS_CLASS_TASK m_CommandTask[12];
+  /* 0x5ac0 */ enum HS_MOTEL_FRIDGE_STATE m_Interior_State;
+  /* 0x5ac4 */ enum HS_COMMAND_MOTION_STATE m_Command_Motion_State;
+  /* 0x5ac8 */ enum HS_COMMAND_MOTION_TASK m_Command_Motion_Task;
+  /* 0x5acc */ enum HS_MOTEL_VISIBLE_MODE m_Visible_Mode;
+  /* 0x5ad0 */ enum HS_MOTEL_MENU_DISP_MODE m_MenuDispMode;
+  /* 0x5ad4 */ enum HS_MOTEL_INTO_MODE m_Into_Mode;
+  /* 0x5ad8 */ enum HS_MOTEL_LIGHT_TYPE m_LightType;
+  /* 0x5adc */ bool m_Video_Light_f;
+  /* 0x5add */ bool m_VideoWatched_f;
+  /* 0x5ade */ bool m_WeaponChange_f;
+  /* 0x5adf */ char Padding_1346;
+  /* 0x5ae0 */ float m_SoundVol;
+  /* 0x5ae4 */ float m_SE_Vol;
+  /* 0x5ae8 */ int m_Model_TypeNo;
+  /* 0x5aec */ int m_Cat_Flow_Type;
+  /* 0x5af0 */ class ghmResGroup* m_Motel_Res;
+  /* 0x5af4 */ class HrTV* m_pHsTV;
+  /* 0x5af8 */ class HrCloset* m_pHsCloset;
+  /* 0x5afc */ class HrDrawer* m_pHsDrawer;
+  /* 0x5b00 */ class HrMotelMap* m_pHsMap;
+  /* 0x5b04 */ class HrCat* m_pCat;
+  /* 0x5b08 */ class HrCollection* m_pCollec;
+  /* 0x5b0c */ class HrMainMissionFax* m_pHsFax;
+  /* 0x5b10 */ class HsMessage* m_pFaxMes;
+  /* 0x5b14 */ int m_Snd_Hndl;
+  /* 0x5b18 */ unsigned int m_Mes_Hndl;
+  /* 0x5b1c */ bool m_BedStart_f;
+  /* 0x5b1d */ bool m_CatControl_f;
+  /* 0x5b1e */ char Padding_1347[2];
+  /* 0x5b20 */ class HsMoveTetris m_Tetris[16];
+  /* 0x5d60 */ bool m_Toilet_SE_f;
+  /* 0x5d61 */ bool m_MiniDemo_f;
+  /* 0x5d62 */ bool m_JaraMove_f;
+  /* 0x5d63 */ bool m_Cat_Alpha_f;
+  /* 0x5d64 */ bool m_Cat_Load_f;
+  /* 0x5d65 */ bool m_PV_OuickBack_f;
+  /* 0x5d66 */ bool m_Load_Back_f;
+  /* 0x5d67 */ char Padding_1348;
+  /* 0x5d68 */ int m_Befor_Box_No;
+  /* 0x5d6c */ int m_After_Box_No;
+  /* 0x5d70 */ bool m_SaveClassLock_f;
+  /* 0x5d71 */ bool m_Shadow_Closet_f;
+  /* 0x5d72 */ char Padding_1349[2];
+  /* 0x5d74 */ class MouseDeltaTracker mouseDeltaTracker;
+  /* 0x5d80 */ class NMH1MouseInteractionObject* Interactions[2];
+  /* 0x5d88 */ const int InteractionCounts[2];
+  /* 0x5d90 */ class NMH1MouseInteractionObject livingRoomInteractions[9];
+  /* 0x62e8 */ class NMH1MouseInteractionObject bedRoomInteractions[7];
+}; /* size: 0x6710 */

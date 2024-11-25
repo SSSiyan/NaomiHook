@@ -946,7 +946,7 @@ void DrawPlayerStats() {
                     ImGui::InputFloat4("LinkTexShadowGmfDrawArea", player->tagMain->LinkTexShadowGmfDrawArea);
                 }
             }
-            if (ImGui::CollapsingHeader("mHRPc tagMain tagMOTION")) {
+            if (ImGui::CollapsingHeader("mHRPc tagMAIN tagMOTION")) {
                 for (int i = 0; i < 4; ++i) {
                     if (&player->tagMain->Motion[i]) {
                         if (ImGui::CollapsingHeader(("Motion " + std::to_string(i)).c_str())) {
@@ -1839,6 +1839,126 @@ void DrawPlayerStats() {
         ImGui::InputInt("Frame Counter", &hrCamera->MAIN.FrameCounter);
         ImGui::Checkbox("Always", &hrCamera->MAIN.Always);
         ImGui::Checkbox("Change", &hrCamera->MAIN.Change);
+    }
+    if (ImGui::CollapsingHeader("HrMotel")) {
+        if (nmh_sdk::get_HrMenuTask()) {
+            if (HrMotel* hrMotel = (HrMotel*)nmh_sdk::get_HrMenuTask()->m_pHsMenu) {
+                ImGui::Checkbox("weaponchangef", &hrMotel->m_WeaponChange_f);
+            }
+        }
+    }
+    if (ImGui::CollapsingHeader("HrMotel HrTV")) {
+        if (nmh_sdk::get_HrMenuTask()) {
+            if (HrMotel* hrMotel = (HrMotel*)nmh_sdk::get_HrMenuTask()->m_pHsMenu) {
+                // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrMotel->Padding_1345);
+                // ImGui::Text("Base Address: 0x%08X", baseAddress);
+                // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&hrMotel->m_pHsTV); // m_pHsTV);
+                // ImGui::Text("Target Address: 0x%08X", targetAddress);
+                // uintptr_t offsetDifference = targetAddress - baseAddress;
+                // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
+                if (HrTV* hrTv = hrMotel->m_pHsTV) {
+                    ImGui::InputScalar("Tv Resource Pointer", ImGuiDataType_U32, &hrTv->m_Tv_Res);
+                    ImGui::InputScalar("Video Message Demo Pointer", ImGuiDataType_U32, &hrTv->m_pVideoMesDemo);
+                    ImGui::InputText("In Demo Label", hrTv->m_InDemoLabel, sizeof(hrTv->m_InDemoLabel));
+                    ImGui::InputScalar("All Video Pointer", ImGuiDataType_U32, &hrTv->m_pAllVideo);
+                    ImGui::InputScalar("Displayed Video Number", ImGuiDataType_U32, &hrTv->m_DispVideoNum);
+                    ImGui::Checkbox("BGM Volume Off", &hrTv->m_BGM_Vol_Off_f);
+                    for (int i = 0; i < 6; i++) {
+                        if (ImGui::TreeNode(("Item Video Box " + std::to_string(i)).c_str())) {
+                            ImGui::InputFloat("Width", &hrTv->m_Item_Video_Box[i].m_w);
+                            ImGui::InputFloat("Height", &hrTv->m_Item_Video_Box[i].m_h);
+                            ImGui::InputFloat("Line", &hrTv->m_Item_Video_Box[i].m_Line);
+                            {
+                                unsigned char r = (hrTv->m_Item_Video_Box[i].m_LineColor >> 24) & 0xFF;
+                                unsigned char g = (hrTv->m_Item_Video_Box[i].m_LineColor >> 16) & 0xFF;
+                                unsigned char b = (hrTv->m_Item_Video_Box[i].m_LineColor >> 8) & 0xFF;
+                                unsigned char a = hrTv->m_Item_Video_Box[i].m_LineColor & 0xFF;
+                                float color[4] = { r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
+                                if (ImGui::ColorEdit4("Line Color", color)) {
+                                    r = static_cast<unsigned char>(color[0] * 255.0f); // Alpha (Blue)
+                                    g = static_cast<unsigned char>(color[1] * 255.0f); // Red (Alpha)
+                                    b = static_cast<unsigned char>(color[2] * 255.0f); // Blue (Green)
+                                    a = static_cast<unsigned char>(color[3] * 255.0f); // Green (Red)
+                                    hrTv->m_Item_Video_Box[i].m_LineColor = (r << 24) | (g << 16) | (b << 8) | a;
+                                }
+                            }
+                            ImGui::InputScalar("Alpha Point", ImGuiDataType_U32, &hrTv->m_Item_Video_Box[i].m_Alpha_Point);
+                            ImGui::InputScalar("Line Alpha Type", ImGuiDataType_U32, &hrTv->m_Item_Video_Box[i].m_Line_Alpha_Type);
+                            ImGui::InputInt("Alpha Num", &hrTv->m_Item_Video_Box[i].m_Line_Alpha_Num);
+                            ImGui::InputInt("Alpha Max Num", &hrTv->m_Item_Video_Box[i].m_Line_Alpha_Max_Num);
+                            ImGui::InputInt("Alpha 1F Num", &hrTv->m_Item_Video_Box[i].m_Line_Alpha_1F_Num);
+                            ImGui::TreePop();
+                        }
+                    }
+                    for (int i = 0; i < 6; i++) {
+                        if (ImGui::TreeNode(("Next Video Pos " + std::to_string(i)).c_str())) {
+                            ImGui::InputFloat("X Position", &hrTv->m_HsNextVideo[i].m_x);
+                            ImGui::InputFloat("Y Position", &hrTv->m_HsNextVideo[i].m_y);
+                            ImGui::TreePop();
+                        }
+                    }
+                    for (int i = 0; i < 6; i++) {
+                        ImGui::InputFloat2(("Video Move Array " + std::to_string(i)).c_str(), &hrTv->m_HsVideoMoveAry[i].x);
+                    }
+                    for (int i = 0; i < 6; i++) {
+                        if (ImGui::TreeNode(("Video Tri " + std::to_string(i)).c_str())) {
+                            ImGui::InputFloat("Width", &hrTv->m_Video_Tri[i].m_w);
+                            ImGui::InputFloat("Height", &hrTv->m_Video_Tri[i].m_h);
+                            ImGui::InputFloat("Line", &hrTv->m_Video_Tri[i].m_Line);
+                            ImGui::ColorEdit4("Line Color", reinterpret_cast<float*>(&hrTv->m_Video_Tri[i].m_LineColor));
+                            ImGui::InputScalar("Alpha Point", ImGuiDataType_U32, &hrTv->m_Video_Tri[i].m_Alpha_Point);
+                            ImGui::InputScalar("Line Alpha Type", ImGuiDataType_U32, &hrTv->m_Video_Tri[i].m_Line_Alpha_Type);
+                            ImGui::InputInt("Alpha Num", &hrTv->m_Video_Tri[i].m_Line_Alpha_Num);
+                            ImGui::InputInt("Alpha Max Num", &hrTv->m_Video_Tri[i].m_Line_Alpha_Max_Num);
+                            ImGui::InputInt("Alpha 1F Num", &hrTv->m_Video_Tri[i].m_Line_Alpha_1F_Num);
+                            ImGui::TreePop();
+                        }
+                    }
+                    ImGui::InputScalar("Command Motion State", ImGuiDataType_U32, &hrTv->m_Command_Motion_State);
+                    ImGui::InputScalar("Command Motion Task", ImGuiDataType_U32, &hrTv->m_Command_Motion_Task);
+                    ImGui::Checkbox("Films Visible", &hrTv->m_Films_Visible_f);
+                    ImGui::Checkbox("Display Reflected Light", &hrTv->m_Disp_ReflectedLight_f);
+                    ImGui::Checkbox("PV Flag", &hrTv->m_PV_f);
+                    ImGui::InputScalar("Message Handle", ImGuiDataType_U32, &hrTv->mMessHndle);
+                }
+            }
+        }
+    }
+    if (ImGui::CollapsingHeader("HrMotel HrCat")) {
+        if (nmh_sdk::get_HrMenuTask()) {
+            if (HrMotel* hrMotel = (HrMotel*)nmh_sdk::get_HrMenuTask()->m_pHsMenu) {
+                if (HrCat* hrCat = hrMotel->m_pCat) {
+                    if (ImGui::CollapsingHeader("HrCat")) {
+                        ImGui::InputScalar("m_HsCatState", ImGuiDataType_S32, &hrCat->m_HsCatState);
+                        ImGui::InputScalar("m_HsCatState", ImGuiDataType_S32, &hrCat->m_HsCatState);
+                        ImGui::Text("m_Cat_Res: %p", hrCat->m_Cat_Res);  // Pointer
+                        ImGui::Text("m_Etc_Model: %p", hrCat->m_Etc_Model);  // Pointer
+                        ImGui::InputScalar("m_FlowType", ImGuiDataType_S32, &hrCat->m_FlowType);
+                        for (int i = 0; i < 7; ++i) {
+                            if (ImGui::TreeNode(("m_Trv_Motion[" + std::to_string(i) + "]").c_str())) {
+                                ImGui::Checkbox(("m_Trv_Motion[" + std::to_string(i) + "].Loop").c_str(), &hrCat->m_Trv_Motion[i].m_Loop_f);
+                                ImGui::InputFloat(("m_Trv_Motion[" + std::to_string(i) + "].Start Motion Frame").c_str(), &hrCat->m_Trv_Motion[i].m_StartMotionframe);
+                                ImGui::TreePop();
+                            }
+                        }
+                        ImGui::InputScalar("m_Command_Motion_State", ImGuiDataType_S32, &hrCat->m_Command_Motion_State);
+                        ImGui::InputScalar("m_Command_Motion_Task", ImGuiDataType_S32, &hrCat->m_Command_Motion_Task);
+                        ImGui::Checkbox("m_KeyLock_f", &hrCat->m_KeyLock_f);
+                        ImGui::InputInt("m_Motel_Cat_Orders", &hrCat->m_Motel_Cat_Orders);
+                        ImGui::InputFloat("m_Cntrol_ShakeSpd", &hrCat->m_Cntrol_ShakeSpd);
+                        ImGui::Checkbox("m_Guide_Disp_f", &hrCat->m_Guide_Disp_f);
+                        ImGui::Checkbox("m_Cont_Start_f", &hrCat->m_Cont_Start_f);
+                        ImGui::InputFloat("m_Alpha_Num", &hrCat->m_Alpha_Num);
+                        ImGui::Checkbox("m_Alpha_Type", &hrCat->m_Alpha_Type);
+
+                        ImGui::InputFloat3("m_Plus_Pos", &hrCat->m_Plus_Pos.x);
+
+                        ImGui::Checkbox("m_Cat_Neck_Start_f", &hrCat->m_Cat_Neck_Start_f);
+                        ImGui::Checkbox("m_Cat_Jara_Swing_f", &hrCat->m_Cat_Jara_Swing_f);
+                    }
+                }
+            }
+        }
     }
 }
 
