@@ -2792,6 +2792,107 @@ enum LiftMode
   /* 0x0aec */ class TGan* m_LightDown;
 }; /* size: 0x0af0 */
 
+class HRMAM
+{
+public:
+    enum E_MAM_STAT
+    {
+      E_MAM_STAT_100 = 0,
+      E_MAM_STAT_60 = 1,
+      E_MAM_STAT_30 = 2,
+    };
+  /* 0x0000 */ char Padding_1587[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ float m_AttackWait;
+  /* 0x0408 */ int m_MotionFrame;
+  /* 0x040c */ struct Vec m_MoveVec;
+  /* 0x0418 */ struct Vec m_TackleMove;
+  /* 0x0424 */ short m_TubazeriaiCount;
+  /* 0x0426 */ char Padding_1588[2];
+  /* 0x0428 */ int m_FromStartTick;
+  /* 0x042c */ enum enPcPose m_BeforePcPose;
+  union
+  {
+    struct /* bitfield */
+    {
+      /* 0x0430 */ unsigned short m_AtkTackleReq : 1; /* bit position: 0 */
+      /* 0x0430 */ unsigned short m_AtkThrowReq : 1; /* bit position: 1 */
+      /* 0x0430 */ unsigned short m_AtkBunsinReq : 1; /* bit position: 2 */
+      /* 0x0430 */ unsigned short m_BackStepCount : 1; /* bit position: 3 */
+      /* 0x0430 */ unsigned short m_SetBunsinVec : 1; /* bit position: 4 */
+      /* 0x0430 */ unsigned short m_CreateBunsin : 1; /* bit position: 5 */
+      /* 0x0430 */ unsigned short m_DeadOK : 1; /* bit position: 6 */
+      /* 0x0430 */ unsigned short m_IdolRot : 1; /* bit position: 7 */
+      /* 0x0430 */ unsigned short m_PcThowed : 1; /* bit position: 8 */
+      /* 0x0430 */ unsigned short m_StartMonolog : 4; /* bit position: 9 */
+      /* 0x0430 */ unsigned short pad : 3; /* bit position: 13 */
+    }; /* bitfield */
+    /* 0x0430 */ unsigned short flag;
+  }; /* size: 0x0002 */
+  /* 0x0432 */ char Padding_1589[2];
+  /* 0x0434 */ enum HRMAM::E_MAM_STAT m_Genki;
+  /* 0x0438 */ int m_BunsinId[2];
+  /* 0x0440 */ int m_LoopSoundID;
+  /* 0x0444 */ int m_TubaSEWait;
+  /* 0x0448 */ short m_SukiCounter;
+  /* 0x044a */ char Padding_1590[2];
+  /* 0x044c */ struct Vec m_AwayPos[13];
+  /* 0x04e8 */ struct Vec m_WallPos[4];
+  /* 0x0518 */ int m_AwayPosIndex;
+  /* 0x051c */ bool m_FirstBunsin;
+  /* 0x051d */ bool m_BefGuard;
+  /* 0x051e */ char Padding_1591[2];
+  /* 0x0520 */ struct Vec m_PcPosition;
+  /* 0x052c */ struct Vec m_PcNavel;
+  /* 0x0538 */ struct Vec m_PcDirection;
+  /* 0x0544 */ float m_PcDistance;
+  /* 0x0548 */ float m_PcRandTime;
+  /* 0x054c */ float m_Inner;
+  /* 0x0550 */ bool m_PcShare;
+  /* 0x0551 */ char Padding_1592[3];
+  /* 0x0554 */ int m_PcMotionNo;
+  /* 0x0558 */ float m_HitWait;
+  /* 0x055c */ enum enPcPose m_OldPcPose;
+  /* 0x0560 */ int m_MonoLogID;
+  /* 0x0564 */ struct tagGHMR_TEX mTraceTex;
+  /* 0x058c */ class EffectSwordLaser* m_pSwordLaser;
+  /* 0x0590 */ unsigned int m_MonologHandle;
+  /* 0x0594 */ class HrDebugAtkCheck* m_pDebugAtkCheck;
+  /* 0x0598 */ struct tagGHMR_TEX m_SlashTex;
+  /* 0x05c0 */ int m_CameraMode;
+}; /* size: 0x05c4 */
+
+class HRMAMJR
+{
+  /* 0x0000 */ char Padding_1615[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ float m_AttackWait;
+  /* 0x0408 */ int m_MotionFrame;
+  /* 0x040c */ struct Vec m_MoveVec;
+  /* 0x0418 */ struct Vec m_TackleMove;
+  /* 0x0424 */ bool m_BackStepCount;
+  /* 0x0425 */ bool m_InitAtack;
+  /* 0x0426 */ short m_DeadCounter;
+  /* 0x0428 */ struct Vec m_EnPosition;
+  /* 0x0434 */ struct Vec m_EnDirection;
+  /* 0x0440 */ float m_EnDistance;
+  /* 0x0444 */ struct Vec m_PcPosition;
+  /* 0x0450 */ struct Vec m_PcNavel;
+  /* 0x045c */ struct Vec m_PcDirection;
+  /* 0x0468 */ float m_PcDistance;
+  /* 0x046c */ float m_PcRandTime;
+  /* 0x0470 */ float m_Inner;
+  /* 0x0474 */ bool m_PcShare;
+  /* 0x0475 */ char Padding_1616[3];
+  /* 0x0478 */ int m_PcMotionNo;
+  /* 0x047c */ float m_HitWait;
+  /* 0x0480 */ struct tagGHMR_TEX mTraceTex;
+}; /* size: 0x04a8 */
+
 class stCharaFileData
 {
   /* 0x0000 */ class ghmGcFile* file;

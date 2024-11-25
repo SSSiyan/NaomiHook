@@ -20,6 +20,18 @@ void setBit(T& flags, int bit, bool value) {
     }
 }
 
+const char* GHMR_TEXADDRESS_NAMES[5] {
+    "GHMR_TEXADDRESS_CLAMP", // = 0,
+    "GHMR_TEXADDRESS_REPEAT", // = 1,
+    "GHMR_TEXADDRESS_MIRROR", // = 2,
+    "GHMR_TEXADDRESS_REPEAT_FORCED", // = 3,
+    "GHMR_TEXADDRESS_MIRROR_FORCED", // = 4,
+};
+const char* GHMR_TEXFILTER_NAMES[2] {
+    "GHMR_TEXFILTER_NEAR", // = 0,
+    "GHMR_TEXFILTER_LINEAR", // = 1,
+};
+
 void DrawEnemyStats() {
     mHRPc* player = nmh_sdk::get_mHRPc();
     static mHRChara* mpLockOnNpc = NULL;
@@ -361,9 +373,8 @@ void DrawEnemyStats() {
             ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &mpLockOnNpc->mStatus.dmgInfo.m_BikeDeadRequest);
         }
     }
-    ImGui::Text("Enemy Specific:");
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeJST) {
-        if (ImGui::CollapsingHeader("mpLockOnNpc HRJST")) {
+        if (ImGui::CollapsingHeader("mpLockOnNpc HRJST (Destroyman)")) {
             HRJST* hrJst = (HRJST*)mpLockOnNpc;
             if (hrJst) {
                 ImGui::InputInt("Action Mode", &hrJst->m_ActionMode);
@@ -441,14 +452,113 @@ void DrawEnemyStats() {
             }
         }
     }
-    if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeJST) {
-        if (ImGui::CollapsingHeader("mpLockOnNpc HRJST")) {
-            HRJST* hrJst = (HRJST*)mpLockOnNpc;
-            if (hrJst) {
-
+    if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeMAM) {
+        if (ImGui::CollapsingHeader("mpLockOnNpc HRMAM (Death Metal)")) {
+            HRMAM* hrMam = (HRMAM*)mpLockOnNpc;
+            if (hrMam) {
+                ImGui::InputInt("Action Mode", &hrMam->m_ActionMode);
+                ImGui::InputFloat("Action Time", &hrMam->m_ActionTime, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("Rand Time", &hrMam->m_RandTime, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("Attack Wait", &hrMam->m_AttackWait, 0.1f, 1.0f, "%.3f");
+                ImGui::InputInt("Motion Frame", &hrMam->m_MotionFrame);
+                ImGui::InputFloat3("Move Vector", &hrMam->m_MoveVec.x);
+                ImGui::InputFloat3("Tackle Move", &hrMam->m_TackleMove.x);
+                ImGui::InputScalar("Tubazeriai Count", ImGuiDataType_S16, &hrMam->m_TubazeriaiCount);
+                ImGui::InputInt("From Start Tick", &hrMam->m_FromStartTick);
+                ImGui::Combo("Before PC Pose", (int*)&hrMam->m_BeforePcPose, "ePcPoseUpper\0ePcPoseMiddle\0ePcPoseBottom\0ePcPoseMax\0");
+                unsigned short& flags = hrMam->flag;
+                bool fAtkTackleReq = getBit(flags, 0);
+                if (ImGui::Checkbox("Atk Tackle Req", &fAtkTackleReq)) setBit(flags, 0, fAtkTackleReq);
+                bool fAtkThrowReq = getBit(flags, 1);
+                if (ImGui::Checkbox("Atk Throw Req", &fAtkThrowReq)) setBit(flags, 1, fAtkThrowReq);
+                bool fAtkBunsinReq = getBit(flags, 2);
+                if (ImGui::Checkbox("Atk Bunsin Req", &fAtkBunsinReq)) setBit(flags, 2, fAtkBunsinReq);
+                bool fBackStepCount = getBit(flags, 3);
+                if (ImGui::Checkbox("Back Step Count", &fBackStepCount)) setBit(flags, 3, fBackStepCount);
+                bool fSetBunsinVec = getBit(flags, 4);
+                if (ImGui::Checkbox("Set Bunsin Vec", &fSetBunsinVec)) setBit(flags, 4, fSetBunsinVec);
+                bool fCreateBunsin = getBit(flags, 5);
+                if (ImGui::Checkbox("Create Bunsin", &fCreateBunsin)) setBit(flags, 5, fCreateBunsin);
+                bool fDeadOK = getBit(flags, 6);
+                if (ImGui::Checkbox("Dead OK", &fDeadOK)) setBit(flags, 6, fDeadOK);
+                bool fIdolRot = getBit(flags, 7);
+                if (ImGui::Checkbox("Idol Rot", &fIdolRot)) setBit(flags, 7, fIdolRot);
+                bool fPcThowed = getBit(flags, 8);
+                if (ImGui::Checkbox("PC Thowed", &fPcThowed)) setBit(flags, 8, fPcThowed);
+                bool fStartMonolog = getBit(flags, 9);
+                if (ImGui::Checkbox("Start Monolog", &fStartMonolog)) setBit(flags, 9, fStartMonolog);
+                ImGui::Combo("Genki", (int*)&hrMam->m_Genki, "E_MAM_STAT_100\0E_MAM_STAT_60\0E_MAM_STAT_30\0");
+                ImGui::InputInt2("Bunsin ID", hrMam->m_BunsinId);
+                ImGui::InputInt("Loop Sound ID", &hrMam->m_LoopSoundID);
+                ImGui::InputInt("Tuba SE Wait", &hrMam->m_TubaSEWait);
+                ImGui::InputScalar("Suki Counter", ImGuiDataType_S16, &hrMam->m_SukiCounter);
+                for (int i = 0; i < 13; ++i) {
+                    ImGui::InputFloat3(("Away Pos " + std::to_string(i)).c_str(), &hrMam->m_AwayPos[i].x);
+                }
+                for (int i = 0; i < 4; ++i) {
+                    ImGui::InputFloat3(("Wall Pos " + std::to_string(i)).c_str(), &hrMam->m_WallPos[i].x);
+                }
+                ImGui::InputInt("Away Pos Index", &hrMam->m_AwayPosIndex);
+                ImGui::Checkbox("First Bunsin", &hrMam->m_FirstBunsin);
+                ImGui::Checkbox("Before Guard", &hrMam->m_BefGuard);
+                ImGui::InputFloat3("PC Position", &hrMam->m_PcPosition.x);
+                ImGui::InputFloat3("PC Navel", &hrMam->m_PcNavel.x);
+                ImGui::InputFloat3("PC Direction", &hrMam->m_PcDirection.x);
+                ImGui::InputFloat("PC Distance", &hrMam->m_PcDistance, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("PC Rand Time", &hrMam->m_PcRandTime, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("Inner", &hrMam->m_Inner, 0.1f, 1.0f, "%.3f");
+                ImGui::Checkbox("PC Share", &hrMam->m_PcShare);
+                ImGui::InputInt("PC Motion No", &hrMam->m_PcMotionNo);
+                ImGui::InputFloat("Hit Wait", &hrMam->m_HitWait, 0.1f, 1.0f, "%.3f");
+                ImGui::Combo("Before PC Pose", (int*)&hrMam->m_OldPcPose, "ePcPoseUpper\0ePcPoseMiddle\0ePcPoseBottom\0ePcPoseMax\0");
+                ImGui::InputInt("Monolog ID", &hrMam->m_MonoLogID);
+                ImGui::Text("Trace Texture");
+                ImGui::Checkbox("mTraceTex TME Flag", &hrMam->mTraceTex.TMEFlag);
+                ImGui::Checkbox("mTraceTex Alpha Flag", &hrMam->mTraceTex.AlphaFlag);
+                ImGui::Checkbox("mTraceTex Image Buffer Free Flag", &hrMam->mTraceTex.ImageBufferFreeFlag);
+                ImGui::InputText("mTraceTex File Image", (char*)&hrMam->mTraceTex.FileImage, sizeof(hrMam->mTraceTex.FileImage));
+                ImGui::InputText("mTraceTex Image Buffer", (char*)&hrMam->mTraceTex.ImageBuffer, sizeof(hrMam->mTraceTex.ImageBuffer));
+                ImGui::InputScalar("mTraceTex Width", ImGuiDataType_U16, &hrMam->mTraceTex.Width);
+                ImGui::InputScalar("mTraceTex Height", ImGuiDataType_U16, &hrMam->mTraceTex.Height);
+                ImGui::InputText("mTraceTex TexObj", (char*)&hrMam->mTraceTex.TexObj, sizeof(hrMam->mTraceTex.TexObj));
+                ImGui::Combo("mTraceTex Address Mode", (int*)&hrMam->mTraceTex.AddressMode, GHMR_TEXADDRESS_NAMES, sizeof(GHMR_TEXADDRESS_NAMES));
+                ImGui::Combo("mTraceTex Filter Mode", (int*)&hrMam->mTraceTex.FilterMode, GHMR_TEXFILTER_NAMES, sizeof(GHMR_TEXFILTER_NAMES));
+                ImGui::InputScalar("mTraceTex Get Screen Image Format Enum", ImGuiDataType_S32, &hrMam->mTraceTex.GetScreenImageFormat);
+                ImGui::InputInt("mTraceTex Image Size", (int*)&hrMam->mTraceTex.ImageSize);
+                ImGui::InputInt("mTraceTex Aspect Enum", (int*)&hrMam->mTraceTex.Aspect);
+                ImGui::Text("Slash Texture");
+                ImGui::Checkbox("m_SlashTex TME Flag", &hrMam->m_SlashTex.TMEFlag);
+                ImGui::Checkbox("m_SlashTex Alpha Flag", &hrMam->m_SlashTex.AlphaFlag);
+                ImGui::Checkbox("m_SlashTex Image Buffer Free Flag", &hrMam->m_SlashTex.ImageBufferFreeFlag);
+                ImGui::InputText("m_SlashTex File Image", (char*)&hrMam->m_SlashTex.FileImage, sizeof(hrMam->m_SlashTex.FileImage));
+                ImGui::InputText("m_SlashTex Image Buffer", (char*)&hrMam->m_SlashTex.ImageBuffer, sizeof(hrMam->m_SlashTex.ImageBuffer));
+                ImGui::InputScalar("m_SlashTex Width", ImGuiDataType_U16, &hrMam->m_SlashTex.Width);
+                ImGui::InputScalar("m_SlashTex Height", ImGuiDataType_U16, &hrMam->m_SlashTex.Height);
+                ImGui::InputText("m_SlashTex TexObj", (char*)&hrMam->m_SlashTex.TexObj, sizeof(hrMam->m_SlashTex.TexObj));
+                ImGui::Combo("m_SlashTex Address Mode", (int*)&hrMam->m_SlashTex.AddressMode, GHMR_TEXADDRESS_NAMES, sizeof(GHMR_TEXADDRESS_NAMES));
+                ImGui::Combo("m_SlashTex Filter Mode", (int*)&hrMam->m_SlashTex.FilterMode, GHMR_TEXFILTER_NAMES, sizeof(GHMR_TEXFILTER_NAMES));
+                ImGui::InputScalar("m_SlashTex Get Screen Image Format Enum", ImGuiDataType_S32, &hrMam->m_SlashTex.GetScreenImageFormat);
+                ImGui::InputInt("m_SlashTex Image Size", (int*)&hrMam->m_SlashTex.ImageSize);
+                ImGui::InputInt("m_SlashTex Aspect Enum", (int*)&hrMam->m_SlashTex.Aspect);
+                if (hrMam->m_pSwordLaser) {
+                    ImGui::Text("Sword Laser Pointer: %p", hrMam->m_pSwordLaser);
+                }
+                ImGui::InputInt("Monolog Handle", (int*)&hrMam->m_MonologHandle);
+                if (hrMam->m_pDebugAtkCheck) {
+                    ImGui::Text("Debug Attack Check Pointer: %p", hrMam->m_pDebugAtkCheck);
+                }
+                ImGui::InputInt("Camera Mode", &hrMam->m_CameraMode);
             }
         }
     }
+    // if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeMAM_Jr) {
+    //     if (ImGui::CollapsingHeader("mpLockOnNpc HRMAMJr (Death Metal Clone)")) {
+    //         HRMAMJR* hrMamJr = (HRMAMJR*)mpLockOnNpc;
+    //         if (hrMamJr) {
+    // 
+    //         }
+    //     }
+    // }
 }
 
 void EnemyTracker::on_draw_ui() {
