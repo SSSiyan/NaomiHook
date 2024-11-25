@@ -3193,6 +3193,205 @@ struct ItemMagic
   /* 0x05c0 */ class EffectKeepSmoke* m_pSmoke;
 }; /* size: 0x05c4 */
 
+class HREFL
+{
+public:
+  /* 0x0000 */ char Padding_704[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ int m_MotionFrame;
+  /* 0x0408 */ struct Vec m_MoveVec;
+  /* 0x0414 */ float m_AttackWait;
+  /* 0x0418 */ bool m_BusterHit;
+  /* 0x0419 */ bool m_MiniDemo;
+  /* 0x041a */ bool m_HitFirst;
+  /* 0x041b */ bool m_BusterBreak;
+  /* 0x041c */ float m_KeyCount;
+  /* 0x0420 */ bool m_PcDead;
+  /* 0x0421 */ bool m_EffectHit;
+  /* 0x0422 */ char Padding_705[2];
+  /* 0x0424 */ int m_TsubaSE;
+  /* 0x0428 */ struct Vec m_PcPosition;
+  /* 0x0434 */ struct Vec m_PcNavel;
+  /* 0x0440 */ struct Vec m_PcDirection;
+  /* 0x044c */ float m_PcDistance;
+  /* 0x0450 */ float m_HitWait;
+  /* 0x0454 */ bool m_PcShare;
+  /* 0x0455 */ char Padding_706[3];
+  /* 0x0458 */ int m_PcMotionNo;
+  /* 0x045c */ class TGmf* m_pGmf;
+  /* 0x0460 */ class EffectBuster* m_pBuster;
+  /* 0x0464 */ struct Vec m_BusterPos;
+  /* 0x0470 */ float m_BusterRot;
+  /* 0x0474 */ bool m_BusterFlag;
+  /* 0x0475 */ char Padding_707[3];
+  /* 0x0478 */ struct tagHRTASKCHECK m_pBusterCheck;
+  /* 0x0480 */ class EffectCloseContest* m_Close;
+}; /* size: 0x0484 */
+
+class HRTYG
+{
+public:
+enum DemoEnum
+{
+  DemoInit = 0,
+  Beer = 1,
+  BatFire = 2,
+};
+
+  /* 0x0000 */ char Padding_1524[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ int m_MotionFrame;
+  /* 0x0408 */ int m_EnemyPopCount;
+  /* 0x040c */ int m_EnemyPopMax;
+  /* 0x0410 */ int m_EnemyPopNum;
+  /* 0x0414 */ int m_EnemyKillNum;
+  /* 0x0418 */ int m_NewPopIndex;
+  /* 0x041c */ float m_ClonePopFrame;
+  /* 0x0420 */ int m_CloneRetNum;
+  /* 0x0424 */ int m_CloneRetMax;
+  /* 0x0428 */ int m_OldPopFrame;
+  /* 0x042c */ int m_DrinkCount;
+  /* 0x0430 */ bool m_DrinkCamera;
+  /* 0x0431 */ bool m_BattleClone;
+  /* 0x0432 */ char Padding_1525[2];
+  /* 0x0434 */ struct Vec m_MoveVec;
+  /* 0x0440 */ struct Vec m_BatPos;
+  /* 0x044c */ struct Vec m_EfPos;
+  /* 0x0458 */ struct tagGHMR_TEX m_SlashTex;
+  /* 0x0480 */ bool m_RetCamera;
+  /* 0x0481 */ bool m_SwingCamera;
+  /* 0x0482 */ char Padding_1526[2];
+  /* 0x0484 */ enum enPcPose m_BeforePcPose;
+  /* 0x0488 */ enum HRTYG::DemoEnum m_DemoNum;
+  /* 0x048c */ bool m_BatFireFlag;
+  /* 0x048d */ char Padding_1527[3];
+  /* 0x0490 */ float m_LampCount;
+  /* 0x0494 */ bool m_ZakoTsuba;
+  /* 0x0495 */ bool m_BefGuard;
+  /* 0x0496 */ bool m_JumpShakeEffect;
+  /* 0x0497 */ bool m_CryFirst;
+  /* 0x0498 */ int m_SEReqCount;
+  /* 0x049c */ bool m_FirstFireAtk;
+  /* 0x049d */ char Padding_1528[3];
+  /* 0x04a0 */ struct Vec m_PcPosition;
+  /* 0x04ac */ struct Vec m_PcNavel;
+  /* 0x04b8 */ struct Vec m_PcDirection;
+  /* 0x04c4 */ float m_PcDistance;
+  /* 0x04c8 */ float m_HitWait;
+  /* 0x04cc */ bool m_PcShare;
+  /* 0x04cd */ char Padding_1529[3];
+  /* 0x04d0 */ int m_PcMotionNo;
+  /* 0x04d4 */ class TGmf* m_RefrigeGmf;
+  /* 0x04d8 */ class TGan* m_RefrigeGan;
+  /* 0x04dc */ struct Vec m_RefrigePos;
+  /* 0x04e8 */ class TGmf* m_CanGmf;
+  /* 0x04ec */ class TGan* m_CanCloseGan;
+  /* 0x04f0 */ class TGan* m_CanOpenGan;
+  /* 0x04f4 */ class EffectBatFire* m_pBatFire;
+  /* 0x04f8 */ class EffectShockWave* m_ShockWave;
+  /* 0x04fc */ struct tagHRTASKCHECK m_WaveCheck;
+  /* 0x0504 */ class EffectCloseContest* m_Close;
+  /* 0x0508 */ class EffectBelt* m_Belt;
+}; /* size: 0x050c */
+
+class HRGEN
+{
+public:
+enum DemoEnum
+{
+  DemoInit = 0,
+  DragonA = 1,
+  DragonB = 2,
+  DragonC = 3,
+};
+
+  /* 0x0000 */ long Padding_1609[254];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ int m_MotionFrame;
+  /* 0x0408 */ struct Vec m_MoveVec;
+  /* 0x0414 */ int m_ComboCount;
+  /* 0x0418 */ int m_AvoidCount;
+  /* 0x041c */ float m_AddRot;
+  /* 0x0420 */ float m_RotLength;
+  /* 0x0424 */ bool m_Demo;
+  /* 0x0425 */ char Padding_1610[3];
+  /* 0x0428 */ int m_Stage;
+  /* 0x042c */ enum HRGEN::DemoEnum m_DemoNum;
+  /* 0x0430 */ int m_BGMHandle;
+  /* 0x0434 */ int m_GuardModeCount;
+  /* 0x0438 */ float m_Fov;
+  /* 0x043c */ float m_Aspect;
+  /* 0x0440 */ float m_Near;
+  /* 0x0444 */ float m_Far;
+  /* 0x0448 */ struct Vec m_PcPosition;
+  /* 0x0454 */ struct Vec m_PcNavel;
+  /* 0x0460 */ struct Vec m_PcDirection;
+  /* 0x046c */ float m_PcDistance;
+  /* 0x0470 */ float m_HitWait;
+  /* 0x0474 */ bool m_PcShare;
+  /* 0x0475 */ char Padding_1611[3];
+  /* 0x0478 */ int m_PcMotionNo;
+  /* 0x047c */ float m_PcRandTime;
+  /* 0x0480 */ class EffectSlashTrack* m_pSlash[2];
+  /* 0x0488 */ class TGmf* m_DragonModel;
+  /* 0x048c */ struct Vec m_RHandPos;
+  /* 0x0498 */ struct Vec m_LHandPos;
+  /* 0x04a4 */ struct Vec m_RFootPos;
+  /* 0x04b0 */ struct Vec m_LFootPos;
+}; /* size: 0x04bc */
+
+class HRTKL
+{
+public:
+enum ComboMode
+{
+  ComboModeA = 0,
+  ComboModeB = 1,
+  ComboModeC = 2,
+};
+
+  /* 0x0000 */ char Padding_1612[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ int m_MotionFrame;
+  /* 0x0408 */ struct Vec m_MoveVec;
+  /* 0x0414 */ enum HRTKL::ComboMode m_ComboMode;
+  /* 0x0418 */ enum enPcPose m_BeforePcPose;
+  /* 0x041c */ bool m_BefGuard;
+  /* 0x041d */ char Padding_1613[3];
+  /* 0x0420 */ class TGmf* m_pCatGmf[5];
+  /* 0x0434 */ class TGan* m_pCatGan[5];
+  /* 0x0448 */ struct Vec m_PcPosition;
+  /* 0x0454 */ struct Vec m_PcFrontPos;
+  /* 0x0460 */ struct Vec m_PcBackPos;
+  /* 0x046c */ struct Vec m_PcRightPos;
+  /* 0x0478 */ struct Vec m_PcLeftPos;
+  /* 0x0484 */ struct Vec m_PcNavel;
+  /* 0x0490 */ struct Vec m_PcDirection;
+  /* 0x049c */ float m_PcDistance;
+  /* 0x04a0 */ float m_HitWait;
+  /* 0x04a4 */ bool m_PcShare;
+  /* 0x04a5 */ char Padding_1614[3];
+  /* 0x04a8 */ int m_PcMotionNo;
+  /* 0x04ac */ float m_PcRandTime;
+  /* 0x04b0 */ class EffectPlasma* m_pPlasma[5];
+  /* 0x04c4 */ struct tagHRTASKCHECK m_PlasmaCheck[5];
+  /* 0x04ec */ struct Vec m_SlashPos;
+  /* 0x04f8 */ struct Vec m_OldSlashPos;
+  /* 0x0504 */ class TGmf* m_pObjAGmf;
+  /* 0x0508 */ class TGmf* m_pObjBGmf;
+  /* 0x050c */ class TGan* m_pObjAMotion;
+  /* 0x0510 */ class TGan* m_pObjBMotion;
+  /* 0x0514 */ class EffectSwordLaser* m_pSwordEff[5];
+}; /* size: 0x0528 */
+
 class stCharaFileData
 {
   /* 0x0000 */ class ghmGcFile* file;
