@@ -437,11 +437,11 @@ void DrawEnemyStats() {
                 ImGui::Checkbox("mTraceTex TME Flag", &hrMam->mTraceTex.TMEFlag);
                 ImGui::Checkbox("mTraceTex Alpha Flag", &hrMam->mTraceTex.AlphaFlag);
                 ImGui::Checkbox("mTraceTex Image Buffer Free Flag", &hrMam->mTraceTex.ImageBufferFreeFlag);
-                ImGui::InputText("mTraceTex File Image", (char*)&hrMam->mTraceTex.FileImage, sizeof(hrMam->mTraceTex.FileImage));
-                ImGui::InputText("mTraceTex Image Buffer", (char*)&hrMam->mTraceTex.ImageBuffer, sizeof(hrMam->mTraceTex.ImageBuffer));
+                ImGui::InputInt("mTraceTex File Image Ptr", (int*)&hrMam->mTraceTex.FileImage);
+                ImGui::InputInt("mTraceTex Image Buffer Ptr", (int*)&hrMam->mTraceTex.ImageBuffer);
                 ImGui::InputScalar("mTraceTex Width", ImGuiDataType_U16, &hrMam->mTraceTex.Width);
                 ImGui::InputScalar("mTraceTex Height", ImGuiDataType_U16, &hrMam->mTraceTex.Height);
-                ImGui::InputText("mTraceTex TexObj", (char*)&hrMam->mTraceTex.TexObj, sizeof(hrMam->mTraceTex.TexObj));
+                ImGui::InputInt("mTraceTex TexObj Ptr", (int*)&hrMam->mTraceTex.TexObj);
                 ImGui::Combo("mTraceTex Address Mode", (int*)&hrMam->mTraceTex.AddressMode, GHMR_TEXADDRESS_NAMES, IM_ARRAYSIZE(GHMR_TEXADDRESS_NAMES));
                 ImGui::Combo("mTraceTex Filter Mode", (int*)&hrMam->mTraceTex.FilterMode, GHMR_TEXFILTER_NAMES, IM_ARRAYSIZE(GHMR_TEXFILTER_NAMES));
                 ImGui::InputInt("mTraceTex Get Screen Image Format Enum", (int*)&hrMam->mTraceTex.GetScreenImageFormat);
@@ -451,11 +451,11 @@ void DrawEnemyStats() {
                 ImGui::Checkbox("m_SlashTex TME Flag", &hrMam->m_SlashTex.TMEFlag);
                 ImGui::Checkbox("m_SlashTex Alpha Flag", &hrMam->m_SlashTex.AlphaFlag);
                 ImGui::Checkbox("m_SlashTex Image Buffer Free Flag", &hrMam->m_SlashTex.ImageBufferFreeFlag);
-                ImGui::InputText("m_SlashTex File Image", (char*)&hrMam->m_SlashTex.FileImage, sizeof(hrMam->m_SlashTex.FileImage));
-                ImGui::InputText("m_SlashTex Image Buffer", (char*)&hrMam->m_SlashTex.ImageBuffer, sizeof(hrMam->m_SlashTex.ImageBuffer));
+                ImGui::InputInt("m_SlashTex File Image Ptr", (int*)&hrMam->m_SlashTex.FileImage);
+                ImGui::InputInt("m_SlashTex Image Buffer Ptr", (int*)&hrMam->m_SlashTex.ImageBuffer);
                 ImGui::InputScalar("m_SlashTex Width", ImGuiDataType_U16, &hrMam->m_SlashTex.Width);
                 ImGui::InputScalar("m_SlashTex Height", ImGuiDataType_U16, &hrMam->m_SlashTex.Height);
-                ImGui::InputText("m_SlashTex TexObj", (char*)&hrMam->m_SlashTex.TexObj, sizeof(hrMam->m_SlashTex.TexObj));
+                ImGui::InputInt("m_SlashTex TexObj Ptr", (int*)&hrMam->m_SlashTex.TexObj);
                 ImGui::Combo("m_SlashTex Address Mode", (int*)&hrMam->m_SlashTex.AddressMode, GHMR_TEXADDRESS_NAMES, IM_ARRAYSIZE(GHMR_TEXADDRESS_NAMES));
                 ImGui::Combo("m_SlashTex Filter Mode", (int*)&hrMam->m_SlashTex.FilterMode, GHMR_TEXFILTER_NAMES, IM_ARRAYSIZE(GHMR_TEXFILTER_NAMES));
                 ImGui::InputInt("m_SlashTex Get Screen Image Format Enum", (int*)&hrMam->m_SlashTex.GetScreenImageFormat);
@@ -501,11 +501,11 @@ void DrawEnemyStats() {
                 ImGui::Checkbox("mTraceTex TME Flag", &hrMamJr->mTraceTex.TMEFlag);
                 ImGui::Checkbox("mTraceTex Alpha Flag", &hrMamJr->mTraceTex.AlphaFlag);
                 ImGui::Checkbox("mTraceTex Image Buffer Free Flag", &hrMamJr->mTraceTex.ImageBufferFreeFlag);
-                ImGui::InputText("mTraceTex File Image", (char*)&hrMamJr->mTraceTex.FileImage, sizeof(hrMamJr->mTraceTex.FileImage));
-                ImGui::InputText("mTraceTex Image Buffer", (char*)&hrMamJr->mTraceTex.ImageBuffer, sizeof(hrMamJr->mTraceTex.ImageBuffer));
+                ImGui::InputInt("mTraceTex File Image Ptr", (int*)&hrMamJr->mTraceTex.FileImage);
+                ImGui::InputInt("mTraceTex Image Buffer Ptr", (int*)&hrMamJr->mTraceTex.ImageBuffer);
                 ImGui::InputScalar("mTraceTex Width", ImGuiDataType_U16, &hrMamJr->mTraceTex.Width);
                 ImGui::InputScalar("mTraceTex Height", ImGuiDataType_U16, &hrMamJr->mTraceTex.Height);
-                ImGui::InputText("mTraceTex TexObj", (char*)&hrMamJr->mTraceTex.TexObj, sizeof(hrMamJr->mTraceTex.TexObj));
+                ImGui::InputInt("mTraceTex TexObj Ptr", (int*)&hrMamJr->mTraceTex.TexObj);
                 ImGui::Combo("mTraceTex Address Mode", (int*)&hrMamJr->mTraceTex.AddressMode, GHMR_TEXADDRESS_NAMES, IM_ARRAYSIZE(GHMR_TEXADDRESS_NAMES));
                 ImGui::Combo("mTraceTex Filter Mode", (int*)&hrMamJr->mTraceTex.FilterMode, GHMR_TEXFILTER_NAMES, IM_ARRAYSIZE(GHMR_TEXFILTER_NAMES));
                 ImGui::InputInt("mTraceTex Get Screen Image Format Enum", (int*)&hrMamJr->mTraceTex.GetScreenImageFormat);
@@ -552,12 +552,12 @@ void DrawEnemyStats() {
                 ImGui::InputFloat("m_HitWait", &hrMge->m_HitWait);
                 ImGui::InputInt("m_Battery", &hrMge->m_Battery);
                 for (int i = 0; i < 20; ++i) {
-                    ImGui::InputText(("m_pCart[" + std::to_string(i) + "]").c_str(), (char*)&hrMge->m_pCart[i], sizeof(hrMge->m_pCart[i]));
-                    ImGui::InputText(("m_Gun[" + std::to_string(i) + "]").c_str(), (char*)&hrMge->m_Gun[i], sizeof(hrMge->m_Gun[i]));
+                    ImGui::InputInt(("m_pCart Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrMge->m_pCart[i]);
+                    ImGui::InputInt(("m_Gun Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrMge->m_Gun[i]);
                 }
-                ImGui::InputText("m_pRightGunGmf", (char*)&hrMge->m_pRightGunGmf, sizeof(hrMge->m_pRightGunGmf));
-                ImGui::InputText("m_pLeftGunGmf", (char*)&hrMge->m_pLeftGunGmf, sizeof(hrMge->m_pLeftGunGmf));
-                ImGui::InputText("m_pMicGmf", (char*)&hrMge->m_pMicGmf, sizeof(hrMge->m_pMicGmf));
+                ImGui::InputInt("m_pRightGunGmf Ptr", (int*)&hrMge->m_pRightGunGmf);
+                ImGui::InputInt("m_pLeftGunGmf Ptr", (int*)&hrMge->m_pLeftGunGmf);
+                ImGui::InputInt("m_pMicGmf Ptr", (int*)&hrMge->m_pMicGmf);
                 ImGui::InputInt("m_ShootFrame", &hrMge->m_ShootFrame);
                 ImGui::Combo("m_ShootMode", (int*)&hrMge->m_ShootMode, "InitShoot\0RightShoot\0LeftShoot\0");
                 ImGui::InputFloat3("m_RightGunPos", &hrMge->m_RightGunPos.x);
@@ -566,12 +566,12 @@ void DrawEnemyStats() {
                 ImGui::InputFloat3("m_LeftGunCart", &hrMge->m_LeftGunCart.x);
                 ImGui::InputFloat3("m_MicPos", &hrMge->m_MicPos.x);
                 for (int i = 0; i < 20; ++i) {
-                    ImGui::InputText(("m_CartCheck[" + std::to_string(i) + "]").c_str(), (char*)&hrMge->m_CartCheck[i], sizeof(hrMge->m_CartCheck[i]));
-                    ImGui::InputText(("m_GunCheck[" + std::to_string(i) + "]").c_str(), (char*)&hrMge->m_GunCheck[i], sizeof(hrMge->m_GunCheck[i]));
+                    ImGui::InputInt(("m_CartCheck Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrMge->m_CartCheck[i]);
+                    ImGui::InputInt(("m_GunCheck Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrMge->m_GunCheck[i]);
                 }
-                ImGui::InputText("m_Screen", (char*)&hrMge->m_Screen, sizeof(hrMge->m_Screen));
-                ImGui::InputText("m_PrimUni", (char*)&hrMge->m_PrimUni, sizeof(hrMge->m_PrimUni));
-                ImGui::InputText("m_Quad", (char*)&hrMge->m_Quad, sizeof(hrMge->m_Quad));
+                ImGui::InputInt("m_Screen Ptr", (int*)&hrMge->m_Screen);
+                ImGui::InputInt("m_PrimUni Ptr", (int*)&hrMge->m_PrimUni);
+                ImGui::InputInt("m_Quad Ptr", (int*)&hrMge->m_Quad);
             }
         }
     }
@@ -607,10 +607,10 @@ void DrawEnemyStats() {
                 if (ImGui::Checkbox("mBlwAtkRpd1", &mBlwAtkRpd1)) setBit(hrTgr->mFlag, 7, mBlwAtkRpd1);
                 bool mWallTurn = getBit(hrTgr->mFlag, 8);
                 if (ImGui::Checkbox("mWallTurn", &mWallTurn)) setBit(hrTgr->mFlag, 8, mWallTurn);
-                ImGui::InputText("mTraceTex", (char*)&hrTgr->mTraceTex, sizeof(hrTgr->mTraceTex));
+                ImGui::InputInt("mTraceTex Ptr", (int*)&hrTgr->mTraceTex);
                 for (int i = 0; i < 8; ++i) {
-                    ImGui::InputText(("mpEfWaveBlow[" + std::to_string(i) + "]").c_str(), (char*)&hrTgr->mpEfWaveBlow[i], sizeof(hrTgr->mpEfWaveBlow[i]));
-                    ImGui::InputText(("mTaskCheckWaveBlow[" + std::to_string(i) + "]").c_str(), (char*)&hrTgr->mTaskCheckWaveBlow[i], sizeof(hrTgr->mTaskCheckWaveBlow[i]));
+                    ImGui::InputInt(("mpEfWaveBlow Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTgr->mpEfWaveBlow[i]);
+                    ImGui::InputInt(("mTaskCheckWaveBlow Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTgr->mTaskCheckWaveBlow[i]);
                 }
             }
         }
@@ -740,29 +740,29 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_HoleDownNum", &hrSff->m_HoleDownNum);
                 ImGui::InputFloat3("m_BeforePos", &hrSff->m_BeforePos.x);
                 for (int i = 0; i < 10; ++i) {
-                    ImGui::InputText(("m_pMacross[" + std::to_string(i) + "]").c_str(), (char*)&hrSff->m_pMacross[i], sizeof(hrSff->m_pMacross[i]));
+                    ImGui::InputInt(("m_pMacross Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrSff->m_pMacross[i]);
                 }
                 for (int i = 0; i < 4; ++i) {
-                    ImGui::InputText(("m_pPineaple[" + std::to_string(i) + "]").c_str(), (char*)&hrSff->m_pPineaple[i], sizeof(hrSff->m_pPineaple[i]));
+                    ImGui::InputInt(("m_pPineaple Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrSff->m_pPineaple[i]);
                 }
-                ImGui::InputText("m_pSmoke", (char*)&hrSff->m_pSmoke, sizeof(hrSff->m_pSmoke));
-                ImGui::InputText("m_pKnife", (char*)&hrSff->m_pKnife, sizeof(hrSff->m_pKnife));
+                ImGui::InputInt("m_pSmoke Ptr", (int*)&hrSff->m_pSmoke);
+                ImGui::InputInt("m_pKnife Ptr", (int*)&hrSff->m_pKnife);
                 for (int i = 0; i < 28; ++i) {
-                    ImGui::InputText(("m_pPcSmoke[" + std::to_string(i) + "]").c_str(), (char*)&hrSff->m_pPcSmoke[i], sizeof(hrSff->m_pPcSmoke[i]));
+                    ImGui::InputInt(("m_pPcSmoke Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrSff->m_pPcSmoke[i]);
                 }
                 for (int i = 0; i < 10; ++i) {
-                    ImGui::InputText(("m_pMacrossCheck[" + std::to_string(i) + "]").c_str(), (char*)&hrSff->m_pMacrossCheck[i], sizeof(hrSff->m_pMacrossCheck[i]));
+                    ImGui::InputInt(("m_pMacrossCheck Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrSff->m_pMacrossCheck[i]);
                 }
                 for (int i = 0; i < 4; ++i) {
-                    ImGui::InputText(("m_pPineapleCheck[" + std::to_string(i) + "]").c_str(), (char*)&hrSff->m_pPineapleCheck[i], sizeof(hrSff->m_pPineapleCheck[i]));
+                    ImGui::InputInt(("m_pPineapleCheck Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrSff->m_pPineapleCheck[i]);
                 }
-                ImGui::InputText("m_pSmokeCheck", (char*)&hrSff->m_pSmokeCheck, sizeof(hrSff->m_pSmokeCheck));
-                ImGui::InputText("m_pKnifeCheck", (char*)&hrSff->m_pKnifeCheck, sizeof(hrSff->m_pKnifeCheck));
+                ImGui::InputInt("m_pSmokeCheck Ptr", (int*)&hrSff->m_pSmokeCheck);
+                ImGui::InputInt("m_pKnifeCheck Ptr", (int*)&hrSff->m_pKnifeCheck);
                 for (int i = 0; i < 28; ++i) {
-                    ImGui::InputText(("m_pPcSmokeCheck[" + std::to_string(i) + "]").c_str(), (char*)&hrSff->m_pPcSmokeCheck[i], sizeof(hrSff->m_pPcSmokeCheck[i]));
+                    ImGui::InputInt(("m_pPcSmokeCheck Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrSff->m_pPcSmokeCheck[i]);
                 }
-                ImGui::InputText("m_pPineapleGmf", (char*)&hrSff->m_pPineapleGmf, sizeof(hrSff->m_pPineapleGmf));
-                ImGui::InputText("m_pMineGmf", (char*)&hrSff->m_pMineGmf, sizeof(hrSff->m_pMineGmf));
+                ImGui::InputInt("m_pPineapleGmf Ptr", (int*)&hrSff->m_pPineapleGmf);
+                ImGui::InputInt("m_pMineGmf Ptr", (int*)&hrSff->m_pMineGmf);
                 ImGui::Checkbox("m_MineVisible", &hrSff->m_MineVisible);
             }
         }
@@ -807,18 +807,18 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_PcMotionNo", &hrTet->m_PcMotionNo);
                 ImGui::InputFloat("m_PcRandTime", &hrTet->m_PcRandTime);
                 ImGui::InputInt("m_LoopSEID", &hrTet->m_LoopSEID);
-                ImGui::InputText("m_pBoxGmf", (char*)&hrTet->m_pBoxGmf, sizeof(hrTet->m_pBoxGmf));
+                ImGui::InputInt("m_pBoxGmf Ptr", (int*)&hrTet->m_pBoxGmf);
                 ImGui::InputInt("m_BoxMotionNo", &hrTet->m_BoxMotionNo);
                 ImGui::InputInt("m_ShakeCount", &hrTet->m_ShakeCount);
                 ImGui::InputFloat("m_ShakeAcc", &hrTet->m_ShakeAcc);
-                ImGui::InputText("m_pAssistAGmf", (char*)&hrTet->m_pAssistAGmf, sizeof(hrTet->m_pAssistAGmf));
-                ImGui::InputText("m_pAssistBGmf", (char*)&hrTet->m_pAssistBGmf, sizeof(hrTet->m_pAssistBGmf));
+                ImGui::InputInt("m_pAssistAGmf Ptr", (int*)&hrTet->m_pAssistAGmf);
+                ImGui::InputInt("m_pAssistBGmf Ptr", (int*)&hrTet->m_pAssistBGmf);
                 ImGui::InputFloat3("m_AssistAPos", &hrTet->m_AssistAPos.x);
                 ImGui::InputFloat3("m_AssistBPos", &hrTet->m_AssistBPos.x);
                 ImGui::InputFloat3("m_AssistARot", &hrTet->m_AssistARot.x);
                 ImGui::InputFloat3("m_AssistBRot", &hrTet->m_AssistBRot.x);
-                ImGui::InputText("m_pLeftArmsGmf", (char*)&hrTet->m_pLeftArmsGmf, sizeof(hrTet->m_pLeftArmsGmf));
-                ImGui::InputText("m_pRightArmsGmf", (char*)&hrTet->m_pRightArmsGmf, sizeof(hrTet->m_pRightArmsGmf));
+                ImGui::InputInt("m_pLeftArmsGmf Ptr", (int*)&hrTet->m_pLeftArmsGmf);
+                ImGui::InputInt("m_pRightArmsGmf Ptr", (int*)&hrTet->m_pRightArmsGmf);
                 ImGui::Checkbox("m_RArmVisible", &hrTet->m_RArmVisible);
                 ImGui::Checkbox("m_LArmVisible", &hrTet->m_LArmVisible);
                 ImGui::Checkbox("m_AssistAVisible", &hrTet->m_AssistAVisible);
@@ -826,36 +826,36 @@ void DrawEnemyStats() {
                 ImGui::Checkbox("m_BoxVisible", &hrTet->m_BoxVisible);
                 ImGui::Checkbox("m_ArmVisible", &hrTet->m_ArmVisible);
                 for (int i = 0; i < 4; ++i) {
-                    ImGui::InputText(("m_Light[" + std::to_string(i) + "]").c_str(), (char*)&hrTet->m_Light[i], sizeof(hrTet->m_Light[i]));
+                    ImGui::InputInt(("m_Light Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTet->m_Light[i]);
                 }
                 ImGui::Checkbox("m_FadeFlag", &hrTet->m_FadeFlag);
-                ImGui::InputText("m_pStageMotion", (char*)&hrTet->m_pStageMotion, sizeof(hrTet->m_pStageMotion));
-                ImGui::InputText("m_RSlash", (char*)&hrTet->m_RSlash, sizeof(hrTet->m_RSlash));
-                ImGui::InputText("m_LSlash", (char*)&hrTet->m_LSlash, sizeof(hrTet->m_LSlash));
-                ImGui::InputText("m_EnemySpot", (char*)&hrTet->m_EnemySpot, sizeof(hrTet->m_EnemySpot));
-                ImGui::InputText("m_PcSpot", (char*)&hrTet->m_PcSpot, sizeof(hrTet->m_PcSpot));
-                ImGui::InputText("m_AsiASpot", (char*)&hrTet->m_AsiASpot, sizeof(hrTet->m_AsiASpot));
-                ImGui::InputText("m_AsiBSpot", (char*)&hrTet->m_AsiBSpot, sizeof(hrTet->m_AsiBSpot));
-                ImGui::InputText("m_ViewReverse", (char*)&hrTet->m_ViewReverse, sizeof(hrTet->m_ViewReverse));
-                ImGui::InputText("m_SwordR", (char*)&hrTet->m_SwordR, sizeof(hrTet->m_SwordR));
-                ImGui::InputText("m_SwordB", (char*)&hrTet->m_SwordB, sizeof(hrTet->m_SwordB));
-                ImGui::InputText("m_pStar", (char*)&hrTet->m_pStar, sizeof(hrTet->m_pStar));
-                ImGui::InputText("m_pHeart", (char*)&hrTet->m_pHeart, sizeof(hrTet->m_pHeart));
+                ImGui::InputInt("m_pStageMotion Ptr", (int*)&hrTet->m_pStageMotion);
+                ImGui::InputInt("m_RSlash Ptr", (int*)&hrTet->m_RSlash);
+                ImGui::InputInt("m_LSlash Ptr", (int*)&hrTet->m_LSlash);
+                ImGui::InputInt("m_EnemySpot Ptr", (int*)&hrTet->m_EnemySpot);
+                ImGui::InputInt("m_PcSpot Ptr", (int*)&hrTet->m_PcSpot);
+                ImGui::InputInt("m_AsiASpot Ptr", (int*)&hrTet->m_AsiASpot);
+                ImGui::InputInt("m_AsiBSpot Ptr", (int*)&hrTet->m_AsiBSpot);
+                ImGui::InputInt("m_ViewReverse Ptr", (int*)&hrTet->m_ViewReverse);
+                ImGui::InputInt("m_SwordR Ptr", (int*)&hrTet->m_SwordR);
+                ImGui::InputInt("m_SwordB Ptr", (int*)&hrTet->m_SwordB);
+                ImGui::InputInt("m_pStar Ptr", (int*)&hrTet->m_pStar);
+                ImGui::InputInt("m_pHeart Ptr", (int*)&hrTet->m_pHeart);
                 for (int i = 0; i < 6; ++i) {
-                    ImGui::InputText(("m_Pigeon[" + std::to_string(i) + "]").c_str(), (char*)&hrTet->m_Pigeon[i], sizeof(hrTet->m_Pigeon[i]));
+                    ImGui::InputInt(("m_Pigeon Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTet->m_Pigeon[i]);
                 }
                 for (int i = 0; i < 6; ++i) {
-                    ImGui::InputText(("m_PigeonCheck[" + std::to_string(i) + "]").c_str(), (char*)&hrTet->m_PigeonCheck[i], sizeof(hrTet->m_PigeonCheck[i]));
+                    ImGui::InputInt(("m_PigeonCheck Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTet->m_PigeonCheck[i]);
                 }
-                ImGui::InputText("m_pAmbGmf", (char*)&hrTet->m_pAmbGmf, sizeof(hrTet->m_pAmbGmf));
-                ImGui::Checkbox("m_AmbVisible", &hrTet->m_AmbVisible);
-                ImGui::InputText("m_pSlvGmf", (char*)&hrTet->m_pSlvGmf, sizeof(hrTet->m_pSlvGmf));
+                ImGui::InputInt("m_pAmbGmf Ptr", (int*)&hrTet->m_pAmbGmf);
+                ImGui::Checkbox("m_AmbVisible Ptr", &hrTet->m_AmbVisible);
+                ImGui::InputInt("m_pSlvGmf Ptr", (int*)&hrTet->m_pSlvGmf);
                 for (int i = 0; i < 2; ++i) {
-                    ImGui::InputText(("m_pSlvMotion[" + std::to_string(i) + "]").c_str(), (char*)&hrTet->m_pSlvMotion[i], sizeof(hrTet->m_pSlvMotion[i]));
+                    ImGui::InputInt(("m_pSlvMotion Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTet->m_pSlvMotion[i]);
                 }
                 ImGui::InputFloat("m_SlvRandTime", &hrTet->m_SlvRandTime);
-                ImGui::InputText("m_pTopSpin", (char*)&hrTet->m_pTopSpin, sizeof(hrTet->m_pTopSpin));
-                ImGui::InputText("m_pSmoke", (char*)&hrTet->m_pSmoke, sizeof(hrTet->m_pSmoke));
+                ImGui::InputInt("m_pTopSpin Ptr", (int*)&hrTet->m_pTopSpin);
+                ImGui::InputInt("m_pSmoke Ptr", (int*)&hrTet->m_pSmoke);
             }
         }
     }
@@ -884,13 +884,13 @@ void DrawEnemyStats() {
                 ImGui::InputFloat("m_HitWait", &hrEfl->m_HitWait);
                 ImGui::Checkbox("m_PcShare", &hrEfl->m_PcShare);
                 ImGui::InputInt("m_PcMotionNo", &hrEfl->m_PcMotionNo);
-                ImGui::InputText("m_pGmf", (char*)&hrEfl->m_pGmf, sizeof(hrEfl->m_pGmf));
-                ImGui::InputText("m_pBuster", (char*)&hrEfl->m_pBuster, sizeof(hrEfl->m_pBuster));
+                ImGui::InputInt("m_pGmf Ptr", (int*)&hrEfl->m_pGmf);
+                ImGui::InputInt("m_pBuster Ptr", (int*)&hrEfl->m_pBuster);
                 ImGui::InputFloat3("m_BusterPos", &hrEfl->m_BusterPos.x);
                 ImGui::InputFloat("m_BusterRot", &hrEfl->m_BusterRot);
                 ImGui::Checkbox("m_BusterFlag", &hrEfl->m_BusterFlag);
-                ImGui::InputText("m_pBusterCheck", (char*)&hrEfl->m_pBusterCheck, sizeof(hrEfl->m_pBusterCheck));
-                ImGui::InputText("m_Close", (char*)&hrEfl->m_Close, sizeof(hrEfl->m_Close));
+                ImGui::InputInt("m_pBusterCheck Ptr", (int*)&hrEfl->m_pBusterCheck);
+                ImGui::InputInt("m_Close Ptr", (int*)&hrEfl->m_Close);
             }
         }
     }
@@ -917,7 +917,7 @@ void DrawEnemyStats() {
                 ImGui::InputFloat3("m_MoveVec", &hrTyg->m_MoveVec.x);
                 ImGui::InputFloat3("m_BatPos", &hrTyg->m_BatPos.x);
                 ImGui::InputFloat3("m_EfPos", &hrTyg->m_EfPos.x);
-                ImGui::InputText("m_SlashTex", (char*)&hrTyg->m_SlashTex, sizeof(hrTyg->m_SlashTex));
+                ImGui::InputInt("m_SlashTex Ptr", (int*)&hrTyg->m_SlashTex);
                 ImGui::Checkbox("m_RetCamera", &hrTyg->m_RetCamera);
                 ImGui::Checkbox("m_SwingCamera", &hrTyg->m_SwingCamera);
                 ImGui::InputInt("m_BeforePcPose", (int*)&hrTyg->m_BeforePcPose);
@@ -937,17 +937,17 @@ void DrawEnemyStats() {
                 ImGui::InputFloat("m_HitWait", &hrTyg->m_HitWait);
                 ImGui::Checkbox("m_PcShare", &hrTyg->m_PcShare);
                 ImGui::InputInt("m_PcMotionNo", &hrTyg->m_PcMotionNo);
-                ImGui::InputText("m_RefrigeGmf", (char*)&hrTyg->m_RefrigeGmf, sizeof(hrTyg->m_RefrigeGmf));
-                ImGui::InputText("m_RefrigeGan", (char*)&hrTyg->m_RefrigeGan, sizeof(hrTyg->m_RefrigeGan));
+                ImGui::InputInt("m_RefrigeGmf Ptr", (int*)&hrTyg->m_RefrigeGmf);
+                ImGui::InputInt("m_RefrigeGan Ptr", (int*)&hrTyg->m_RefrigeGan);
                 ImGui::InputFloat3("m_RefrigePos", &hrTyg->m_RefrigePos.x);
-                ImGui::InputText("m_CanGmf", (char*)&hrTyg->m_CanGmf, sizeof(hrTyg->m_CanGmf));
-                ImGui::InputText("m_CanCloseGan", (char*)&hrTyg->m_CanCloseGan, sizeof(hrTyg->m_CanCloseGan));
-                ImGui::InputText("m_CanOpenGan", (char*)&hrTyg->m_CanOpenGan, sizeof(hrTyg->m_CanOpenGan));
-                ImGui::InputText("m_pBatFire", (char*)&hrTyg->m_pBatFire, sizeof(hrTyg->m_pBatFire));
-                ImGui::InputText("m_ShockWave", (char*)&hrTyg->m_ShockWave, sizeof(hrTyg->m_ShockWave));
-                ImGui::InputText("m_WaveCheck", (char*)&hrTyg->m_WaveCheck, sizeof(hrTyg->m_WaveCheck));
-                ImGui::InputText("m_Close", (char*)&hrTyg->m_Close, sizeof(hrTyg->m_Close));
-                ImGui::InputText("m_Belt", (char*)&hrTyg->m_Belt, sizeof(hrTyg->m_Belt));
+                ImGui::InputInt("m_CanGmf Ptr", (int*)&hrTyg->m_CanGmf);
+                ImGui::InputInt("m_CanCloseGan Ptr", (int*)&hrTyg->m_CanCloseGan);
+                ImGui::InputInt("m_CanOpenGan Ptr", (int*)&hrTyg->m_CanOpenGan);
+                ImGui::InputInt("m_pBatFire Ptr", (int*)&hrTyg->m_pBatFire);
+                ImGui::InputInt("m_ShockWave Ptr", (int*)&hrTyg->m_ShockWave);
+                ImGui::InputInt("m_WaveCheck Ptr", (int*)&hrTyg->m_WaveCheck);
+                ImGui::InputInt("m_Close Ptr", (int*)&hrTyg->m_Close);
+                ImGui::InputInt("m_Belt Ptr", (int*)&hrTyg->m_Belt);
             }
         }
     }
@@ -981,9 +981,9 @@ void DrawEnemyStats() {
                 ImGui::Checkbox("m_PcShare", &hrGen->m_PcShare);
                 ImGui::InputInt("m_PcMotionNo", &hrGen->m_PcMotionNo);
                 ImGui::InputFloat("m_PcRandTime", &hrGen->m_PcRandTime);
-                ImGui::InputText("m_pSlash[0]", (char*)&hrGen->m_pSlash[0], sizeof(hrGen->m_pSlash[0]));
-                ImGui::InputText("m_pSlash[1]", (char*)&hrGen->m_pSlash[1], sizeof(hrGen->m_pSlash[1]));
-                ImGui::InputText("m_DragonModel", (char*)&hrGen->m_DragonModel, sizeof(hrGen->m_DragonModel));
+                ImGui::InputInt("m_pSlash Ptr[0]", (int*)&hrGen->m_pSlash[0]);
+                ImGui::InputInt("m_pSlash Ptr[1]", (int*)&hrGen->m_pSlash[1]);
+                ImGui::InputInt("m_DragonModel Ptr", (int*)&hrGen->m_DragonModel);
                 ImGui::InputFloat3("m_RHandPos", &hrGen->m_RHandPos.x);
                 ImGui::InputFloat3("m_LHandPos", &hrGen->m_LHandPos.x);
                 ImGui::InputFloat3("m_RFootPos", &hrGen->m_RFootPos.x);
@@ -994,6 +994,12 @@ void DrawEnemyStats() {
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeTKL) {
         if (ImGui::CollapsingHeader("mpLockOnNpc HRTKL (Henry)")) {
             HRTKL* hrTkl = (HRTKL*)mpLockOnNpc;
+            // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrTkl->Padding_1612[0]);
+            // ImGui::Text("Base Address: 0x%08X", baseAddress);
+            // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&hrTkl->m_SlashPos);
+            // ImGui::Text("Target Address: 0x%08X", targetAddress);
+            // uintptr_t offsetDifference = targetAddress - baseAddress;
+            // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
             if (hrTkl) {
                 ImGui::InputInt("m_ActionMode", &hrTkl->m_ActionMode);
                 ImGui::InputFloat("m_ActionTime", &hrTkl->m_ActionTime);
@@ -1004,8 +1010,8 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_BeforePcPose", (int*)&hrTkl->m_BeforePcPose);
                 ImGui::Checkbox("m_BefGuard", &hrTkl->m_BefGuard);
                 for (int i = 0; i < 5; ++i) {
-                    ImGui::InputText(fmt::format("m_pCatGmf[{}]", i).c_str(), (char*)&hrTkl->m_pCatGmf[i], sizeof(hrTkl->m_pCatGmf[i]));
-                    ImGui::InputText(fmt::format("m_pCatGan[{}]", i).c_str(), (char*)&hrTkl->m_pCatGan[i], sizeof(hrTkl->m_pCatGan[i]));
+                    ImGui::InputInt(fmt::format("m_pCatGmf Ptr[{}]", i).c_str(), (int*)&hrTkl->m_pCatGmf[i]);
+                    ImGui::InputInt(fmt::format("m_pCatGan Ptr[{}]", i).c_str(), (int*)&hrTkl->m_pCatGan[i]);
                 }
                 ImGui::InputFloat3("m_PcPosition", &hrTkl->m_PcPosition.x);
                 ImGui::InputFloat3("m_PcFrontPos", &hrTkl->m_PcFrontPos.x);
@@ -1020,17 +1026,17 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_PcMotionNo", &hrTkl->m_PcMotionNo);
                 ImGui::InputFloat("m_PcRandTime", &hrTkl->m_PcRandTime);
                 for (int i = 0; i < 5; ++i) {
-                    ImGui::InputText(fmt::format("m_pPlasma[{}]", i).c_str(), (char*)&hrTkl->m_pPlasma[i], sizeof(hrTkl->m_pPlasma[i]));
-                    ImGui::InputText(fmt::format("m_PlasmaCheck[{}]", i).c_str(), (char*)&hrTkl->m_PlasmaCheck[i], sizeof(hrTkl->m_PlasmaCheck[i]));
+                    ImGui::InputInt(fmt::format("m_pPlasma Ptr[{}]", i).c_str(), (int*)&hrTkl->m_pPlasma[i]);
+                    ImGui::InputInt(fmt::format("m_PlasmaCheck Ptr[{}]", i).c_str(), (int*)&hrTkl->m_PlasmaCheck[i]);
                 }
                 ImGui::InputFloat3("m_SlashPos", &hrTkl->m_SlashPos.x);
                 ImGui::InputFloat3("m_OldSlashPos", &hrTkl->m_OldSlashPos.x);
-                ImGui::InputText("m_pObjAGmf", (char*)&hrTkl->m_pObjAGmf, sizeof(hrTkl->m_pObjAGmf));
-                ImGui::InputText("m_pObjBGmf", (char*)&hrTkl->m_pObjBGmf, sizeof(hrTkl->m_pObjBGmf));
-                ImGui::InputText("m_pObjAMotion", (char*)&hrTkl->m_pObjAMotion, sizeof(hrTkl->m_pObjAMotion));
-                ImGui::InputText("m_pObjBMotion", (char*)&hrTkl->m_pObjBMotion, sizeof(hrTkl->m_pObjBMotion));
+                ImGui::InputInt("m_pObjAGmf Ptr", (int*)&hrTkl->m_pObjAGmf);
+                ImGui::InputInt("m_pObjBGmf Ptr", (int*)&hrTkl->m_pObjBGmf);
+                ImGui::InputInt("m_pObjAMotion Ptr", (int*)&hrTkl->m_pObjAMotion);
+                ImGui::InputInt("m_pObjBMotion Ptr", (int*)&hrTkl->m_pObjBMotion);
                 for (int i = 0; i < 5; ++i) {
-                    ImGui::InputText(fmt::format("m_pSwordEff[{}]", i).c_str(), (char*)&hrTkl->m_pSwordEff[i], sizeof(hrTkl->m_pSwordEff[i]));
+                    ImGui::InputInt(fmt::format("m_pSwordEff Ptr[{}]", i).c_str(), (int*)&hrTkl->m_pSwordEff[i]);
                 }
             }
         }
