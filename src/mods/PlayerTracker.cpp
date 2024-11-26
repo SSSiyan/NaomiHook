@@ -450,8 +450,9 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Combo Delay Counter", &mHRBattle->mBtEffect.pScreenStatus->m_ComboDelayCounter);
                 ImGui::InputScalar("Slot Dan", ImGuiDataType_S8, &mHRBattle->mBtEffect.pScreenStatus->m_SlotDan);
                 for (int i = 0; i < 3; i++) {
-                    ImGui::InputScalar(fmt::format("Slot Deme [{}]", i).c_str(), ImGuiDataType_S8, mHRBattle->mBtEffect.pScreenStatus->m_SlotDeme[i]);
-                    ImGui::InputScalar(fmt::format("Slot Deme Counter [{}]", i).c_str(), ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_SlotDemeCounter[i]);
+                    ImGui::InputScalar(("Slot Deme [" + std::to_string(i) + "]").c_str(), ImGuiDataType_S8, mHRBattle->mBtEffect.pScreenStatus->m_SlotDeme[i]);
+                    ImGui::InputScalar(("Slot Deme Counter [" + std::to_string(i) + "]").c_str(), ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_SlotDemeCounter[i]);
+
                 }
                 ImGui::Separator();
                 ImGui::InputScalar("Slot Counter", ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_SlotCounter);
@@ -1581,7 +1582,7 @@ void DrawPlayerStats() {
                         ImGui::Checkbox("changeVolEngineIdle", &player->mpBike->mBike.changeVolEngineIdle);
                         ImGui::InputInt("startWait", &player->mpBike->mBike.startWait);
                         for (int i = 0; i < 3; ++i) {
-                            ImGui::InputFloat(fmt::format("rateTbl[{}]", i).c_str(), &player->mpBike->mBike.rateTbl[i]);
+                            ImGui::InputFloat(("rateTbl[" + std::to_string(i) + "]").c_str(), &player->mpBike->mBike.rateTbl[i]);
                         }
                         ImGui::Text("inputRelay: %p", player->mpBike->mBike.inputRelay);
                         ImGui::Text("hitColl: %p", player->mpBike->mBike.hitColl);
@@ -1843,7 +1844,69 @@ void DrawPlayerStats() {
     if (ImGui::CollapsingHeader("HrMotel")) {
         if (nmh_sdk::get_HrMenuTask()) {
             if (HrMotel* hrMotel = (HrMotel*)nmh_sdk::get_HrMenuTask()->m_pHsMenu) {
-                ImGui::Checkbox("weaponchangef", &hrMotel->m_WeaponChange_f);
+                ImGui::InputInt("m_HrMotelState", (int*)&hrMotel->m_HrMotelState);
+                for (int i = 0; i < 2; ++i) {
+                    ImGui::InputInt(("m_pNeked_Trv_Model[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_pNeked_Trv_Model[i]);
+                }
+                ImGui::InputInt("m_pD_Pants_Model", (int*)&hrMotel->m_pD_Pants_Model);
+                ImGui::InputInt("m_pStg_Model", (int*)&hrMotel->m_pStg_Model);
+                ImGui::InputInt("m_pFan_Model", (int*)&hrMotel->m_pFan_Model);
+                ImGui::InputInt("m_pCat_Model", (int*)&hrMotel->m_pCat_Model);
+                ImGui::InputInt("m_Etc_Model", (int*)&hrMotel->m_Etc_Model);
+                for (int i = 0; i < 3; ++i) {
+                    ImGui::InputInt(("m_Trv_Motion_TOILET[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_Trv_Motion_TOILET[i]);
+                    ImGui::InputInt(("m_Trv_Motion_TV[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_Trv_Motion_TV[i]);
+                    ImGui::InputInt(("m_Trv_Motion_FRIDGE[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_Trv_Motion_FRIDGE[i]);
+                    ImGui::InputInt(("m_Trv_Motion_MAP[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_Trv_Motion_MAP[i]);
+                }
+                for (int i = 0; i < 4; ++i) {
+                    ImGui::InputInt(("m_Trv_Motion_CAT[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_Trv_Motion_CAT[i]);
+                    ImGui::InputInt(("m_Trv_Motion_CLOSET[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_Trv_Motion_CLOSET[i]);
+                    ImGui::InputInt(("m_Trv_Motion_DRAWER[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_Trv_Motion_DRAWER[i]);
+                    ImGui::InputInt(("m_Fan_Motion[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_Fan_Motion[i]);
+
+                }
+                for (int i = 0; i < 7; ++i) {
+                    ImGui::InputInt(("m_Jara_Motion[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_Jara_Motion[i]);
+                }
+                ImGui::InputInt("m_Trv_Motion_Collec", (int*)&hrMotel->m_Trv_Motion_Collec);
+                ImGui::InputInt("m_Trv_Motion_EXIT", (int*)&hrMotel->m_Trv_Motion_EXIT);
+                ImGui::InputInt("m_CameraMotion_EXIT", (int*)&hrMotel->m_CameraMotion_EXIT);
+                for (int i = 0; i < 9; ++i) {
+                    ImGui::InputInt(("m_BG_Box[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_BG_Box[i]);
+                    ImGui::InputInt(("m_HsNextBox[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_HsNextBox[i]);
+                    ImGui::InputInt(("m_HsBoxMoveAry[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_HsBoxMoveAry[i]);
+                }
+                ImGui::InputInt("m_CursorBox", (int*)&hrMotel->m_CursorBox);
+                ImGui::InputInt("m_BG_Tex", (int*)&hrMotel->m_BG_Tex);
+                for (int i = 0; i < 2; ++i) {
+                    ImGui::InputInt(("m_Arrow_Line[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_Arrow_Line[i]);
+                    ImGui::InputInt(("m_BG_Line_Y[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_BG_Line_Y[i]);
+    
+                }
+                for (int i = 0; i < 6; ++i) {
+                    ImGui::InputInt(("m_BG_Tri[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_BG_Tri[i]);
+                    ImGui::InputInt(("m_Guide_Tex[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->m_Guide_Tex[i]);
+                }
+                ImGui::InputInt("m_HsNextBg", (int*)&hrMotel->m_HsNextBg);
+                ImGui::InputFloat2("m_HsBgMoveAry", (float*)&hrMotel->m_HsBgMoveAry);
+                ImGui::InputInt("m_HsNextCur", (int*)&hrMotel->m_HsNextCur);
+                ImGui::InputFloat2("m_HsCurMoveAry", (float*)&hrMotel->m_HsCurMoveAry);
+                ImGui::InputInt("m_pHsMenuFontMes", (int*)&hrMotel->m_pHsMenuFontMes);
+                ImGui::InputInt("m_pNextMenuFontMes", (int*)&hrMotel->m_pNextMenuFontMes);
+                ImGui::InputInt("m_pMenuFontMoveAry", (int*)&hrMotel->m_pMenuFontMoveAry);
+                ImGui::InputInt("m_pAllSysMes", (int*)&hrMotel->m_pAllSysMes);
+                ImGui::InputInt("m_Guide_Font", (int*)&hrMotel->m_Guide_Font);
+                for (int i = 0; i < 2; ++i) {
+                    ImGui::InputInt(("Interactions[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->Interactions[i]);
+                    ImGui::InputInt(("InteractionCounts[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->InteractionCounts[i]);
+                }
+                for (int i = 0; i < 9; ++i) {
+                    ImGui::InputInt(("livingRoomInteractions[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->livingRoomInteractions[i]);
+                }
+                for (int i = 0; i < 7; ++i) {
+                    ImGui::InputInt(("bedRoomInteractions[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->bedRoomInteractions[i]);
+                }
             }
         }
     }

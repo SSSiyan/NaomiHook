@@ -304,14 +304,14 @@ void DrawEnemyStats() {
             ImGui::InputScalar("Pyoko Alpha", ImGuiDataType_U8, &mpLockOnNpc->mEffect.pBattleIcon->m_PyokoAlpha);
             ImGui::Checkbox("Draw Hit Combo Flag", (bool*)&mpLockOnNpc->mEffect.pBattleIcon->m_DrawHitCmbFlag);
             for (int i = 0; i < 36; ++i) {
-                ImGui::InputFloat(fmt::format("Tsuba Ratio [{}]", i).c_str(), &mpLockOnNpc->mEffect.pBattleIcon->m_TsubaRatio[i]);
+                ImGui::InputFloat(("Tsuba Ratio [" + std::to_string(i) + "]").c_str(), &mpLockOnNpc->mEffect.pBattleIcon->m_TsubaRatio[i]);
             }
             for (int i = 0; i < 2; ++i) {
                 ImGui::Text("Position %d: %p", i, mpLockOnNpc->mEffect.pBattleIcon->m_pPosition[i]);
             }
             ImGui::Text("Node: %p", mpLockOnNpc->mEffect.pBattleIcon->m_pNode);
             for (int i = 0; i < 3; ++i) {
-                ImGui::InputScalarN(fmt::format("Color [{}]", i).c_str(), ImGuiDataType_U8, mpLockOnNpc->mEffect.pBattleIcon->m_Color[i], 2);
+                ImGui::InputScalarN(("Color [" + std::to_string(i) + "]").c_str(), ImGuiDataType_U8, mpLockOnNpc->mEffect.pBattleIcon->m_Color[i], 2);
             }
             ImGui::InputScalar("HP Bar Counter", ImGuiDataType_S16, &mpLockOnNpc->mEffect.pBattleIcon->m_HpBerCounter);
             ImGui::InputScalar("Line Counter", ImGuiDataType_S16, &mpLockOnNpc->mEffect.pBattleIcon->m_LineCounter);
@@ -1010,8 +1010,9 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_BeforePcPose", (int*)&hrTkl->m_BeforePcPose);
                 ImGui::Checkbox("m_BefGuard", &hrTkl->m_BefGuard);
                 for (int i = 0; i < 5; ++i) {
-                    ImGui::InputInt(fmt::format("m_pCatGmf Ptr[{}]", i).c_str(), (int*)&hrTkl->m_pCatGmf[i]);
-                    ImGui::InputInt(fmt::format("m_pCatGan Ptr[{}]", i).c_str(), (int*)&hrTkl->m_pCatGan[i]);
+                    ImGui::InputInt(("m_pCatGmf Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTkl->m_pCatGmf[i]);
+                    ImGui::InputInt(("m_pCatGan Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTkl->m_pCatGan[i]);
+
                 }
                 ImGui::InputFloat3("m_PcPosition", &hrTkl->m_PcPosition.x);
                 ImGui::InputFloat3("m_PcFrontPos", &hrTkl->m_PcFrontPos.x);
@@ -1026,8 +1027,9 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_PcMotionNo", &hrTkl->m_PcMotionNo);
                 ImGui::InputFloat("m_PcRandTime", &hrTkl->m_PcRandTime);
                 for (int i = 0; i < 5; ++i) {
-                    ImGui::InputInt(fmt::format("m_pPlasma Ptr[{}]", i).c_str(), (int*)&hrTkl->m_pPlasma[i]);
-                    ImGui::InputInt(fmt::format("m_PlasmaCheck Ptr[{}]", i).c_str(), (int*)&hrTkl->m_PlasmaCheck[i]);
+                    ImGui::InputInt(("m_pPlasma Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTkl->m_pPlasma[i]);
+                    ImGui::InputInt(("m_PlasmaCheck Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTkl->m_PlasmaCheck[i]);
+
                 }
                 ImGui::InputFloat3("m_SlashPos", &hrTkl->m_SlashPos.x);
                 ImGui::InputFloat3("m_OldSlashPos", &hrTkl->m_OldSlashPos.x);
@@ -1036,7 +1038,7 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_pObjAMotion Ptr", (int*)&hrTkl->m_pObjAMotion);
                 ImGui::InputInt("m_pObjBMotion Ptr", (int*)&hrTkl->m_pObjBMotion);
                 for (int i = 0; i < 5; ++i) {
-                    ImGui::InputInt(fmt::format("m_pSwordEff Ptr[{}]", i).c_str(), (int*)&hrTkl->m_pSwordEff[i]);
+                    ImGui::InputInt(("m_pSwordEff Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTkl->m_pSwordEff[i]);
                 }
             }
         }
