@@ -328,6 +328,7 @@ void DrawPlayerStats() {
             ImGui::Text("mp_NpcObjMan Address: 0x%08X", (uintptr_t)CBgCtrl->mp_NpcObjMan);
             ImGui::Text("mp_NpcPhone Address: 0x%08X", (uintptr_t)CBgCtrl->mp_NpcPhone);
             ImGui::InputInt("m_CallBikeState", &CBgCtrl->m_CallBikeState);
+            help_marker("Displays the different states for Bishop when delivering the Schpeltiger. 3, 4, 5, 6, 9, 10, 13.");
             ImGui::InputInt("m_CallBikeCnt", &CBgCtrl->m_CallBikeCnt);
             ImGui::InputFloat("m_CallBikeDist", &CBgCtrl->m_CallBikeDist);
             ImGui::InputInt("m_CallBikeSndHandle", &CBgCtrl->m_CallBikeSndHandle);
@@ -472,6 +473,7 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Slot Zoro Leave Wait Cnt", &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoroLeaveWaitCnt);
                 ImGui::Checkbox("Slot Zorome Sorotta Start To End Flag", &mHRBattle->mBtEffect.pScreenStatus->m_SlotZoromeStartToEndFlag);
                 ImGui::Checkbox("BlueHeartFlag", &mHRBattle->mBtEffect.pScreenStatus->m_BlueHeartFlag);
+                help_marker("Flag for turning the HP heart white after a scorpion has poisoned you.");
                 bool lmode_seven = getBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 0);
                 if (ImGui::Checkbox("lmode_seven", &lmode_seven)) setBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 0, lmode_seven);
                 bool lmode_melon = getBit(mHRBattle->mBtEffect.pScreenStatus->flaglmode, 1);
@@ -1213,6 +1215,7 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Fast Action Tick", &player->mPcStatus.fastActionTick);
                 help_marker("Tick for Grasshopper Darkside");
                 ImGui::InputInt("Shinku Tick", &player->mPcStatus.shinkuTick);
+                help_marker("Tick for Blueberry Cheese Brownie");
                 ImGui::InputInt("Bullet Tick", &player->mPcStatus.bulletTick);
                 ImGui::InputInt("Money", &player->mPcStatus.money);
                 help_marker("The money you currently have in your wallet.");
@@ -1421,6 +1424,7 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Finish Slow", &player->mPcStatus.finishSlow);
                 ImGui::Checkbox("Finish Se Play", &player->mPcStatus.finishSePlay);
                 ImGui::InputInt("Finish Slow Tick", &player->mPcStatus.finishSlowTick);
+                help_marker("Tick for the slow motion during Death Blows");
                 ImGui::Checkbox("Get 777", &player->mPcStatus.get777);
                 ImGui::Checkbox("Play Shake Input", &player->mPcStatus.playShakeInput);
                 ImGui::InputInt("Play Shake Input Wait", &player->mPcStatus.playShakeInputWait);
@@ -1439,8 +1443,11 @@ void DrawPlayerStats() {
                 ImGui::InputFloat3("Pad Y Offset", (float*)&player->mPcStatus.padYOffset);
                 ImGui::SliderFloat("Rot Y Offset", &player->mPcStatus.rotYOffset, -360.0f, 360.0f);
                 ImGui::Checkbox("Tsuba Se 0", &player->mPcStatus.tsubaSe0);
+                help_marker("Go!");
                 ImGui::Checkbox("Tsuba Se 1", &player->mPcStatus.tsubaSe1);
+                help_marker("Go!!");
                 ImGui::Checkbox("Tsuba Se 2", &player->mPcStatus.tsubaSe2);
+                help_marker("Go!!!");
                 ImGui::Checkbox("Dead Submission", &player->mPcStatus.deadSubmission);
                 ImGui::Checkbox("Call Motion Process", &player->mPcStatus.callMotionProcess);
                 ImGui::InputInt("Dead Boss Num", (int*)&player->mPcStatus.deadBossNum);
