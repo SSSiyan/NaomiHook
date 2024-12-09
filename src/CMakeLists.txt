@@ -65,6 +65,8 @@ set(MODS_SRC
     mods/StanceControl.cpp 
     mods/EnemySpawn.hpp 
     mods/EnemySpawn.cpp 
+    mods/MoneyOnKillFix.hpp 
+    mods/MoneyOnKillFix.cpp 
 
 )
 

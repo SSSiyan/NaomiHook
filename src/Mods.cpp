@@ -37,6 +37,7 @@
 #include "mods/QuickBoot.hpp"
 #include "mods/ArcadeMode.hpp"
 #include "mods/StanceControl.hpp"
+#include "mods/MoneyOnKillFix.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -83,6 +84,7 @@ Mods::Mods()
     ADD_MOD(QuickBoot);
     ADD_MOD(ArcadeMode);
     ADD_MOD(StanceControl);
+    ADD_MOD(MoneyOnKillFix);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
@@ -109,8 +111,6 @@ std::optional<std::string> Mods::on_initialize() const {
 
     return std::nullopt;
 }
-
-
 
 void Mods::on_frame() const {
     for (auto& mod : m_mods) {
@@ -170,7 +170,6 @@ void Mods::on_d3d11_reset()
         mod->on_d3d_reset();
     }
 }
-
 
 #if 0
 
