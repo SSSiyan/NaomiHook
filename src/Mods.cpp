@@ -25,7 +25,6 @@
 #include "mods/ThrowBattery.hpp"
 #include "mods/HPHitNumber.hpp"
 #include "mods/ChargeSubsBattery.hpp"
-#include "mods/LockOnDisablesThrows.hpp"
 #include "mods/DebugText.hpp"
 #include "mods/Invincibility.hpp"
 #include "mods/SwapIdleStances.hpp"
@@ -62,7 +61,6 @@ Mods::Mods()
     ADD_MOD(StageWarp);
     ADD_MOD(ClothesSwitcher);
     ADD_MOD(LockOnSettings);
-    ADD_MOD(LockOnDisablesThrows);
     ADD_MOD(HitstopSettings);
     ADD_MOD(ScreenshakeSettings);
     ADD_MOD(DodgeSettings);

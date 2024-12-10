@@ -6,26 +6,32 @@ public:
   LockOnSettings() = default;
   
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
+  //////////////////////////////////////////////////
+  static bool      lockon_more_actions;
+  static bool      lockon_deathblows;
+  void             toggle_deathblow_lockon(bool enable);
+  static bool      lockon_deathblows_start;
+  void			   toggle_deathblow_lockon_start(bool enable);
+  static bool      lockon_parry_qtes;
+  void			   toggle_parry_qte_lockon(bool enable);
 
-  static bool mod_enabled;
-  static bool lockon_sidesteps;
-  static bool lockon_deathblows;
-  static bool lockon_deathblows_start;
-  static bool lockon_parry_qtes;
+  static bool      horizontal_limit_toggle;
+  static uintptr_t horizontal_limit_jmp_ret;
+  static float     horizontal_limit_default_search_degrees;
+  static float     horizontal_limit_custom_search_degrees;
 
-  static uintptr_t jmp_ret1;
-  static bool target_switch_degrees_toggle;
-  static float default_search_degrees;
-  static float custom_search_degrees;
+  static uintptr_t more_actions_jmp_ret;
+  static uintptr_t more_actions_jmp_ja;
+  static uintptr_t more_actions_jmp_retalt;
+  //////////////////////////////////////////////////
+  static bool      disable_throws_mod_enabled;
+  static uintptr_t disable_throws_jmp_ret1;
+  static uintptr_t disable_throws_jmp_jne1;
 
-  static uintptr_t jmp_ret2;
-  static uintptr_t jmp_ja2;
-  static uintptr_t jmp_ret2alt;
-
-  void toggle_sidestep_lockon(bool enable);
-  void toggle_deathblow_lockon(bool enable);
-  void toggle_deathblow_lockon_start(bool enable);
-  void toggle_parry_qte_lockon(bool enable);
+  static uintptr_t disable_throws_jmp_ret2;
+  static uintptr_t disable_throws_jmp_jne2;
+  static float     disable_throws_comiss2;
+  //////////////////////////////////////////////////
 
   // mod name string for config
   std::string get_mod_name() const override { return "LockOnSettings"; }
@@ -47,6 +53,7 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
-	std::unique_ptr<Patch> patch0, patch1, patch2, patch3, patch4;
+	std::unique_ptr<FunctionHook> lockon_horizontal_limit_hook, lockon_during_more_actions_hook;
+	std::unique_ptr<Patch> patch_toggle_deathblow_during, patch_toggle_deathblow_start, patch_parry_qte_lockon;
+	std::unique_ptr<FunctionHook> disable_throws_hook1, disable_throws_hook2;
 };
