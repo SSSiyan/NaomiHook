@@ -25,16 +25,14 @@ set(MODS_SRC
     mods/HitstopSettings.cpp 
     mods/ScreenshakeSettings.hpp 
     mods/ScreenshakeSettings.cpp 
-    mods/RollForward.hpp 
-    mods/RollForward.cpp 
+    mods/DodgeSettings.hpp 
+    mods/DodgeSettings.cpp 
     mods/SprintSettings.hpp
     mods/SprintSettings.cpp
     mods/SwordColours.hpp 
     mods/SwordColours.cpp 
     mods/ThrowBattery.hpp 
     mods/ThrowBattery.cpp 
-    mods/DodgeBattery.hpp 
-    mods/DodgeBattery.cpp 
     mods/HPHitNumber.hpp 
     mods/HPHitNumber.cpp 
     mods/ChargeSubsBattery.hpp 
@@ -44,9 +42,7 @@ set(MODS_SRC
     mods/DebugText.hpp 
     mods/DebugText.cpp 
     mods/Invincibility.hpp 
-    mods/Invincibility.cpp 
-    mods/RollRotation.hpp 
-    mods/RollRotation.cpp 
+    mods/Invincibility.cpp  
     mods/SwapIdleStances.hpp 
     mods/SwapIdleStances.cpp 
     mods/ReprisalSwap.hpp 

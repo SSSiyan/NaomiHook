@@ -34,9 +34,9 @@ naked void detour2() { // Beat + Sword attacks
             cmp byte ptr [MoneyOnKillFix::mod_enabled], 0
             je originalcode
         // 
-            cmp [ebx+0x28], 30000 // is value currently above 30k
+            cmp word ptr [ebx+0x28], 30000 // is value currently above 30k
             jb originalcode
-            mov [ebx+0x28], 30000 // limit to 30k
+            mov word ptr [ebx+0x28], 30000 // limit to 30k
             jmp retcode
 
         originalcode:

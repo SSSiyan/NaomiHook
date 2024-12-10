@@ -19,17 +19,15 @@
 #include "mods/LockOnSettings.hpp"
 #include "mods/HitstopSettings.hpp"
 #include "mods/ScreenshakeSettings.hpp"
-#include "mods/RollForward.hpp"
+#include "mods/DodgeSettings.hpp"
 #include "mods/SprintSettings.hpp"
 #include "mods/SwordColours.hpp"
 #include "mods/ThrowBattery.hpp"
-#include "mods/DodgeBattery.hpp"
 #include "mods/HPHitNumber.hpp"
 #include "mods/ChargeSubsBattery.hpp"
 #include "mods/LockOnDisablesThrows.hpp"
 #include "mods/DebugText.hpp"
 #include "mods/Invincibility.hpp"
-#include "mods/RollRotation.hpp"
 #include "mods/SwapIdleStances.hpp"
 #include "mods/ReprisalSwap.hpp"
 #include "mods/DisableMouse.hpp"
@@ -67,16 +65,14 @@ Mods::Mods()
     ADD_MOD(LockOnDisablesThrows);
     ADD_MOD(HitstopSettings);
     ADD_MOD(ScreenshakeSettings);
-    ADD_MOD(RollForward);
+    ADD_MOD(DodgeSettings);
     ADD_MOD(SprintSettings);
     ADD_MOD(SwordColours);
     ADD_MOD(ThrowBattery);
-    ADD_MOD(DodgeBattery);
     ADD_MOD(HPHitNumber);
     ADD_MOD(ChargeSubsBattery);
     ADD_MOD(DebugText);
     ADD_MOD(Invincibility);
-    ADD_MOD(RollRotation);
     ADD_MOD(SwapIdleStances);
     ADD_MOD(ReprisalSwap);
     ADD_MOD(DisableMouse);
