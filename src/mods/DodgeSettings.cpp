@@ -38,7 +38,7 @@ uintptr_t DodgeSettings::roll_rotation_mRotate2LockOnTarget = NULL;
 uintptr_t DodgeSettings::roll_rotation_GetMotionRunState = NULL;
 
 // clang-format off
-naked void detour1() { // roll forward: make lockon+forward input (also used by buffer)
+naked void roll_forward_detour1() { // roll forward: make lockon+forward input (also used by buffer)
     __asm {
         cmp byte ptr [DodgeSettings::roll_forward_mod_enabled], 0
         je originalcode
@@ -64,7 +64,7 @@ naked void detour1() { // roll forward: make lockon+forward input (also used by 
     }
 }
 
-naked void detour2() { // roll forward: add roll forward animation
+naked void roll_forward_detour2() { // roll forward: add roll forward animation
     __asm {
         cmp byte ptr [DodgeSettings::roll_forward_mod_enabled], 0
         je originalcode
@@ -87,7 +87,7 @@ naked void detour2() { // roll forward: add roll forward animation
     }
 }
 
-naked void detour3() { // roll forward: make lockon+forward (while attacking) input by copying down input
+naked void roll_forward_detour3() { // roll forward: make lockon+forward (while attacking) input by copying down input
     __asm {
         cmp byte ptr [DodgeSettings::roll_forward_mod_enabled], 0
         je originalcode
@@ -110,7 +110,7 @@ naked void detour3() { // roll forward: make lockon+forward (while attacking) in
     }
 }
 
-naked void detour4() { // roll forward: make right stick up and buffer value accepted inputs while attacking
+naked void roll_forward_detour4() { // roll forward: make right stick up and buffer value accepted inputs while attacking
     __asm {
         cmp byte ptr [DodgeSettings::roll_forward_mod_enabled], 0
         je originalcode
@@ -265,21 +265,21 @@ std::optional<std::string> DodgeSettings::on_initialize() {
     DodgeSettings::roll_forward_Offset_LeftStickUp = g_framework->get_module().as<uintptr_t>() + 0x84B91A;
     DodgeSettings::roll_forward_Offset_LeftStickLeft = g_framework->get_module().as<uintptr_t>() + 0x84B8F6;
     DodgeSettings::roll_forward_Offset_mCheckCanOperate = g_framework->get_module().as<uintptr_t>() + 0x3DD970;
-    if (!install_hook_offset(0x3D25F2, roll_forward_hook1, &detour1, &DodgeSettings::roll_forward_jmp_ret1, 7)) {
+    if (!install_hook_offset(0x3D25F2, roll_forward_hook1, &roll_forward_detour1, &DodgeSettings::roll_forward_jmp_ret1, 7)) {
         spdlog::error("Failed to init DodgeSettings mod\n");
         return "Failed to init DodgeSettings mod";
     }
-    if (!install_hook_offset(0x3D2694, roll_forward_hook2, &detour2, &DodgeSettings::roll_forward_jmp_ret2, 5)) {
+    if (!install_hook_offset(0x3D2694, roll_forward_hook2, &roll_forward_detour2, &DodgeSettings::roll_forward_jmp_ret2, 5)) {
         spdlog::error("Failed to init DodgeSettings mod\n");
         return "Failed to init DodgeSettings mod";
     }
     DodgeSettings::roll_forward_Offset_GetEdgeButton = g_framework->get_module().as<uintptr_t>() + 0x5F8550;
     DodgeSettings::roll_forward_Offset_JNE3 = g_framework->get_module().as<uintptr_t>() + 0x3D00F1;
-    if (!install_hook_offset(0x3D009A, roll_forward_hook3, &detour3, &DodgeSettings::roll_forward_jmp_ret3, 7)) {
+    if (!install_hook_offset(0x3D009A, roll_forward_hook3, &roll_forward_detour3, &DodgeSettings::roll_forward_jmp_ret3, 7)) {
         spdlog::error("Failed to init DodgeSettings mod\n");
         return "Failed to init DodgeSettings mod";
     }
-    if (!install_hook_offset(0x3D0156, roll_forward_hook4, &detour4, &DodgeSettings::roll_forward_jmp_ret4, 10)) {
+    if (!install_hook_offset(0x3D0156, roll_forward_hook4, &roll_forward_detour4, &DodgeSettings::roll_forward_jmp_ret4, 10)) {
         spdlog::error("Failed to init DodgeSettings mod\n");
         return "Failed to init DodgeSettings mod";
     }
@@ -305,7 +305,7 @@ std::optional<std::string> DodgeSettings::on_initialize() {
     // roll rotation
     DodgeSettings::roll_rotation_mRotate2LockOnTarget = g_framework->get_module().as<uintptr_t>() + 0x3C4C70;
     DodgeSettings::roll_rotation_GetMotionRunState = g_framework->get_module().as<uintptr_t>() + 0x36BBF0;
-    if (!install_hook_offset(0x3DB2CE, m_hook_roll_rotation1, &detour1, &DodgeSettings::roll_rotation_jmp_ret1, 5)) {
+    if (!install_hook_offset(0x3DB2CE, m_hook_roll_rotation1, &roll_rotation_detour1, &DodgeSettings::roll_rotation_jmp_ret1, 5)) {
         spdlog::error("Failed to init DodgeSettings mod\n");
         return "Failed to init DodgeSettings mod";
     }

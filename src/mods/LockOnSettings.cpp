@@ -5,12 +5,12 @@ bool      LockOnSettings::lockon_more_actions = false;
 bool      LockOnSettings::lockon_deathblows = false;
 bool      LockOnSettings::lockon_deathblows_start = false;
 bool      LockOnSettings::lockon_parry_qtes = false;
-
+//////////////////////////////////////////////////
 uintptr_t LockOnSettings::horizontal_limit_jmp_ret = NULL;
 bool      LockOnSettings::horizontal_limit_toggle = false;
 float     LockOnSettings::horizontal_limit_default_search_degrees = 1.57f;
 float     LockOnSettings::horizontal_limit_custom_search_degrees = 0.0f;
-
+//////////////////////////////////////////////////
 uintptr_t LockOnSettings::more_actions_jmp_ret = NULL;
 uintptr_t LockOnSettings::more_actions_jmp_ja = NULL;
 uintptr_t LockOnSettings::more_actions_jmp_retalt = NULL;

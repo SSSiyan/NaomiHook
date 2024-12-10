@@ -14,12 +14,12 @@ public:
   void			   toggle_deathblow_lockon_start(bool enable);
   static bool      lockon_parry_qtes;
   void			   toggle_parry_qte_lockon(bool enable);
-
+  //////////////////////////////////////////////////
   static bool      horizontal_limit_toggle;
   static uintptr_t horizontal_limit_jmp_ret;
   static float     horizontal_limit_default_search_degrees;
   static float     horizontal_limit_custom_search_degrees;
-
+  //////////////////////////////////////////////////
   static uintptr_t more_actions_jmp_ret;
   static uintptr_t more_actions_jmp_ja;
   static uintptr_t more_actions_jmp_retalt;
