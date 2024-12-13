@@ -3084,28 +3084,28 @@ enum RandKey
 class HRTET
 {
 public:
-enum DemoEnum
-{
-  DemoInit = 0,
-  ShowIn = 1,
-  ShortShowIn = 2,
-  ShowTrue = 3,
-  ShowFalse = 4,
-};
+    enum DemoEnum
+    {
+      DemoInit = 0,
+      ShowIn = 1,
+      ShortShowIn = 2,
+      ShowTrue = 3,
+      ShowFalse = 4,
+    };
 
-enum RandKey
-{
-  RightCon = 0,
-  LeftCon = 1,
-  AButton = 2,
-};
+    enum RandKey
+    {
+      RightCon = 0,
+      LeftCon = 1,
+      AButton = 2,
+    };
 
-struct ItemMagic
-{
-  /* 0x0000 */ bool Active;
-  /* 0x0001 */ char Padding_1602[3];
-  /* 0x0004 */ struct Vec Pos;
-}; /* size: 0x0010 */
+    struct ItemMagic
+    {
+      /* 0x0000 */ bool Active;
+      /* 0x0001 */ char Padding_1602[3];
+      /* 0x0004 */ struct Vec Pos;
+    }; /* size: 0x0010 */
 
   /* 0x0000 */ char Padding_1603[0x3f8];
   /* 0x03f8 */ int m_ActionMode;

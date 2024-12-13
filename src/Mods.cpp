@@ -34,6 +34,7 @@
 #include "mods/ArcadeMode.hpp"
 #include "mods/StanceControl.hpp"
 #include "mods/MoneyOnKillFix.hpp"
+#include "mods/Cheats.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -77,6 +78,7 @@ Mods::Mods()
     ADD_MOD(ArcadeMode);
     ADD_MOD(StanceControl);
     ADD_MOD(MoneyOnKillFix);
+    ADD_MOD(Cheats);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

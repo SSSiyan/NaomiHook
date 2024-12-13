@@ -40,9 +40,7 @@ set(MODS_SRC
     mods/DebugText.hpp 
     mods/DebugText.cpp 
     mods/Invincibility.hpp 
-    mods/Invincibility.cpp  
-    mods/SwapIdleStances.hpp 
-    mods/SwapIdleStances.cpp 
+    mods/Invincibility.cpp   
     mods/ReprisalSwap.hpp 
     mods/ReprisalSwap.cpp 
     mods/DisableMouse.hpp 
@@ -61,6 +59,8 @@ set(MODS_SRC
     mods/EnemySpawn.cpp 
     mods/MoneyOnKillFix.hpp 
     mods/MoneyOnKillFix.cpp 
+    mods/Cheats.hpp 
+    mods/Cheats.cpp 
 
 )
 
