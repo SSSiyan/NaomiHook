@@ -27,6 +27,19 @@ uintptr_t StanceControl::jmp_ret3 = NULL;
 uintptr_t StanceControl::jmp_jne3 = NULL;
 uintptr_t StanceControl::clashing = NULL;
 
+bool StanceControl::swapIdleStances = false;
+
+void StanceControl::toggleSwapIdleStances(bool enable) {
+    if (enable) {
+        install_patch_offset(0x3D7D4A, patch_swap_idle_stance1, "\x75", 1); // jne nmh.exe+3D7D5B
+        install_patch_offset(0x3D7D4F, patch_swap_idle_stance2, "\x75", 1); // jne nmh.exe+3D7D56
+    }
+    else {
+        install_patch_offset(0x3D7D4A, patch_swap_idle_stance1, "\x74", 1); // je nmh.exe+3D7D5B
+        install_patch_offset(0x3D7D4F, patch_swap_idle_stance2, "\x74", 1); // je nmh.exe+3D7D56
+    }
+}
+
 void StanceControl::toggle(bool enable) {
     if (enable) {
         install_patch_offset(0x3DE09F, m_patch1, "\xEB\x10", 2); // jmp nmh.exe+3DE0B1 // disable low stance set
@@ -203,6 +216,11 @@ void StanceControl::on_draw_ui() {
     if (ImGui::Checkbox("Swap Vanilla Mid And Low UI", &StanceControl::edit_old_ui)) {
         toggle_display_edit(edit_old_ui);
     }
+    if (ImGui::Checkbox("Swap Idle Stances", &swapIdleStances)) {
+        toggleSwapIdleStances(swapIdleStances);
+    }
+    help_marker("The High/Low stances are mistakenly inverted by default, forcing Travis to take on the incorrect stance. This setting "
+                "corrects that issue and is purely cosmetic.");
 }
 
 void TextCentered(std::string text) {
@@ -296,6 +314,9 @@ void StanceControl::on_config_load(const utility::Config &cfg) {
     lowBound = cfg.get<float>("stance_control_low_bound").value_or(-0.9f);
     highBoundGuard = (highBound + 1.0f) / 2.0f;
     lowBoundGuard = (lowBound + 1.0f) / 2.0f;
+
+    swapIdleStances = cfg.get<bool>("swap_idle_stances").value_or(false);
+    toggleSwapIdleStances(swapIdleStances);
 }
 // during save
 void StanceControl::on_config_save(utility::Config &cfg) {
@@ -306,6 +327,8 @@ void StanceControl::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("stance_control_invert_mid", invert_mid);
     cfg.set<float>("stance_control_high_bound", highBound);
     cfg.set<float>("stance_control_low_bound", lowBound);
+
+    cfg.set<bool>("swap_idle_stances", swapIdleStances);
 }
 
 // will show up in debug window, dump ImGui widgets you want here

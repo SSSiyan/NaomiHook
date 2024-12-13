@@ -33,6 +33,9 @@ public:
   static uintptr_t jmp_jne3;
   static uintptr_t clashing;
 
+  static bool swapIdleStances;
+  void toggleSwapIdleStances(bool enable);
+
   void toggle(bool enable);
   void toggle_display_edit(bool enable);
 
@@ -58,4 +61,5 @@ public:
 private:
 	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3;
 	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3, m_patch4;
+	std::unique_ptr<Patch> patch_swap_idle_stance1, patch_swap_idle_stance2;
 };

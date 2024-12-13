@@ -27,7 +27,6 @@
 #include "mods/ChargeSubsBattery.hpp"
 #include "mods/DebugText.hpp"
 #include "mods/Invincibility.hpp"
-#include "mods/SwapIdleStances.hpp"
 #include "mods/ReprisalSwap.hpp"
 #include "mods/DisableMouse.hpp"
 #include "mods/SoundTracker.hpp"
@@ -71,7 +70,6 @@ Mods::Mods()
     ADD_MOD(ChargeSubsBattery);
     ADD_MOD(DebugText);
     ADD_MOD(Invincibility);
-    ADD_MOD(SwapIdleStances);
     ADD_MOD(ReprisalSwap);
     ADD_MOD(DisableMouse);
     ADD_MOD(SoundTracker);
