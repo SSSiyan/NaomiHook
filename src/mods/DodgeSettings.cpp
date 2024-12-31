@@ -319,9 +319,11 @@ void DodgeSettings::on_draw_ui() {
     ImGui::Checkbox("Roll Forward", &roll_forward_mod_enabled);
     help_marker("Restores the unused forward roll and works exactly as it does in NMH2. Bound to Lock On + Forward (Right Stick)");
 
-    if (ImGui::Checkbox("Disable Darkstep Slowmo", &disable_darkstep_slowmo_mod_enabled)) {
+    if (ImGui::Checkbox("NMH2 Darkstep", &disable_darkstep_slowmo_mod_enabled)) {
         toggle_disable_slowmo_darkstep(disable_darkstep_slowmo_mod_enabled);
     }
+    help_marker("Functionally alters Darksteps to not slow Travis down much like it does in NMH2.");
+    
 
     ImGui::Checkbox("Roll Rotation", &roll_rotation_mod_enabled);
     help_marker("Make rolls orbit around your locked on target. Functions in a similar manner to NMH2.");

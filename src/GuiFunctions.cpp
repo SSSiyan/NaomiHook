@@ -37,8 +37,8 @@ namespace gui {
             style.PopupBorderSize = 1.0f;
             style.FramePadding = ImVec2(5.0f, 2.0f);
             style.FrameBorderSize = 1.0f;
-            style.ItemSpacing = ImVec2(6.0f, 6.0f);
-            style.ItemInnerSpacing = ImVec2(6.0f, 6.0f);
+            style.ItemSpacing = ImVec2(6.0f, 2.0f);
+            style.ItemInnerSpacing = ImVec2(7.0f, 6.0f);
             style.CellPadding = ImVec2(6.0f, 6.0f);
             style.IndentSpacing = 25.0f;
             style.ColumnsMinSpacing = 6.0f;
@@ -107,7 +107,7 @@ namespace gui {
         colors[ImGuiCol_WindowBg]            = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
         colors[ImGuiCol_ChildBg]             = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
         colors[ImGuiCol_PopupBg]             = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
-        colors[ImGuiCol_CheckMark]           = ImVec4(0.86f, 0.65f, 0.33f, 1.00f);
+        colors[ImGuiCol_CheckMark]           = ImVec4(0.129f, 0.184f, 0.859f, 1.00f);
         colors[ImGuiCol_TabSelected]         = ImVec4(0.51f, 0.40f, 0.24f, 1.00f);
         colors[ImGuiCol_TabSelectedOverline] = ImVec4(1.00f, 0.79f, 0.45f, 1.00f);
         colors[ImGuiCol_TabDimmedSelected]   = ImVec4(0.42f, 0.31f, 0.14f, 1.00f);
