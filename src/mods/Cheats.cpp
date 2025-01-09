@@ -34,10 +34,10 @@ void Cheats::toggleSpendNoBattery(bool enable) {
 
 void Cheats::toggleEnemiesDontAttack(bool enable) {
     if (enable) {
-        install_patch_offset(0x3C2AAF, patchEnemiesDontAttack, "\x90\x90", 2); // nop 2
+        install_patch_offset(0x43536E, patchEnemiesDontAttack, "\x90\x90", 2); // nop 2
     }
     else {
-        install_patch_offset(0x3C2AAF, patchEnemiesDontAttack, "\x7A\x1C", 2); // jp nmh.HRZAKO::mFrameProc+5C
+        install_patch_offset(0x43536E, patchEnemiesDontAttack, "\x7A\x1C", 2); // jp nmh.HRZAKO::mFrameProc+5C
     }
 }
 
