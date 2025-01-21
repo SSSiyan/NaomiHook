@@ -62,6 +62,31 @@ void Cheats::on_draw_ui() {
     if (ImGui::Checkbox("Enemies Don't Attack", &spend_no_battery)) {
         toggleEnemiesDontAttack(enemies_dont_attack);
     }
+
+    if (ImGui::Button("Start 777")) {
+        nmh_sdk::Start777();
+    }
+    //static bool dont_call_stencil = false;
+    //static int inTick = 0;
+    if (ImGui::Button("Start Bar")) {
+        //nmh_sdk::StartBar(dont_call_stencil, inTick);
+        nmh_sdk::StartBar(false, 0);
+    }
+    //ImGui::SameLine();
+    //ImGui::Checkbox("Dont Stencil", &dont_call_stencil);
+    //ImGui::SameLine();
+    //ImGui::PushItemWidth(120);
+    //ImGui::InputInt("inTick", &inTick);
+    //ImGui::PopItemWidth();
+    if (ImGui::Button("Start Bell")) {
+        nmh_sdk::StartBell();
+    }
+    if (ImGui::Button("Start Hopper")) {
+        nmh_sdk::StartHopper();
+    }
+    if (ImGui::Button("Start Cherry")) {
+        nmh_sdk::StartCherry();
+    }
 }
 
 // during load

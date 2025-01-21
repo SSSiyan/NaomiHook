@@ -18,7 +18,7 @@
 #include "mods/ClothesSwitcher.hpp"
 #include "mods/LockOnSettings.hpp"
 #include "mods/HitstopSettings.hpp"
-#include "mods/ScreenshakeSettings.hpp"
+#include "mods/CameraSettings.hpp"
 #include "mods/DodgeSettings.hpp"
 #include "mods/SprintSettings.hpp"
 #include "mods/SwordColours.hpp"
@@ -62,7 +62,7 @@ Mods::Mods()
     ADD_MOD(ClothesSwitcher);
     ADD_MOD(LockOnSettings);
     ADD_MOD(HitstopSettings);
-    ADD_MOD(ScreenshakeSettings);
+    ADD_MOD(CameraSettings);
     ADD_MOD(DodgeSettings);
     ADD_MOD(SprintSettings);
     ADD_MOD(SwordColours);

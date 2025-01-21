@@ -142,6 +142,53 @@ namespace nmh_sdk {
         return true; // player ptr is invalid, treat as if we're dodging
     }
 
+    // Trigger Darksides
+    bool Start777() {
+        uintptr_t start777Address = (g_framework->get_module().as<uintptr_t>() + 0x3C1AE0);
+        mStart777Func start777 = (mStart777Func)start777Address;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            start777(mHRPc);
+            return false;
+        }
+        return true; // player ptr invalid
+    }
+    bool StartBar(bool inDontCallStencil, int inTick) {
+        uintptr_t startBarAddress = (g_framework->get_module().as<uintptr_t>() + 0x3C1BD0);
+        mStartBarFunc startBar = (mStartBarFunc)startBarAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            startBar(mHRPc, inDontCallStencil, inTick);
+            return false;
+        }
+        return true; // player ptr invalid
+    }
+    bool StartBell() {
+        uintptr_t startBellAddress = (g_framework->get_module().as<uintptr_t>() + 0x3C1EE0);
+        mStartBellFunc startBell = (mStartBellFunc)startBellAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            startBell(mHRPc);
+            return false;
+        }
+        return true; // player ptr invalid
+    }
+    bool StartHopper() {
+        uintptr_t startHopperAddress = (g_framework->get_module().as<uintptr_t>() + 0x3C2120);
+        mStartHopperFunc startHopper = (mStartHopperFunc)startHopperAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            startHopper(mHRPc);
+            return false;
+        }
+        return true; // player ptr invalid
+    }
+    bool StartCherry() {
+        uintptr_t startCherryAddress = (g_framework->get_module().as<uintptr_t>() + 0x3C2330);
+        mStartCherryFunc startCherry = (mStartCherryFunc)startCherryAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            startCherry(mHRPc);
+            return false;
+        }
+        return true; // player ptr invalid
+    }
+
     // Spawn enemies
     int setInitNpcDat(int inResNo, enCharaType inChType, int inRepop, const Vec* inPos, const Vec* inRot, enPopReqType inPopType, bool inDisEnableCollision) {
         uintptr_t mSetInitNpcDatAddress = (g_framework->get_module().as<uintptr_t>() + 0x3B6B30);
