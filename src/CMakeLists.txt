@@ -23,8 +23,8 @@ set(MODS_SRC
     mods/LockOnSettings.cpp 
     mods/HitstopSettings.hpp 
     mods/HitstopSettings.cpp 
-    mods/ScreenshakeSettings.hpp 
-    mods/ScreenshakeSettings.cpp 
+    mods/CameraSettings.hpp 
+    mods/CameraSettings.cpp 
     mods/DodgeSettings.hpp 
     mods/DodgeSettings.cpp 
     mods/SprintSettings.hpp
