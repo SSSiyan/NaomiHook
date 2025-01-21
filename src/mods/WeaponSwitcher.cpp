@@ -186,10 +186,9 @@ std::optional<std::string> WeaponSwitcher::on_initialize() {
 }
 
 void WeaponSwitcher::on_draw_ui() {
-    if (ImGui::Checkbox("Enable Weapon Switcher", &mod_enabled)) {
+    if (ImGui::Checkbox("Weapon Switcher", &mod_enabled)) {
         toggleForceMap(mod_enabled);
     }
-    help_marker("Enable NMH2 styled weapon switching. Choose Beam Katanas with the Directional Pad while in combat.");
 }
 
 // during load

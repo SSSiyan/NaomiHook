@@ -16,7 +16,7 @@ public:
   // mod name string for config
   std::string get_mod_name() const override { return "ArcadeMode"; }
   std::string get_human_readable_name() const { return "Arcade Mode"; }
-  const char* get_description() const override { return R"(Arcade Mode)"; };
+  const char* get_description() const override { return R"(Skip all non combat sections)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

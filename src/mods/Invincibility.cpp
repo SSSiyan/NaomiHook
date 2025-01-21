@@ -43,7 +43,6 @@ std::optional<std::string> Invincibility::on_initialize() {
 
 void Invincibility::on_draw_ui() {
     ImGui::Checkbox("Darkstep Invincibility", &mod_enabled);
-    help_marker("Gives Dark Steps invincibility for the entire duration of the slow down.");
 }
 
 // during load

@@ -15,7 +15,7 @@ public:
   // mod name string for config
   std::string get_mod_name() const override { return "HitstopSettings"; }
   std::string get_human_readable_name() const { return "Hitstop Settings"; }
-  const char* get_description() const override { return R"(Hitstop Settings)"; };
+  const char* get_description() const override { return R"(Adjust the duration of hitstop on attacks)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

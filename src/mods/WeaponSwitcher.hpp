@@ -17,7 +17,7 @@ public:
   // mod name string for config
   std::string get_mod_name() const override { return "WeaponSwitcher"; }
   std::string get_human_readable_name() const { return "Weapon Switcher"; }
-  const char* get_description() const override { return R"(Weapon Switcher)"; };
+  const char* get_description() const override { return R"(Enable NMH2 styled weapon switching. Choose Beam Katanas with the Directional Pad while in combat)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

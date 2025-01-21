@@ -13,7 +13,6 @@
 #include "mods/DisableCrashDumps.hpp"
 #include "mods/AcceptPadInputsTabbedOut.hpp"
 #include "mods/WeaponSwitcher.hpp"
-#include "mods/ForceFOV.hpp"
 #include "mods/StageWarp.hpp"
 #include "mods/ClothesSwitcher.hpp"
 #include "mods/LockOnSettings.hpp"
@@ -57,7 +56,6 @@ Mods::Mods()
     ADD_MOD(DisableCrashDumps);
     ADD_MOD(AcceptPadInputsTabbedOut);
     ADD_MOD(WeaponSwitcher);
-    ADD_MOD(ForceFOV);
     ADD_MOD(StageWarp);
     ADD_MOD(ClothesSwitcher);
     ADD_MOD(LockOnSettings);

@@ -37,7 +37,6 @@ std::optional<std::string> ReprisalSwap::on_initialize() {
 
 void ReprisalSwap::on_draw_ui() {
     ImGui::Checkbox("Reprisal Swap", &mod_enabled);
-    help_marker("Adds a new parry reprisal to the High attack button. Causes a soft knockdown and can initiate clashes.");
 }
 
 // during load

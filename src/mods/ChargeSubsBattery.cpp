@@ -52,22 +52,22 @@ std::optional<std::string> ChargeSubsBattery::on_initialize() {
 
 void ChargeSubsBattery::on_draw_ui() {
     ImGui::Checkbox("Charging Subtracts Battery", &mod_enabled);
-    if (mod_enabled) {
+    /*if (mod_enabled) {
         ImGui::Text("How many ticks required to sub 1 battery");
         ImGui::SliderInt("##customBatterySubSliderInt", &subWhenOver, 0, 10);
         help_marker("Default 0");
-    }
+    }*/
 }
 
 // during load
 void ChargeSubsBattery::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("charge_subs_battery").value_or(false);
-    subWhenOver = cfg.get<int>("customBatterySubAmount").value_or(0);
+    //subWhenOver = cfg.get<int>("customBatterySubAmount").value_or(0); // removed option so removing load too
 }
 // during save
 void ChargeSubsBattery::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("charge_subs_battery", mod_enabled);
-    cfg.set<int>("customBatterySubAmount", subWhenOver);
+    //cfg.set<int>("customBatterySubAmount", subWhenOver);
 }
 
 // do something every frame

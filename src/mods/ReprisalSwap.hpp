@@ -13,7 +13,7 @@ public:
   // mod name string for config
   std::string get_mod_name() const override { return "ReprisalSwap"; }
   std::string get_human_readable_name() const { return "Reprisal Swap"; }
-  const char* get_description() const override { return R"(Reprisal Swap)"; };
+  const char* get_description() const override { return R"(Adds a new parry reprisal to the High attack button. Causes a soft knockdown and can initiate clashes)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

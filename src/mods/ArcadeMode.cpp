@@ -120,7 +120,9 @@ std::optional<std::string> ArcadeMode::on_initialize() {
 
 void ArcadeMode::on_draw_ui() {
     ImGui::Checkbox("Arcade Mode", &mod_enabled);
-    help_marker("the bits of the game you might actually want to replay");
+    help_marker("Enable this option in the Motel then exit through the door to begin\n"
+        "To function flawlessly this currently requires a savegame with no story progress or you will get stuck. We're working on it!\n"
+        "For now if you get stuck you can teleport to a new area in Stage Warp while this is ticked to jump to the next part.");
 }
 
 // during load

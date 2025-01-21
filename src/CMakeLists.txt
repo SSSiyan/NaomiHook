@@ -9,8 +9,6 @@ set(MODS_SRC
     mods/DisableCrashDumps.cpp
     mods/AcceptPadInputsTabbedOut.hpp
     mods/AcceptPadInputsTabbedOut.cpp
-    mods/ForceFOV.hpp
-    mods/ForceFOV.cpp
     mods/StageWarp.hpp
     mods/StageWarp.cpp
     mods/PlayerTracker.hpp

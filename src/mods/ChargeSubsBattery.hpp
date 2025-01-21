@@ -14,8 +14,8 @@ public:
 
   // mod name string for config
   std::string get_mod_name() const override { return "ChargeSubsBattery"; }
-  std::string get_human_readable_name() const { return "Charge Subs Battery"; }
-  const char* get_description() const override { return R"(Charge Subs Battery)"; };
+  std::string get_human_readable_name() const { return "Charge Sutracts Battery"; }
+  const char* get_description() const override { return R"(Charge Subtracts Battery)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

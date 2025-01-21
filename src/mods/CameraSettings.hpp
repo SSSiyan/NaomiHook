@@ -8,13 +8,21 @@ public:
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
   static bool mod_enabled_screenshake;
   static uintptr_t Offset_84BA18;
-  static uintptr_t jmp_ret1;
+  static uintptr_t screenshake_jmp_ret1;
   static int customBasicScreenshakeAmount;
 
   static bool mod_enabled_first_person_x;
   static bool mod_enabled_darkside_x;
   void toggle_first_person_x(bool enable);
   void toggle_darkside_x(bool enable);
+
+  static bool force_fov;
+  static bool disable_attack_zoom;
+  static float custom_fov;
+  static float default_fov;
+  static uintptr_t fov_jmp_ret1;
+  static uintptr_t fov_jmp_ret2;
+  void fov_toggle(bool enable);
 
   // mod name string for config
   std::string get_mod_name() const override { return "CameraSettings"; }
@@ -38,4 +46,7 @@ public:
 private:
 	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
 	std::unique_ptr<Patch> m_patch_first_person_x, m_patch_darkside_x;
+
+	std::unique_ptr<FunctionHook> m_fov_hook1, m_fov_hook2;
+	std::unique_ptr<Patch> m_fov_patch;
 };
