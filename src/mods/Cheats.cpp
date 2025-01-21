@@ -59,7 +59,7 @@ void Cheats::on_draw_ui() {
         toggleSpendNoBattery(spend_no_battery);
     }
 
-    if (ImGui::Checkbox("Enemies Don't Attack", &spend_no_battery)) {
+    if (ImGui::Checkbox("Enemies Don't Attack", &enemies_dont_attack)) {
         toggleEnemiesDontAttack(enemies_dont_attack);
     }
 
