@@ -190,12 +190,6 @@ void WeaponSwitcher::on_draw_ui() {
         toggleForceMap(mod_enabled);
     }
     help_marker("Enable NMH2 styled weapon switching. Choose Beam Katanas with the Directional Pad while in combat.");
-
-    static pcItem equipID = SHIRT1;
-    ImGui::InputInt("Equip ID", (int*)&equipID);
-    if (ImGui::Button("Set Equip")) {
-        nmh_sdk::SetEquip(equipID, false);
-    }
 }
 
 // during load

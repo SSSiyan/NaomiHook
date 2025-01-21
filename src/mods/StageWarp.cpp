@@ -200,7 +200,7 @@ void ShowImageTable(const char* headerName, const std::array<StageWarp::Stage, N
     if (ImGui::CollapsingHeader(headerName)) {
         const int columns = 3;
         int rows = (stage_items.size() + columns - 1) / columns;
-        if (ImGui::BeginTable("ImageTable", columns, ImGuiTableFlags_Borders | ImGuiTableFlags_ScrollY)) {
+        if (ImGui::BeginTable("ImageTable", columns, ImGuiTableFlags_Borders)) {
             for (int row = 0; row < rows; ++row) {
                 ImGui::TableNextRow();
                 for (int column = 0; column < columns; ++column) {
