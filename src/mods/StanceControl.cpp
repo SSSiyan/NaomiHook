@@ -73,7 +73,7 @@ naked void detour1() { // originalcode writes stance blend to 0, we write actual
         mov eax, [StanceControl::gpPad]
         movss xmm0, [eax+0x64]
         pop eax
-        cmp dword ptr [esi+0x18C], 48 // guarding
+        cmp dword ptr [esi+0x18C], ePcMtGrdDfltLp // 48, guarding
         je guardMath
         divss xmm0, [StanceControl::r2Mult] // Gamepad reads 0-255
         subss xmm0, [StanceControl::r2Sub] // we need it to read -1 to 1

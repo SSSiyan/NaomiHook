@@ -22,19 +22,19 @@ naked void detour1() { // basic attacks // player in edi
         // newhitstop:
         push eax
         mov eax, [HitstopSettings::customBasicHitstopAmount]
-        mov dword ptr  [edi+0x000029AC],eax
+        mov dword ptr  [edi+0x000029AC], eax
         pop eax
         jmp dword ptr [HitstopSettings::jmp_ret1]
 
         darkhitstop:
         push eax
         mov eax, [HitstopSettings::customDarkHitstopAmount]
-        mov dword ptr  [edi+0x000029AC],eax
+        mov dword ptr  [edi+0x000029AC], eax
         pop eax
         jmp dword ptr [HitstopSettings::jmp_ret1]
 
         originalcode:
-        mov dword ptr [edi+0x000029AC],8
+        mov dword ptr [edi+0x000029AC], 8
         jmp dword ptr [HitstopSettings::jmp_ret1]
     }
 }

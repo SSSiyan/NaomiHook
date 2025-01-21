@@ -247,7 +247,6 @@ naked void roll_rotation_detour1() { // player in edi
             jmp dword ptr [DodgeSettings::roll_rotation_jmp_ret1]
     }
 }
-
  // clang-format on
 
 void DodgeSettings::toggle_disable_slowmo_darkstep(bool enable) {
@@ -324,7 +323,6 @@ void DodgeSettings::on_draw_ui() {
     }
     help_marker("Functionally alters Darksteps to not slow Travis down much like it does in NMH2.");
     
-
     ImGui::Checkbox("Roll Rotation", &roll_rotation_mod_enabled);
     help_marker("Make rolls orbit around your locked on target. Functions in a similar manner to NMH2.");
 }
@@ -336,6 +334,7 @@ void DodgeSettings::on_config_load(const utility::Config &cfg) {
     roll_forward_mod_enabled = cfg.get<bool>("roll_forward").value_or(false);
 
     disable_darkstep_slowmo_mod_enabled = cfg.get<bool>("disable_darkstep_slowmo").value_or(false);
+    toggle_disable_slowmo_darkstep(disable_darkstep_slowmo_mod_enabled);
 
     roll_rotation_mod_enabled = cfg.get<bool>("roll_rotation").value_or(false);
 }

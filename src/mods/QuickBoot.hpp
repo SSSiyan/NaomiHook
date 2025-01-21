@@ -19,7 +19,8 @@ public:
   // mod name string for config
   std::string get_mod_name() const override { return "QuickBoot"; }
   std::string get_human_readable_name() const { return "Quick Boot"; }
-  const char* get_description() const override { return R"(Load into the stage of your choice on boot rather than the default Motel. This skips the intro toilet sequences and loads your last checkpoint)"; };
+  const char* get_description() const override { return R"(Load into the stage of your choice on boot rather than the default Motel.
+This skips the intro toilet sequences and loads your last checkpoint)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

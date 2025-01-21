@@ -28,11 +28,11 @@ naked void detour1() { // show hp instead of hit number
             test eax, eax
             je originalcode
             mov eax, [eax+0x2b60] // enemy
-            test eax,eax
+            test eax, eax
             je originalcode
             push ecx
             mov ecx, [eax+0x360] // lock on HUD
-            test ecx,ecx
+            test ecx, ecx
             je popcode
             mov word ptr [ecx+0x8E], 3 // which lockon to show
             mov word ptr [ecx+0x95], 1 // display HIT
