@@ -1,6 +1,15 @@
 #include "StageWarp.hpp"
 #if 1
 
+struct Stage {
+    const char* name;
+    int id;
+    std::string description;
+};
+
+static int setStageArgs[7]{0, -1, -1, 0, 0, 0, 0};
+static int64_t inSetVolRateArg = 0;
+
 std::array<StageWarp::Stage, 78> StageWarp::stage_items = { // used elsewhere so part of StageWarp
     Stage {"STG000",   69, "Santa Destroy Overworld"},
     Stage {"STG0001",  69, "Beach Boss (Holly Summers)"},
@@ -108,7 +117,7 @@ static constexpr std::array<StageWarp::Stage, 17> zako_stages = {
     StageWarp::Stage {"STG030",   69, "Destroyman Zako 2"},
     StageWarp::Stage {"STG0002",  69, "Holly Summers Zako"},
     StageWarp::Stage {"STG051",   69, "Letz Shake Zako"},
-    StageWarp::Stage {"STG1708",   69, "Harvey Zako"},
+    StageWarp::Stage {"STG1708",  69, "Harvey Zako"},
     StageWarp::Stage {"STG00014", 69, "Speedbuster Zako"},
     StageWarp::Stage {"STG021",   69, "Bad Girl Zako"},
     StageWarp::Stage {"STG100",   69, "Darkstar Bike Zako"},
@@ -181,10 +190,40 @@ std::optional<std::string> StageWarp::on_initialize() {
     return Mod::on_initialize();
 }
 
-static int setStageArgs[7]{0, -1, -1, 0, 0, 0, 0};
-static int64_t inSetVolRateArg = 0;
+struct CellData {
+    ImTextureID image = nullptr;
+    char text[128] = "";
+};
 
-template <size_t N> // ??
+template <size_t N>
+void ShowImageTable(const char* headerName, const std::array<StageWarp::Stage, N>& stage_items) {
+    if (ImGui::CollapsingHeader(headerName)) {
+        const int columns = 3;
+        int rows = (stage_items.size() + columns - 1) / columns;
+        if (ImGui::BeginTable("ImageTable", columns, ImGuiTableFlags_Borders | ImGuiTableFlags_ScrollY)) {
+            for (int row = 0; row < rows; ++row) {
+                ImGui::TableNextRow();
+                for (int column = 0; column < columns; ++column) {
+                    ImGui::TableSetColumnIndex(column);
+                    int cellIndex = row * columns + column;
+                    if (cellIndex >= stage_items.size()) {
+                        continue;
+                    }
+                    const auto& stage = stage_items[cellIndex];
+                    ImVec2 squareSize = ImVec2(100, 100);
+                    if (ImGui::Button(stage.name, squareSize)) {
+                        nmh_sdk::SetStage(stage_items[cellIndex].name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
+                            setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
+                    }
+                    ImGui::TextWrapped(stage.info);
+                }
+            }
+            ImGui::EndTable();
+        }
+    }
+}
+
+/*template <size_t N>
 void DisplayStageSection(const char* headerName, const std::array<StageWarp::Stage, N>& stages) {
     if (ImGui::CollapsingHeader(headerName)) {
         for (size_t i = 0; i < stages.size(); ++i) {
@@ -196,7 +235,7 @@ void DisplayStageSection(const char* headerName, const std::array<StageWarp::Sta
             }
         }
     }
-}
+}*/
 
 void StageWarp::on_draw_ui() {
     if (nmh_sdk::get_CBgCtrl()) {
@@ -231,14 +270,22 @@ void StageWarp::on_draw_ui() {
             help_marker(argsHelpMarker);
         }
 
-        DisplayStageSection("All", StageWarp::stage_items);
+        /*DisplayStageSection("All", StageWarp::stage_items);
         DisplayStageSection("Bosses", boss_stages);
         DisplayStageSection("Zako", zako_stages);
         DisplayStageSection("City Interiors", city_stages);
         DisplayStageSection("Wii/Unused", wii_stages);
         DisplayStageSection("Miscellaneous", misc_stages);
-        DisplayStageSection("Toilets", save_stages);
+        DisplayStageSection("Toilets", save_stages);*/
     }
+    ShowImageTable("All", StageWarp::stage_items);
+    ShowImageTable("Bosses", boss_stages);
+    ShowImageTable("Zako", zako_stages);
+    ShowImageTable("City Interiors", city_stages);
+    ShowImageTable("Wii/Unused", wii_stages);
+    ShowImageTable("Miscellaneous", misc_stages);
+    ShowImageTable("Toilets", save_stages);
+
 }
 
 // during load
