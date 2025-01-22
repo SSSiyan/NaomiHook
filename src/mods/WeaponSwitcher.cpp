@@ -221,7 +221,7 @@ void WeaponSwitcher::on_frame() {
                         break;
                     case DPAD_RIGHT:
                         if (CanWeaponSwitch(TSUBAKI_MK3)) {
-                            nmh_sdk::SetMk3Equip();
+                            nmh_sdk::SetEquip(TSUBAKI_MK3, false);
                             weaponSwitchCooldown = 0.0f;
                         }
                         break;
