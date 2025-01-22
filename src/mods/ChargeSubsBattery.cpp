@@ -6,6 +6,10 @@ uintptr_t ChargeSubsBattery::mSubBattery = NULL;
 int ChargeSubsBattery::BatterySubCounter = 0;
 int ChargeSubsBattery::subWhenOver = 0;
 
+uintptr_t ChargeSubsBattery::jmp_ret2 = NULL;
+uintptr_t detour2_je1 = NULL;
+uintptr_t detour2_je2 = NULL;
+
 // clang-format off
 naked void detour1() { // ticks when effect starts // player in ebx
     __asm {
@@ -37,7 +41,40 @@ naked void detour1() { // ticks when effect starts // player in ebx
             jmp dword ptr [ChargeSubsBattery::jmp_ret1]
     }
 }
- 
+naked void detour2() { // mid sub battery func, skip mk3 compares if in certain moveids // player in esi
+    __asm {
+        // 
+            cmp byte ptr [ChargeSubsBattery::mod_enabled], 0
+            je originalcode
+
+            cmp dword ptr [esi+0x18C], 167 // low charging
+            je je_skipmk3
+            cmp dword ptr [esi+0x18C], 168 // low charging pt2
+            je je_skipmk3
+            cmp dword ptr [esi+0x18C], 170 // high charge
+            je je_skipmk3
+
+            cmp dword ptr [esi+0x18C], 169 // low mid charge hit
+            je je_skipmk3
+            cmp dword ptr [esi+0x18C], 290 // low full charge hit
+            je je_skipmk3
+            cmp dword ptr [esi+0x18C], 291 // low full charge hit 2
+            je je_skipmk3
+            cmp dword ptr [esi+0x18C], 292 // low full charge hit 3
+            je je_skipmk3
+
+        originalcode:
+            cmp eax, 9
+            je je_orig
+            jmp dword ptr [ChargeSubsBattery::jmp_ret2]
+
+        je_skipmk3:
+            jmp dword ptr [detour2_je1]
+
+        je_orig:
+            jmp dword ptr [detour2_je2]
+    }
+}
  // clang-format on
 
 std::optional<std::string> ChargeSubsBattery::on_initialize() {
@@ -45,6 +82,13 @@ std::optional<std::string> ChargeSubsBattery::on_initialize() {
     if (!install_hook_offset(0x3C57E7, m_hook1, &detour1, &ChargeSubsBattery::jmp_ret1, 6)) {
         spdlog::error("Failed to init ChargeSubsBattery mod\n");
         return "Failed to init ChargeSubsBattery mod";
+    }
+
+    detour2_je1 = g_framework->get_module().as<uintptr_t>() + 0x3C2A9F;
+    detour2_je2 = g_framework->get_module().as<uintptr_t>() + 0x3C2AE6;
+    if (!install_hook_offset(0x3C2A95, m_hook2, &detour2, &ChargeSubsBattery::jmp_ret2, 5)) {
+        spdlog::error("Failed to init ChargeSubsBattery 2 mod\n");
+        return "Failed to init ChargeSubsBattery 2 mod";
     }
 
     return Mod::on_initialize();
