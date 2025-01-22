@@ -223,7 +223,7 @@ void ShowImageTable(const char* headerName, const std::array<StageWarp::Stage, N
     }
 }
 
-/*template <size_t N>
+template <size_t N>
 void DisplayStageSection(const char* headerName, const std::array<StageWarp::Stage, N>& stages) {
     if (ImGui::CollapsingHeader(headerName)) {
         for (size_t i = 0; i < stages.size(); ++i) {
@@ -235,7 +235,7 @@ void DisplayStageSection(const char* headerName, const std::array<StageWarp::Sta
             }
         }
     }
-}*/
+}
 
 void StageWarp::on_draw_ui() {
     if (nmh_sdk::get_CBgCtrl()) {
@@ -270,21 +270,21 @@ void StageWarp::on_draw_ui() {
             help_marker(argsHelpMarker);
         }
 
-        /*DisplayStageSection("All", StageWarp::stage_items);
+        DisplayStageSection("All", StageWarp::stage_items);
         DisplayStageSection("Bosses", boss_stages);
         DisplayStageSection("Zako", zako_stages);
         DisplayStageSection("City Interiors", city_stages);
         DisplayStageSection("Wii/Unused", wii_stages);
         DisplayStageSection("Miscellaneous", misc_stages);
-        DisplayStageSection("Toilets", save_stages);*/
+        DisplayStageSection("Toilets", save_stages);
     }
-    ShowImageTable("All", StageWarp::stage_items);
-    ShowImageTable("Bosses", boss_stages);
-    ShowImageTable("Zako", zako_stages);
-    ShowImageTable("City Interiors", city_stages);
-    ShowImageTable("Wii/Unused", wii_stages);
-    ShowImageTable("Miscellaneous", misc_stages);
-    ShowImageTable("Toilets", save_stages);
+    // ShowImageTable("All", StageWarp::stage_items);
+    // ShowImageTable("Bosses", boss_stages);
+    // ShowImageTable("Zako", zako_stages);
+    // ShowImageTable("City Interiors", city_stages);
+    // ShowImageTable("Wii/Unused", wii_stages);
+    // ShowImageTable("Miscellaneous", misc_stages);
+    // ShowImageTable("Toilets", save_stages);
 
 }
 
