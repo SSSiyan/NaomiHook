@@ -4,6 +4,7 @@ bool Invincibility::mod_enabled = false;
 uintptr_t Invincibility::jmp_ret1 = NULL;
 uintptr_t Invincibility::jmp_ja1 = NULL;
 uintptr_t Invincibility::CBgCtrl = NULL;
+uintptr_t Invincibility::gpBattle = NULL;
 
 // clang-format off
 naked void detour1() { // mSetDamage+F9 // damage receiver in esi
@@ -12,18 +13,20 @@ naked void detour1() { // mSetDamage+F9 // damage receiver in esi
             cmp byte ptr [Invincibility::mod_enabled], 0
             je originalcode
 
-            push eax
-            mov eax, [Invincibility::CBgCtrl]
-            mov eax, [eax]
-            cmp word ptr [eax+0xaa8], 0 // is screen m_DarkSideModeColor?
-            pop eax
-            jg jmp_ja
+            test ecx, ecx // damage source I think
+            je originalcode
 
+            cmp word ptr [eax+0xaa8], 0 // is screen m_DarkSideModeColor?
+            jae jmp_ja
         originalcode:
             cmp byte ptr [esi+0x000029A7], 01 // mStageChangeMuteki
+        jmp_ret:
             jmp dword ptr [Invincibility::jmp_ret1]
 
         jmp_ja:
+            mov ecx, [Invincibility::gpBattle]
+            mov ecx, [ecx]
+            mov ecx, [ecx+0x164]
             jmp dword ptr [Invincibility::jmp_ja1]
     }
 }
@@ -32,6 +35,7 @@ naked void detour1() { // mSetDamage+F9 // damage receiver in esi
 
 std::optional<std::string> Invincibility::on_initialize() {
     Invincibility::CBgCtrl = g_framework->get_module().as<uintptr_t>() + 0x8446F0;
+    Invincibility::gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
     Invincibility::jmp_ja1 = g_framework->get_module().as<uintptr_t>() + 0x3D68FB;
     if (!install_hook_offset(0x3D5869, m_hook1, &detour1, &Invincibility::jmp_ret1, 7)) {
         spdlog::error("Failed to init Invincibility mod\n");

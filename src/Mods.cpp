@@ -72,8 +72,8 @@ Mods::Mods()
     ADD_MOD(ReprisalSwap);
     ADD_MOD(DisableMouse);
     ADD_MOD(SoundTracker);
-    ADD_MOD(QuickBoot);
     ADD_MOD(ArcadeMode);
+    ADD_MOD(QuickBoot); // requires ArcadeMode
     ADD_MOD(StanceControl);
     ADD_MOD(MoneyOnKillFix);
     ADD_MOD(Cheats);

@@ -10,6 +10,7 @@ public:
   static uintptr_t jmp_ret1;
   static uintptr_t jmp_ja1;
   static uintptr_t CBgCtrl;
+  static uintptr_t gpBattle;
 
   // mod name string for config
   std::string get_mod_name() const override { return "Invincibility"; }
