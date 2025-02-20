@@ -59,7 +59,8 @@ set(MODS_SRC
     mods/MoneyOnKillFix.cpp 
     mods/Cheats.hpp 
     mods/Cheats.cpp 
-
+    mods/KillObscuringTreasureChests.hpp
+    mods/KillObscuringTreasureChests.cpp
 )
 
 set(HOOKS_SRC

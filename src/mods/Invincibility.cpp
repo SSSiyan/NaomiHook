@@ -12,15 +12,12 @@ naked void detour1() { // mSetDamage+F9 // damage receiver in esi
         //
             cmp byte ptr [Invincibility::mod_enabled], 0
             je originalcode
-
-            test ecx, ecx // damage source I think
-            je originalcode
-
+            // @SIYAN add moveid compare to fix throw 4 crash
             cmp word ptr [eax+0xaa8], 0 // is screen m_DarkSideModeColor?
             jae jmp_ja
         originalcode:
             cmp byte ptr [esi+0x000029A7], 01 // mStageChangeMuteki
-        jmp_ret:
+        //jmp_ret:
             jmp dword ptr [Invincibility::jmp_ret1]
 
         jmp_ja:
