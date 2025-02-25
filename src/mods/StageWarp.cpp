@@ -269,7 +269,7 @@ void StageWarp::on_draw_ui() {
         else {
             help_marker(argsHelpMarker);
         }
-
+        // temp, before we get images
         DisplayStageSection("All", StageWarp::stage_items);
         DisplayStageSection("Bosses", boss_stages);
         DisplayStageSection("Zako", zako_stages);
@@ -278,6 +278,7 @@ void StageWarp::on_draw_ui() {
         DisplayStageSection("Miscellaneous", misc_stages);
         DisplayStageSection("Toilets", save_stages);
     }
+    // hopefully you can slot images into this table or maybe my table sucks idk
     // ShowImageTable("All", StageWarp::stage_items);
     // ShowImageTable("Bosses", boss_stages);
     // ShowImageTable("Zako", zako_stages);
@@ -285,7 +286,6 @@ void StageWarp::on_draw_ui() {
     // ShowImageTable("Wii/Unused", wii_stages);
     // ShowImageTable("Miscellaneous", misc_stages);
     // ShowImageTable("Toilets", save_stages);
-
 }
 
 // during load

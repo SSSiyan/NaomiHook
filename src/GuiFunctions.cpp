@@ -358,12 +358,13 @@ namespace gui {
 
             ImGui::Begin(PROJECT_NAME " " GUI_VERSION, window_open, ImGuiWindowFlags_NoCollapse);
             {
-                if (ImGui::Button("Save Config")) {
+                ImVec2 sz = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight());
+                if (ImGui::Button("Save Config", sz)) {
                     pmods->on_config_save();
                 }
-                ImGui::Spacing();
 
                 ImGui::PushFont(ctx->fancy_font);
+
                 draw_category(ctx, "GAMEPLAY",  ModCategory::GAMEPLAY);
                 draw_category(ctx, "COSMETICS", ModCategory::COSMETICS);
                 draw_category(ctx, "STAGE",     ModCategory::STAGE);
