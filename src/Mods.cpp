@@ -28,13 +28,14 @@
 #include "mods/Invincibility.hpp"
 #include "mods/ReprisalSwap.hpp"
 #include "mods/DisableMouse.hpp"
+#include "mods/Volume.hpp"
 #include "mods/SoundTracker.hpp"
 #include "mods/QuickBoot.hpp"
 #include "mods/ArcadeMode.hpp"
 #include "mods/StanceControl.hpp"
 #include "mods/MoneyOnKillFix.hpp"
 #include "mods/Cheats.hpp"
-#include "mods/KillObscuringTreasureChests.hpp";
+#include "mods/KillObscuringTreasureChests.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -72,6 +73,7 @@ Mods::Mods()
     ADD_MOD(Invincibility);
     ADD_MOD(ReprisalSwap);
     ADD_MOD(DisableMouse);
+    ADD_MOD(Volume);
     ADD_MOD(SoundTracker);
     ADD_MOD(ArcadeMode);
     ADD_MOD(QuickBoot); // requires ArcadeMode

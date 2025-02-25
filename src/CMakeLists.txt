@@ -61,6 +61,9 @@ set(MODS_SRC
     mods/Cheats.cpp 
     mods/KillObscuringTreasureChests.hpp
     mods/KillObscuringTreasureChests.cpp
+    mods/Volume.hpp 
+    mods/Volume.cpp 
+
 )
 
 set(HOOKS_SRC

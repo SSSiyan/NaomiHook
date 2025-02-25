@@ -4,10 +4,10 @@ bool KillObscuringTreasureChests::mod_enabled = false;
 
 void KillObscuringTreasureChests::toggle(bool enable) {
     if (enable) {
-        install_patch_offset(0x4E5470, patch1, "\x90\x90\x90\x90\x90", 5); // nop 5
+        install_patch_offset(0x4E5380, patch1, "\x90\x90\x90\x90\x90", 5); // nop 5
     }
     else {
-        install_patch_offset(0x4E5470, patch1, "\xE8\xEB\x00\x00\x00", 5); // call nmh.exe+4E5470
+        install_patch_offset(0x4E5380, patch1, "\xE8\xEB\x00\x00\x00", 5); // call nmh.exe+4E5470
     }
 }
 
@@ -23,7 +23,7 @@ void KillObscuringTreasureChests::on_draw_ui() {
 
 // during load
 void KillObscuringTreasureChests::on_config_load(const utility::Config &cfg) {
-    mod_enabled = cfg.get<bool>("kill_obscuring_treasure_chests").value_or(false);
+    mod_enabled = cfg.get<bool>("kill_obscuring_treasure_chests").value_or(true);
     toggle(mod_enabled);
 }
 // during save

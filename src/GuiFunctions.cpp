@@ -15,11 +15,11 @@
 #define GUI_VERSION "0.0.0"
 #define IMGUI_WINDOW_PADDING 10.0f
 
-#define IMGUI_WINDOW_BG_COLOR IM_COL32(48, 48, 48, 222)
-#define IMGUI_WINDOW_CT_COLOR IM_COL32(255, 201, 115, 255)
-#define IMGUI_WINDOW_IN_COLOR IM_COL32(189, 95, 88, 255)
+#define IMGUI_WINDOW_BG_COLOR IM_COL32(48, 48, 48, 222) // background
+#define IMGUI_WINDOW_CT_COLOR IM_COL32(255, 201, 115, 255) // header
+#define IMGUI_WINDOW_IN_COLOR IM_COL32(189, 95, 88, 255) // description
 
-#define IMGUI_WINDOW_ST_MODNAME_COLOR 0xffbfe6ff
+#define IMGUI_WINDOW_ST_MODNAME_COLOR 0xffbfe6ff // mod title at top right
 
 namespace gui {
     void dark_theme() {
@@ -286,7 +286,7 @@ namespace gui {
     static void draw_category(OurImGuiContext* ctx, const char* category_name, ModCategory category_enum) {
 
         static constexpr auto entry_func = [](OurImGuiContext* ctx, Mod* mod) {
-            ImColor color        = ImColor(170, 94, 88); // red
+            ImColor color        = ImColor(170, 94, 88); // cheat entry colour
             ImVec2 pos           = ImGui::GetCursorPos();
             std::string btn_name = mod->get_mod_name();
             btn_name += "_btn";
