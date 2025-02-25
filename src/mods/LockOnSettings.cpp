@@ -166,17 +166,13 @@ void LockOnSettings::on_draw_ui() {
     if (ImGui::Checkbox("Disable Parry QTEs removing your lockon", &lockon_parry_qtes)) {
         toggle_parry_qte_lockon(lockon_parry_qtes);
     }
-
-    ImGui::Separator();
-
     ImGui::Checkbox("Custom Target Switch Horizontal Limit", &horizontal_limit_toggle);
     if (horizontal_limit_toggle) {
-        ImGui::SliderFloat("Radians ##CustomSearchDegreesSliderFloat", &horizontal_limit_custom_search_degrees, 0.0f, 6.28f, "%.2f");
-        help_marker("1.57 default (90 degrees)\n6.28 is a full circle");
+        ImGui::Indent();
+        ImGui::SliderAngle("##CustomSearchDegreesSliderFloat", &horizontal_limit_custom_search_degrees, 0.0f, 360.0f, "%.0f");
+        help_marker("90 degrees default");
+        ImGui::Unindent();
     }
-
-    ImGui::Separator();
-
     ImGui::Checkbox("Lockon Disables Throws", &disable_throws_mod_enabled);
 }
 

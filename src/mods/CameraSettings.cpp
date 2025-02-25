@@ -116,30 +116,25 @@ std::optional<std::string> CameraSettings::on_initialize() {
 void CameraSettings::on_draw_ui() {
     ImGui::Checkbox("Custom Screenshake On Normal Attacks", &mod_enabled_screenshake);
     if (mod_enabled_screenshake) {
+        ImGui::Indent();
         ImGui::Text("Custom Screenshake Amount");
         ImGui::SliderInt("##CustomScreenshakeAmountSliderInt", &customBasicScreenshakeAmount, 0, 20);
         help_marker("Default 6");
+        ImGui::Unindent();
     }
-
-    ImGui::Separator();
-
     if (ImGui::Checkbox("Invert X Axis During First Person", &mod_enabled_first_person_x)) {
         toggle_first_person_x(mod_enabled_first_person_x);
     }
     if (ImGui::Checkbox("Invert X Axis During Darkside", &mod_enabled_darkside_x)) {
         toggle_darkside_x(mod_enabled_darkside_x);
     }
-
-    ImGui::Separator();
-
     ImGui::Checkbox("Custom FOV", &force_fov);
     if (force_fov) {
+        ImGui::Indent();
         ImGui::SliderFloat("##CustomFOVSliderFloat", &CameraSettings::custom_fov, 1.0f, 180.0f, "%.0f");
         help_marker("Default 55");
+        ImGui::Unindent();
     }
-
-    ImGui::Separator();
-
     if (ImGui::Checkbox("Disable Attack Camera Zoom", &disable_attack_zoom)) {
         fov_toggle(disable_attack_zoom);
     }

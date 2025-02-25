@@ -489,8 +489,7 @@ static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImCol
 void SwordColours::on_draw_ui() {
     ImGui::Checkbox("Custom Colours", &mod_enabled);
     if (mod_enabled) {
-        ImGui::InputInt("Deathblow Timer", &setDeathblowTimer);
-        help_marker("Turn the Beam Katana the color of your choice during a Death Blow. A feature inspired by NMH3, this timer controls how long the colour will stay applied when initiating a Deathblow");
+        ImGui::Indent();
         for (size_t i = 0; i < swords.size(); i++) {
             draw_sword_behavior(swords[i].name, swords[i].blade, swords[i].hilt, colours_picked_rgba[i], colours_picked_rgbaInt[i]);
         }
@@ -501,6 +500,10 @@ void SwordColours::on_draw_ui() {
             i = (i + 1) % 4;
         }
         draw_sword_behavior("Deathblow", swords[i].blade, swords[i].hilt, colours_picked_rgba[4], colours_picked_rgbaInt[4]);
+        ImGui::Text("Deathblow Timer");
+        ImGui::InputInt("##DeathblowTimerInputInt", &setDeathblowTimer);
+        help_marker("Turn the Beam Katana the color of your choice during a Death Blow. A feature inspired by NMH3, this timer controls how long the colour will stay applied when initiating a Deathblow");
+        ImGui::Unindent();
     }
 }
 

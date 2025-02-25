@@ -202,12 +202,14 @@ void SprintSettings::on_draw_ui() {
     ImGui::Checkbox("Battle Sprint", &battleSprint);
     help_marker("Enable sprinting in combat that consumes no Stamina, similar to NMH3. Requires Memory of Child. Click in the Left Stick to initiate.");
     if (battleSprint) {
+        ImGui::Indent();
         ImGui::Text("Sprint Speed");
         ImGui::SliderFloat("##SprintSpeedSliderFloat", &sprintSpeed, 0, 5, "%.2f");
         help_marker("Default 2.0f");
         ImGui::Text("Battle Sprint Speed");
         ImGui::SliderFloat("##battleSprintSpeedSliderFloat", &battleSprintSpeed, 0, 5, "%.2f");
         help_marker("Default 1.35f");
+        ImGui::Unindent();
     }
 }
 

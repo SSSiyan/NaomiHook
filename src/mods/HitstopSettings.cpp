@@ -54,12 +54,14 @@ std::optional<std::string> HitstopSettings::on_initialize() {
 void HitstopSettings::on_draw_ui() {
     ImGui::Checkbox("Custom Hitstop On Normal Attacks", &mod_enabled);
     if (mod_enabled) {
+        ImGui::Indent();
         ImGui::Text("Custom Hitstop Amount");
         ImGui::SliderInt("##customBasicHitstopAmountSliderInt", &customBasicHitstopAmount, 0, 20);
         help_marker("Default 8");
         ImGui::Text("Custom Darkstep Hitstop Amount");
         ImGui::SliderInt("##customDarkHitstopAmountSliderInt", &customDarkHitstopAmount, 0, 20);
         help_marker("Default 8");
+        ImGui::Unindent();
     }
 }
 

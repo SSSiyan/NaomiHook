@@ -51,9 +51,11 @@ std::optional<std::string> DebugText::on_initialize() {
 void DebugText::on_draw_ui() {
     ImGui::Checkbox("Draw Debug Text", &mod_enabled);
     if (mod_enabled) {
+        ImGui::Indent();
         ImGui::SliderFloat("xPos", &xPos, 0.0f, 854.0f, "%.0f");
         ImGui::SliderFloat("yPos", &yPos, 0.0f, 480.0f, "%.0f");
         ImGui::InputText("##customDebugInputText", &customDebugString[0], 256);
+        ImGui::Unindent();
     }
 }
 

@@ -86,21 +86,21 @@ void HPHitNumber::on_draw_ui() {
     if (ImGui::Checkbox("HP Hit Number", &mod_enabled)) {
         toggle(mod_enabled);
     }
-    ImGui::Text("HP Number Vertical Offset");
-    ImGui::SliderFloat("## HP number vertical offset inputfloat", &verticalOffset, 0.0f, 500.0f, "%.0f");
-    help_marker("I never tested this at other resolutions so leaving the option here\nDefault 285");
+    //ImGui::Text("HP Number Vertical Offset");
+    //ImGui::SliderFloat("## HP number vertical offset inputfloat", &verticalOffset, 0.0f, 500.0f, "%.0f");
+    //help_marker("I never tested this at other resolutions so leaving the option here\nDefault 285");
 }
 
 // during load
 void HPHitNumber::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("hpHitNumber").value_or(false);
     toggle(mod_enabled);
-    verticalOffset = cfg.get<float>("hpHitNumberVerticalOffset").value_or(285.0f);
+    //verticalOffset = cfg.get<float>("hpHitNumberVerticalOffset").value_or(285.0f);
 }
 // during save
 void HPHitNumber::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("hpHitNumber", mod_enabled);
-    cfg.set<float>("hpHitNumberVerticalOffset", verticalOffset);
+    //cfg.set<float>("hpHitNumberVerticalOffset", verticalOffset);
 }
 
 // do something every frame

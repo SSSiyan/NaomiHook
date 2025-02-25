@@ -358,8 +358,12 @@ namespace gui {
 
             ImGui::Begin(PROJECT_NAME " " GUI_VERSION, window_open, ImGuiWindowFlags_NoCollapse);
             {
-                ImGui::PushFont(ctx->fancy_font);
+                if (ImGui::Button("Save Config")) {
+                    pmods->on_config_save();
+                }
+                ImGui::Spacing();
 
+                ImGui::PushFont(ctx->fancy_font);
                 draw_category(ctx, "GAMEPLAY",  ModCategory::GAMEPLAY);
                 draw_category(ctx, "COSMETICS", ModCategory::COSMETICS);
                 draw_category(ctx, "STAGE",     ModCategory::STAGE);
@@ -368,16 +372,13 @@ namespace gui {
 
                 ImGui::PopFont();
             }
-            static bool showImGuiDemoWindow = false;
+            /*static bool showImGuiDemoWindow = false;
             ImGui::Checkbox("Show ImGui Demo Window", &showImGuiDemoWindow);
             help_marker("Check out tools>style editor to play with changes to appearance.\n"
                 "Check out widgets to see if there's anything else you wanna use somewhere");
             if (showImGuiDemoWindow) {
                 ImGui::ShowDemoWindow();
-            }
-            if (ImGui::Button("Save Config")) {
-                pmods->on_config_save();
-            }
+            }*/
             ImGui::End();
         }
     }
