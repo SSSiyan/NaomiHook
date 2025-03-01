@@ -1,10 +1,12 @@
-#include "WeaponSwitcher.hpp"
+﻿#include "WeaponSwitcher.hpp"
 #if 1
 
 bool WeaponSwitcher::mod_enabled = false;
 uintptr_t WeaponSwitcher::jmp_ret1 = NULL;
 uintptr_t WeaponSwitcher::jmp_ret2 = NULL;
-int WeaponSwitcher::weaponSwitchCooldown = 20;
+int WeaponSwitcher::weaponSwitchCooldown = 50;
+int directionPressed = 0;
+bool WeaponSwitcher::weapon_switcher_ui = false;
 
 // Disable toggling the map while Weapon Switcher is active
 void WeaponSwitcher::toggleForceMap(bool enable) {
@@ -36,6 +38,7 @@ bool WeaponSwitcher::CanWeaponSwitch(pcItem desiredWeapon) {
             currentMoveID != ePcMtStpF &&
             currentMoveID != ePcMtAvdR &&
             currentMoveID != ePcMtAvdL) {
+            directionPressed = desiredWeapon;
             return true;
         }
     }
@@ -189,17 +192,99 @@ void WeaponSwitcher::on_draw_ui() {
     if (ImGui::Checkbox("Weapon Switcher", &mod_enabled)) {
         toggleForceMap(mod_enabled);
     }
+    ImGui::Checkbox("Display UI", &weapon_switcher_ui);
 }
 
-// during load
-void WeaponSwitcher::on_config_load(const utility::Config &cfg) {
-    mod_enabled = cfg.get<bool>("weapon_switcher").value_or(false);
-    toggleForceMap(mod_enabled);
-}
+void WeaponSwitcher::Display_UI() {
+    // Full-size invisible window
+    ImVec2 screenSize = ImGui::GetIO().DisplaySize;
+    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(screenSize);
+    ImGui::Begin("WeaponSwitchPopup", NULL, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs);
 
-// during save
-void WeaponSwitcher::on_config_save(utility::Config &cfg) {
-    cfg.set<bool>("weapon_switcher", mod_enabled);
+    int animationDuration = 50;  // Define the cooldown duration
+    ImVec2 dpadSize(100, 100);
+    ImVec2 weaponSize(100, 100);
+
+    // DPad position (moved a bit to the right)
+    ImVec2 centerPos = ImVec2((screenSize.x * 0.5f) + 200, screenSize.y * 0.5f);
+
+    static ImVec2 w1Offset(0, 0), w2Offset(0, 0), w3Offset(0, 0), w4Offset(0, 0);
+
+    float baseAlpha = 0.2f;  // Default transparency for non-selected buttons
+    float selectedAlpha = 0.7f; // Higher transparency for the selected button
+
+    float alphaValue = 0.0f;
+    int selectedWeapon = -1; // Track which weapon is selected
+
+    if (weaponSwitchCooldown > 0 && weaponSwitchCooldown <= animationDuration) {
+        float progress = weaponSwitchCooldown / (float)animationDuration;
+        float moveDistance = 20.0f * progress;
+
+        // Fade logic
+        if (weaponSwitchCooldown <= (animationDuration / 2)) {
+            alphaValue = (weaponSwitchCooldown / (float)(animationDuration / 2)) * 0.5f;
+        } else {
+            alphaValue = ((animationDuration - weaponSwitchCooldown) / (float)(animationDuration / 2)) * 0.5f;
+        }
+
+        // Reset movement offsets
+        w1Offset = w2Offset = w3Offset = w4Offset = ImVec2(0, 0);
+
+        // Move the selected button and mark it as selected
+        if (directionPressed == 0) { w1Offset.y = -moveDistance; selectedWeapon = 0; } // Up
+        if (directionPressed == 2) { w2Offset.x = -moveDistance; selectedWeapon = 1; } // Left
+        if (directionPressed == 1) { w3Offset.x = moveDistance;  selectedWeapon = 2; } // Right
+        if (directionPressed == 3) { w4Offset.y = moveDistance;  selectedWeapon = 3; } // Down
+    }
+
+    if (weaponSwitchCooldown > animationDuration) {
+        w1Offset = w2Offset = w3Offset = w4Offset = ImVec2(0, 0);
+        alphaValue = 0.0f;
+    }
+
+    if (alphaValue > 0.0f) {
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alphaValue);
+
+        float w1Alpha = (selectedWeapon == 0) ? selectedAlpha : baseAlpha;
+        float w2Alpha = (selectedWeapon == 1) ? selectedAlpha : baseAlpha;
+        float w3Alpha = (selectedWeapon == 2) ? selectedAlpha : baseAlpha;
+        float w4Alpha = (selectedWeapon == 3) ? selectedAlpha : baseAlpha;
+        float dpadAlpha = baseAlpha;
+
+        // Up Weapon
+        ImGui::SetCursorPos(ImVec2(centerPos.x - weaponSize.x * 0.5f, centerPos.y - dpadSize.y - 10 + w1Offset.y));
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 1, 1, w1Alpha));
+        if (ImGui::Button("BLOOD\nBERRY", weaponSize)) {}
+        ImGui::PopStyleColor();
+
+        // Left Weapon
+        ImGui::SetCursorPos(ImVec2(centerPos.x - (dpadSize.x * 0.5f) - weaponSize.x - 10 + w2Offset.x, centerPos.y));
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 1, 1, w2Alpha));
+        if (ImGui::Button("TSUBAKI\nMK1", weaponSize)) {}
+        ImGui::PopStyleColor();
+
+        // DPad (fading in/out with the unselected alpha)
+        ImGui::SetCursorPos(ImVec2(centerPos.x - dpadSize.x * 0.5f, centerPos.y));
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 1, 1, dpadAlpha));
+        ImGui::Button("DPad", dpadSize);
+        ImGui::PopStyleColor();
+
+        // Right Weapon
+        ImGui::SetCursorPos(ImVec2(centerPos.x + (dpadSize.x * 0.5f) + 10 + w3Offset.x, centerPos.y));
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 1, 1, w3Alpha));
+        if (ImGui::Button("TSUBAKI\nMK3", weaponSize)) {}
+        ImGui::PopStyleColor();
+
+        // Down Weapon
+        ImGui::SetCursorPos(ImVec2(centerPos.x - weaponSize.x * 0.5f, centerPos.y + dpadSize.y + 10 + w4Offset.y));
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 1, 1, w4Alpha));
+        if (ImGui::Button("TSUBAKI\nMK2", weaponSize)) {}
+        ImGui::PopStyleColor();
+
+        ImGui::PopStyleVar();
+    }
+    ImGui::End();
 }
 
 void WeaponSwitcher::on_frame() {
@@ -283,6 +368,9 @@ void WeaponSwitcher::on_frame() {
             }
             previousSwordEquipRead = player->mPcStatus.equip[0].readProc;*/
             weaponSwitchCooldown++;
+            if (weapon_switcher_ui) {
+                Display_UI();
+            }
         }
     }
 }
@@ -290,4 +378,18 @@ void WeaponSwitcher::on_frame() {
 // will show up in debug window, dump ImGui widgets you want here
 //void WeaponSwitcher::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here
+
+// during load
+void WeaponSwitcher::on_config_load(const utility::Config &cfg) {
+    mod_enabled = cfg.get<bool>("weapon_switcher").value_or(false);
+    toggleForceMap(mod_enabled);
+    weapon_switcher_ui = cfg.get<bool>("weapon_switcher_ui").value_or(false);
+}
+
+// during save
+void WeaponSwitcher::on_config_save(utility::Config &cfg) {
+    cfg.set<bool>("weapon_switcher", mod_enabled);
+    cfg.set<bool>("weapon_switcher_ui", weapon_switcher_ui);
+}
+
 #endif
