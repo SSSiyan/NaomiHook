@@ -189,6 +189,16 @@ namespace nmh_sdk {
         return true; // player ptr invalid
     }
 
+    // Take 3d pos, put screen space pos in Dest
+    bool GetScreenPos(Vec* Src, Vec* Dest) {
+        uintptr_t getScreenPosAddress = (g_framework->get_module().as<uintptr_t>() + 0x5E8560);
+        mGetScreenPosFunc getScreenPos = (mGetScreenPosFunc)getScreenPosAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            return getScreenPos(Src, Dest);
+        }
+        return true;
+    }
+
     // Spawn enemies
     int setInitNpcDat(int inResNo, enCharaType inChType, int inRepop, const Vec* inPos, const Vec* inRot, enPopReqType inPopType, bool inDisEnableCollision) {
         uintptr_t mSetInitNpcDatAddress = (g_framework->get_module().as<uintptr_t>() + 0x3B6B30);

@@ -24,6 +24,7 @@ namespace nmh_sdk {
 	typedef void(__thiscall* mStartBellFunc)(mHRPc* mHRPc);
 	typedef void(__thiscall* mStartHopperFunc)(mHRPc* mHRPc);
 	typedef void(__thiscall* mStartCherryFunc)(mHRPc* mHRPc);
+	typedef char(__fastcall* mGetScreenPosFunc)(const Vec* Src, Vec* Dest);
 	void SetStage(const char* _StgName, int _StageAdd, int _Arg1, int _Arg2, bool inBossInfoDisp, int inFadeType, __int64 inSetVolRate, bool inPause, unsigned int a10);
 	void SetVisible(bool inVisible);
 	bool PlayMotion(pcMotion inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate);
@@ -40,4 +41,5 @@ namespace nmh_sdk {
 	bool StartBell();
 	bool StartHopper();
 	bool StartCherry();
+	bool GetScreenPos(Vec* Src, Vec* Dest);
 };

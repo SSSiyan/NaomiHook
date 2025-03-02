@@ -63,6 +63,19 @@ void DrawEnemyStats() {
         }
     }
 
+    // attach the menu to enemies
+    /*if (mpLockOnNpc) {
+        ImVec2 screenSize = ImGui::GetIO().DisplaySize;
+        Vec playerPos = mpLockOnNpc->mStatus.pos;
+        //playerPos.y += 10.0f;
+        Vec screenPlayerPos{ 0.0f, 0.0f, 0.0f };
+        nmh_sdk::GetScreenPos(&playerPos, &screenPlayerPos);
+        float scaleX = screenSize.x / 854.0f;
+        float scaleY = screenSize.y / 480.0f;
+        ImVec2 scaledPos(screenPlayerPos.x * scaleX, screenPlayerPos.y * scaleY);
+        ImGui::SetWindowPos(ImVec2(scaledPos.x, scaledPos.y));
+    }*/
+
     if (ImGui::CollapsingHeader("mpLockOnNpc")) {
         if (mpLockOnNpc) {
             ImGui::InputFloat("mDistFromPc", &mpLockOnNpc->mDistFromPc);

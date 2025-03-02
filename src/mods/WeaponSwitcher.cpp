@@ -317,7 +317,21 @@ void WeaponSwitcher::Display_UI() {
     }
 
     if (alphaValue > 0.0f) {
-        ImGui::SetCursorPos(ImVec2(centerPos.x - weaponSize.x * 0.5f + weaponOffset.x, centerPos.y - weaponSize.y * 0.5f + weaponOffset.y));
+        // attach to the character
+        if (mHRPc* player = nmh_sdk::get_mHRPc()) {
+            Vec playerPos = player->mCharaStatus.pos;
+            playerPos.y += 10.0f; // how far up the character
+            Vec screenPlayerPos{ 0.0f, 0.0f, 0.0f };
+            nmh_sdk::GetScreenPos(&playerPos, &screenPlayerPos);
+            float scaleX = screenSize.x / 854.0f; // scale from internal res to game res
+            float scaleY = screenSize.y / 480.0f;
+            ImVec2 scaledPos(screenPlayerPos.x * scaleX, screenPlayerPos.y * scaleY);
+            ImGui::SetCursorPos(ImVec2(scaledPos.x - weaponSize.x * 0.5f + weaponOffset.x, scaledPos.y - weaponSize.y * 0.5f + weaponOffset.y));
+        }
+
+        // or just let it float
+        // ImGui::SetCursorPos(ImVec2(centerPos.x - weaponSize.x * 0.5f + weaponOffset.x, centerPos.y - weaponSize.y * 0.5f + weaponOffset.y));
+
         if (directionPressed == 0) {ImGui::Image(g_sword_switch_texture_atlas->GetTexture(), weaponSize, Blood_Berry.uv0, Blood_Berry.uv1, ImVec4(1,1,1,alphaValue));}
         if (directionPressed == 1) {ImGui::Image(g_sword_switch_texture_atlas->GetTexture(), weaponSize, Mk_3.uv0, Mk_3.uv1, ImVec4(1,1,1,alphaValue));}
         if (directionPressed == 2) {ImGui::Image(g_sword_switch_texture_atlas->GetTexture(), weaponSize, Mk_1.uv0, Mk_1.uv1, ImVec4(1,1,1,alphaValue));}
