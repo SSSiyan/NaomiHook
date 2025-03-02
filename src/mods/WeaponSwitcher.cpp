@@ -319,8 +319,8 @@ void WeaponSwitcher::Display_UI() {
     if (alphaValue > 0.0f) {
         // attach to the character
         if (mHRPc* player = nmh_sdk::get_mHRPc()) {
-            Vec playerPos = player->mCharaStatus.pos;
-            playerPos.y += 10.0f; // how far up the character
+            Vec playerPos = player->mCharaStatus.navelPos;
+            //playerPos.y += 10.0f; // how far up the character
             Vec screenPlayerPos{ 0.0f, 0.0f, 0.0f };
             nmh_sdk::GetScreenPos(&playerPos, &screenPlayerPos);
             float scaleX = screenSize.x / 854.0f; // scale from internal res to game res
