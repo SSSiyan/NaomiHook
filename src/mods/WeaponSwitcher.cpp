@@ -1,11 +1,75 @@
 ﻿#include "WeaponSwitcher.hpp"
+#include "utility/Compressed.hpp"
+#include "intrin.h"
+#include "fw-imgui/Texture2DD3D11.hpp"
+#include "fw-imgui/SwordSwitchAtlas.cpp"
+
 #if 1
+
+// directx stuff
+static std::unique_ptr<Texture2DD3D11> g_sword_switch_texture_atlas{};
+
+#pragma region TextureAtlasDefinitions
+
+struct Frame {
+    ImVec2 pos, size;
+    ImVec2 uv0, uv1;
+};
+
+struct TextureAtlas {
+    static constexpr auto Blood_Berry() {
+        return Frame{
+            ImVec2{ 0.0f, 0.0f },
+            ImVec2{ 512.0f, 512.0f },
+            ImVec2{ 0.0f / 1024.0f, 0.0f / 1024.0f },
+            ImVec2{ 512.0f / 1024.0f, 512.0f / 1024.0f }
+        };
+    }
+    static constexpr auto Mk_1() {
+        return Frame{
+            ImVec2{ 512.0f, 0.0f },
+            ImVec2{ 512.0f, 512.0f },
+            ImVec2{ 512.0f / 1024.0f, 0.0f / 1024.0f },
+            ImVec2{ 1024.0f / 1024.0f, 512.0f / 1024.0f }
+        };
+    }
+    static constexpr auto Mk_2() {
+        return Frame{
+            ImVec2{ 0.0f, 512.0f },
+            ImVec2{ 512.0f, 512.0f },
+            ImVec2{ 0.0f / 1024.0f, 512.0f / 1024.0f },
+            ImVec2{ 512.0f / 1024.0f, 1024.0f / 1024.0f }
+        };
+    }
+    static constexpr auto Mk_3() {
+        return Frame{
+            ImVec2{ 512.0f, 512.0f },
+            ImVec2{ 512.0f, 512.0f },
+            ImVec2{ 512.0f / 1024.0f, 512.0f / 1024.0f },
+            ImVec2{ 1024.0f / 1024.0f, 1024.0f / 1024.0f }
+        };
+    }
+    static constexpr auto meta_size() {
+        return ImVec2{ 1024.0f, 1024.0f };
+    }
+};
+
+
+static constexpr TextureAtlas g_atlas{};
+Frame Blood_Berry = g_atlas.Blood_Berry();
+Frame Mk_1 = g_atlas.Mk_1();
+Frame Mk_2 = g_atlas.Mk_2();
+Frame Mk_3 = g_atlas.Mk_3();
+
+#pragma endregion
 
 bool WeaponSwitcher::mod_enabled = false;
 uintptr_t WeaponSwitcher::jmp_ret1 = NULL;
 uintptr_t WeaponSwitcher::jmp_ret2 = NULL;
-int WeaponSwitcher::weaponSwitchCooldown = 50;
-int directionPressed = 0;
+int WeaponSwitcher::weaponSwitchCooldown = 80; // this is what ticks
+static int weaponSwitchLockedFrames = 10; // this locks you out from weapon switching
+static int animationDuration = WeaponSwitcher::weaponSwitchCooldown;
+static int directionPressed = 0;
 bool WeaponSwitcher::weapon_switcher_ui = false;
 
 // Disable toggling the map while Weapon Switcher is active
@@ -174,6 +238,20 @@ naked void detour2() { // play weapon anims // player in esi
 }
  // clang-format on
 
+bool load_weapon_switcher_texture() {
+    auto [data, size] = utility::decompress_file_from_memory_with_size(sword_switch_compressed_data, sword_switch_compressed_size);
+    if (!data) {
+        return false;
+    }
+
+    g_sword_switch_texture_atlas = std::make_unique<Texture2DD3D11>((const unsigned char*)data, size, g_framework->d3d11()->get_device());
+    if (!g_sword_switch_texture_atlas->IsValid()) {
+        return false;
+    }
+
+    return true;
+}
+
 std::optional<std::string> WeaponSwitcher::on_initialize() {
     if (!install_hook_offset(0x3DC561, m_hook1, &detour1, &WeaponSwitcher::jmp_ret1, 8)) {
         spdlog::error("Failed to init WeaponSwitcher mod\n");
@@ -185,6 +263,8 @@ std::optional<std::string> WeaponSwitcher::on_initialize() {
         return "Failed to init WeaponSwitcher mod";
     }
 
+    load_weapon_switcher_texture();
+
     return Mod::on_initialize();
 }
 
@@ -195,94 +275,53 @@ void WeaponSwitcher::on_draw_ui() {
     ImGui::Checkbox("Display UI", &weapon_switcher_ui);
 }
 
+void WeaponSwitcher::on_d3d_reset() {
+    // explicitly call the destructor first
+    g_sword_switch_texture_atlas.reset();
+    load_weapon_switcher_texture();
+}
+
 void WeaponSwitcher::Display_UI() {
-    // Full-size invisible window
     ImVec2 screenSize = ImGui::GetIO().DisplaySize;
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::SetNextWindowSize(screenSize);
     ImGui::Begin("WeaponSwitchPopup", NULL, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs);
 
-    int animationDuration = 50;  // Define the cooldown duration
-    ImVec2 dpadSize(100, 100);
-    ImVec2 weaponSize(100, 100);
-
-    // DPad position (moved a bit to the right)
-    ImVec2 centerPos = ImVec2((screenSize.x * 0.5f) + 200, screenSize.y * 0.5f);
-
-    static ImVec2 w1Offset(0, 0), w2Offset(0, 0), w3Offset(0, 0), w4Offset(0, 0);
-
-    float baseAlpha = 0.2f;  // Default transparency for non-selected buttons
-    float selectedAlpha = 0.7f; // Higher transparency for the selected button
-
+    ImVec2 weaponSize(200, 200);
+    ImVec2 centerPos = ImVec2((screenSize.x * 0.5f), (screenSize.y * 0.5f) + 200);
+    static ImVec2 weaponOffset(0, 0);
     float alphaValue = 0.0f;
-    int selectedWeapon = -1; // Track which weapon is selected
 
     if (weaponSwitchCooldown > 0 && weaponSwitchCooldown <= animationDuration) {
         float progress = weaponSwitchCooldown / (float)animationDuration;
         float moveDistance = 20.0f * progress;
-
-        // Fade logic
+        
+        // Fade
         if (weaponSwitchCooldown <= (animationDuration / 2)) {
-            alphaValue = (weaponSwitchCooldown / (float)(animationDuration / 2)) * 0.5f;
+            alphaValue = (weaponSwitchCooldown / (float)(animationDuration / 2));
         } else {
-            alphaValue = ((animationDuration - weaponSwitchCooldown) / (float)(animationDuration / 2)) * 0.5f;
+            alphaValue = ((animationDuration - weaponSwitchCooldown) / (float)(animationDuration / 2));
         }
-
-        // Reset movement offsets
-        w1Offset = w2Offset = w3Offset = w4Offset = ImVec2(0, 0);
-
-        // Move the selected button and mark it as selected
-        if (directionPressed == 0) { w1Offset.y = -moveDistance; selectedWeapon = 0; } // Up
-        if (directionPressed == 2) { w2Offset.x = -moveDistance; selectedWeapon = 1; } // Left
-        if (directionPressed == 1) { w3Offset.x = moveDistance;  selectedWeapon = 2; } // Right
-        if (directionPressed == 3) { w4Offset.y = moveDistance;  selectedWeapon = 3; } // Down
+        
+        // Movement
+        weaponOffset = ImVec2(0, 0);
+        if (directionPressed == 0) { weaponOffset.y = -moveDistance;} // Up
+        if (directionPressed == 2) { weaponOffset.x = -moveDistance;} // Left
+        if (directionPressed == 1) { weaponOffset.x =  moveDistance;} // Right
+        if (directionPressed == 3) { weaponOffset.y =  moveDistance;} // Down
     }
 
     if (weaponSwitchCooldown > animationDuration) {
-        w1Offset = w2Offset = w3Offset = w4Offset = ImVec2(0, 0);
+        weaponOffset = ImVec2(0, 0);
         alphaValue = 0.0f;
     }
 
     if (alphaValue > 0.0f) {
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alphaValue);
-
-        float w1Alpha = (selectedWeapon == 0) ? selectedAlpha : baseAlpha;
-        float w2Alpha = (selectedWeapon == 1) ? selectedAlpha : baseAlpha;
-        float w3Alpha = (selectedWeapon == 2) ? selectedAlpha : baseAlpha;
-        float w4Alpha = (selectedWeapon == 3) ? selectedAlpha : baseAlpha;
-        float dpadAlpha = baseAlpha;
-
-        // Up Weapon
-        ImGui::SetCursorPos(ImVec2(centerPos.x - weaponSize.x * 0.5f, centerPos.y - dpadSize.y - 10 + w1Offset.y));
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 1, 1, w1Alpha));
-        if (ImGui::Button("BLOOD\nBERRY", weaponSize)) {}
-        ImGui::PopStyleColor();
-
-        // Left Weapon
-        ImGui::SetCursorPos(ImVec2(centerPos.x - (dpadSize.x * 0.5f) - weaponSize.x - 10 + w2Offset.x, centerPos.y));
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 1, 1, w2Alpha));
-        if (ImGui::Button("TSUBAKI\nMK1", weaponSize)) {}
-        ImGui::PopStyleColor();
-
-        // DPad (fading in/out with the unselected alpha)
-        ImGui::SetCursorPos(ImVec2(centerPos.x - dpadSize.x * 0.5f, centerPos.y));
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 1, 1, dpadAlpha));
-        ImGui::Button("DPad", dpadSize);
-        ImGui::PopStyleColor();
-
-        // Right Weapon
-        ImGui::SetCursorPos(ImVec2(centerPos.x + (dpadSize.x * 0.5f) + 10 + w3Offset.x, centerPos.y));
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 1, 1, w3Alpha));
-        if (ImGui::Button("TSUBAKI\nMK3", weaponSize)) {}
-        ImGui::PopStyleColor();
-
-        // Down Weapon
-        ImGui::SetCursorPos(ImVec2(centerPos.x - weaponSize.x * 0.5f, centerPos.y + dpadSize.y + 10 + w4Offset.y));
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 1, 1, w4Alpha));
-        if (ImGui::Button("TSUBAKI\nMK2", weaponSize)) {}
-        ImGui::PopStyleColor();
-
-        ImGui::PopStyleVar();
+        ImGui::SetCursorPos(ImVec2(centerPos.x - weaponSize.x * 0.5f + weaponOffset.x, centerPos.y - weaponSize.y * 0.5f + weaponOffset.y));
+        if (directionPressed == 0) {ImGui::Image(g_sword_switch_texture_atlas->GetTexture(), weaponSize, Blood_Berry.uv0, Blood_Berry.uv1, ImVec4(1,1,1,alphaValue));}
+        if (directionPressed == 1) {ImGui::Image(g_sword_switch_texture_atlas->GetTexture(), weaponSize, Mk_3.uv0, Mk_3.uv1, ImVec4(1,1,1,alphaValue));}
+        if (directionPressed == 2) {ImGui::Image(g_sword_switch_texture_atlas->GetTexture(), weaponSize, Mk_1.uv0, Mk_1.uv1, ImVec4(1,1,1,alphaValue));}
+        if (directionPressed == 3) {ImGui::Image(g_sword_switch_texture_atlas->GetTexture(), weaponSize, Mk_2.uv0, Mk_2.uv1, ImVec4(1,1,1,alphaValue));}
     }
     ImGui::End();
 }
@@ -293,7 +332,7 @@ void WeaponSwitcher::on_frame() {
     if (mod_enabled) {
         mHRPc* player = nmh_sdk::get_mHRPc();
         if (player) {
-            if (weaponSwitchCooldown > 20.0f) {
+            if (weaponSwitchCooldown > weaponSwitchLockedFrames) {
                 uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
                 if (dPadInputsAddr) {
                     int8_t dPadInput = *(int8_t*)dPadInputsAddr;
@@ -301,25 +340,25 @@ void WeaponSwitcher::on_frame() {
                     case DPAD_LEFT:
                         if (CanWeaponSwitch(TSUBAKI_MK1)) {
                             nmh_sdk::SetEquip(TSUBAKI_MK1, false);
-                            weaponSwitchCooldown = 0.0f;
+                            weaponSwitchCooldown = 0;
                         }
                         break;
                     case DPAD_RIGHT:
                         if (CanWeaponSwitch(TSUBAKI_MK3)) {
                             nmh_sdk::SetEquip(TSUBAKI_MK3, false);
-                            weaponSwitchCooldown = 0.0f;
+                            weaponSwitchCooldown = 0;
                         }
                         break;
                     case DPAD_DOWN:
                         if (CanWeaponSwitch(TSUBAKI_MK2)) {
                             nmh_sdk::SetEquip(TSUBAKI_MK2, false);
-                            weaponSwitchCooldown = 0.0f;
+                            weaponSwitchCooldown = 0;
                         }
                         break;
                     case DPAD_UP:
                         if (CanWeaponSwitch(BLOOD_BERRY)) {
                             nmh_sdk::SetEquip(BLOOD_BERRY, false);
-                            weaponSwitchCooldown = 0.0f;
+                            weaponSwitchCooldown = 0;
                         }
                         break;
                     default:
