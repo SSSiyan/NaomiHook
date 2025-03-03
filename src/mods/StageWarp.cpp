@@ -3,7 +3,7 @@
 
 static int setStageArgs[7]{0, -1, -1, 0, 0, 0, 0};
 static int64_t inSetVolRateArg = 0;
-const char* DefaultDescription = "Hover over a stage to see details.";
+const char* DefaultDescription = "Teleport to any stage in the game. 'Wii/Unused' contains warps to stages which aren't included with the Steam release of NMH1, so to make use of these, you'll need to have the files from the Wii version.\nHover over a stage to see details.";
 const char* StageWarp::hoveredDescription = DefaultDescription;
 
 void StageWarp::render_description() const {

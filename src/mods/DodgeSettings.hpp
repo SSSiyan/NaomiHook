@@ -44,6 +44,13 @@ public:
   static uintptr_t roll_rotation_jmp_ret1;
   static uintptr_t roll_rotation_mRotate2LockOnTarget;
   static uintptr_t roll_rotation_GetMotionRunState;
+  /////////////////////////////////////////////////////////////
+  static bool darkstep_invinc_mod_enabled;
+  static uintptr_t darkstep_invinc_jmp_ret1;
+  static uintptr_t darkstep_invinc_jmp_ja1;
+  static uintptr_t darkstep_invinc_CBgCtrl;
+  static uintptr_t darkstep_invinc_gpBattle;
+  /////////////////////////////////////////////////////////////
 
   // mod name string for config
   std::string get_mod_name() const override { return "DodgeSettings"; }
@@ -69,4 +76,5 @@ private:
 	std::unique_ptr<Patch> disable_slowmo_darkstep_patch;
 	std::unique_ptr<FunctionHook> m_hook_dodge_battery1;
 	std::unique_ptr<FunctionHook> m_hook_roll_rotation1;
+	std::unique_ptr<FunctionHook> darkstep_invinc_m_hook1;
 };

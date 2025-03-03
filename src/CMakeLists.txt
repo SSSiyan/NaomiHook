@@ -37,8 +37,6 @@ set(MODS_SRC
     mods/ChargeSubsBattery.cpp 
     mods/DebugText.hpp 
     mods/DebugText.cpp 
-    mods/Invincibility.hpp 
-    mods/Invincibility.cpp   
     mods/ReprisalSwap.hpp 
     mods/ReprisalSwap.cpp 
     mods/DisableMouse.hpp 

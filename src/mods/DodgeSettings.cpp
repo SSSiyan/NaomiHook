@@ -36,6 +36,12 @@ bool      DodgeSettings::roll_rotation_mod_enabled = false;
 uintptr_t DodgeSettings::roll_rotation_jmp_ret1 = NULL;
 uintptr_t DodgeSettings::roll_rotation_mRotate2LockOnTarget = NULL;
 uintptr_t DodgeSettings::roll_rotation_GetMotionRunState = NULL;
+/////////////////////////////////////////////////////////////
+bool      DodgeSettings::darkstep_invinc_mod_enabled = false;
+uintptr_t DodgeSettings::darkstep_invinc_jmp_ret1 = NULL;
+uintptr_t DodgeSettings::darkstep_invinc_jmp_ja1 = NULL;
+uintptr_t DodgeSettings::darkstep_invinc_CBgCtrl = NULL;
+uintptr_t DodgeSettings::darkstep_invinc_gpBattle = NULL;
 
 // clang-format off
 naked void roll_forward_detour1() { // roll forward: make lockon+forward input (also used by buffer)
@@ -247,6 +253,32 @@ naked void roll_rotation_detour1() { // player in edi
             jmp dword ptr [DodgeSettings::roll_rotation_jmp_ret1]
     }
 }
+
+naked void darkstep_invinc_detour1() { // mSetDamage+F9 // damage receiver in esi
+    __asm {
+        //
+            cmp byte ptr [DodgeSettings::darkstep_invinc_mod_enabled], 0
+            je originalcode
+
+            push eax
+            mov eax, [DodgeSettings::darkstep_invinc_CBgCtrl]
+            mov eax, [eax]
+            cmp word ptr [eax+0xaa8], 0 // is screen m_DarkSideModeColor?
+            pop eax
+            jg jmp_ja
+
+        originalcode:
+            cmp byte ptr [esi+0x000029A7], 01 // mStageChangeMuteki
+        //jmp_ret:
+            jmp dword ptr [DodgeSettings::darkstep_invinc_jmp_ret1]
+
+        jmp_ja:
+            mov ecx, [DodgeSettings::darkstep_invinc_gpBattle]
+            mov ecx, [ecx]
+            mov ecx, [ecx+0x164]
+            jmp dword ptr [DodgeSettings::darkstep_invinc_jmp_ja1]
+    }
+}
  // clang-format on
 
 void DodgeSettings::toggle_disable_slowmo_darkstep(bool enable) {
@@ -309,6 +341,15 @@ std::optional<std::string> DodgeSettings::on_initialize() {
         return "Failed to init DodgeSettings mod";
     }
 
+    // darkstep invinc
+    DodgeSettings::darkstep_invinc_CBgCtrl = g_framework->get_module().as<uintptr_t>() + 0x8446F0;
+    DodgeSettings::darkstep_invinc_gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
+    DodgeSettings::darkstep_invinc_jmp_ja1 = g_framework->get_module().as<uintptr_t>() + 0x3D68FB;
+    if (!install_hook_offset(0x3D5869, darkstep_invinc_m_hook1, &darkstep_invinc_detour1, &DodgeSettings::darkstep_invinc_jmp_ret1, 7)) {
+        spdlog::error("Failed to init Invincibility mod\n");
+        return "Failed to init Invincibility mod";
+    }
+
     return Mod::on_initialize();
 }
 
@@ -326,6 +367,9 @@ void DodgeSettings::on_draw_ui() {
     
     ImGui::Checkbox("Roll Rotation", &roll_rotation_mod_enabled);
     help_marker("Allows rolls to orbit around enemies. This replicates how rolling functions in NMH2 and provides more control for staying on target. Rolls will cease to orbit when releasing lock on.");
+    
+    ImGui::Checkbox("Darkstep Invincibility", &darkstep_invinc_mod_enabled);
+    help_marker("Gives Dark Steps invincibility for the entire duration of the slowdown.");
 }
 
 // during load
@@ -338,6 +382,8 @@ void DodgeSettings::on_config_load(const utility::Config &cfg) {
     toggle_disable_slowmo_darkstep(disable_darkstep_slowmo_mod_enabled);
 
     roll_rotation_mod_enabled = cfg.get<bool>("roll_rotation").value_or(false);
+
+    darkstep_invinc_mod_enabled = cfg.get<bool>("darkstep_invincibility").value_or(false);
 }
 
 // during save
@@ -349,6 +395,8 @@ void DodgeSettings::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("disable_darkstep_slowmo", disable_darkstep_slowmo_mod_enabled);
 
     cfg.set<bool>("roll_rotation", roll_rotation_mod_enabled);
+
+    cfg.set<bool>("darkstep_invincibility", darkstep_invinc_mod_enabled);
 }
 
 // do something every frame

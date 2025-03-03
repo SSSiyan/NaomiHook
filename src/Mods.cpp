@@ -25,7 +25,6 @@
 #include "mods/HPHitNumber.hpp"
 #include "mods/ChargeSubsBattery.hpp"
 #include "mods/DebugText.hpp"
-#include "mods/Invincibility.hpp"
 #include "mods/ReprisalSwap.hpp"
 #include "mods/DisableMouse.hpp"
 #include "mods/Volume.hpp"
@@ -70,7 +69,6 @@ Mods::Mods()
     ADD_MOD(HPHitNumber);
     ADD_MOD(ChargeSubsBattery);
     ADD_MOD(DebugText);
-    ADD_MOD(Invincibility);
     ADD_MOD(ReprisalSwap);
     ADD_MOD(DisableMouse);
     ADD_MOD(Volume);
