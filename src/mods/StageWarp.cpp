@@ -3,34 +3,47 @@
 
 static int setStageArgs[7]{0, -1, -1, 0, 0, 0, 0};
 static int64_t inSetVolRateArg = 0;
-const char* DefaultDescription = "Teleport to any stage in the game. 'Wii/Unused' contains warps to stages which aren't included with the Steam release of NMH1, so to make use of these, you'll need to have the files from the Wii version.\nHover over a stage to see details.";
-const char* StageWarp::hoveredDescription = DefaultDescription;
+
+// yeah all this is needed to update the bottom panel
+const char* defaultDescription = "Teleport to any stage in the game. 'Wii/Unused' contains warps to stages which aren't included with the Steam release of NMH1, so to make use of these, you'll need to have the files from the Wii version.";
+const char* hoveredDescription = defaultDescription;
+
+const char* defaultStageName = "Hover over a stage to see details.";
+const char* stageName = defaultStageName;
+
+const char* defaultButtonIcon = "None";
+const char* buttonIcon = defaultButtonIcon;
+//
+ImVec4 stageNameColor{ 1.00f, 0.79f, 0.45f, 1.0f };
+ImVec4 stageInfoColor{ 0.81f, 0.40f, 0.38f, 1.0f };
 
 void StageWarp::render_description() const {
     ImVec2 availableSpace = ImGui::GetContentRegionAvail();
-    if (hoveredDescription != DefaultDescription) {
-        ImGui::Button(hoveredDescription, ImVec2(availableSpace.y, availableSpace.y));
-        ImGui::SameLine();
-        ImGui::TextWrapped("%s", hoveredDescription);
-    }
-    else {
-        ImGui::Button(hoveredDescription, ImVec2(availableSpace.y, availableSpace.y));
-        ImGui::SameLine();
-        ImGui::TextWrapped("%s", hoveredDescription);
-    }
+    ImGui::Button(buttonIcon, ImVec2(availableSpace.y, availableSpace.y));
+    ImGui::SameLine();
+    ImGui::BeginGroup();
+    ImGui::TextColored(stageNameColor, stageName);
+    ImGui::TextWrapped(hoveredDescription);
+    ImGui::EndGroup();
+}
+
+void StageWarp::update_description(const char* name, const char* info, const char* button) {
+    stageName = name;
+    hoveredDescription = info;
+    buttonIcon = button;
 }
 
 std::array<StageWarp::Stage, 78> StageWarp::stage_items = { 
-    Stage {"STG000",   69, "Santa Destroy Overworld", ""},                //   0
-    Stage {"STG0001",  69, "Beach Boss (Holly Summers)", ""},             //   1
-    Stage {"STG0002",  69, "Holly Summers Zako", ""},                     //   2
-    Stage {"STG0003",  69, "Henry Fight True Ending", ""},                //   3
-    Stage {"STG0004",  69, "Free Fight 3", ""},                           //   4
-    Stage {"STG0007",  69, "Bar Plastic Model Lovikov", ""},              //   5
-    Stage {"STG0008",  69, "Cut Bike Race?", ""},                         //   6
-    Stage {"STG0009",  69, "Cut Bike Race? 2", ""},                       //   7
-    Stage {"STG00010", 69, "Cut Bike Race? 3", ""},                       //   8
-    Stage {"STG010",   69, "Shinobu Zako 1", ""},                         //   9
+    Stage {"STG000",   69, "Santa Destroy Overworld", ""},                //  0
+    Stage {"STG0001",  69, "Beach Boss (Holly Summers)", ""},             //  1
+    Stage {"STG0002",  69, "Holly Summers Zako", ""},                     //  2
+    Stage {"STG0003",  69, "Henry Fight True Ending", ""},                //  3
+    Stage {"STG0004",  69, "Free Fight 3", ""},                           //  4
+    Stage {"STG0007",  69, "Bar Plastic Model Lovikov", ""},              //  5
+    Stage {"STG0008",  69, "Cut Bike Race?", ""},                         //  6
+    Stage {"STG0009",  69, "Cut Bike Race? 2", ""},                       //  7
+    Stage {"STG00010", 69, "Cut Bike Race? 3", ""},                       //  8
+    Stage {"STG010",   69, "Shinobu Zako 1", ""},                         //  9
     Stage {"STG00011", 69, "Motel Exterior", ""},                         // 10
     Stage {"STG011",   69, "Shinobu Zako 2", ""},                         // 11
     Stage {"STG012",   69, "Shinobu Zako 3", ""},                         // 12
@@ -323,27 +336,25 @@ void DisplayStageSection(const char* headerName, const T& stages) {
             auto& stage = stages[i].get();  // actual Stage object
             snprintf(buttonLabel, sizeof(buttonLabel), "%s", stage.name);
             snprintf(buttonInfo, sizeof(buttonInfo), "%s", stage.info);
-            ImGui::TextColored(ImVec4(1.00, 0.79, 0.45, 1.0), buttonLabel);
-
+            ImGui::TextColored(stageNameColor, buttonLabel);
             if (ImGui::IsItemHovered()) {
                 if (*stage.longerInfo)
-                    StageWarp::hoveredDescription = stage.longerInfo;
-                else 
-                    StageWarp::hoveredDescription = stage.info;
+                    StageWarp::update_description(stage.name, stage.longerInfo, stage.name);
+                else
+                    StageWarp::update_description(stage.name, stage.info, stage.name);
             }
 
             if (ImGui::IsItemClicked()) {
                 nmh_sdk::SetStage(stage.name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
                                   setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
             }
-            ImGui::SameLine(100.0f);
-            ImGui::TextColored(ImVec4(0.81, 0.40, 0.38, 1.0), buttonInfo);
-
+            ImGui::SameLine(100);
+            ImGui::TextColored(stageInfoColor, buttonInfo);
             if (ImGui::IsItemHovered()) {
                 if (*stage.longerInfo)
-                    StageWarp::hoveredDescription = stage.longerInfo;
-                else 
-                    StageWarp::hoveredDescription = stage.info;
+                    StageWarp::update_description(stage.name, stage.longerInfo, stage.name);
+                else
+                    StageWarp::update_description(stage.name, stage.info, stage.name);
             }
 
             if (ImGui::IsItemClicked()) {
@@ -355,9 +366,8 @@ void DisplayStageSection(const char* headerName, const T& stages) {
 }
 
 void StageWarp::on_draw_ui() {
-    if (!ImGui::IsAnyItemHovered()) {
-            hoveredDescription = DefaultDescription;
-    }
+    if (!ImGui::IsAnyItemHovered())
+        StageWarp::update_description(defaultStageName, defaultDescription, defaultButtonIcon);
     if (nmh_sdk::get_CBgCtrl()) {
         char* currentStage = nmh_sdk::get_CBgCtrl()->m_NowStageName;
         if (currentStage && (strlen(currentStage) < 20)) {
