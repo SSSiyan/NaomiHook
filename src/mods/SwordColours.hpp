@@ -20,7 +20,7 @@ public:
   // mod name string for config
   std::string get_mod_name() const override { return "SwordColours"; }
   std::string get_human_readable_name() const { return "Sword Colours"; }
-  const char* get_description() const override { return R"(Sword Colours)"; };
+  const char* get_description() const override { return R"(Customize your beam katana colors. You can also set a unique color specifically for Death Blows. )"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

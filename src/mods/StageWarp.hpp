@@ -19,7 +19,7 @@ public:
   // mod name string for config
   std::string get_mod_name() const override { return "StageWarp"; }
   std::string get_human_readable_name() const { return "Stage Warp"; }
-  const char* get_description() const override { return R"(Stage Warp. Some stages require files from the Wii release)"; };
+  const char* get_description() const override { return R"(Teleport to any stage in the game. 'Wii/Unused' contains warps to stages which aren't included with the Steam release of NMH1, so to make use of these, you'll need to have the files from the Wii version.)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

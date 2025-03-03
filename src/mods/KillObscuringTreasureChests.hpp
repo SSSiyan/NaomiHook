@@ -13,7 +13,7 @@ public:
   // mod name string for config
   std::string get_mod_name() const override { return "KillObscuringTreasureChests"; }
   std::string get_human_readable_name() const { return "Kill Obscuring Treasure Chests"; }
-  const char* get_description() const override { return R"(Stop the chests from spawning in the Motel)"; };
+  const char* get_description() const override { return R"(Removes the obscuring treasure chests in the Motel which prevent you from seeing the Nintendo 64 on the shelf.)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

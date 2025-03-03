@@ -313,7 +313,8 @@ std::optional<std::string> DodgeSettings::on_initialize() {
 }
 
 void DodgeSettings::on_draw_ui() {
-    ImGui::Checkbox("Charge While Dodging", &dodge_battery_mod_enabled);
+    ImGui::Checkbox("Cancel Darkstep into Recharge", &dodge_battery_mod_enabled);
+    help_marker("Allows you to cancel Darkstep into the katana recharge. Take advantage of the enemy's confusion and use the opportunity to recharge your battery.");
 
     ImGui::Checkbox("Roll Forward", &roll_forward_mod_enabled);
     help_marker("Restores the unused forward roll and works exactly as it does in NMH2. Bound to Lock On + Forward (Right Stick)");
@@ -321,10 +322,10 @@ void DodgeSettings::on_draw_ui() {
     if (ImGui::Checkbox("NMH2 Darkstep", &disable_darkstep_slowmo_mod_enabled)) {
         toggle_disable_slowmo_darkstep(disable_darkstep_slowmo_mod_enabled);
     }
-    help_marker("Functionally alters Darksteps to not slow Travis down much like it does in NMH2.");
+    help_marker("Functionally alters Darksteps to function like it does in NMH2. When performing a Darkstep, Travis will return to normal speed instead of slowing down.");
     
     ImGui::Checkbox("Roll Rotation", &roll_rotation_mod_enabled);
-    help_marker("Make rolls orbit around your locked on target. Functions in a similar manner to NMH2.");
+    help_marker("Allows rolls to orbit around enemies. This replicates how rolling functions in NMH2 and provides more control for staying on target. Rolls will cease to orbit when releasing lock on.");
 }
 
 // during load

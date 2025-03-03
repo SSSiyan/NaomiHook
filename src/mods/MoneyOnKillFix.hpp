@@ -16,7 +16,8 @@ public:
   // mod name string for config
   std::string get_mod_name() const override { return "MoneyOnKillFix"; }
   std::string get_human_readable_name() const { return "Money On Kill Fix"; }
-  const char* get_description() const override { return R"(Limit kill reward to 30,000 to prevent overflow)"; };
+  const char* get_description() const override { return R"(This setting fixes an overflow issue affecting the cash reward for killing enemies.
+Our changes fix this issue the same way Heroes Paradise does by limiting the maximum reward to 30,000.)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
