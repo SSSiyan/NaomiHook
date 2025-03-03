@@ -208,7 +208,7 @@ std::array<std::reference_wrapper<StageWarp::Stage>, 17> zako_stages = {
     StageWarp::stage_items[32],  // Destroyman Zako 2
     StageWarp::stage_items[2],   // Holly Summers Zako
     StageWarp::stage_items[38],  // Letz Shake Zako
-    StageWarp::stage_items[66],  // Harvey Zako
+    StageWarp::stage_items[65],  // Harvey Zako
     StageWarp::stage_items[15],  // Speedbuster Zako
     StageWarp::stage_items[25],  // Bad Girl Zako
     StageWarp::stage_items[45],  // Darkstar Bike Zako
