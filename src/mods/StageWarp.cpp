@@ -21,84 +21,84 @@ void StageWarp::render_description() const {
 }
 
 std::array<StageWarp::Stage, 78> StageWarp::stage_items = { 
-    Stage {"STG000",   69, "Santa Destroy Overworld", ""},
-    Stage {"STG0001",  69, "Beach Boss (Holly Summers)", ""},
-    Stage {"STG0002",  69, "Holly Summers Zako", ""},
-    Stage {"STG0003",  69, "Henry Fight True Ending", ""},
-    Stage {"STG0004",  69, "Free Fight 3", ""},
-    Stage {"STG0007",  69, "Bar Plastic Model Lovikov", ""},
-    Stage {"STG0008",  69, "Cut Bike Race?", ""},
-    Stage {"STG0009",  69, "Cut Bike Race? 2", ""},
-    Stage {"STG00010", 69, "Cut Bike Race? 3", ""},
-    Stage {"STG010",   69, "Shinobu Zako 1", ""},
-    Stage {"STG00011", 69, "Motel Exterior", ""},
-    Stage {"STG011",   69, "Shinobu Zako 2", ""},
-    Stage {"STG012",   69, "Shinobu Zako 3", ""},
-    Stage {"STG00013", 69, "City Street", ""},
-    Stage {"STG013",   69, "Shinobu Boss Fight", ""},
-    Stage {"STG00014", 69, "Speedbuster Zako", ""},
-    Stage {"STG00015", 69, "Beach Spawn", ""},
-    Stage {"STG00016", 69, "Homes Near Beach", ""},
-    Stage {"STG00017", 69, "Northern Island Spawn", ""},
-    Stage {"STG00018", 69, "Free Fight Basketball", ""},
-    Stage {"STG00019", 69, "Northern Island Spawn", ""},
-    Stage {"STG00020", 69, "Free Fight 5", ""},
-    Stage {"STG020",   69, "Bad Girl Fight", ""},
-    Stage {"STG020J",  69, "Bad Girl Fight JP", ""},
-    Stage {"STG00021", 69, "Beach Spawn", ""},
-    Stage {"STG021",   69, "Bad Girl Zako", ""},
-    Stage {"STG021J",  69, "Bad Girl Zako JP", ""},
-    Stage {"STG022",   69, "Bad Girl Hall", ""},
-    Stage {"STG023",   69, "Bad Girl ZAKO DEBUG", ""},
-    Stage {"STG023J",  69, "Bad Girl ZAKO DEBUG", ""},
-    Stage {"STG024",   69, "Bad Girl ZAKO DEBUG 2", ""},
-    Stage {"STG024J",  69, "Bad Girl ZAKO DEBUG 2", ""},
-    Stage {"STG030",   69, "Destroyman Zako 2", ""},
-    Stage {"STG030T",  69, "Destroyman TGS Zako", ""},
-    Stage {"STG031",   69, "Destroyman Fight", ""},
-    Stage {"STG031T",  69, "Destroyman TGS Fight", ""},
-    Stage {"STG041",   69, "Dr.Peace Zako 1", ""},
-    Stage {"STG042",   69, "Dr.Peace Fight", ""},
-    Stage {"STG051",   69, "Letz Shake Zako", ""},
-    Stage {"STG060",   69, "SpeedBuster", ""},
-    Stage {"STG080",   69, "Deathmetal Zako 2", ""},
-    Stage {"STG081",   69, "Deathmetal Fight", ""},
-    Stage {"STG083",   69, "Deathmetal Zako 1", ""},
-    Stage {"STG084",   69, "Deathmetal Sylvia Call", ""},
-    Stage {"STG090",   69, "Harvey Fight", ""},
-    Stage {"STG100",   69, "Darkstar Bike Zako", ""},
-    Stage {"STG101",   69, "Darkstar Zako", ""},
-    Stage {"STG103",   69, "Darkstar/Jeane Fight", ""},
-    Stage {"STG170",   69, "Destroyman Zako 1", ""},
-    Stage {"STG0411",  69, "Dr.Peace Zako 3", ""},
-    Stage {"STG0412",  69, "Dr.Peace Zako 2", ""},
-    Stage {"STG0421",  69, "Stadium Free Fight", ""},
-    Stage {"STG0422",  69, "???", ""},
-    Stage {"STG500",   69, "Motel", ""},
-    Stage {"STG500US", 69, "Motel", ""},
-    Stage {"STG510",   69, "Beefhead Videos", ""},
-    Stage {"STG520",   69, "K-Entertainment", ""},
-    Stage {"STG540",   69, "Job Center", ""},
-    Stage {"STG550",   69, "Evolution Gym", ""},
-    Stage {"STG560",   69, "Naomi's Lab", ""},
-    Stage {"STG570",   69, "Area51", ""},
-    Stage {"STG580",   69, "???", ""},
-    Stage {"STG1702",  69, "Train", ""},
-    Stage {"STG1703",  69, "Train Station (Boarding)", ""},
-    Stage {"STG1707",  69, "Train Station Exit", ""},
-    Stage {"STG1708",  69, "Train Station Harvey (Boarding)", ""},
-    Stage {"STG1709",  69, "Train Station Harvey (Exit)", ""},
-    Stage {"STG9000",  69, "DeathMetal Toilet", ""},
-    Stage {"STG9001",  69, "Darkstar Toilet", ""},
-    Stage {"STG9002",  69, "Badgirl Toilet Stadium Basement", ""},
-    Stage {"STG9003",  69, "Speedbuster Toilet Speed City", ""},
-    Stage {"STG9004",  69, "Harvey Toilet", ""},
-    Stage {"STG9005",  69, "Letz Shake Toilet Senton Splash Tunnel", ""},
-    Stage {"STG9006",  69, "Holly Toilet Beach", ""},
-    Stage {"STG9007",  69, "Destroyman Toilet Bear Hug", ""},
-    Stage {"STG9007T", 69, "Destroyman Toilet TGS", ""},
-    Stage {"STG9008",  69, "Shinobu Toilet High School", ""},
-    Stage {"STG9009",  69, "Dr.Peace Toilet Stadium", ""}
+    Stage {"STG000",   69, "Santa Destroy Overworld", ""},                //   0
+    Stage {"STG0001",  69, "Beach Boss (Holly Summers)", ""},             //   1
+    Stage {"STG0002",  69, "Holly Summers Zako", ""},                     //   2
+    Stage {"STG0003",  69, "Henry Fight True Ending", ""},                //   3
+    Stage {"STG0004",  69, "Free Fight 3", ""},                           //   4
+    Stage {"STG0007",  69, "Bar Plastic Model Lovikov", ""},              //   5
+    Stage {"STG0008",  69, "Cut Bike Race?", ""},                         //   6
+    Stage {"STG0009",  69, "Cut Bike Race? 2", ""},                       //   7
+    Stage {"STG00010", 69, "Cut Bike Race? 3", ""},                       //   8
+    Stage {"STG010",   69, "Shinobu Zako 1", ""},                         //   9
+    Stage {"STG00011", 69, "Motel Exterior", ""},                         // 10
+    Stage {"STG011",   69, "Shinobu Zako 2", ""},                         // 11
+    Stage {"STG012",   69, "Shinobu Zako 3", ""},                         // 12
+    Stage {"STG00013", 69, "City Street", ""},                            // 13
+    Stage {"STG013",   69, "Shinobu Boss Fight", ""},                     // 14
+    Stage {"STG00014", 69, "Speedbuster Zako", ""},                       // 15
+    Stage {"STG00015", 69, "Beach Spawn", ""},                            // 16
+    Stage {"STG00016", 69, "Homes Near Beach", ""},                       // 17
+    Stage {"STG00017", 69, "Northern Island Spawn", ""},                  // 18
+    Stage {"STG00018", 69, "Free Fight Basketball", ""},                  // 19
+    Stage {"STG00019", 69, "Northern Island Spawn", ""},                  // 20
+    Stage {"STG00020", 69, "Free Fight 5", ""},                           // 21
+    Stage {"STG020",   69, "Bad Girl Fight", ""},                         // 22
+    Stage {"STG020J",  69, "Bad Girl Fight JP", ""},                      // 23
+    Stage {"STG00021", 69, "Beach Spawn", ""},                            // 24
+    Stage {"STG021",   69, "Bad Girl Zako", ""},                          // 25
+    Stage {"STG021J",  69, "Bad Girl Zako JP", ""},                       // 26
+    Stage {"STG022",   69, "Bad Girl Hall", ""},                          // 27
+    Stage {"STG023",   69, "Bad Girl ZAKO DEBUG", ""},                    // 28
+    Stage {"STG023J",  69, "Bad Girl ZAKO DEBUG", ""},                    // 29
+    Stage {"STG024",   69, "Bad Girl ZAKO DEBUG 2", ""},                  // 30
+    Stage {"STG024J",  69, "Bad Girl ZAKO DEBUG 2", ""},                  // 31
+    Stage {"STG030",   69, "Destroyman Zako 2", ""},                      // 32
+    Stage {"STG030T",  69, "Destroyman TGS Zako", ""},                    // 33
+    Stage {"STG031",   69, "Destroyman Fight", ""},                       // 34
+    Stage {"STG031T",  69, "Destroyman TGS Fight", ""},                   // 35
+    Stage {"STG041",   69, "Dr.Peace Zako 1", ""},                        // 36
+    Stage {"STG042",   69, "Dr.Peace Fight", ""},                         // 37
+    Stage {"STG051",   69, "Letz Shake Zako", ""},                        // 38
+    Stage {"STG060",   69, "SpeedBuster", ""},                            // 39
+    Stage {"STG080",   69, "Deathmetal Zako 2", ""},                      // 40
+    Stage {"STG081",   69, "Deathmetal Fight", ""},                       // 41
+    Stage {"STG083",   69, "Deathmetal Zako 1", ""},                      // 42
+    Stage {"STG084",   69, "Deathmetal Sylvia Call", ""},                 // 43
+    Stage {"STG090",   69, "Harvey Fight", ""},                           // 44
+    Stage {"STG100",   69, "Darkstar Bike Zako", ""},                     // 45
+    Stage {"STG101",   69, "Darkstar Zako", ""},                          // 46
+    Stage {"STG103",   69, "Darkstar/Jeane Fight", ""},                   // 47
+    Stage {"STG170",   69, "Destroyman Zako 1", ""},                      // 48
+    Stage {"STG0411",  69, "Dr.Peace Zako 3", ""},                        // 49
+    Stage {"STG0412",  69, "Dr.Peace Zako 2", ""},                        // 50
+    Stage {"STG0421",  69, "Stadium Free Fight", ""},                     // 51
+    Stage {"STG0422",  69, "???", ""},                                    // 52
+    Stage {"STG500",   69, "Motel", ""},                                  // 53
+    Stage {"STG500US", 69, "Motel", ""},                                  // 54
+    Stage {"STG510",   69, "Beefhead Videos", ""},                        // 55
+    Stage {"STG520",   69, "K-Entertainment", ""},                        // 56
+    Stage {"STG540",   69, "Job Center", ""},                             // 57
+    Stage {"STG550",   69, "Evolution Gym", ""},                          // 58
+    Stage {"STG560",   69, "Naomi's Lab", ""},                            // 59
+    Stage {"STG570",   69, "Area51", ""},                                 // 60
+    Stage {"STG580",   69, "???", ""},                                    // 61
+    Stage {"STG1702",  69, "Train", ""},                                  // 62
+    Stage {"STG1703",  69, "Train Station (Boarding)", ""},               // 63
+    Stage {"STG1707",  69, "Train Station Exit", ""},                     // 64
+    Stage {"STG1708",  69, "Train Station Harvey (Boarding)", ""},        // 65
+    Stage {"STG1709",  69, "Train Station Harvey (Exit)", ""},            // 66
+    Stage {"STG9000",  69, "DeathMetal Toilet", ""},                      // 67
+    Stage {"STG9001",  69, "Darkstar Toilet", ""},                        // 68
+    Stage {"STG9002",  69, "Badgirl Toilet Stadium Basement", ""},        // 69
+    Stage {"STG9003",  69, "Speedbuster Toilet Speed City", ""},          // 70
+    Stage {"STG9004",  69, "Harvey Toilet", ""},                          // 71
+    Stage {"STG9005",  69, "Letz Shake Toilet Senton Splash Tunnel", ""}, // 72
+    Stage {"STG9006",  69, "Holly Toilet Beach", ""},                     // 73
+    Stage {"STG9007",  69, "Destroyman Toilet Bear Hug", ""},             // 74
+    Stage {"STG9007T", 69, "Destroyman Toilet TGS", ""},                  // 75
+    Stage {"STG9008",  69, "Shinobu Toilet High School", ""},             // 76
+    Stage {"STG9009",  69, "Dr.Peace Toilet Stadium", ""}                 // 77
 };
 
 std::array<std::reference_wrapper<StageWarp::Stage>, 78> all_stages = {
@@ -208,7 +208,7 @@ std::array<std::reference_wrapper<StageWarp::Stage>, 17> zako_stages = {
     StageWarp::stage_items[32],  // Destroyman Zako 2
     StageWarp::stage_items[2],   // Holly Summers Zako
     StageWarp::stage_items[38],  // Letz Shake Zako
-    StageWarp::stage_items[44],  // Harvey Zako
+    StageWarp::stage_items[66],  // Harvey Zako
     StageWarp::stage_items[15],  // Speedbuster Zako
     StageWarp::stage_items[25],  // Bad Girl Zako
     StageWarp::stage_items[45],  // Darkstar Bike Zako
@@ -354,7 +354,6 @@ void DisplayStageSection(const char* headerName, const T& stages) {
     }
 }
 
-
 void StageWarp::on_draw_ui() {
     if (!ImGui::IsAnyItemHovered()) {
             hoveredDescription = DefaultDescription;
@@ -377,9 +376,7 @@ void StageWarp::on_draw_ui() {
 
         // DisplayStageSection("All", StageWarp::stage_items); // old version
 
-        static const char* argsHelpMarker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n"
-            "The warps you've been using up to this point have left all of these values at 0.\n"
-            "I have recently edited _Arg1 and _Arg2 to -1, so let me know if there are more issues than usual");
+        static const char* argsHelpMarker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n");
 
         if (ImGui::CollapsingHeader("SetStage args")) {
             help_marker(argsHelpMarker);
