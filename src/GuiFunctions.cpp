@@ -237,7 +237,8 @@ namespace gui {
             ImGui::PushStyleColor(ImGuiCol_Text, IMGUI_WINDOW_IN_COLOR);
 
             if (ctx->selected_mod) {
-                ImGui::TextWrapped(ctx->selected_mod->get_description());
+                //ImGui::TextWrapped(ctx->selected_mod->get_description());
+                ctx->selected_mod->render_description();
             }
 
             ImGui::PopStyleColor();

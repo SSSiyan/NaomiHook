@@ -303,6 +303,9 @@ public:
     virtual std::string get_mod_name() const { return "UnknownMod"; };
     virtual std::string get_human_readable_name() const { return "Unknown Mod"; }
     virtual const char* get_description() const { return R"(Unknown Description)"; };
+    virtual void render_description() const {
+        ImGui::TextWrapped(get_description());
+    }
 
     // can be used for ModValues, like Mod_ValueName
     virtual std::string generate_name(std::string_view name) { return std::string{ get_mod_name() } + "_" + name.data(); }

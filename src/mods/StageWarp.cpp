@@ -1,189 +1,280 @@
 #include "StageWarp.hpp"
 #if 1
 
-struct Stage {
-    const char* name;
-    int id;
-    std::string description;
-};
-
 static int setStageArgs[7]{0, -1, -1, 0, 0, 0, 0};
 static int64_t inSetVolRateArg = 0;
+const char* DefaultDescription = "Hover over a stage to see details.";
+const char* StageWarp::hoveredDescription = DefaultDescription;
 
-std::array<StageWarp::Stage, 78> StageWarp::stage_items = { // used elsewhere so part of StageWarp
-    Stage {"STG000",   69, "Santa Destroy Overworld"},
-    Stage {"STG0001",  69, "Beach Boss (Holly Summers)"},
-    Stage {"STG0002",  69, "Holly Summers Zako"},
-    Stage {"STG0003",  69, "Henry Fight True Ending"},
-    Stage {"STG0004",  69, "Free Fight 3"},
-    Stage {"STG0007",  69, "Bar Plastic Model Lovikov"},
-    Stage {"STG0008",  69, "Cut Bike Race?"},
-    Stage {"STG0009",  69, "Cut Bike Race? 2"},
-    Stage {"STG00010", 69, "Cut Bike Race? 3"},
-    Stage {"STG010",   69, "Shinobu Zako 1"},
-    Stage {"STG00011", 69, "Motel Exterior"},
-    Stage {"STG011",   69, "Shinobu Zako 2"},
-    Stage {"STG012",   69, "Shinobu Zako 3"},
-    Stage {"STG00013", 69, "City Street"},
-    Stage {"STG013",   69, "Shinobu Boss Fight"},
-    Stage {"STG00014", 69, "Speedbuster Zako"},
-    Stage {"STG00015", 69, "Beach Spawn"},
-    Stage {"STG00016", 69, "Homes Near Beach"},
-    Stage {"STG00017", 69, "Northern Island Spawn"},
-    Stage {"STG00018", 69, "Free Fight Basketball"},
-    Stage {"STG00019", 69, "Northern Island Spawn"},
-    Stage {"STG00020", 69, "Free Fight 5"},
-    Stage {"STG020",   69, "Bad Girl Fight"},
-    Stage {"STG020J",  69, "Bad Girl Fight JP"},
-    Stage {"STG00021", 69, "Beach Spawn"},
-    Stage {"STG021",   69, "Bad Girl Zako"},
-    Stage {"STG021J",  69, "Bad Girl Zako JP"},
-    Stage {"STG022",   69, "Bad Girl Hall"},
-    Stage {"STG023",   69, "Bad Girl ZAKO DEBUG"},
-    Stage {"STG023J",  69, "Bad Girl ZAKO DEBUG"},
-    Stage {"STG024",   69, "Bad Girl ZAKO DEBUG 2"},
-    Stage {"STG024J",  69, "Bad Girl ZAKO DEBUG 2"},
-    Stage {"STG030",   69, "Destroyman Zako 2"},
-    Stage {"STG030T",  69, "Destroyman TGS Zako"},
-    Stage {"STG031",   69, "Destroyman Fight"},
-    Stage {"STG031T",  69, "Destroyman TGS Fight"},
-    Stage {"STG041",   69, "Dr.Peace Zako 1"},
-    Stage {"STG042",   69, "Dr.Peace Fight"},
-    Stage {"STG051",   69, "Letz Shake Zako"},
-    Stage {"STG060",   69, "SpeedBuster"},
-    Stage {"STG080",   69, "Deathmetal Zako 2"},
-    Stage {"STG081",   69, "Deathmetal Fight"},
-    Stage {"STG083",   69, "Deathmetal Zako 1"},
-    Stage {"STG084",   69, "Deathmetal Sylvia Call"},
-    Stage {"STG090",   69, "Harvey Fight"},
-    Stage {"STG100",   69, "Darkstar Bike Zako"},
-    Stage {"STG101",   69, "Darkstar Zako"},
-    Stage {"STG103",   69, "Darkstar/Jeane Fight"},
-    Stage {"STG170",   69, "Destroyman Zako 1"},
-    Stage {"STG0411",  69, "Dr.Peace Zako 3"},
-    Stage {"STG0412",  69, "Dr.Peace Zako 2"},
-    Stage {"STG0421",  69, "Stadium Free Fight"},
-    Stage {"STG0422",  69, "???"},
-    Stage {"STG500",   69, "Motel"},
-    Stage {"STG500US", 69, "Motel"},
-    Stage {"STG510",   69, "Beefhead Videos"},
-    Stage {"STG520",   69, "K-Entertainment"},
-    Stage {"STG540",   69, "Job Center"},
-    Stage {"STG550",   69, "Evolution Gym"},
-    Stage {"STG560",   69, "Naomi's Lab"},
-    Stage {"STG570",   69, "Area51"},
-    Stage {"STG580",   69, "???"},
-    Stage {"STG1702",  69, "Train"},
-    Stage {"STG1703",  69, "Train Station (Boarding)"},
-    Stage {"STG1707",  69, "Train Station Exit"},
-    Stage {"STG1708",  69, "Train Station Harvey (Boarding)"},
-    Stage {"STG1709",  69, "Train Station Harvey (Exit)"},
-    Stage {"STG9000",  69, "DeathMetal Toilet"},
-    Stage {"STG9001",  69, "Darkstar Toilet"},
-    Stage {"STG9002",  69, "Badgirl Toilet Stadium Basement"},
-    Stage {"STG9003",  69, "Speedbuster Toilet Speed City"},
-    Stage {"STG9004",  69, "Harvey Toilet"},
-    Stage {"STG9005",  69, "Letz Shake Toilet Senton Splash Tunnel"},
-    Stage {"STG9006",  69, "Holly Toilet Beach"},
-    Stage {"STG9007",  69, "Destroyman Toilet Bear Hug"},
-    Stage {"STG9007T", 69, "Destroyman Toilet TGS"},
-    Stage {"STG9008",  69, "Shinobu Toilet High School"},
-    Stage {"STG9009",  69, "Dr.Peace Toilet Stadium"},
+void StageWarp::render_description() const {
+    ImVec2 availableSpace = ImGui::GetContentRegionAvail();
+    if (hoveredDescription != DefaultDescription) {
+        ImGui::Button(hoveredDescription, ImVec2(availableSpace.y, availableSpace.y));
+        ImGui::SameLine();
+        ImGui::TextWrapped("%s", hoveredDescription);
+    }
+    else {
+        ImGui::Button(hoveredDescription, ImVec2(availableSpace.y, availableSpace.y));
+        ImGui::SameLine();
+        ImGui::TextWrapped("%s", hoveredDescription);
+    }
+}
+
+std::array<StageWarp::Stage, 78> StageWarp::stage_items = { 
+    Stage {"STG000",   69, "Santa Destroy Overworld", ""},
+    Stage {"STG0001",  69, "Beach Boss (Holly Summers)", ""},
+    Stage {"STG0002",  69, "Holly Summers Zako", ""},
+    Stage {"STG0003",  69, "Henry Fight True Ending", ""},
+    Stage {"STG0004",  69, "Free Fight 3", ""},
+    Stage {"STG0007",  69, "Bar Plastic Model Lovikov", ""},
+    Stage {"STG0008",  69, "Cut Bike Race?", ""},
+    Stage {"STG0009",  69, "Cut Bike Race? 2", ""},
+    Stage {"STG00010", 69, "Cut Bike Race? 3", ""},
+    Stage {"STG010",   69, "Shinobu Zako 1", ""},
+    Stage {"STG00011", 69, "Motel Exterior", ""},
+    Stage {"STG011",   69, "Shinobu Zako 2", ""},
+    Stage {"STG012",   69, "Shinobu Zako 3", ""},
+    Stage {"STG00013", 69, "City Street", ""},
+    Stage {"STG013",   69, "Shinobu Boss Fight", ""},
+    Stage {"STG00014", 69, "Speedbuster Zako", ""},
+    Stage {"STG00015", 69, "Beach Spawn", ""},
+    Stage {"STG00016", 69, "Homes Near Beach", ""},
+    Stage {"STG00017", 69, "Northern Island Spawn", ""},
+    Stage {"STG00018", 69, "Free Fight Basketball", ""},
+    Stage {"STG00019", 69, "Northern Island Spawn", ""},
+    Stage {"STG00020", 69, "Free Fight 5", ""},
+    Stage {"STG020",   69, "Bad Girl Fight", ""},
+    Stage {"STG020J",  69, "Bad Girl Fight JP", ""},
+    Stage {"STG00021", 69, "Beach Spawn", ""},
+    Stage {"STG021",   69, "Bad Girl Zako", ""},
+    Stage {"STG021J",  69, "Bad Girl Zako JP", ""},
+    Stage {"STG022",   69, "Bad Girl Hall", ""},
+    Stage {"STG023",   69, "Bad Girl ZAKO DEBUG", ""},
+    Stage {"STG023J",  69, "Bad Girl ZAKO DEBUG", ""},
+    Stage {"STG024",   69, "Bad Girl ZAKO DEBUG 2", ""},
+    Stage {"STG024J",  69, "Bad Girl ZAKO DEBUG 2", ""},
+    Stage {"STG030",   69, "Destroyman Zako 2", ""},
+    Stage {"STG030T",  69, "Destroyman TGS Zako", ""},
+    Stage {"STG031",   69, "Destroyman Fight", ""},
+    Stage {"STG031T",  69, "Destroyman TGS Fight", ""},
+    Stage {"STG041",   69, "Dr.Peace Zako 1", ""},
+    Stage {"STG042",   69, "Dr.Peace Fight", ""},
+    Stage {"STG051",   69, "Letz Shake Zako", ""},
+    Stage {"STG060",   69, "SpeedBuster", ""},
+    Stage {"STG080",   69, "Deathmetal Zako 2", ""},
+    Stage {"STG081",   69, "Deathmetal Fight", ""},
+    Stage {"STG083",   69, "Deathmetal Zako 1", ""},
+    Stage {"STG084",   69, "Deathmetal Sylvia Call", ""},
+    Stage {"STG090",   69, "Harvey Fight", ""},
+    Stage {"STG100",   69, "Darkstar Bike Zako", ""},
+    Stage {"STG101",   69, "Darkstar Zako", ""},
+    Stage {"STG103",   69, "Darkstar/Jeane Fight", ""},
+    Stage {"STG170",   69, "Destroyman Zako 1", ""},
+    Stage {"STG0411",  69, "Dr.Peace Zako 3", ""},
+    Stage {"STG0412",  69, "Dr.Peace Zako 2", ""},
+    Stage {"STG0421",  69, "Stadium Free Fight", ""},
+    Stage {"STG0422",  69, "???", ""},
+    Stage {"STG500",   69, "Motel", ""},
+    Stage {"STG500US", 69, "Motel", ""},
+    Stage {"STG510",   69, "Beefhead Videos", ""},
+    Stage {"STG520",   69, "K-Entertainment", ""},
+    Stage {"STG540",   69, "Job Center", ""},
+    Stage {"STG550",   69, "Evolution Gym", ""},
+    Stage {"STG560",   69, "Naomi's Lab", ""},
+    Stage {"STG570",   69, "Area51", ""},
+    Stage {"STG580",   69, "???", ""},
+    Stage {"STG1702",  69, "Train", ""},
+    Stage {"STG1703",  69, "Train Station (Boarding)", ""},
+    Stage {"STG1707",  69, "Train Station Exit", ""},
+    Stage {"STG1708",  69, "Train Station Harvey (Boarding)", ""},
+    Stage {"STG1709",  69, "Train Station Harvey (Exit)", ""},
+    Stage {"STG9000",  69, "DeathMetal Toilet", ""},
+    Stage {"STG9001",  69, "Darkstar Toilet", ""},
+    Stage {"STG9002",  69, "Badgirl Toilet Stadium Basement", ""},
+    Stage {"STG9003",  69, "Speedbuster Toilet Speed City", ""},
+    Stage {"STG9004",  69, "Harvey Toilet", ""},
+    Stage {"STG9005",  69, "Letz Shake Toilet Senton Splash Tunnel", ""},
+    Stage {"STG9006",  69, "Holly Toilet Beach", ""},
+    Stage {"STG9007",  69, "Destroyman Toilet Bear Hug", ""},
+    Stage {"STG9007T", 69, "Destroyman Toilet TGS", ""},
+    Stage {"STG9008",  69, "Shinobu Toilet High School", ""},
+    Stage {"STG9009",  69, "Dr.Peace Toilet Stadium", ""}
 };
 
-static constexpr std::array<StageWarp::Stage, 10> boss_stages = {
-    StageWarp::Stage {"STG081",  69, "Deathmetal"},
-    StageWarp::Stage {"STG042",  69, "Dr.Peace"},
-    StageWarp::Stage {"STG013",  69, "Shinobu"},
-    StageWarp::Stage {"STG031",  69, "Destroyman"},
-    StageWarp::Stage {"STG0001", 69, "Holly Summers"},
-    StageWarp::Stage {"STG090",  69, "Harvey"},
-    StageWarp::Stage {"STG060",  69, "SpeedBuster"},
-    StageWarp::Stage {"STG020",  69, "Bad Girl"},
-    StageWarp::Stage {"STG103",  69, "Darkstar/Jeane"},
-    StageWarp::Stage {"STG0003", 69, "Henry"},
+std::array<std::reference_wrapper<StageWarp::Stage>, 78> all_stages = {
+    StageWarp::stage_items[0],  // Santa Destroy Overworld
+    StageWarp::stage_items[1],  // Beach Boss (Holly Summers)
+    StageWarp::stage_items[2],  // Holly Summers Zako
+    StageWarp::stage_items[3],  // Henry Fight True Ending
+    StageWarp::stage_items[4],  // Free Fight 3
+    StageWarp::stage_items[5],  // Bar Plastic Model Lovikov
+    StageWarp::stage_items[6],  // Cut Bike Race?
+    StageWarp::stage_items[7],  // Cut Bike Race? 2
+    StageWarp::stage_items[8],  // Cut Bike Race? 3
+    StageWarp::stage_items[9],  // Shinobu Zako 1
+    StageWarp::stage_items[10], // Motel Exterior
+    StageWarp::stage_items[11], // Shinobu Zako 2
+    StageWarp::stage_items[12], // Shinobu Zako 3
+    StageWarp::stage_items[13], // City Street
+    StageWarp::stage_items[14], // Shinobu Boss Fight
+    StageWarp::stage_items[15], // Speedbuster Zako
+    StageWarp::stage_items[16], // Beach Spawn
+    StageWarp::stage_items[17], // Homes Near Beach
+    StageWarp::stage_items[18], // Northern Island Spawn
+    StageWarp::stage_items[19], // Free Fight Basketball
+    StageWarp::stage_items[20], // Northern Island Spawn
+    StageWarp::stage_items[21], // Free Fight 5
+    StageWarp::stage_items[22], // Bad Girl Fight
+    StageWarp::stage_items[23], // Bad Girl Fight JP
+    StageWarp::stage_items[24], // Beach Spawn
+    StageWarp::stage_items[25], // Bad Girl Zako
+    StageWarp::stage_items[26], // Bad Girl Zako JP
+    StageWarp::stage_items[27], // Bad Girl Hall
+    StageWarp::stage_items[28], // Bad Girl ZAKO DEBUG
+    StageWarp::stage_items[29], // Bad Girl ZAKO DEBUG
+    StageWarp::stage_items[30], // Bad Girl ZAKO DEBUG 2
+    StageWarp::stage_items[31], // Bad Girl ZAKO DEBUG 2
+    StageWarp::stage_items[32], // Destroyman Zako 2
+    StageWarp::stage_items[33], // Destroyman TGS Zako
+    StageWarp::stage_items[34], // Destroyman Fight
+    StageWarp::stage_items[35], // Destroyman TGS Fight
+    StageWarp::stage_items[36], // Dr.Peace Zako 1
+    StageWarp::stage_items[37], // Dr.Peace Fight
+    StageWarp::stage_items[38], // Letz Shake Zako
+    StageWarp::stage_items[39], // SpeedBuster
+    StageWarp::stage_items[40], // Deathmetal Zako 2
+    StageWarp::stage_items[41], // Deathmetal Fight
+    StageWarp::stage_items[42], // Deathmetal Zako 1
+    StageWarp::stage_items[43], // Deathmetal Sylvia Call
+    StageWarp::stage_items[44], // Harvey Fight
+    StageWarp::stage_items[45], // Darkstar Bike Zako
+    StageWarp::stage_items[46], // Darkstar Zako
+    StageWarp::stage_items[47], // Darkstar/Jeane Fight
+    StageWarp::stage_items[48], // Destroyman Zako 1
+    StageWarp::stage_items[49], // Dr.Peace Zako 3
+    StageWarp::stage_items[50], // Dr.Peace Zako 2
+    StageWarp::stage_items[51], // Stadium Free Fight
+    StageWarp::stage_items[52], // ???
+    StageWarp::stage_items[53], // Motel
+    StageWarp::stage_items[54], // Motel
+    StageWarp::stage_items[55], // Beefhead Videos
+    StageWarp::stage_items[56], // K-Entertainment
+    StageWarp::stage_items[57], // Job Center
+    StageWarp::stage_items[58], // Evolution Gym
+    StageWarp::stage_items[59], // Naomi's Lab
+    StageWarp::stage_items[60], // Area51
+    StageWarp::stage_items[61], // ???
+    StageWarp::stage_items[62], // Train
+    StageWarp::stage_items[63], // Train Station (Boarding)
+    StageWarp::stage_items[64], // Train Station Exit
+    StageWarp::stage_items[65], // Train Station Harvey (Boarding)
+    StageWarp::stage_items[66], // Train Station Harvey (Exit)
+    StageWarp::stage_items[67], // DeathMetal Toilet
+    StageWarp::stage_items[68], // Darkstar Toilet
+    StageWarp::stage_items[69], // Badgirl Toilet Stadium Basement
+    StageWarp::stage_items[70], // Speedbuster Toilet Speed City
+    StageWarp::stage_items[71], // Harvey Toilet
+    StageWarp::stage_items[72], // Letz Shake Toilet Senton Splash Tunnel
+    StageWarp::stage_items[73], // Holly Toilet Beach
+    StageWarp::stage_items[74], // Destroyman Toilet Bear Hug
+    StageWarp::stage_items[75], // Destroyman Toilet TGS
+    StageWarp::stage_items[76], // Shinobu Toilet High School
+    StageWarp::stage_items[77]  // Dr.Peace Toilet Stadium
 };
 
-static constexpr std::array<StageWarp::Stage, 17> zako_stages = {
-    StageWarp::Stage {"STG083",   69, "Deathmetal Zako 1"},
-    StageWarp::Stage {"STG080",   69, "Deathmetal Zako 2"},
-    StageWarp::Stage {"STG041",   69, "Dr.Peace Zako 1"},
-    StageWarp::Stage {"STG0412",  69, "Dr.Peace Zako 2"},
-    StageWarp::Stage {"STG0411",  69, "Dr.Peace Zako 3"},
-    StageWarp::Stage {"STG010",   69, "Shinobu Zako 1"},
-    StageWarp::Stage {"STG011",   69, "Shinobu Zako 2"},
-    StageWarp::Stage {"STG012",   69, "Shinobu Zako 3"},
-    StageWarp::Stage {"STG170",   69, "Destroyman Zako 1"},
-    StageWarp::Stage {"STG030",   69, "Destroyman Zako 2"},
-    StageWarp::Stage {"STG0002",  69, "Holly Summers Zako"},
-    StageWarp::Stage {"STG051",   69, "Letz Shake Zako"},
-    StageWarp::Stage {"STG1708",  69, "Harvey Zako"},
-    StageWarp::Stage {"STG00014", 69, "Speedbuster Zako"},
-    StageWarp::Stage {"STG021",   69, "Bad Girl Zako"},
-    StageWarp::Stage {"STG100",   69, "Darkstar Bike Zako"},
-    StageWarp::Stage {"STG101",   69, "Darkstar Zako"},
+std::array<std::reference_wrapper<StageWarp::Stage>, 10> boss_stages = {
+    StageWarp::stage_items[41],  // Deathmetal
+    StageWarp::stage_items[37],  // Dr.Peace
+    StageWarp::stage_items[14],  // Shinobu
+    StageWarp::stage_items[34],  // Destroyman
+    StageWarp::stage_items[1],   // Holly Summers
+    StageWarp::stage_items[44],  // Harvey
+    StageWarp::stage_items[39],  // SpeedBuster
+    StageWarp::stage_items[22],  // Bad Girl
+    StageWarp::stage_items[47],  // Darkstar/Jeane
+    StageWarp::stage_items[3]    // Henry
 };
 
-static constexpr std::array<StageWarp::Stage, 8> city_stages = {
-    StageWarp::Stage {"STG500",  69, "Motel"},
-    StageWarp::Stage {"STG510",  69, "Beefhead Videos"},
-    StageWarp::Stage {"STG520",  69, "K-Entertainment"},
-    StageWarp::Stage {"STG540",  69, "Job Center"},
-    StageWarp::Stage {"STG0007", 69, "Bar Plastic Model Lovikov"},
-    StageWarp::Stage {"STG550",  69, "Evolution Gym"},
-    StageWarp::Stage {"STG560",  69, "Naomi's Lab"},
-    StageWarp::Stage {"STG570",  69, "Area51"},
+std::array<std::reference_wrapper<StageWarp::Stage>, 17> zako_stages = {
+    StageWarp::stage_items[42],  // Deathmetal Zako 1
+    StageWarp::stage_items[40],  // Deathmetal Zako 2
+    StageWarp::stage_items[36],  // Dr.Peace Zako 1
+    StageWarp::stage_items[50],  // Dr.Peace Zako 2
+    StageWarp::stage_items[49],  // Dr.Peace Zako 3
+    StageWarp::stage_items[9],   // Shinobu Zako 1
+    StageWarp::stage_items[11],  // Shinobu Zako 2
+    StageWarp::stage_items[12],  // Shinobu Zako 3
+    StageWarp::stage_items[48],  // Destroyman Zako 1
+    StageWarp::stage_items[32],  // Destroyman Zako 2
+    StageWarp::stage_items[2],   // Holly Summers Zako
+    StageWarp::stage_items[38],  // Letz Shake Zako
+    StageWarp::stage_items[44],  // Harvey Zako
+    StageWarp::stage_items[15],  // Speedbuster Zako
+    StageWarp::stage_items[25],  // Bad Girl Zako
+    StageWarp::stage_items[45],  // Darkstar Bike Zako
+    StageWarp::stage_items[46]   // Darkstar Zako
 };
 
-static constexpr std::array<StageWarp::Stage, 14> wii_stages = {
-    StageWarp::Stage {"STG0008",  69, "Cut Bike Race?"},
-    StageWarp::Stage {"STG0009",  69, "Cut Bike Race? 2"},
-    StageWarp::Stage {"STG00010", 69, "Cut Bike Race? 3"},
-    StageWarp::Stage {"STG020J",  69, "Bad Girl Fight JP"},
-    StageWarp::Stage {"STG021J",  69, "Bad Girl Zako JP"},
-    StageWarp::Stage {"STG023",   69, "Bad Girl ZAKO DEBUG"},
-    StageWarp::Stage {"STG023J",  69, "Bad Girl ZAKO DEBUG"},
-    StageWarp::Stage {"STG024",   69, "Bad Girl ZAKO DEBUG 2"},
-    StageWarp::Stage {"STG024J",  69, "Bad Girl ZAKO DEBUG 2"},
-    StageWarp::Stage {"STG030T",  69, "Destroyman TGS Zako"},
-    StageWarp::Stage {"STG031T",  69, "Destroyman TGS Fight"},
-    StageWarp::Stage {"STG9007T", 69, "Destroyman Toilet TGS"},
-    StageWarp::Stage {"STG500US", 69, "Motel"},
-    StageWarp::Stage {"STG580",   69, "???"},
+std::array<std::reference_wrapper<StageWarp::Stage>, 8> city_stages = {
+    StageWarp::stage_items[53],  // Motel
+    StageWarp::stage_items[55],  // Beefhead Videos
+    StageWarp::stage_items[56],  // K-Entertainment
+    StageWarp::stage_items[57],  // Job Center
+    StageWarp::stage_items[5],   // Bar Plastic Model Lovikov
+    StageWarp::stage_items[58],  // Evolution Gym
+    StageWarp::stage_items[59],  // Naomi's Lab
+    StageWarp::stage_items[60]   // Area51
 };
 
-static constexpr std::array<StageWarp::Stage, 18> misc_stages = {
-    StageWarp::Stage {"STG000",   69, "Santa Destroy Overworld"},
-    StageWarp::Stage {"STG0004",  69, "Free Fight 3"},
-    StageWarp::Stage {"STG00011", 69, "Motel Exterior"},
-    StageWarp::Stage {"STG00013", 69, "City Street"},
-    StageWarp::Stage {"STG00015", 69, "Free Fight Beach Spawn"},
-    StageWarp::Stage {"STG00016", 69, "Homes Near Beach"},
-    StageWarp::Stage {"STG00017", 69, "Northern Island Spawn"},
-    StageWarp::Stage {"STG00018", 69, "Free Fight Basketball"},
-    StageWarp::Stage {"STG00019", 69, "Northern Island Spawn"},
-    StageWarp::Stage {"STG00020", 69, "Free Fight 5"},
-    StageWarp::Stage {"STG00021", 69, "Mine Sweeping Beach Spawn"},
-    StageWarp::Stage {"STG084",   69, "Deathmetal Sylvia Call"},
-    StageWarp::Stage {"STG0421",  69, "Stadium Free Fight"},
-    StageWarp::Stage {"STG0422",  69, "BROKEN Bike/Stadium stage"},
-    StageWarp::Stage {"STG1702",  69, "Train"},
-    StageWarp::Stage {"STG1703",  69, "Train Station (Boarding)"},
-    StageWarp::Stage {"STG1707",  69, "Train Station Exit"},
-    StageWarp::Stage {"STG1709",  69, "Train Station Harvey (Exit)"},
+std::array<std::reference_wrapper<StageWarp::Stage>, 14> wii_stages = {
+    StageWarp::stage_items[6],   // Cut Bike Race?
+    StageWarp::stage_items[7],   // Cut Bike Race? 2
+    StageWarp::stage_items[8],   // Cut Bike Race? 3
+    StageWarp::stage_items[23],  // Bad Girl Fight JP
+    StageWarp::stage_items[26],  // Bad Girl Zako JP
+    StageWarp::stage_items[28],  // Bad Girl ZAKO DEBUG
+    StageWarp::stage_items[29],  // Bad Girl ZAKO DEBUG
+    StageWarp::stage_items[30],  // Bad Girl ZAKO DEBUG 2
+    StageWarp::stage_items[31],  // Bad Girl ZAKO DEBUG 2
+    StageWarp::stage_items[33],  // Destroyman TGS Zako
+    StageWarp::stage_items[35],  // Destroyman TGS Fight
+    StageWarp::stage_items[75],  // Destroyman Toilet TGS
+    StageWarp::stage_items[53],  // Motel
+    StageWarp::stage_items[52]   // ???
 };
 
-static constexpr std::array<StageWarp::Stage, 10> save_stages = {
-    StageWarp::Stage {"STG9000",  69, "DeathMetal Toilet"},
-    StageWarp::Stage {"STG9001",  69, "Darkstar Toilet"},
-    StageWarp::Stage {"STG9002",  69, "Badgirl Toilet"},
-    StageWarp::Stage {"STG9003",  69, "Speedbuster Toilet"},
-    StageWarp::Stage {"STG9004",  69, "Harvey Toilet"},
-    StageWarp::Stage {"STG9005",  69, "Letz Shake Toilet"},
-    StageWarp::Stage {"STG9006",  69, "Holly Toilet"},
-    StageWarp::Stage {"STG9007",  69, "Destroyman Toilet"},
-    StageWarp::Stage {"STG9008",  69, "Shinobu Toilet"},
-    StageWarp::Stage {"STG9009",  69, "Dr.Peace Toilet"},
+std::array<std::reference_wrapper<StageWarp::Stage>, 18> misc_stages = {
+    StageWarp::stage_items[0],   // Santa Destroy Overworld
+    StageWarp::stage_items[4],   // Free Fight 3
+    StageWarp::stage_items[10],  // Motel Exterior
+    StageWarp::stage_items[13],  // City Street
+    StageWarp::stage_items[16],  // Free Fight Beach Spawn
+    StageWarp::stage_items[17],  // Homes Near Beach
+    StageWarp::stage_items[18],  // Northern Island Spawn
+    StageWarp::stage_items[19],  // Free Fight Basketball
+    StageWarp::stage_items[20],  // Northern Island Spawn
+    StageWarp::stage_items[21],  // Free Fight 5
+    StageWarp::stage_items[16],  // Mine Sweeping Beach Spawn
+    StageWarp::stage_items[43],  // Deathmetal Sylvia Call
+    StageWarp::stage_items[51],  // Stadium Free Fight
+    StageWarp::stage_items[62],  // BROKEN Bike/Stadium stage
+    StageWarp::stage_items[62],  // Train
+    StageWarp::stage_items[63],  // Train Station (Boarding)
+    StageWarp::stage_items[64],  // Train Station Exit
+    StageWarp::stage_items[66]   // Train Station Harvey (Exit)
+};
+
+std::array<std::reference_wrapper<StageWarp::Stage>, 10> save_stages = {
+    StageWarp::stage_items[67],  // DeathMetal Toilet
+    StageWarp::stage_items[68],  // Darkstar Toilet
+    StageWarp::stage_items[69],  // Badgirl Toilet
+    StageWarp::stage_items[70],  // Speedbuster Toilet
+    StageWarp::stage_items[71],  // Harvey Toilet
+    StageWarp::stage_items[72],  // Letz Shake Toilet
+    StageWarp::stage_items[73],  // Holly Toilet
+    StageWarp::stage_items[74],  // Destroyman Toilet
+    StageWarp::stage_items[76],  // Shinobu Toilet
+    StageWarp::stage_items[77]   // Dr.Peace Toilet
 };
 
 std::optional<std::string> StageWarp::on_initialize() {
@@ -223,21 +314,51 @@ void ShowImageTable(const char* headerName, const std::array<StageWarp::Stage, N
     }
 }
 
-template <size_t N>
-void DisplayStageSection(const char* headerName, const std::array<StageWarp::Stage, N>& stages) {
+template <typename T>
+void DisplayStageSection(const char* headerName, const T& stages) {
     if (ImGui::CollapsingHeader(headerName)) {
         for (size_t i = 0; i < stages.size(); ++i) {
             char buttonLabel[64];
-            snprintf(buttonLabel, sizeof(buttonLabel), "Warp to %s: %s", stages[i].name, stages[i].info);
-            if (ImGui::Button(buttonLabel)) {
-                nmh_sdk::SetStage(stages[i].name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
+            char buttonInfo[64];
+            auto& stage = stages[i].get();  // actual Stage object
+            snprintf(buttonLabel, sizeof(buttonLabel), "%s", stage.name);
+            snprintf(buttonInfo, sizeof(buttonInfo), "%s", stage.info);
+            ImGui::TextColored(ImVec4(1.00, 0.79, 0.45, 1.0), buttonLabel);
+
+            if (ImGui::IsItemHovered()) {
+                if (*stage.longerInfo)
+                    StageWarp::hoveredDescription = stage.longerInfo;
+                else 
+                    StageWarp::hoveredDescription = stage.info;
+            }
+
+            if (ImGui::IsItemClicked()) {
+                nmh_sdk::SetStage(stage.name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
+                                  setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
+            }
+            ImGui::SameLine(100.0f);
+            ImGui::TextColored(ImVec4(0.81, 0.40, 0.38, 1.0), buttonInfo);
+
+            if (ImGui::IsItemHovered()) {
+                if (*stage.longerInfo)
+                    StageWarp::hoveredDescription = stage.longerInfo;
+                else 
+                    StageWarp::hoveredDescription = stage.info;
+            }
+
+            if (ImGui::IsItemClicked()) {
+                nmh_sdk::SetStage(stage.name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
                                   setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
             }
         }
     }
 }
 
+
 void StageWarp::on_draw_ui() {
+    if (!ImGui::IsAnyItemHovered()) {
+            hoveredDescription = DefaultDescription;
+    }
     if (nmh_sdk::get_CBgCtrl()) {
         char* currentStage = nmh_sdk::get_CBgCtrl()->m_NowStageName;
         if (currentStage && (strlen(currentStage) < 20)) {
@@ -245,6 +366,16 @@ void StageWarp::on_draw_ui() {
         } else {
             ImGui::Text("Current Stage: ?");
         }
+
+        DisplayStageSection("All", all_stages);
+        DisplayStageSection("Bosses", boss_stages);
+        DisplayStageSection("Zako", zako_stages);
+        DisplayStageSection("City Interiors", city_stages);
+        DisplayStageSection("Wii/Unused", wii_stages);
+        DisplayStageSection("Miscellaneous", misc_stages);
+        DisplayStageSection("Toilets", save_stages);
+
+        // DisplayStageSection("All", StageWarp::stage_items); // old version
 
         static const char* argsHelpMarker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n"
             "The warps you've been using up to this point have left all of these values at 0.\n"
@@ -269,23 +400,9 @@ void StageWarp::on_draw_ui() {
         else {
             help_marker(argsHelpMarker);
         }
-        // temp, before we get images
-        DisplayStageSection("All", StageWarp::stage_items);
-        DisplayStageSection("Bosses", boss_stages);
-        DisplayStageSection("Zako", zako_stages);
-        DisplayStageSection("City Interiors", city_stages);
-        DisplayStageSection("Wii/Unused", wii_stages);
-        DisplayStageSection("Miscellaneous", misc_stages);
-        DisplayStageSection("Toilets", save_stages);
     }
     // hopefully you can slot images into this table or maybe my table sucks idk
     // ShowImageTable("All", StageWarp::stage_items);
-    // ShowImageTable("Bosses", boss_stages);
-    // ShowImageTable("Zako", zako_stages);
-    // ShowImageTable("City Interiors", city_stages);
-    // ShowImageTable("Wii/Unused", wii_stages);
-    // ShowImageTable("Miscellaneous", misc_stages);
-    // ShowImageTable("Toilets", save_stages);
 }
 
 // during load
