@@ -1,4 +1,6 @@
 set(MODS_SRC
+    mods/KbmControls.hpp 
+    mods/KbmControls.cpp 
     mods/HpColor.hpp
     mods/HpColor.cpp
     mods/BeamColor.hpp
@@ -78,6 +80,10 @@ set(SDK_SRC
 )
 
 set(UTILITY_SRC
+  utility/Keyboard.hpp
+  utility/Keyboard.cpp
+  utility/Mouse.hpp
+  utility/Mouse.cpp
   utility/StackTrace.hpp
   utility/ExceptionHandler.hpp
   utility/ExceptionHandler.cpp

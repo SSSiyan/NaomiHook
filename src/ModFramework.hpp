@@ -6,6 +6,10 @@ class Mods;
 struct OurImGuiContext;
 struct ID3D11Device;
 
+namespace DirectX {
+    class Mouse;
+}
+
 #include "D3D11Hook.hpp"
 #include "WindowsMessageHook.hpp"
 #include "utility/Address.hpp"
@@ -30,7 +34,7 @@ public:
     }
 
     Address get_module() const {
-        return m_game_module;
+        return GetModuleHandle(NULL);
     }
 
     bool is_ready() const {
@@ -46,6 +50,13 @@ public:
     bool on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_param);
 
     void save_config();
+
+public:
+    std::unique_ptr<DirectX::Mouse> m_mouse;
+    uint32_t m_mouse_mode {0}; // hack ;_;
+    
+    float window_size_x{};
+    float window_size_y{};
 
 private:
     void draw_ui();

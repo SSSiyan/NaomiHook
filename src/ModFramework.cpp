@@ -22,6 +22,8 @@
 #include "Fonts.hpp"
 #include "mods/DisableMouse.hpp"
 
+#include "utility/Mouse.hpp"
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 std::unique_ptr<ModFramework> g_framework{};
@@ -95,6 +97,7 @@ void ModFramework::on_frame() {
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
+    m_mouse->EndOfInputFrame();
 }
 
 void ModFramework::on_reset() {
@@ -112,6 +115,16 @@ void ModFramework::on_reset() {
 }
 
 
+inline void center_cursor(HWND window) {
+    RECT window_rect;
+    GetWindowRect(window, &window_rect);
+
+    int centerX = (window_rect.left + window_rect.right)  / 2;
+    int centerY = (window_rect.top  + window_rect.bottom) / 2;
+
+    SetCursorPos(centerX, centerY);
+}
+
 bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_param) {
     if (!m_initialized) {
         return true;
@@ -125,10 +138,18 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
     }
 #endif
 
+
     // TODO(): hotkey crap from dmc4hook?
     if (message == WM_KEYDOWN && w_param == VK_DELETE) {
         m_draw_ui = !m_draw_ui;
         DisableMouse::gui_open = m_draw_ui;
+        if (m_draw_ui) {
+            m_mouse->SetMode(DirectX::Mouse::MODE_ABSOLUTE);
+        }
+        else {
+            m_mouse->SetMode(DirectX::Mouse::MODE_RELATIVE);
+        }
+        m_mouse->SetVisible(true);
     }
 
     if (ImGui_ImplWin32_WndProcHandler(wnd, message, w_param, l_param) != 0) { // if (m_draw_ui && didn't work and stops us interacting with debug windows
@@ -138,6 +159,29 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
         if (io.WantCaptureMouse || io.WantCaptureKeyboard || io.WantTextInput) {
             return false;
         }
+    }
+
+    switch (message)
+    {
+    case WM_ACTIVATE:
+    case WM_ACTIVATEAPP:
+    case WM_INPUT:
+    case WM_MOUSEMOVE:
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
+    case WM_MBUTTONDOWN:
+    case WM_MBUTTONUP:
+    case WM_MOUSEWHEEL:
+    case WM_XBUTTONDOWN:
+    case WM_XBUTTONUP:
+    case WM_MOUSEHOVER:
+        DirectX::Mouse::ProcessMessage(message, w_param, l_param);
+        if(m_mouse_mode == DirectX::Mouse::MODE_RELATIVE) {
+            center_cursor(m_wnd);
+        }
+        return false;
     }
 
     return true;
@@ -253,6 +297,16 @@ bool ModFramework::initialize() {
 
     m_wnd = swap_desc.OutputWindow;
 
+    RECT window_rect{};
+    if (!GetWindowRect(m_wnd, &window_rect)) {
+        spdlog::error("Failed to GetWindowRect({}, {});\n", (void*)m_wnd, (void*)&window_rect);
+    }
+    window_size_x = window_rect.right - window_rect.left;
+    window_size_y = window_rect.bottom - window_rect.top;
+
+    m_mouse = std::make_unique<DirectX::Mouse>();
+    m_mouse->SetWindow(m_wnd);
+
     // Explicitly call destructor first
     m_windows_message_hook.reset();
     m_windows_message_hook = std::make_unique<WindowsMessageHook>(m_wnd);
@@ -290,6 +344,7 @@ bool ModFramework::initialize() {
     auto& io = ImGui::GetIO();
 
     load_fonts(m_our_imgui_ctx.get(), io);
+
 
     if (m_first_frame) {
         m_first_frame = false;

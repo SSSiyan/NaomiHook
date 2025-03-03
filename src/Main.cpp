@@ -3,6 +3,7 @@
 
 #include "ModFramework.hpp"
 
+#include "mods/ArcadeMode.hpp"
 
 #define DLLPATH "\\\\.\\GLOBALROOT\\SystemRoot\\SysWOW64\\XInput1_4.dll"
 
@@ -48,6 +49,7 @@ static DWORD WINAPI startup_thread([[maybe_unused]] LPVOID parameter) {
 }
 
 HMODULE g_nmhfix_handle {NULL};
+Mod* g_mod_arcade {nullptr};
 
 BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
     if (reason == DLL_PROCESS_ATTACH) {
@@ -59,10 +61,13 @@ BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
         if(!nmhfix_handle) {
             g_nmhfix_handle = LoadLibraryA("NMHFix.asi");
         }
+        g_mod_arcade = new ArcadeMode;
+        g_mod_arcade->on_initialize();
         CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)startup_thread, nullptr, 0, nullptr);
     }
     if (reason == DLL_PROCESS_DETACH) {
         FreeLibrary(g_nmhfix_handle);
+        delete g_mod_arcade;
     }
     return TRUE;
 }

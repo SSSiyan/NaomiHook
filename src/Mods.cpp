@@ -33,6 +33,7 @@
 #include "mods/DisableMouse.hpp"
 #include "mods/SoundTracker.hpp"
 #include "mods/ArcadeMode.hpp"
+#include "mods/KbmControls.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -50,6 +51,7 @@ Mods::Mods()
     // ADD_MOD(BeamColor);
     // ADD_MOD(HpColor);
     ADD_MOD(PlayerTracker);
+    ADD_MOD(KbmControls);
     ADD_MOD(DisableCrashDumps);
     ADD_MOD(AcceptPadInputsTabbedOut);
     ADD_MOD(WeaponSwitcher);
@@ -74,7 +76,7 @@ Mods::Mods()
     ADD_MOD(ReprisalSwap);
     ADD_MOD(DisableMouse);
     ADD_MOD(SoundTracker);
-    ADD_MOD(ArcadeMode);
+    //ADD_MOD(ArcadeMode);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
@@ -113,6 +115,8 @@ void Mods::on_frame() const {
 void Mods::on_draw_custom_imgui_window() {
     PlayerTracker* pt = dynamic_cast<PlayerTracker*>(m_mods[0].get());
     pt->custom_imgui_window();
+    KbmControls* kbm = dynamic_cast<KbmControls*>(m_mods[1].get());
+    kbm->custom_imgui_window();
 }
 
 void Mods::on_draw_debug_ui() const {

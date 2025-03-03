@@ -32,6 +32,12 @@ namespace nmh_sdk {
 		return NULL;
     }
 
+    HrCamera* get_HrCamera()
+    {
+        static HrCamera* HrCameraPtr = (HrCamera*)(g_framework->get_module().as<uintptr_t>() + 0x82A4A0);
+        return HrCameraPtr;
+    }
+
     HrMenuTask* get_HrMenuTask() {
         static uintptr_t hrMenuTaskPtr = g_framework->get_module().as<uintptr_t>() + 0x8447D4;
         if (HrMenuTask* hrMenuTask = (HrMenuTask*)*(uintptr_t*)hrMenuTaskPtr)

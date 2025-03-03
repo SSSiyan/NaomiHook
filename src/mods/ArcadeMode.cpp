@@ -2,8 +2,8 @@
 #include "ArcadeMode.hpp"
 #include "csys/system.h"
 
-bool ArcadeMode::mod_enabled = false;
-bool ArcadeMode::quickBoot = false;
+bool ArcadeMode::mod_enabled = true;
+bool ArcadeMode::quickBoot = true;
 uintptr_t ArcadeMode::jmp_ret1 = NULL;
 uintptr_t ArcadeMode::gpBattle = NULL;
 uintptr_t ArcadeMode::mSetVisible = NULL;
