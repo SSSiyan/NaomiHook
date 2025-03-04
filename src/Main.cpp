@@ -2,7 +2,7 @@
 #include <windows.h>
 
 #include "ModFramework.hpp"
-
+#include "mods/ResolutionScaleFix.hpp"
 
 #define DLLPATH "\\\\.\\GLOBALROOT\\SystemRoot\\SysWOW64\\XInput1_4.dll"
 
@@ -48,6 +48,7 @@ static DWORD WINAPI startup_thread([[maybe_unused]] LPVOID parameter) {
 }
 
 HMODULE g_nmhfix_handle {NULL};
+Mod* g_dpi_fix_mod {nullptr};
 
 BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
     if (reason == DLL_PROCESS_ATTACH) {
@@ -60,9 +61,14 @@ BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
             g_nmhfix_handle = LoadLibraryA("NMHFix.asi");
         }
         CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)startup_thread, nullptr, 0, nullptr);
+        g_dpi_fix_mod = new ResolutionScaleFix();
+        if (g_dpi_fix_mod->on_initialize().has_value()) {
+        MessageBox(NULL, "Oof", "NMH1", MB_ICONINFORMATION);
+        }
     }
     if (reason == DLL_PROCESS_DETACH) {
         FreeLibrary(g_nmhfix_handle);
+        delete g_dpi_fix_mod;
     }
     return TRUE;
 }

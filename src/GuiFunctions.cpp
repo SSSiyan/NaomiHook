@@ -22,10 +22,15 @@
 #define IMGUI_WINDOW_ST_MODNAME_COLOR 0xffbfe6ff // mod title at top right
 
 namespace gui {
-    void dark_theme() {
+    void dark_theme(unsigned int dpi) {
         {
-            // Deep Dark style by janekb04 from ImThemes
+            static constexpr float default_dpi = 96.0f;
+            const float dpi_fuqtor = (float)dpi / default_dpi;
+
             ImGuiStyle& style = ImGui::GetStyle();
+            style.ScaleAllSizes(dpi_fuqtor);
+
+            // Deep Dark style by janekb04 from ImThemes
             style.Alpha = 1.0f;
             style.DisabledAlpha = 0.6000000238418579f;
             style.WindowPadding = ImVec2(8.0f, 8.0f);

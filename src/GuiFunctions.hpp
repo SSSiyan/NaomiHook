@@ -78,7 +78,7 @@ inline void under_line(const ImColor& col) {
     min.y      = max.y;
     ImGui::GetWindowDrawList()->AddLine(min, max, col, 1.0f);
 }
-void dark_theme();
+void dark_theme(unsigned int dpi);
 
 // helpmarker function, to avoid typing it every time in the gui section
 void help_marker(const char* desc);

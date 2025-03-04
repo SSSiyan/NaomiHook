@@ -20,6 +20,7 @@ public:
 
     void on_present(OnPresentFn fn) { m_on_present = fn; }
     void on_resize_buffers(OnResizeBuffersFn fn) { m_on_resize_buffers = fn; }
+    void after_resize_buffers(OnResizeBuffersFn fn) { m_after_resize_buffers = fn; }
 
     ID3D11Device* get_device() { return m_device; }
     IDXGISwapChain* get_swap_chain() { return m_swap_chain; }
@@ -33,6 +34,7 @@ protected:
     std::unique_ptr<FunctionHook> m_resize_buffers_hook{};
     OnPresentFn m_on_present{ nullptr };
     OnResizeBuffersFn m_on_resize_buffers{ nullptr };
+    OnResizeBuffersFn m_after_resize_buffers{ nullptr };
 
     static HRESULT WINAPI present(IDXGISwapChain* swap_chain, UINT sync_interval, UINT flags);
     static HRESULT WINAPI resize_buffers(IDXGISwapChain* swap_chain, UINT buffer_count, UINT width, UINT height, DXGI_FORMAT new_format, UINT swap_chain_flags);

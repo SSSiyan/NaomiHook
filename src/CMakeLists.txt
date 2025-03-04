@@ -61,7 +61,8 @@ set(MODS_SRC
     mods/KillObscuringTreasureChests.cpp
     mods/Volume.hpp 
     mods/Volume.cpp 
-
+    mods/ResolutionScaleFix.hpp  
+    mods/ResolutionScaleFix.cpp 
 )
 
 set(HOOKS_SRC
