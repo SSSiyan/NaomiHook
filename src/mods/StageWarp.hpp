@@ -7,10 +7,10 @@ public:
   StageWarp() = default;
 
   struct Stage {
-  const char* name;
-  int id;
-  const char* info;
-  const char* longerInfo;
+	const char* name;
+	int arrayItem;
+	const char* info;
+	const char* longerInfo;
   };
 
   static std::array<Stage, 78> stage_items;
@@ -23,7 +23,6 @@ public:
   //const char* get_description() const override { return R"(Teleport to any stage in the game. 'Wii/Unused' contains warps to stages which aren't included with the Steam release of NMH1, so to make use of these, you'll need to have the files from the Wii version.)"; };
 
   void render_description() const override;
-  static void update_description(const char* name, const char* info, const char* button);
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
