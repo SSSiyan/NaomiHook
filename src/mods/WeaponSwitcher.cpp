@@ -198,37 +198,6 @@ void FillComboBoxWithImGui(int slotID, const char* comboBoxLabel) {
     }
 }
 
-void RenderWeaponComboBoxes() {
-    FillComboBoxWithImGui(0, "Left Sword (Slot 1)");
-    FillComboBoxWithImGui(1, "Down Sword (Slot 2)");
-    FillComboBoxWithImGui(2, "Right Sword (Slot 3)");
-    FillComboBoxWithImGui(3, "Up Sword (Slot 4)");
-}
-
-/*void RenderWeaponList(int slotID) {
-    std::vector<pcItem> matchingItems = FindMatchingItemsForSlot(slotID);
-
-    for (const auto& item : matchingItems) {
-        const char* weaponName = pcItemToString(item);
-        ImGui::BulletText("%s", weaponName);
-    }
-}
-
-void RenderWeaponLists() {
-    ImGui::Text("Weapons in Left Slot:");
-    RenderWeaponList(0);
-
-    ImGui::Text("Weapons in Down Slot:");
-    RenderWeaponList(1);
-
-    ImGui::Text("Weapons in Right Slot:");
-    RenderWeaponList(2);
-
-    ImGui::Text("Weapons in Up Slot:");
-    RenderWeaponList(3);
-}*/
-
-
 // clang-format off
 naked void detour1() { // play weapon anims // player in ecx // called last
     __asm {
@@ -392,11 +361,38 @@ void WeaponSwitcher::on_draw_ui() {
     if (ImGui::Checkbox("Weapon Switcher", &mod_enabled)) {
         toggleForceMap(mod_enabled);
     }
+
     if (mod_enabled) {
-        RenderWeaponComboBoxes();
-        //RenderWeaponLists();
+        float windowWidth = ImGui::GetContentRegionAvail().x;
+        float centerX = windowWidth * 0.5f;
+
+        ImVec2 cursorStart = ImGui::GetCursorPos();
+
+        float comboBoxWidth = ImGui::GetFontSize() * 8.0f;
+
+        ImGui::SetCursorPos(ImVec2(centerX - (comboBoxWidth * 0.5f), cursorStart.y));
+        ImGui::PushItemWidth(comboBoxWidth);
+        FillComboBoxWithImGui(3, "## Up Sword Combo");
+        ImGui::PopItemWidth();
+
+        ImGui::SetCursorPos(ImVec2(centerX - comboBoxWidth - ImGui::GetFontSize(), cursorStart.y + ImGui::GetFontSize() * 2));
+        ImGui::PushItemWidth(comboBoxWidth);
+        FillComboBoxWithImGui(0, "## Left Sword Combo");
+        ImGui::PopItemWidth();
+
+        ImGui::SameLine();
+        ImGui::SetCursorPos(ImVec2(centerX + ImGui::GetFontSize(), cursorStart.y + ImGui::GetFontSize() * 2));
+        ImGui::PushItemWidth(comboBoxWidth);
+        FillComboBoxWithImGui(2, "## Right Sword Combo");
+        ImGui::PopItemWidth();
+
+        ImGui::SetCursorPos(ImVec2(centerX - (comboBoxWidth * 0.5f), cursorStart.y + ImGui::GetFontSize() * 4));
+        ImGui::PushItemWidth(comboBoxWidth);
+        FillComboBoxWithImGui(1, "## Down Sword Combo");
+        ImGui::PopItemWidth();
+
         ImGui::Text("Current Weapon: %s", pcItemToString(nmh_sdk::get_mHRPc()->mPcStatus.equip[0].id));
-        //ImGui::Text(pcItemToString(nmh_sdk::get_mHRPc()->mPcStatus.equip[0].id));
+
         ImGui::Checkbox("Display UI", &weapon_switcher_ui);
     }
 }
