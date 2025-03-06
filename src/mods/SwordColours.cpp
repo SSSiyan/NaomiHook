@@ -471,11 +471,11 @@ struct RgbaDefaults {
 };
 
 static constexpr std::array cfg_defaults = {
-    RgbaDefaults { "colors_picked[0]", &colours_picked_rgbaInt[0], {0x12, 0xFF, 0x2A, 0xFF}},
-    RgbaDefaults { "colors_picked[1]", &colours_picked_rgbaInt[1], {0x64, 0x64, 0xFF, 0xFF}},
-    RgbaDefaults { "colors_picked[2]", &colours_picked_rgbaInt[2], {0x00, 0x55, 0xFF, 0xFF}},
-    RgbaDefaults { "colors_picked[3]", &colours_picked_rgbaInt[3], {0x00, 0x55, 0xFF, 0xFF}},
-    RgbaDefaults { "colors_picked[4]", &colours_picked_rgbaInt[4], {0xFF, 0x00, 0x00, 0xFF}},
+    RgbaDefaults { "colors_picked[0]", &colours_picked_rgbaInt[0], {0x64, 0x64, 0xFF, 0xFF}}, // BB
+    RgbaDefaults { "colors_picked[1]", &colours_picked_rgbaInt[1], {0x64, 0xFF, 0x74, 0xFF}}, // MK3
+    RgbaDefaults { "colors_picked[2]", &colours_picked_rgbaInt[2], {0x64, 0x64, 0xFF, 0xFF}}, // MK1
+    RgbaDefaults { "colors_picked[3]", &colours_picked_rgbaInt[3], {0x64, 0x64, 0xFF, 0xFF}}, // MK2
+    RgbaDefaults { "colors_picked[4]", &colours_picked_rgbaInt[4], {0xFF, 0x00, 0x00, 0xFF}}, // DB
 };
 
 static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImColor& rgba, IntColor& rgbaInt, const RgbaDefaults& color_default) {
