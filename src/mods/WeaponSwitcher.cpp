@@ -369,7 +369,7 @@ void WeaponSwitcher::on_draw_ui() {
 
             ImVec2 cursorStart = ImGui::GetCursorPos();
 
-            float comboBoxWidth = ImGui::GetFontSize() * 8.0f;
+            float comboBoxWidth = windowWidth * 0.3f;
 
             ImGui::SetCursorPos(ImVec2(centerX - (comboBoxWidth * 0.5f), cursorStart.y));
             ImGui::PushItemWidth(comboBoxWidth);
