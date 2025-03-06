@@ -95,7 +95,7 @@ std::optional<std::string> ChargeSubsBattery::on_initialize() {
 }
 
 void ChargeSubsBattery::on_draw_ui() {
-    ImGui::Checkbox("Charging Subtracts Battery", &mod_enabled);
+    ImGui::Checkbox("Charging Uses Battery", &mod_enabled);
     /*if (mod_enabled) {
         ImGui::Text("How many ticks required to sub 1 battery");
         ImGui::SliderInt("##customBatterySubSliderInt", &subWhenOver, 0, 10);

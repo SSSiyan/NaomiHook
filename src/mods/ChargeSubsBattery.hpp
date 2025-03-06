@@ -16,7 +16,7 @@ public:
 
   // mod name string for config
   std::string get_mod_name() const override { return "ChargeSubsBattery"; }
-  std::string get_human_readable_name() const { return "Charge Subtracts Battery"; }
+  std::string get_human_readable_name() const { return "Charging Uses Battery"; }
   const char* get_description() const override { return R"(Applies a nerf to charge attacks on beam katanas that causes the battery to drain as the charge is held.
 This was implemented to promote the usage of other tools. The MK3's battery upgrade works like Heroes Paradise and only drains with charge attacks.)"; };
 

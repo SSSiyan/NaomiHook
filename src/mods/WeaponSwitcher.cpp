@@ -70,7 +70,7 @@ int WeaponSwitcher::weaponSwitchCooldown = 80; // this is what ticks
 static int weaponSwitchLockedFrames = 10; // this locks you out from weapon switching
 static int animationDuration = WeaponSwitcher::weaponSwitchCooldown;
 static int directionPressed = 0;
-bool WeaponSwitcher::weapon_switcher_ui = false;
+// bool WeaponSwitcher::weapon_switcher_ui = false;
 
 // Disable toggling the map while Weapon Switcher is active
 void WeaponSwitcher::toggleForceMap(bool enable) {
@@ -363,37 +363,39 @@ void WeaponSwitcher::on_draw_ui() {
     }
 
     if (mod_enabled) {
-        float windowWidth = ImGui::GetContentRegionAvail().x;
-        float centerX = windowWidth * 0.5f;
+        if (mHRPc* player = nmh_sdk::get_mHRPc()) {
+            float windowWidth = ImGui::GetContentRegionAvail().x;
+            float centerX = windowWidth * 0.5f;
 
-        ImVec2 cursorStart = ImGui::GetCursorPos();
+            ImVec2 cursorStart = ImGui::GetCursorPos();
 
-        float comboBoxWidth = ImGui::GetFontSize() * 8.0f;
+            float comboBoxWidth = ImGui::GetFontSize() * 8.0f;
 
-        ImGui::SetCursorPos(ImVec2(centerX - (comboBoxWidth * 0.5f), cursorStart.y));
-        ImGui::PushItemWidth(comboBoxWidth);
-        FillComboBoxWithImGui(3, "## Up Sword Combo");
-        ImGui::PopItemWidth();
+            ImGui::SetCursorPos(ImVec2(centerX - (comboBoxWidth * 0.5f), cursorStart.y));
+            ImGui::PushItemWidth(comboBoxWidth);
+            FillComboBoxWithImGui(3, "## Up Sword Combo");
+            ImGui::PopItemWidth();
 
-        ImGui::SetCursorPos(ImVec2(centerX - comboBoxWidth - ImGui::GetFontSize(), cursorStart.y + ImGui::GetFontSize() * 2));
-        ImGui::PushItemWidth(comboBoxWidth);
-        FillComboBoxWithImGui(0, "## Left Sword Combo");
-        ImGui::PopItemWidth();
+            ImGui::SetCursorPos(ImVec2(centerX - comboBoxWidth - ImGui::GetFontSize(), cursorStart.y + ImGui::GetFontSize() * 2));
+            ImGui::PushItemWidth(comboBoxWidth);
+            FillComboBoxWithImGui(0, "## Left Sword Combo");
+            ImGui::PopItemWidth();
 
-        ImGui::SameLine();
-        ImGui::SetCursorPos(ImVec2(centerX + ImGui::GetFontSize(), cursorStart.y + ImGui::GetFontSize() * 2));
-        ImGui::PushItemWidth(comboBoxWidth);
-        FillComboBoxWithImGui(2, "## Right Sword Combo");
-        ImGui::PopItemWidth();
+            ImGui::SameLine();
+            ImGui::SetCursorPos(ImVec2(centerX + ImGui::GetFontSize(), cursorStart.y + ImGui::GetFontSize() * 2));
+            ImGui::PushItemWidth(comboBoxWidth);
+            FillComboBoxWithImGui(2, "## Right Sword Combo");
+            ImGui::PopItemWidth();
 
-        ImGui::SetCursorPos(ImVec2(centerX - (comboBoxWidth * 0.5f), cursorStart.y + ImGui::GetFontSize() * 4));
-        ImGui::PushItemWidth(comboBoxWidth);
-        FillComboBoxWithImGui(1, "## Down Sword Combo");
-        ImGui::PopItemWidth();
+            ImGui::SetCursorPos(ImVec2(centerX - (comboBoxWidth * 0.5f), cursorStart.y + ImGui::GetFontSize() * 4));
+            ImGui::PushItemWidth(comboBoxWidth);
+            FillComboBoxWithImGui(1, "## Down Sword Combo");
+            ImGui::PopItemWidth();
 
-        ImGui::Text("Current Weapon: %s", pcItemToString(nmh_sdk::get_mHRPc()->mPcStatus.equip[0].id));
+            ImGui::Text("Current Weapon: %s", pcItemToString(player->mPcStatus.equip[0].id));
 
-        ImGui::Checkbox("Display UI", &weapon_switcher_ui);
+            // ImGui::Checkbox("Display UI", &weapon_switcher_ui);
+        }
     }
 }
 
@@ -591,9 +593,9 @@ void WeaponSwitcher::on_frame() {
             }
             previousSwordEquipRead = player->mPcStatus.equip[0].readProc;*/
             weaponSwitchCooldown++;
-            if (weapon_switcher_ui) {
-                Display_UI();
-            }
+            //if (weapon_switcher_ui) {
+            Display_UI();
+            //}
         }
     }
 }
@@ -606,13 +608,13 @@ void WeaponSwitcher::on_frame() {
 void WeaponSwitcher::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("weapon_switcher").value_or(false);
     toggleForceMap(mod_enabled);
-    weapon_switcher_ui = cfg.get<bool>("weapon_switcher_ui").value_or(false);
+    // weapon_switcher_ui = cfg.get<bool>("weapon_switcher_ui").value_or(false);
 }
 
 // during save
 void WeaponSwitcher::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("weapon_switcher", mod_enabled);
-    cfg.set<bool>("weapon_switcher_ui", weapon_switcher_ui);
+    // cfg.set<bool>("weapon_switcher_ui", weapon_switcher_ui);
 }
 
 #endif

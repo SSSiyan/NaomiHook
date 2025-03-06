@@ -70,7 +70,7 @@ std::optional<std::string> ThrowBattery::on_initialize() {
 }
 
 void ThrowBattery::on_draw_ui() {
-    ImGui::Checkbox("Gain Battery from throws", &mod_enabled);
+    ImGui::Checkbox("Gain Battery From Throws", &mod_enabled);
     /*if (mod_enabled) {
         ImGui::Indent();
         ImGui::Text("Custom Battery Amount");

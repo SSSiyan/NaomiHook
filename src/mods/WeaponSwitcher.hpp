@@ -10,7 +10,7 @@ public:
   static uintptr_t jmp_ret1;
   static uintptr_t jmp_ret2;
   static int weaponSwitchCooldown;
-  static bool weapon_switcher_ui;
+  // static bool weapon_switcher_ui;
 
   void toggleForceMap(bool enable);
   static bool CanWeaponSwitch(pcItem desiredWeapon);

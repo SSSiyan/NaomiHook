@@ -16,7 +16,7 @@ std::optional<std::string> KillObscuringTreasureChests::on_initialize() {
 }
 
 void KillObscuringTreasureChests::on_draw_ui() {
-    if (ImGui::Checkbox("Kill Obscuring Treasure Chests", &mod_enabled)) {
+    if (ImGui::Checkbox("Disable Obscuring Treasure Chests", &mod_enabled)) {
         toggle(mod_enabled);
     }
 }

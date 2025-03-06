@@ -376,7 +376,7 @@ void DodgeSettings::on_draw_ui() {
         toggle_disable_slowmo_darkstep(disable_darkstep_slowmo_mod_enabled);
     }
     if (ImGui::IsItemHovered())
-        DodgeSettings::hoveredDescription = "Functionally alters Darksteps to function like it does in NMH2. When performing a Darkstep, Travis will retain his normal speed instead of slowing down.";
+        DodgeSettings::hoveredDescription = "Functionally alters Darksteps to function like it does in NMH2. When performing a Darkstep, Travis will retain his current speed instead of slowing down.";
     
     ImGui::Checkbox("Roll Rotation", &roll_rotation_mod_enabled);
     if (ImGui::IsItemHovered())

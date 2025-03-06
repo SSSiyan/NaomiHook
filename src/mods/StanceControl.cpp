@@ -235,9 +235,13 @@ void StanceControl::on_draw_ui() {
         ImGui::Checkbox("Show Custom Stance UI", &StanceControl::show_new_ui);
         ImGui::Unindent();
     }
-    if (ImGui::Checkbox("Swap Vanilla Mid And Low UI", &StanceControl::edit_old_ui)) {
+
+    if (ImGui::Checkbox("Swap Vanilla Mid and Low UI", &StanceControl::edit_old_ui)) {
         toggle_display_edit(edit_old_ui);
     }
+    if (ImGui::IsItemHovered())
+        StanceControl::hoveredDescription = "Makes the vanilla stance display consider the default low stance as mid stance.";
+
     if (ImGui::Checkbox("Swap Idle Stances", &swapIdleStances)) {
         toggleSwapIdleStances(swapIdleStances);
     }

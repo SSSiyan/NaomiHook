@@ -83,7 +83,7 @@ std::optional<std::string> HPHitNumber::on_initialize() {
 }
 
 void HPHitNumber::on_draw_ui() {
-    if (ImGui::Checkbox("HP Hit Number", &mod_enabled)) {
+    if (ImGui::Checkbox("HP over HIT Number", &mod_enabled)) {
         toggle(mod_enabled);
     }
     //ImGui::Text("HP Number Vertical Offset");

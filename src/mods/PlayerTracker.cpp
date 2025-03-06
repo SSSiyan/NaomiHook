@@ -46,12 +46,13 @@ void DrawPlayerStats() {
             }
             static pcMotion motionID = pcMotion::ePcMtBtLSSonic;
             ImGui::InputInt("Motion ID", (int*)&motionID);
-            if (ImGui::Button("Play Move")) {
+            float itemWidth = ImGui::CalcItemWidth();
+            if (ImGui::Button("Play Move", ImVec2(itemWidth, NULL))) {
                 nmh_sdk::PlayMotion(motionID, 0, 0, 0, 0.1f);
             }
             static pcItem equipID = SHIRT1;
             ImGui::InputInt("Equip ID", (int*)&equipID);
-            if (ImGui::Button("Set Equip")) {
+            if (ImGui::Button("Set Equip", ImVec2(itemWidth, NULL))) {
                 nmh_sdk::SetEquip(equipID, false);
             }
         }

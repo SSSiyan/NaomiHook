@@ -480,7 +480,7 @@ static constexpr std::array cfg_defaults = {
 
 static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImColor& rgba, IntColor& rgbaInt, const RgbaDefaults& color_default) {
 
-#if 0
+#if 0   
     ImVec2 spos = ImGui::GetCursorScreenPos();
     ImVec2 text_size = ImGui::CalcTextSize(name);
 #endif

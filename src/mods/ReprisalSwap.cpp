@@ -36,7 +36,7 @@ std::optional<std::string> ReprisalSwap::on_initialize() {
 }
 
 void ReprisalSwap::on_draw_ui() {
-    ImGui::Checkbox("Reprisal Swap", &mod_enabled);
+    ImGui::Checkbox("High Attack Reprisal", &mod_enabled);
 }
 
 // during load
