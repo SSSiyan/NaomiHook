@@ -61,12 +61,13 @@ BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
             g_nmhfix_handle = LoadLibraryA("NMHFix.asi");
         }
         CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)startup_thread, nullptr, 0, nullptr);
-//#if 0
         g_dpi_fix_mod = new ResolutionScaleFix();
-        if (g_dpi_fix_mod->on_initialize().has_value()) {
-        MessageBox(NULL, "Oof", "NMH1", MB_ICONINFORMATION);
+        auto maybe_error = g_dpi_fix_mod->on_initialize();
+        if (maybe_error.has_value()) {
+            char buffer[512];
+            sprintf(buffer, "Failed to initialize ResoultionScaleFix: %s", maybe_error.value().c_str() );
+            MessageBox(NULL, buffer, "NMH1", MB_ICONINFORMATION);
         }
-//#endif
     }
     if (reason == DLL_PROCESS_DETACH) {
         FreeLibrary(g_nmhfix_handle);

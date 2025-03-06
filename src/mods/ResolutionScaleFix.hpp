@@ -29,5 +29,4 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-    std::unique_ptr<FunctionHook> m_hook;
 };

@@ -20,8 +20,6 @@ public:
   //void on_config_load(const utility::Config& cfg) override;
   //void on_config_save(utility::Config& cfg) override;
 
-  ModCategory get_category() { return ModCategory::GAMEPLAY; };
-
   // on_frame() is called every frame regardless whether the gui shows up.
   //void on_frame() override;
   // on_draw_ui() is called only when the gui shows up
