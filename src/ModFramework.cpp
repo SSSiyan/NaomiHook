@@ -119,9 +119,10 @@ void ModFramework::on_reset() {
 void ModFramework::after_reset() {
     DXGI_SWAP_CHAIN_DESC swapChainDesc;
     auto swap_chain = m_d3d11_hook->get_swap_chain();
-
+    if (!swap_chain) {
+        return;
+    }
     swap_chain->GetDesc(&swapChainDesc);
-
     g_bb_width  = swapChainDesc.BufferDesc.Width;
     g_bb_height = swapChainDesc.BufferDesc.Height;
 
@@ -182,7 +183,7 @@ void ModFramework::save_config() {
 void ModFramework::draw_ui() {
 #ifndef _NDEBUG
     auto& io = ImGui::GetIO();
-    ImGui::Text("Resolution: %f, %f; backbuffer: %d, %d", io.DisplaySize.x, io.DisplaySize.y, g_bb_width, g_bb_height);
+    //ImGui::Text("Resolution: %f, %f; backbuffer: %d, %d", io.DisplaySize.x, io.DisplaySize.y, g_bb_width, g_bb_height);
 #endif // !_NDEBUG
 
     if (!m_draw_ui) {

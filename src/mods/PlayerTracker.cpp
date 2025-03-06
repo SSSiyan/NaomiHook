@@ -1316,7 +1316,7 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Electro Shock Walk", &player->mPcStatus.electroShockWalk);
                 help_marker("Toggles the electrified animation");
                 ImGui::Checkbox("Hug Walk", &player->mPcStatus.hugWalk);
-                help_marker("Toggles the Holly Summers body carry animation");
+                help_marker("Toggles the Holly Summers body carry animation. Very likely to crash when used where it shouldn't be.");
                 ImGui::Checkbox("Event Walk", &player->mPcStatus.eventWalk);
                 help_marker("Toggles the walk animation when exiting or entering interiors");
                 ImGui::Checkbox("Camera Operate Old", &player->mPcStatus.camOperateOld);
