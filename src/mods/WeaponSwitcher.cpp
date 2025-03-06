@@ -113,21 +113,21 @@ static int selectedSword[4]{ TSUBAKI_MK1, TSUBAKI_MK2, TSUBAKI_MK3, BLOOD_BERRY 
 const char* pcItemToString(pcItem item) {
     switch (item) {
         case BLOOD_BERRY: return "Blood Berry";
-        case TSUBAKI_MK3: return "Tsubaki MK3";
-        case TSUBAKI_MK1: return "Tsubaki MK1";
-        case TSUBAKI_MK2: return "Tsubaki MK2";
-        case BLOOD_BERRY_DAMAGE: return "Blood Berry Damage Upgrade";
-        case TSUBAKI_MK3_DAMAGE: return "Tsubaki Mk3 Damage Upgrade";
-        case TSUBAKI_MK1_DAMAGE: return "Tsubaki Mk1 Damage Upgrade";
-        case TSUBAKI_MK2_DAMAGE: return "Tsubaki Mk2 Damage Upgrade";
-        case BLOOD_BERRY_BATTERY: return "Blood Berry Battery Upgrade";
-        case TSUBAKI_MK3_BATTERY: return "Tsubaki Mk3 Battery Upgrade";
-        case TSUBAKI_MK1_BATTERY: return "Tsubaki Mk1 Battery Upgrade";
-        case TSUBAKI_MK2_BATTERY: return "Tsubaki Mk2 Battery Upgrade";
-        case BLOOD_BERRY_BATTERY_DAMAGE: return "Blood Berry Battery+Damage Upgrades";
-        case TSUBAKI_MK3_BATTERY_DAMAGE: return "Tsubaki Mk3 Battery+Damage Upgrades";
-        case TSUBAKI_MK1_BATTERY_DAMAGE: return "Tsubaki Mk1 Battery+Damage Upgrades";
-        case TSUBAKI_MK2_BATTERY_DAMAGE: return "Tsubaki Mk2 Battery+Damage Upgrades";
+        case TSUBAKI_MK3: return "Tsubaki Mk3";
+        case TSUBAKI_MK1: return "Tsubaki Mk1";
+        case TSUBAKI_MK2: return "Tsubaki Mk2";
+        case BLOOD_BERRY_DAMAGE: return "Blood Berry +Damage";
+        case TSUBAKI_MK3_DAMAGE: return "Tsubaki Mk3 +Damage";
+        case TSUBAKI_MK1_DAMAGE: return "Tsubaki Mk1 +Damage";
+        case TSUBAKI_MK2_DAMAGE: return "Tsubaki Mk2 +Damage";
+        case BLOOD_BERRY_BATTERY: return "Blood Berry +Battery";
+        case TSUBAKI_MK3_BATTERY: return "Tsubaki Mk3 +Battery";
+        case TSUBAKI_MK1_BATTERY: return "Tsubaki Mk1 +Battery";
+        case TSUBAKI_MK2_BATTERY: return "Tsubaki Mk2 +Battery";
+        case BLOOD_BERRY_BATTERY_DAMAGE: return "Blood Berry +Battery +Damage";
+        case TSUBAKI_MK3_BATTERY_DAMAGE: return "Tsubaki Mk3 +Battery +Damage";
+        case TSUBAKI_MK1_BATTERY_DAMAGE: return "Tsubaki Mk1 +Battery +Damage";
+        case TSUBAKI_MK2_BATTERY_DAMAGE: return "Tsubaki Mk2 +Battery +Damage";
         default: return "Unknown";
     }
 }
@@ -205,7 +205,7 @@ void RenderWeaponComboBoxes() {
     FillComboBoxWithImGui(3, "Up Sword (Slot 4)");
 }
 
-void RenderWeaponList(int slotID) {
+/*void RenderWeaponList(int slotID) {
     std::vector<pcItem> matchingItems = FindMatchingItemsForSlot(slotID);
 
     for (const auto& item : matchingItems) {
@@ -226,7 +226,7 @@ void RenderWeaponLists() {
 
     ImGui::Text("Weapons in Up Slot:");
     RenderWeaponList(3);
-}
+}*/
 
 
 // clang-format off
@@ -395,8 +395,8 @@ void WeaponSwitcher::on_draw_ui() {
     if (mod_enabled) {
         RenderWeaponComboBoxes();
         //RenderWeaponLists();
-        ImGui::Text("Current Weapon:");
-        ImGui::Text(pcItemToString(nmh_sdk::get_mHRPc()->mPcStatus.equip[0].id));
+        ImGui::Text("Current Weapon: %s", pcItemToString(nmh_sdk::get_mHRPc()->mPcStatus.equip[0].id));
+        //ImGui::Text(pcItemToString(nmh_sdk::get_mHRPc()->mPcStatus.equip[0].id));
         ImGui::Checkbox("Display UI", &weapon_switcher_ui);
     }
 }
@@ -510,7 +510,7 @@ void WeaponSwitcher::on_frame() {
                     int8_t dPadInput = *(int8_t*)dPadInputsAddr;
                     switch (dPadInput) {
                     case DPAD_LEFT:
-                        if (CanWeaponSwitch(TSUBAKI_MK1)) {
+                        if (CanWeaponSwitch((pcItem)selectedSword[0])) {
                             //pcItem weapon = FindBestWeapon(TSUBAKI_MK1);
                             //if (weapon != -1) {
                                 nmh_sdk::SetEquip((pcItem)selectedSword[0], false);
@@ -520,7 +520,7 @@ void WeaponSwitcher::on_frame() {
                         }
                         break;
                     case DPAD_RIGHT:
-                        if (CanWeaponSwitch(TSUBAKI_MK3)) {
+                        if (CanWeaponSwitch((pcItem)selectedSword[2])) {
                             //pcItem weapon = FindBestWeapon(TSUBAKI_MK3);
                             //if (weapon != -1) {
                                 nmh_sdk::SetEquip((pcItem)selectedSword[2], false);
@@ -530,7 +530,7 @@ void WeaponSwitcher::on_frame() {
                         }
                         break;
                     case DPAD_DOWN:
-                        if (CanWeaponSwitch(TSUBAKI_MK2)) {
+                        if (CanWeaponSwitch((pcItem)selectedSword[1])) {
                             //pcItem weapon = FindBestWeapon(TSUBAKI_MK2);
                             //if (weapon != -1) {
                                 nmh_sdk::SetEquip((pcItem)selectedSword[1], false);
@@ -540,7 +540,7 @@ void WeaponSwitcher::on_frame() {
                         }
                         break;
                     case DPAD_UP:
-                        if (CanWeaponSwitch(BLOOD_BERRY)) {
+                        if (CanWeaponSwitch((pcItem)selectedSword[3])) {
                             //pcItem weapon = FindBestWeapon(BLOOD_BERRY);
                             //if (weapon != -1) {
                                 nmh_sdk::SetEquip((pcItem)selectedSword[3], false);
