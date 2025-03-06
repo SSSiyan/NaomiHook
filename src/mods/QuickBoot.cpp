@@ -27,7 +27,9 @@ std::optional<std::string> QuickBoot::on_initialize() {
 void QuickBoot::on_draw_ui() {
     ImGui::Checkbox("Quick Boot", &mod_enabled);
     if (mod_enabled) {
-        ImGui::Combo("Boot Stage", &newBootStageIndex, stage_display_names_cstr.data(), stage_display_names_cstr.size());
+        ImGui::Indent();
+        ImGui::Combo("## Boot Stage", &newBootStageIndex, stage_display_names_cstr.data(), stage_display_names_cstr.size());
+        ImGui::Unindent();
     }
 }
 

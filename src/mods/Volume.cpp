@@ -15,9 +15,11 @@ std::optional<std::string> Volume::on_initialize() {
 
 void Volume::on_draw_ui() {
     if (mHRPc* player = nmh_sdk::get_mHRPc()) {
-        ImGui::SliderInt("Music Volume", (int*)HrSoundMusicVolume, 0, 128);
+        ImGui::Text("Music Volume");
+        ImGui::SliderInt("## Music Volume Slider", (int*)HrSoundMusicVolume, 0, 128);
             //music_volume = *(int*)HrSoundMusicVolume;
-        ImGui::SliderInt("Sound Effect Volume", (int*)HrSoundSoundEffectVolume, 0, 128);
+        ImGui::Text("Sound Effect Volume");
+        ImGui::SliderInt("## Sound Effect Volume Slider", (int*)HrSoundSoundEffectVolume, 0, 128);
             //sound_effect_volume = *(int*)HrSoundSoundEffectVolume;
     }
 }

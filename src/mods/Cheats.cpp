@@ -63,12 +63,13 @@ void Cheats::on_draw_ui() {
         toggleEnemiesDontAttack(enemies_dont_attack);
     }
 
-    if (ImGui::Button("Start 777")) {
+    float combo_width = ImGui::CalcItemWidth();
+    if (ImGui::Button("Start 777", ImVec2(combo_width, NULL))) {
         nmh_sdk::Start777();
     }
     //static bool dont_call_stencil = false;
     //static int inTick = 0;
-    if (ImGui::Button("Start Bar")) {
+    if (ImGui::Button("Start Bar", ImVec2(combo_width, NULL))) {
         //nmh_sdk::StartBar(dont_call_stencil, inTick);
         nmh_sdk::StartBar(false, 0);
     }
@@ -78,13 +79,13 @@ void Cheats::on_draw_ui() {
     //ImGui::PushItemWidth(120);
     //ImGui::InputInt("inTick", &inTick);
     //ImGui::PopItemWidth();
-    if (ImGui::Button("Start Bell")) {
+    if (ImGui::Button("Start Bell", ImVec2(combo_width, NULL))) {
         nmh_sdk::StartBell();
     }
-    if (ImGui::Button("Start Hopper")) {
+    if (ImGui::Button("Start Hopper", ImVec2(combo_width, NULL))) {
         nmh_sdk::StartHopper();
     }
-    if (ImGui::Button("Start Cherry")) {
+    if (ImGui::Button("Start Cherry", ImVec2(combo_width, NULL))) {
         nmh_sdk::StartCherry();
     }
 }

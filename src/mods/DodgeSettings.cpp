@@ -353,23 +353,38 @@ std::optional<std::string> DodgeSettings::on_initialize() {
     return Mod::on_initialize();
 }
 
+const char* DodgeSettings::defaultDescription = "Dodge Settings";
+const char* DodgeSettings::hoveredDescription = defaultDescription;
+//
+
+void DodgeSettings::render_description() const {
+    ImGui::TextWrapped(DodgeSettings::hoveredDescription);
+}
+
 void DodgeSettings::on_draw_ui() {
+    if (!ImGui::IsAnyItemHovered())
+        DodgeSettings::hoveredDescription = defaultDescription;
     ImGui::Checkbox("Cancel Darkstep into Recharge", &dodge_battery_mod_enabled);
-    help_marker("Allows you to cancel Darkstep into the katana recharge. Take advantage of the enemy's confusion and use the opportunity to recharge your battery.");
+    if (ImGui::IsItemHovered())
+        DodgeSettings::hoveredDescription = "Allows you to cancel Darkstep into the katana recharge. Take advantage of the enemy's confusion and use the opportunity to recharge your battery.";
 
     ImGui::Checkbox("Roll Forward", &roll_forward_mod_enabled);
-    help_marker("Restores the unused forward roll and works exactly as it does in NMH2. Bound to Lock On + Forward (Right Stick)");
+    if (ImGui::IsItemHovered())
+        DodgeSettings::hoveredDescription = "Restores the unused forward roll and works exactly as it does in NMH2. Bound to Lock On + Forward (Right Stick)";
 
     if (ImGui::Checkbox("NMH2 Darkstep", &disable_darkstep_slowmo_mod_enabled)) {
         toggle_disable_slowmo_darkstep(disable_darkstep_slowmo_mod_enabled);
     }
-    help_marker("Functionally alters Darksteps to function like it does in NMH2. When performing a Darkstep, Travis will retain his normal speed instead of slowing down.");
+    if (ImGui::IsItemHovered())
+        DodgeSettings::hoveredDescription = "Functionally alters Darksteps to function like it does in NMH2. When performing a Darkstep, Travis will retain his normal speed instead of slowing down.";
     
     ImGui::Checkbox("Roll Rotation", &roll_rotation_mod_enabled);
-    help_marker("Allows rolls to orbit around enemies. This replicates how rolling functions in NMH2 and provides more control for staying on target. Rolls will cease to orbit when releasing lock on.");
+    if (ImGui::IsItemHovered())
+        DodgeSettings::hoveredDescription = "Allows rolls to orbit around enemies. This replicates how rolling functions in NMH2 and provides more control for staying on target. Rolls will cease to orbit when releasing lock on.";
     
     ImGui::Checkbox("Darkstep Invincibility", &darkstep_invinc_mod_enabled);
-    help_marker("Gives Dark Steps invincibility for the entire duration of the slowdown.");
+    if (ImGui::IsItemHovered())
+        DodgeSettings::hoveredDescription = "Gives Dark Steps invincibility for the entire duration of the slowdown.";
 }
 
 // during load
