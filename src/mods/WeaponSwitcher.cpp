@@ -102,7 +102,6 @@ bool WeaponSwitcher::CanWeaponSwitch(pcItem desiredWeapon) {
             currentMoveID != ePcMtStpF &&
             currentMoveID != ePcMtAvdR &&
             currentMoveID != ePcMtAvdL) {
-            directionPressed = desiredWeapon;
             return true;
         }
     }
@@ -340,6 +339,39 @@ void WeaponSwitcher::Display_UI() {
     ImGui::End();
 }
 
+pcItem FindBestWeapon(int weaponID) {
+    auto locker = nmh_sdk::get_mHRPc()->mPcStatus.locker;
+
+    // Define weapon search order based on preference
+    std::vector<pcItem> preferredWeapons;
+
+    if (weaponID == BLOOD_BERRY) {
+        preferredWeapons = {BLOOD_BERRY_BATTERY_DAMAGE, BLOOD_BERRY_BATTERY, BLOOD_BERRY_DAMAGE, BLOOD_BERRY};
+    }
+    else if (weaponID == TSUBAKI_MK3) {
+        preferredWeapons = {TSUBAKI_MK3_BATTERY_DAMAGE, TSUBAKI_MK3_BATTERY, TSUBAKI_MK3_DAMAGE, TSUBAKI_MK3};
+    }
+    else if (weaponID == TSUBAKI_MK1) {
+        preferredWeapons = {TSUBAKI_MK1_BATTERY_DAMAGE, TSUBAKI_MK1_BATTERY, TSUBAKI_MK1_DAMAGE, TSUBAKI_MK1};
+    }
+    else if (weaponID == TSUBAKI_MK2) {
+        preferredWeapons = {TSUBAKI_MK2_BATTERY_DAMAGE, TSUBAKI_MK2_BATTERY, TSUBAKI_MK2_DAMAGE, TSUBAKI_MK2};
+    }
+    else {
+        return {};
+    }
+
+    for (pcItem target : preferredWeapons) {
+        for (int i = 0; i < 200; i++) {
+            if (locker[i].id == target) {
+                return target;  // Return the first matching weapon (in preference order)
+            }
+        }
+    }
+
+    return (pcItem)-1;
+}
+
 void WeaponSwitcher::on_frame() {
     //static int previousSwordEquipRead = 0;
     //static int checkmotReadProc = 0;
@@ -353,26 +385,42 @@ void WeaponSwitcher::on_frame() {
                     switch (dPadInput) {
                     case DPAD_LEFT:
                         if (CanWeaponSwitch(TSUBAKI_MK1)) {
-                            nmh_sdk::SetEquip(TSUBAKI_MK1, false);
-                            weaponSwitchCooldown = 0;
+                            pcItem weapon = FindBestWeapon(TSUBAKI_MK1);
+                            if (weapon != -1) {
+                                nmh_sdk::SetEquip(weapon, false);
+                                weaponSwitchCooldown = 0;
+                                directionPressed = TSUBAKI_MK1;
+                            }
                         }
                         break;
                     case DPAD_RIGHT:
                         if (CanWeaponSwitch(TSUBAKI_MK3)) {
-                            nmh_sdk::SetEquip(TSUBAKI_MK3, false);
-                            weaponSwitchCooldown = 0;
+                            pcItem weapon = FindBestWeapon(TSUBAKI_MK3);
+                            if (weapon != -1) {
+                                nmh_sdk::SetEquip(weapon, false);
+                                weaponSwitchCooldown = 0;
+                                directionPressed = TSUBAKI_MK3;
+                            }
                         }
                         break;
                     case DPAD_DOWN:
                         if (CanWeaponSwitch(TSUBAKI_MK2)) {
-                            nmh_sdk::SetEquip(TSUBAKI_MK2, false);
-                            weaponSwitchCooldown = 0;
+                            pcItem weapon = FindBestWeapon(TSUBAKI_MK2);
+                            if (weapon != -1) {
+                                nmh_sdk::SetEquip(weapon, false);
+                                weaponSwitchCooldown = 0;
+                                directionPressed = TSUBAKI_MK2;
+                            }
                         }
                         break;
                     case DPAD_UP:
                         if (CanWeaponSwitch(BLOOD_BERRY)) {
-                            nmh_sdk::SetEquip(BLOOD_BERRY, false);
-                            weaponSwitchCooldown = 0;
+                            pcItem weapon = FindBestWeapon(BLOOD_BERRY);
+                            if (weapon != -1) {
+                                nmh_sdk::SetEquip(weapon, false);
+                                weaponSwitchCooldown = 0;
+                                directionPressed = BLOOD_BERRY;
+                            }
                         }
                         break;
                     default:

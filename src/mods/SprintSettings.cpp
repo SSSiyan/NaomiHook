@@ -8,8 +8,8 @@ uintptr_t SprintSettings::jneAddr = NULL;
 uintptr_t SprintSettings::closeQuartersAddr = NULL;
 
 uintptr_t SprintSettings::jmp_ret2 = NULL;
-float SprintSettings::sprintSpeed = 0.0f;
-float SprintSettings::battleSprintSpeed = 0.0f;
+float SprintSettings::sprintSpeed = 2.0f;
+float SprintSettings::battleSprintSpeed = 1.35f;
 bool SprintSettings::sprintFlag = false;
 
 uintptr_t SprintSettings::jmp_ret3 = NULL;
@@ -200,8 +200,7 @@ std::optional<std::string> SprintSettings::on_initialize() {
 
 void SprintSettings::on_draw_ui() {
     ImGui::Checkbox("Battle Sprint", &battleSprint);
-    help_marker("Enable sprinting in combat that consumes no Stamina, similar to NMH3. Requires Memory of Child. Click in the Left Stick to initiate.");
-    if (battleSprint) {
+    /*if (battleSprint) {
         ImGui::Indent();
         ImGui::Text("Sprint Speed");
         ImGui::SliderFloat("##SprintSpeedSliderFloat", &sprintSpeed, 0, 5, "%.2f");
@@ -210,20 +209,20 @@ void SprintSettings::on_draw_ui() {
         ImGui::SliderFloat("##battleSprintSpeedSliderFloat", &battleSprintSpeed, 0, 5, "%.2f");
         help_marker("Default 1.35f");
         ImGui::Unindent();
-    }
+    }*/
 }
 
 // during load
 void SprintSettings::on_config_load(const utility::Config &cfg) {
     battleSprint = cfg.get<bool>("battleSprint").value_or(false);
-    sprintSpeed = cfg.get<float>("sprintSpeed").value_or(2.0f);
-    battleSprintSpeed = cfg.get<float>("battleSprintSpeed").value_or(1.35f);
+    //sprintSpeed = cfg.get<float>("sprintSpeed").value_or(2.0f);
+    //battleSprintSpeed = cfg.get<float>("battleSprintSpeed").value_or(1.35f);
 }
 // during save
 void SprintSettings::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("battleSprint", battleSprint);
-    cfg.set<float>("sprintSpeed", sprintSpeed);
-    cfg.set<float>("battleSprintSpeed", battleSprintSpeed);
+    //cfg.set<float>("sprintSpeed", sprintSpeed);
+    //cfg.set<float>("battleSprintSpeed", battleSprintSpeed);
 }
 
 // do something every frame
