@@ -829,13 +829,13 @@ struct ComboInfo {
 };
 
 static constexpr std::array<ComboInfo, 7> combo_boxes = {
-    ComboInfo {"Sword ##Combo", 0, 16},
-    ComboInfo {"Glasses ##Combo", 100, 104},
-    ComboInfo {"Jacket ##Combo", 200, 215},
-    ComboInfo {"Shoes ##Combo", 300, 309},
-    ComboInfo {"Jeans ##Combo", 400, 411},
-    ComboInfo {"Belt ##Combo", 500, 509},
-    ComboInfo {"Shirt ##Combo", 600, 744},
+    ComboInfo {"## Sword Combo", 0, 16},
+    ComboInfo {"## Glasses Combo", 100, 104},
+    ComboInfo {"## Jacket Combo", 200, 215},
+    ComboInfo {"## Shoes Combo", 300, 309},
+    ComboInfo {"## Jeans Combo", 400, 411},
+    ComboInfo {"## Belt Combo", 500, 509},
+    ComboInfo {"## Shirt Combo", 600, 744},
 };
 
 std::optional<std::string> ClothesSwitcher::on_initialize() {
