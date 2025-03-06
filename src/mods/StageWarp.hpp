@@ -17,6 +17,12 @@ public:
 
   ModCategory get_category() { return ModCategory::STAGE; };
 
+
+  static const char* defaultDescription;
+  static const char* hoveredDescription;
+  static const char* defaultStageName;
+  static const char* stageName;
+
   // mod name string for config
   std::string get_mod_name() const override { return "StageWarp"; }
   std::string get_human_readable_name() const { return "Stage Warp"; }

@@ -12,18 +12,18 @@ static constexpr std::array<Equip_Item, 800> clothing_items = {
     Equip_Item  {TSUBAKI_MK3, "Tsubaki Mk3"},
     Equip_Item  {TSUBAKI_MK1, "Tsubaki Mk1"},
     Equip_Item  {TSUBAKI_MK2, "Tsubaki Mk2"},
-    Equip_Item  {SWORD4,     "Blood Berry Damage Upgrade"},
-    Equip_Item  {SWORD5,     "Tsubaki Mk3 Damage Upgrade"},
-    Equip_Item  {SWORD6,     "Tsubaki Mk1 Damage Upgrade"},
-    Equip_Item  {SWORD7,     "Tsubaki Mk2 Damage Upgrade"},
-    Equip_Item  {SWORD8,     "Blood Berry Battery Upgrade"},
-    Equip_Item  {SWORD9,     "Tsubaki Mk3 Battery Upgrade"},
-    Equip_Item  {SWORD10,    "Tsubaki Mk1 Battery Upgrade"},
-    Equip_Item  {SWORD11,    "Tsubaki Mk2 Battery Upgrade"},
-    Equip_Item  {SWORD12,    "Blood Berry Battery+Damage Upgrades"},
-    Equip_Item  {SWORD13,    "Tsubaki Mk3 Battery+Damage Upgrades"},
-    Equip_Item  {SWORD14,    "Tsubaki Mk1 Battery+Damage Upgrades"},
-    Equip_Item  {SWORD15,    "Tsubaki Mk2 Battery+Damage Upgrades"},
+    Equip_Item  {BLOOD_BERRY_DAMAGE, "Blood Berry Damage Upgrade"},
+    Equip_Item  {TSUBAKI_MK3_DAMAGE, "Tsubaki Mk3 Damage Upgrade"},
+    Equip_Item  {TSUBAKI_MK1_DAMAGE, "Tsubaki Mk1 Damage Upgrade"},
+    Equip_Item  {TSUBAKI_MK2_DAMAGE, "Tsubaki Mk2 Damage Upgrade"},
+    Equip_Item  {BLOOD_BERRY_BATTERY, "Blood Berry Battery Upgrade"},
+    Equip_Item  {TSUBAKI_MK3_BATTERY, "Tsubaki Mk3 Battery Upgrade"},
+    Equip_Item  {TSUBAKI_MK1_BATTERY, "Tsubaki Mk1 Battery Upgrade"},
+    Equip_Item  {TSUBAKI_MK2_BATTERY, "Tsubaki Mk2 Battery Upgrade"},
+    Equip_Item  {BLOOD_BERRY_BATTERY_DAMAGE, "Blood Berry Battery+Damage Upgrades"},
+    Equip_Item  {TSUBAKI_MK3_BATTERY_DAMAGE, "Tsubaki Mk3 Battery+Damage Upgrades"},
+    Equip_Item  {TSUBAKI_MK1_BATTERY_DAMAGE, "Tsubaki Mk1 Battery+Damage Upgrades"},
+    Equip_Item  {TSUBAKI_MK2_BATTERY_DAMAGE, "Tsubaki Mk2 Battery+Damage Upgrades"},
     Equip_Item  {SWORD16,    "Sword 16"},
     Equip_Item  {SWORD17,    "Sword 17"},
     Equip_Item  {SWORD18,    "Sword 18"},
@@ -829,13 +829,13 @@ struct ComboInfo {
 };
 
 static constexpr std::array<ComboInfo, 7> combo_boxes = {
-    ComboInfo {"Sword ##Combo", 0, 15},
-    ComboInfo {"Glasses ##Combo", 100, 104},
-    ComboInfo {"Jacket ##Combo", 200, 209},
-    ComboInfo {"Shoes ##Combo", 300, 309},
-    ComboInfo {"Jeans ##Combo", 400, 411},
-    ComboInfo {"Belt ##Combo", 500, 509},
-    ComboInfo {"Shirt ##Combo", 600, 744},
+    ComboInfo {"## Sword Combo", 0, 15},
+    ComboInfo {"## Glasses Combo", 100, 104},
+    ComboInfo {"## Jacket Combo", 200, 209},
+    ComboInfo {"## Shoes Combo", 300, 309},
+    ComboInfo {"## Jeans Combo", 400, 411},
+    ComboInfo {"## Belt Combo", 500, 509},
+    ComboInfo {"## Shirt Combo", 600, 744},
 };
 
 std::optional<std::string> ClothesSwitcher::on_initialize() {
@@ -869,6 +869,7 @@ void ClothesSwitcher::on_draw_ui() {
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[0] = playerItem - combo.start_idx;
             }
+            ImGui::Text("Sword");
             size_t selected_item_index = combo.start_idx + selected_indices[0];
             if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
@@ -892,6 +893,7 @@ void ClothesSwitcher::on_draw_ui() {
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[1] = playerItem - combo.start_idx;
             }
+            ImGui::Text("Glasses");
             size_t selected_item_index = combo.start_idx + selected_indices[1];
             if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
@@ -915,6 +917,7 @@ void ClothesSwitcher::on_draw_ui() {
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[2] = playerItem - combo.start_idx;
             }
+            ImGui::Text("Jacket");
             size_t selected_item_index = combo.start_idx + selected_indices[2];
             if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
@@ -938,6 +941,7 @@ void ClothesSwitcher::on_draw_ui() {
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[6] = playerItem - combo.start_idx;
             }
+            ImGui::Text("Shirt");
             size_t selected_item_index = combo.start_idx + selected_indices[6];
             if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
@@ -961,6 +965,7 @@ void ClothesSwitcher::on_draw_ui() {
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[5] = playerItem - combo.start_idx;
             }
+            ImGui::Text("Belt");
             size_t selected_item_index = combo.start_idx + selected_indices[5];
             if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
@@ -984,6 +989,7 @@ void ClothesSwitcher::on_draw_ui() {
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[4] = playerItem - combo.start_idx;
             }
+            ImGui::Text("Jeans");
             size_t selected_item_index = combo.start_idx + selected_indices[4];
             if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
@@ -1007,6 +1013,7 @@ void ClothesSwitcher::on_draw_ui() {
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[3] = playerItem - combo.start_idx;
             }
+            ImGui::Text("Shoes");
             size_t selected_item_index = combo.start_idx + selected_indices[3];
             if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {

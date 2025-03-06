@@ -364,7 +364,7 @@ namespace gui {
 
             ImGui::Begin(PROJECT_NAME " " GUI_VERSION, window_open, ImGuiWindowFlags_NoCollapse);
             {
-                ImVec2 sz = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight());
+                ImVec2 sz = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetFontSize()*1.2f);
                 if (ImGui::Button("Save Config", sz)) {
                     pmods->on_config_save();
                 }

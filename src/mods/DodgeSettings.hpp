@@ -52,10 +52,13 @@ public:
   static uintptr_t darkstep_invinc_gpBattle;
   /////////////////////////////////////////////////////////////
 
+  static const char* defaultDescription;
+  static const char* hoveredDescription;
   // mod name string for config
   std::string get_mod_name() const override { return "DodgeSettings"; }
   std::string get_human_readable_name() const { return "Dodge Settings"; }
-  const char* get_description() const override { return R"(Dodge Settings)"; };
+  //const char* get_description() const override { return R"(Dodge Settings)"; };
+  void render_description() const override;
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

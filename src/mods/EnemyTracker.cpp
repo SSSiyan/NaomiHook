@@ -42,7 +42,8 @@ void DrawEnemyStats() {
     if (useCurrentSelectedEnemySlider) {
         ImGui::SliderInt("currentSelectedEnemy", &currentSelectedEnemy, 0, 30);
         mpLockOnNpc = nmh_sdk::get_mHRBattle()->mpNpc[currentSelectedEnemy];
-        if (ImGui::Button("Find Locked On Enemy In List")) {
+        float combo_width = ImGui::CalcItemWidth();
+        if (ImGui::Button("Find Locked On Enemy In List", ImVec2(combo_width, NULL))) {
             if (player->mpLockOnNpc) {
                 for (uint32_t i = 0; i < 30; ++i) {
                     if (nmh_sdk::get_mHRBattle()->mpNpc[i] && nmh_sdk::get_mHRBattle()->mpNpc[i] == player->mpLockOnNpc) {

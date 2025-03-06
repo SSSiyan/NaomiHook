@@ -194,26 +194,44 @@ naked void detour3() { // enable guard stance blend unless clashing
 }
  // clang-format on
 
+const char* StanceControl::defaultDescription = "Manually adjust the current stance using R2/RT like you can with motion controls. "
+                                                "Our version of this also restores the original and unused Low stance for all beam katanas except the MK3.";
+const char* StanceControl::hoveredDescription = defaultDescription;
+//
+
+void StanceControl::render_description() const {
+    ImGui::TextWrapped(StanceControl::hoveredDescription);
+}
+
 void StanceControl::on_draw_ui() {
-    
+    if (!ImGui::IsAnyItemHovered())
+        StanceControl::hoveredDescription = defaultDescription;
     if (ImGui::Checkbox("Stance Control on R2", &mod_enabled)) {
         toggle(mod_enabled);
     }
-    help_marker("Remaps lock on cycle to R3. This is needed to avoid switching targets with every press of R2 when using this feature.");
+    if (ImGui::IsItemHovered())
+        StanceControl::hoveredDescription = "Remaps lock on cycle to R3. This is needed to avoid switching targets with every press of R2 when using this feature.";
     if (mod_enabled) {
         ImGui::Indent();
-        if (ImGui::SliderFloat("highBound", &StanceControl::highBound, 0.0f, 1.0f, "%.2f")) {
+        ImGui::Text("High Bound");
+        if (ImGui::SliderFloat("## highBound sliderfloat", &StanceControl::highBound, 0.0f, 1.0f, "%.2f")) {
             highBoundGuard = (highBound + 1.0f) / 2.0f;
         }
-        help_marker("How far should r2 be pushed to enter high stance\n0.9 default");
-        if (ImGui::SliderFloat("lowBound", &StanceControl::lowBound, -1.0f, 0.0f, "%.2f")) {
+        if (ImGui::IsItemHovered())
+            StanceControl::hoveredDescription = "How far should r2 be pushed to enter high stance\n0.9 default";
+        ImGui::Text("Low Bound");
+        if (ImGui::SliderFloat("## lowBound sliderfloat", &StanceControl::lowBound, -1.0f, 0.0f, "%.2f")) {
             lowBoundGuard = (lowBound + 1.0f) / 2.0f;
         }
-        help_marker("How little should r2 be pushed to enter low stance\n-0.9 default");
+        if (ImGui::IsItemHovered())
+            StanceControl::hoveredDescription = "How little should r2 be pushed to enter low stance\n-0.9 default";
         ImGui::Checkbox("Invert", &StanceControl::invert_input);
-        help_marker("Swap Low and High");
+        if (ImGui::IsItemHovered())
+            StanceControl::hoveredDescription = "Swap Low and High";
         ImGui::Checkbox("Invert Mid", &StanceControl::invert_mid);
-        help_marker("Swap Mid and Low. The unused combos assigned to Mid stance are actually the original Low attacks. For this feature to make more sense, you can tick this to reorganize the stance order. ");
+        if (ImGui::IsItemHovered())
+            StanceControl::hoveredDescription = "Swap Mid and Low. The unused combos assigned to Mid stance are actually the original Low attacks. "
+            "For this feature to make more sense, you can tick this to reorganize the stance order.";
         ImGui::Checkbox("Show Custom Stance UI", &StanceControl::show_new_ui);
         ImGui::Unindent();
     }
@@ -223,9 +241,9 @@ void StanceControl::on_draw_ui() {
     if (ImGui::Checkbox("Swap Idle Stances", &swapIdleStances)) {
         toggleSwapIdleStances(swapIdleStances);
     }
-    help_marker("The High/Low stances are mistakenly inverted by default, forcing Travis to take on the incorrect stance. This setting "
-                "corrects that issue and is purely cosmetic.");
-    
+    if (ImGui::IsItemHovered())
+        StanceControl::hoveredDescription = "The High/Low stances are mistakenly inverted by default, forcing Travis to take on the incorrect stance. This setting "
+                "corrects that issue and is purely cosmetic.";
 }
 
 void TextCentered(std::string text) {

@@ -114,22 +114,26 @@ std::optional<std::string> EnemySpawn::on_initialize() {
 }
 
 void EnemySpawn::on_draw_ui() {
-    ImGui::InputInt("inResNo", &inResNo);
-    ImGui::InputInt("inRepop", &inRepop);
+    ImGui::Text("inResNo");
+    ImGui::InputInt("## inResNo Input Int", &inResNo);
+    ImGui::Text("inRepop");
+    ImGui::InputInt("## inRepop Input Int", &inRepop);
     ImGui::Checkbox("Spawn At Player Pos", &spawnAtPlayerPos);
     if (!spawnAtPlayerPos){
         ImGui::InputFloat3("Custom Position", &inPos.x);
     }
     else {
         if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
-            ImGui::InputFloat3("Player Position", &mHRPc->mCharaStatus.pos.x);
+            ImGui::Text("Player Position");
+            ImGui::InputFloat3("## Player Position Input Float", &mHRPc->mCharaStatus.pos.x);
             inPos = mHRPc->mCharaStatus.pos;
         }
     }
-    ImGui::InputFloat3("Rotation", &inRot.x);
+    ImGui::Text("Rotation");
+    ImGui::InputFloat3("## Rotation Input Float", &inRot.x);
     ImGui::Checkbox("inDisEnableCollision", &inDisEnableCollision);
-
-    if (ImGui::BeginCombo("enPopReqType", enPopReqTypeStrings[inPopType])) {
+    ImGui::Text("enPopReqType");
+    if (ImGui::BeginCombo("## enPopReqType Combo", enPopReqTypeStrings[inPopType])) {
         for (int i = 0; i < IM_ARRAYSIZE(enPopReqTypeStrings); i++) {
             bool isSelected = (inPopType == i);
             if (ImGui::Selectable(enPopReqTypeStrings[i], isSelected)) {
@@ -141,8 +145,8 @@ void EnemySpawn::on_draw_ui() {
         }
         ImGui::EndCombo();
     }
-
-    if (ImGui::BeginCombo("inChType", charaTypeStrings[inChType])) {
+    ImGui::Text("inChType");
+    if (ImGui::BeginCombo("## inChType Combo", charaTypeStrings[inChType])) {
         for (int i = 0; i < IM_ARRAYSIZE(charaTypeStrings); i++) {
             bool isSelected = (inChType == i);
             if (ImGui::Selectable(charaTypeStrings[i], isSelected)) {
@@ -154,7 +158,8 @@ void EnemySpawn::on_draw_ui() {
         }
         ImGui::EndCombo();
     }
-    if (ImGui::Button("Spawn Enemy")){
+    float combo_width = ImGui::CalcItemWidth();
+    if (ImGui::Button("Spawn Enemy", ImVec2(combo_width, NULL))) {
         if (inChType > 65)
             nmh_sdk::setInitNpcDat(inResNo, (enCharaType)(inChType + 434), inRepop, &inPos, &inRot, (enPopReqType)inPopType, inDisEnableCollision);
         else

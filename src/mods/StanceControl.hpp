@@ -39,10 +39,14 @@ public:
   void toggle(bool enable);
   void toggle_display_edit(bool enable);
 
+  static const char* defaultDescription;
+  static const char* hoveredDescription;
+
   // mod name string for config
   std::string get_mod_name() const override { return "StanceControl"; }
   std::string get_human_readable_name() const { return "Stance Control"; }
-  const char* get_description() const override { return R"(Manually adjust the current stance using R2/RT like you can with motion controls. Our version of this also restores the original and unused Low stance for all beam katanas except the MK3. )"; };
+  //const char* get_description() const override { return R"(Manually adjust the current stance using R2/RT like you can with motion controls. Our version of this also restores the original and unused Low stance for all beam katanas except the MK3.)"; };
+  void render_description() const override;
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

@@ -138,14 +138,42 @@ naked void detour1() { // swords, player in ebx
             jmp getSwordID
 
         getSwordID:
-            cmp [ebx+0x42C], BLOOD_BERRY // berry
+            cmp [ebx+0x42C], BLOOD_BERRY
             je berryColour
-            cmp [ebx+0x42C], TSUBAKI_MK3 // mk3
+            cmp [ebx+0x42C], BLOOD_BERRY_BATTERY
+            je berryColour
+            cmp [ebx+0x42C], BLOOD_BERRY_DAMAGE
+            je berryColour
+            cmp [ebx+0x42C], BLOOD_BERRY_BATTERY_DAMAGE
+            je berryColour
+
+            cmp [ebx+0x42C], TSUBAKI_MK3
             je mk3Colour
-            cmp [ebx+0x42C], TSUBAKI_MK1 // mk1
+            cmp [ebx+0x42C], TSUBAKI_MK3_BATTERY
+            je mk3Colour
+            cmp [ebx+0x42C], TSUBAKI_MK3_DAMAGE
+            je mk3Colour
+            cmp [ebx+0x42C], TSUBAKI_MK3_BATTERY_DAMAGE
+            je mk3Colour
+
+            cmp [ebx+0x42C], TSUBAKI_MK1
             je mk1Colour
-            cmp [ebx+0x42C], TSUBAKI_MK2 // mk2
+            cmp [ebx+0x42C], TSUBAKI_MK1_BATTERY
+            je mk1Colour
+            cmp [ebx+0x42C], TSUBAKI_MK1_DAMAGE
+            je mk1Colour
+            cmp [ebx+0x42C], TSUBAKI_MK1_BATTERY_DAMAGE
+            je mk1Colour
+
+            cmp [ebx+0x42C], TSUBAKI_MK2
             je mk2Colour
+            cmp [ebx+0x42C], TSUBAKI_MK2_BATTERY
+            je mk2Colour
+            cmp [ebx+0x42C], TSUBAKI_MK2_DAMAGE
+            je mk2Colour
+            cmp [ebx+0x42C], TSUBAKI_MK2_BATTERY_DAMAGE
+            je mk2Colour
+
             jmp originalcode
 
         berryColour: // [0]
@@ -235,13 +263,40 @@ naked void detour2() { // trails, player in ebx
             jmp getSwordID
 
         getSwordID:
-            cmp [ebx+0x42C], BLOOD_BERRY // berry
+            cmp [ebx+0x42C], BLOOD_BERRY
             je berryColour
-            cmp [ebx+0x42C], TSUBAKI_MK3 // mk3
+            cmp [ebx+0x42C], BLOOD_BERRY_BATTERY
+            je berryColour
+            cmp [ebx+0x42C], BLOOD_BERRY_DAMAGE
+            je berryColour
+            cmp [ebx+0x42C], BLOOD_BERRY_BATTERY_DAMAGE
+            je berryColour
+
+            cmp [ebx+0x42C], TSUBAKI_MK3
             je mk3Colour
-            cmp [ebx+0x42C], TSUBAKI_MK1 // mk1
+            cmp [ebx+0x42C], TSUBAKI_MK3_BATTERY
+            je mk3Colour
+            cmp [ebx+0x42C], TSUBAKI_MK3_DAMAGE
+            je mk3Colour
+            cmp [ebx+0x42C], TSUBAKI_MK3_BATTERY_DAMAGE
+            je mk3Colour
+
+            cmp [ebx+0x42C], TSUBAKI_MK1
             je mk1Colour
-            cmp [ebx+0x42C], TSUBAKI_MK2 // mk2
+            cmp [ebx+0x42C], TSUBAKI_MK1_BATTERY
+            je mk1Colour
+            cmp [ebx+0x42C], TSUBAKI_MK1_DAMAGE
+            je mk1Colour
+            cmp [ebx+0x42C], TSUBAKI_MK1_BATTERY_DAMAGE
+            je mk1Colour
+
+            cmp [ebx+0x42C], TSUBAKI_MK2
+            je mk2Colour
+            cmp [ebx+0x42C], TSUBAKI_MK2_BATTERY
+            je mk2Colour
+            cmp [ebx+0x42C], TSUBAKI_MK2_DAMAGE
+            je mk2Colour
+            cmp [ebx+0x42C], TSUBAKI_MK2_BATTERY_DAMAGE
             je mk2Colour
             jmp originalcode
 

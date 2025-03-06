@@ -8,8 +8,9 @@
 static int setStageArgs[7]{0, -1, -1, 0, 0, 0, 0};
 static int64_t inSetVolRateArg = 0;
 
-ImVec4 stageNameColor{ 1.00f, 0.79f, 0.45f, 1.0f };
-ImVec4 stageInfoColor{ 0.81f, 0.40f, 0.38f, 1.0f };
+static ImVec4 stageNameColor{ 1.00f, 0.79f, 0.45f, 1.0f };
+static ImVec4 stageInfoColor{ 0.81f, 0.40f, 0.38f, 1.0f };
+static ImVec4 stageHoveredColor{ 0.37f, 0.71f, 0.34f, 1.0f };
 
 // directx stuff
 static std::unique_ptr<Texture2DD3D11> g_stage_warp_texture_atlas{};
@@ -61,11 +62,10 @@ struct TextureAtlas {
 #pragma endregion
 
 // yeah all this is needed to update the bottom panel
-const char* defaultDescription = "Teleport to any stage in the game. 'Wii/Unused' contains warps to stages which aren't included with the Steam release of NMH1, so to make use of these, you'll need to have the files from the Wii version.";
-const char* hoveredDescription = defaultDescription;
-
-const char* defaultStageName = "Hover over a stage to see details.";
-const char* stageName = defaultStageName;
+const char* StageWarp::defaultDescription = "Teleport to any stage in the game. 'Wii/Unused' contains warps to stages which aren't included with the Steam release of NMH1, so to make use of these, you'll need to have the files from the Wii version.";
+const char* StageWarp::hoveredDescription = defaultDescription;
+const char* StageWarp::defaultStageName = "Hover over a stage to see details.";
+const char* StageWarp::stageName = defaultStageName;
 Frame stageImage;
 //
 
@@ -81,8 +81,8 @@ void StageWarp::render_description() const {
 }
 
 void update_description(const char* name, const char* info, Frame image) {
-    stageName = name;
-    hoveredDescription = info;
+    StageWarp::stageName = name;
+    StageWarp::hoveredDescription = info;
     stageImage = image;
 }
 
@@ -373,35 +373,28 @@ void DisplayStageSection(const char* headerName, const T& stages) {
             auto& stage = stages[i].get();  // actual Stage object
             snprintf(buttonLabel, sizeof(buttonLabel), "%s", stage.name);
             snprintf(buttonInfo, sizeof(buttonInfo), "%s", stage.info);
+
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0)); 
             ImGui::TextColored(stageNameColor, buttonLabel);
             if (ImGui::IsItemHovered()) {
-                if (*stage.longerInfo) {
-                    update_description(stage.name, stage.info, TextureAtlas::getCoordinates(stage.arrayItem));
-                }
-                else {
-                    update_description(stage.name, stage.info, TextureAtlas::getCoordinates(stage.arrayItem));
-                }
+                update_description(stage.name, stage.info, TextureAtlas::getCoordinates(stage.arrayItem));
             }
 
             if (ImGui::IsItemClicked()) {
                 nmh_sdk::SetStage(stage.name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
-                                  setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
+                    setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
             }
-            ImGui::SameLine(100);
+            ImGui::SameLine(ImGui::GetFontSize()*5.0f);
             ImGui::TextColored(stageInfoColor, buttonInfo);
             if (ImGui::IsItemHovered()) {
-                if (*stage.longerInfo) {
-                    update_description(stage.name, stage.info, TextureAtlas::getCoordinates(stage.arrayItem));
-                }
-                else {
-                    update_description(stage.name, stage.info, TextureAtlas::getCoordinates(stage.arrayItem));
-                }
+                update_description(stage.name, stage.info, TextureAtlas::getCoordinates(stage.arrayItem));
             }
 
             if (ImGui::IsItemClicked()) {
                 nmh_sdk::SetStage(stage.name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
-                                  setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
+                    setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
             }
+            ImGui::PopStyleVar();
         }
     }
 }
@@ -417,6 +410,14 @@ void StageWarp::on_draw_ui() {
             ImGui::Text("Current Stage: ?");
         }
 
+        // float available_width = ImGui::GetContentRegionAvail().x;
+        // float combo_width = ImGui::CalcItemWidth();
+        // ImGui::SetCursorPosX((available_width - combo_width) * 0.5f);
+        ImGui::Combo("##inFadeType", &setStageArgs[4], "Punk\0Fade\0Grey\0Stamps\0Instant (Soft Lock)\0");
+        if (ImGui::IsItemHovered()) {
+            update_description("Fade Type", "Set the transition that plays when you teleport", TextureAtlas::getCoordinates(78));
+        }
+
         DisplayStageSection("All", all_stages);
         DisplayStageSection("Bosses", boss_stages);
         DisplayStageSection("Zako", zako_stages);
@@ -425,9 +426,8 @@ void StageWarp::on_draw_ui() {
         DisplayStageSection("Miscellaneous", misc_stages);
         DisplayStageSection("Toilets", save_stages);
 
-        static const char* argsHelpMarker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n");
-
-        if (ImGui::CollapsingHeader("SetStage args")) {
+        //static const char* argsHelpMarker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n");
+        /*if (ImGui::CollapsingHeader("SetStage args")) {
             help_marker(argsHelpMarker);
             ImGui::InputInt("AddedStages", &setStageArgs[0]);
             help_marker("I think this adds n to stageID? Not sure how else it would get next stage\nMotel>Overworld has this set to 2");
@@ -437,15 +437,14 @@ void StageWarp::on_draw_ui() {
             help_marker("Motel>Overworld sets this to -1");
             ImGui::InputInt("inBossInfoDisp", &setStageArgs[3]);
             help_marker("Shows the boss popup");
-            ImGui::InputInt("inFadeType", &setStageArgs[4]);
-            help_marker("Sets the transition that plays, e.g. a black fade or stickers");
+            
             ImGui::InputScalar("inSetVolRate", ImGuiDataType_S64, &inSetVolRateArg);
             ImGui::InputInt("inPause", &setStageArgs[5]);
             ImGui::InputInt("a10", &setStageArgs[6]);
         }
         else {
             help_marker(argsHelpMarker);
-        }
+        }*/
     }
 }
 
