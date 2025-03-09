@@ -4,7 +4,7 @@ bool HPHitNumber::mod_enabled = false;
 uintptr_t HPHitNumber::jmp_ret1 = NULL;
 uintptr_t HPHitNumber::jmp_ret2 = NULL;
 uintptr_t HPHitNumber::gpBattle = NULL;
-float HPHitNumber::verticalOffset = 0.0f;
+float HPHitNumber::verticalOffset = 285.0f;
 
 void HPHitNumber::toggle(bool enable) { // hide "HIT" text
     if (enable) {
