@@ -70,10 +70,6 @@ int WeaponSwitcher::weaponSwitchCooldown = 80; // this is what ticks
 static int weaponSwitchLockedFrames = 10; // this locks you out from weapon switching
 static int animationDuration = WeaponSwitcher::weaponSwitchCooldown;
 static int directionPressed = 0;
-
-static uintptr_t gpBattle = NULL;
-static uintptr_t mPlayMotion = NULL;
-
 // bool WeaponSwitcher::weapon_switcher_ui = false;
 
 // Disable toggling the map while Weapon Switcher is active
@@ -202,89 +198,67 @@ void FillComboBoxWithImGui(int slotID, const char* comboBoxLabel) {
     }
 }
 
-static int weaponSwitchWasMade = 0;
-
 // clang-format off
-naked void detour1() { // play weapon anims // player in esi // called last
+naked void detour1() { // play weapon anims // player in ecx // called last
     __asm {
         //
-            mov dword ptr [esi+0x00000404], 4
-            mov dword ptr [weaponSwitchWasMade], 1
-            jmp retcode
             cmp byte ptr [WeaponSwitcher::mod_enabled], 0
-            je retcode
+            je originalcode
         //
-            cmp dword ptr [esi+0x2990], ePcInputBattleIdle // enPcInputMode
-            jne retcode
-            cmp byte ptr [esi+0x299e], 1
+            cmp dword ptr [ecx+0x2990], ePcInputBattleIdle // enPcInputMode
+            jne originalcode
             cmp dword ptr [WeaponSwitcher::weaponSwitchCooldown], 10 // only edit anim if weapon switcher changed the value
-            jae retcode
+            jae originalcode
             push 01 // interrupt
             push 00 // frame
             push 00 // repeat
             push 03 // id
             jmp dword ptr [WeaponSwitcher::jmp_ret1]
 
-            cmp dword ptr [esi+0x42C], BLOOD_BERRY
+
+            cmp dword ptr [ecx+0x42C], BLOOD_BERRY
             je berry
-            cmp dword ptr [esi+0x42C], TSUBAKI_MK3
+            cmp dword ptr [ecx+0x42C], TSUBAKI_MK3
             je mk3
-            cmp dword ptr [esi+0x42C], TSUBAKI_MK1
+            cmp dword ptr [ecx+0x42C], TSUBAKI_MK1
             je mk1
-            cmp dword ptr [esi+0x42C], TSUBAKI_MK2
+            cmp dword ptr [ecx+0x42C], TSUBAKI_MK2
             je mk2
-            jmp retcode
+            jmp originalcode
 
         berry:
-            push eax
-            push edx
-            push ecx
-            push 0x3dcccccd // 0.1
-            push 00   // interrupt
-            push 70   // frame
-            push 00   // repeat
-            push 249  // id
-            jmp callcode
+            push 01
+            push 70
+            push 00
+            push 249
+            jmp dword ptr [WeaponSwitcher::jmp_ret1]
 
         mk3:
-            push eax
-            push edx
-            push ecx
-            push 0x3dcccccd // 0.1
-            push 00   // interrupt
-            push 00   // frame
-            push 00   // repeat
-            push 297  // id
-            jmp callcode
+            push 01
+            push 00
+            push 00
+            push 297
+            jmp dword ptr [WeaponSwitcher::jmp_ret1]
 
         mk1:
-            push eax
-            push edx
-            push ecx
-            push 0x3dcccccd // 0.1
-            push 00   // interrupt
-            push 00   // frame
-            push 00   // repeat
-            push 345  // id
-            jmp callcode
+            push 01
+            push 00
+            push 00
+            push 345
+            jmp dword ptr [WeaponSwitcher::jmp_ret1]
 
         mk2:
-            push eax
-            push edx
-            push ecx
-            push 0x3dcccccd // 0.1
-            push 00   // interrupt
-            push 00   // frame
-            push 00   // repeat
-            push 391  // id
-            jmp callcode
-        callcode:
-            mov ecx,esi
-            call dword ptr [mPlayMotion]
-            pop ecx
-            pop edx
-            pop eax
-        retcode:
+            push 01
+            push 00
+            push 00
+            push 391
+            jmp dword ptr [WeaponSwitcher::jmp_ret1]
+
+        originalcode:
+            push 01
+            push 00
+            push 01
+            push 0x30
             jmp dword ptr [WeaponSwitcher::jmp_ret1]
     }
 }
@@ -297,7 +271,6 @@ naked void detour2() { // play weapon anims // player in esi
         //
             cmp dword ptr [esi+0x2990], ePcInputBattleIdle // enPcInputMode
             jne originalcode
-
             cmp dword ptr [WeaponSwitcher::weaponSwitchCooldown], 10 // only edit anim if weapon switcher changed the value
             jae originalcode
             push 01 // interrupt
@@ -352,7 +325,6 @@ naked void detour2() { // play weapon anims // player in esi
             jmp dword ptr [WeaponSwitcher::jmp_ret2]
     }
 }
-
  // clang-format on
 
 bool load_weapon_switcher_texture() {
@@ -370,17 +342,15 @@ bool load_weapon_switcher_texture() {
 }
 
 std::optional<std::string> WeaponSwitcher::on_initialize() {
-    gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
-    mPlayMotion = g_framework->get_module().as<uintptr_t>() + 0x402CF0;
-    if (!install_hook_offset(0x3D88A0, m_hook1, &detour1, &WeaponSwitcher::jmp_ret1, 10)) {
+    if (!install_hook_offset(0x3DC561, m_hook1, &detour1, &WeaponSwitcher::jmp_ret1, 8)) {
         spdlog::error("Failed to init WeaponSwitcher mod\n");
         return "Failed to init WeaponSwitcher mod";
     }
 
-    /*if (!install_hook_offset(0x3D905B, m_hook2, &detour2, &WeaponSwitcher::jmp_ret2, 8)) {
+    if (!install_hook_offset(0x3D905B, m_hook2, &detour2, &WeaponSwitcher::jmp_ret2, 8)) {
         spdlog::error("Failed to init WeaponSwitcher mod\n");
         return "Failed to init WeaponSwitcher mod";
-    }*/
+    }
 
     load_weapon_switcher_texture();
 
@@ -527,8 +497,8 @@ void WeaponSwitcher::Display_UI() {
 }*/
 
 void WeaponSwitcher::on_frame() {
-    static int previousSwordEquipRead = 0;
-    static int checkmotReadProc = 0;
+    //static int previousSwordEquipRead = 0;
+    //static int checkmotReadProc = 0;
     if (mod_enabled) {
         mHRPc* player = nmh_sdk::get_mHRPc();
         if (player) {
@@ -584,39 +554,29 @@ void WeaponSwitcher::on_frame() {
             }
 
             // play an anim after the sword loads
-            //if (player->mPcStatus.atkMot.motReadProc == 3) {//&& player->mInputMode == ePcInputBattleIdle) {
-            if (weaponSwitchWasMade > 0) {
-                weaponSwitchWasMade++;
-                if (weaponSwitchWasMade >= 2) {
-                    weaponSwitchWasMade = 0;
-                    switch (player->mPcStatus.equip[0].id) {
-                    case BLOOD_BERRY:
-                        //player->mCharaStatus.motionNo = (pcMotion)249;
-                        nmh_sdk::PlayMotion(ePcMtBattou01, 0, 70, 1, 0.1f); // 249
-                        //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                        break;
-                    case TSUBAKI_MK3:
-                        //player->mCharaStatus.motionNo = (pcMotion)297;
-                        nmh_sdk::PlayMotion((pcMotion)297, 0, 0, 1, 0.1f); // 297
-                        //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                        break;
-                    case TSUBAKI_MK1:
-                        //player->mCharaStatus.motionNo = (pcMotion)345;
-                        nmh_sdk::PlayMotion((pcMotion)345, 0, 0, 1, 0.1f); // 345
-                        //player->tagMain->Motion[0].Active = false;
-                        //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                        break;
-                    case TSUBAKI_MK2:
-                        //player->mCharaStatus.motionNo = (pcMotion)391;
-                        nmh_sdk::PlayMotion((pcMotion)391, 0, 0, 1, 0.1f); // 391
-                        //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                        break;
-                    default:
-                        //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                        break;
-                    }
+            /*if (previousSwordEquipRead == eEqWait1Frame && player->mInputMode == ePcInputBattleIdle) {
+                switch (player->mPcStatus.equip[0].id) {
+                case BLOOD_BERRY:
+                    nmh_sdk::PlayMotion(ePcMtBattou01, 0, 70, 1, 0.1f); // 249
+                    //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+                    break;
+                case TSUBAKI_MK3:
+                    nmh_sdk::PlayMotion(ePcMtBattou02Ed, 0, 0, 1, 0.1f); // 297
+                    //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+                    break;
+                case TSUBAKI_MK1:
+                    nmh_sdk::PlayMotion(ePcMtBattou03Ed, 0, 0, 1, 0.1f); // 345
+                    //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+                    break;
+                case TSUBAKI_MK2:
+                    nmh_sdk::PlayMotion(ePcMtBattou04Ed, 0, 0, 1, 0.1f); // 391
+                    //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+                    break;
+                default:
+                    //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+                    break;
                 }
-            }
+            }*/
 
             // effectively pause the game while loading a sword. Optional but should be safer
             // Can't pause all because then the loading process pauses too
@@ -630,8 +590,8 @@ void WeaponSwitcher::on_frame() {
                     player->mPauseNpc = false;
                     player->mOperate = true;
                 }
-            }*/
-            //previousSwordEquipRead = player->mPcStatus.equip[0].readProc;
+            }
+            previousSwordEquipRead = player->mPcStatus.equip[0].readProc;*/
             weaponSwitchCooldown++;
             //if (weapon_switcher_ui) {
             Display_UI();

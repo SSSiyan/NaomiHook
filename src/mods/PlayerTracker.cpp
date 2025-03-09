@@ -1151,12 +1151,12 @@ void DrawPlayerStats() {
                 ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &player->mCharaStatus.dmgInfo.m_BikeDeadRequest);
             }
             if (ImGui::CollapsingHeader("mHRPc stPcStatus")) {
-                uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->mPcStatus.atkMot);
-                ImGui::Text("Base Address: 0x%08X", baseAddress);
-                uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&player->mPcStatus.swingCount);
-                ImGui::Text("Target Address: 0x%08X", targetAddress);
-                uintptr_t offsetDifference = targetAddress - baseAddress;
-                ImGui::Text("Offset difference: 0x%08X", offsetDifference);
+                // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->mPcStatus.atkMot);
+                // ImGui::Text("Base Address: 0x%08X", baseAddress);
+                // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&player->mPcStatus.skillCatch);
+                // ImGui::Text("Target Address: 0x%08X", targetAddress);
+                // uintptr_t offsetDifference = targetAddress - baseAddress;
+                // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
                 if (ImGui::CollapsingHeader("Weapon Info")) {
                     for (int i = 0; i < 16; i++) {
                         ImGui::Text("Weapon Info %d", i);
