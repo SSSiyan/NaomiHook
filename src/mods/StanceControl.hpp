@@ -39,6 +39,12 @@ public:
   void toggle(bool enable);
   void toggle_display_edit(bool enable);
 
+  static bool mod_enabled_disable_combo_extend_speedup;
+  void toggle_disable_combo_extend_speedup(bool enable);
+
+  static bool mod_enabled_faster_nu_lows;
+  static uintptr_t jmp_ret4;
+
   static const char* defaultDescription;
   static const char* hoveredDescription;
 
@@ -63,7 +69,8 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3;
+	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3, m_hook4;
 	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3, m_patch4;
 	std::unique_ptr<Patch> patch_swap_idle_stance1, patch_swap_idle_stance2;
+	std::unique_ptr<Patch> patch_disable_combo_extend_speedup;
 };

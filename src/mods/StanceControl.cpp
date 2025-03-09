@@ -29,6 +29,13 @@ uintptr_t StanceControl::clashing = NULL;
 
 bool StanceControl::swapIdleStances = false;
 
+bool StanceControl::mod_enabled_disable_combo_extend_speedup = false;
+
+bool StanceControl::mod_enabled_faster_nu_lows = false;
+uintptr_t StanceControl::jmp_ret4;
+
+static uintptr_t mCheckNormalAttack = NULL;
+
 void StanceControl::toggleSwapIdleStances(bool enable) {
     if (enable) {
         install_patch_offset(0x3D7D4A, patch_swap_idle_stance1, "\x75", 1); // jne nmh.exe+3D7D5B
@@ -60,7 +67,16 @@ void StanceControl::toggle_display_edit(bool enable) {
     else {
         install_patch_offset(0x409B70, m_patch4, "\x83\xE8\x02", 3); // sub eax,02
     }
-} 
+}
+
+void StanceControl::toggle_disable_combo_extend_speedup (bool enable) {
+    if (enable) {
+        install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup, "\xEB\x2A", 2); // 
+    }
+    else {
+        install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup, "\x75\x2A", 2); // 
+    }
+}
 
 // clang-format off
 naked void detour1() { // originalcode writes stance blend to 0, we write actual values and set stance using it
@@ -192,6 +208,73 @@ naked void detour3() { // enable guard stance blend unless clashing
         jmp dword ptr [StanceControl::jmp_jne3]
     }
 }
+
+naked void detour4() { // faster nu lows if combo extend
+    __asm {
+        //
+            cmp byte ptr [StanceControl::mod_enabled], 0
+            je originalcode
+            cmp byte ptr [StanceControl::mod_enabled_faster_nu_lows], 0
+            je originalcode
+
+            call dword ptr mCheckNormalAttack
+            cmp al,1
+            je retcode
+            push eax
+            mov eax,[ecx+0x0000018C] // motionID
+
+        //BB
+            cmp eax,237
+            je succeedcode
+            cmp eax,238
+            je succeedcode
+            cmp eax,239
+            je succeedcode
+            cmp eax,240
+            je succeedcode
+            cmp eax,241
+            je succeedcode
+            cmp eax,242
+            je succeedcode
+            cmp eax,243
+            je succeedcode
+        //Mk1
+            cmp eax,334
+            je succeedcode
+            cmp eax,335
+            je succeedcode
+            cmp eax,336
+            je succeedcode
+            cmp eax,337
+            je succeedcode
+        //Mk2
+            cmp eax,379
+            je succeedcode
+            cmp eax,380
+            je succeedcode
+            cmp eax,381
+            je succeedcode
+            cmp eax,382
+            je succeedcode
+
+            pop eax
+            xor al,al
+            jmp retcode
+
+        succeedcode:
+            pop eax
+            mov al,1
+            jmp retcode
+
+        originalcode:
+            call dword ptr mCheckNormalAttack
+            cmp al,1
+            jmp retcode
+        retcode:
+            jmp dword ptr [StanceControl::jmp_ret4]
+    }
+}
+
  // clang-format on
 
 const char* StanceControl::defaultDescription = "Manually adjust the current stance using R2/RT like you can with motion controls. "
@@ -213,26 +296,36 @@ void StanceControl::on_draw_ui() {
         StanceControl::hoveredDescription = "Remaps lock on cycle to R3. This is needed to avoid switching targets with every press of R2 when using this feature.";
     if (mod_enabled) {
         ImGui::Indent();
+
         ImGui::Text("High Bound");
         if (ImGui::SliderFloat("## highBound sliderfloat", &StanceControl::highBound, 0.0f, 1.0f, "%.2f")) {
             highBoundGuard = (highBound + 1.0f) / 2.0f;
         }
         if (ImGui::IsItemHovered())
             StanceControl::hoveredDescription = "How far should r2 be pushed to enter high stance\n0.9 default";
+
         ImGui::Text("Low Bound");
         if (ImGui::SliderFloat("## lowBound sliderfloat", &StanceControl::lowBound, -1.0f, 0.0f, "%.2f")) {
             lowBoundGuard = (lowBound + 1.0f) / 2.0f;
         }
         if (ImGui::IsItemHovered())
             StanceControl::hoveredDescription = "How little should r2 be pushed to enter low stance\n-0.9 default";
+
         ImGui::Checkbox("Invert", &StanceControl::invert_input);
         if (ImGui::IsItemHovered())
             StanceControl::hoveredDescription = "Swap Low and High";
+
         ImGui::Checkbox("Invert Mid", &StanceControl::invert_mid);
         if (ImGui::IsItemHovered())
             StanceControl::hoveredDescription = "Swap Mid and Low. The unused combos assigned to Mid stance are actually the original Low attacks. "
             "For this feature to make more sense, you can tick this to reorganize the stance order.";
+
         ImGui::Checkbox("Show Custom Stance UI", &StanceControl::show_new_ui);
+
+        ImGui::Checkbox("Combo Extend Speedup On Low Attacks", &mod_enabled_faster_nu_lows);
+        if (ImGui::IsItemHovered())
+            StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks";
+
         ImGui::Unindent();
     }
 
@@ -248,6 +341,12 @@ void StanceControl::on_draw_ui() {
     if (ImGui::IsItemHovered())
         StanceControl::hoveredDescription = "The High/Low stances are mistakenly inverted by default, forcing Travis to take on the incorrect stance. This setting "
                 "corrects that issue and is purely cosmetic.";
+
+    if (ImGui::Checkbox("Disable Combo Extend Speedup", &mod_enabled_disable_combo_extend_speedup)) {
+        toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
+    }
+    if (ImGui::IsItemHovered())
+        StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";
 }
 
 void TextCentered(std::string text) {
@@ -325,6 +424,12 @@ std::optional<std::string> StanceControl::on_initialize() {
         return "Failed to init StanceControl mod";
     }
 
+    mCheckNormalAttack = g_framework->get_module().as<uintptr_t>() + 0x3D3D60;
+    if (!install_hook_offset(0x3C72DD, m_hook4, &detour4, &StanceControl::jmp_ret4, 5)) {
+        spdlog::error("Failed to init StanceControl mod\n");
+        return "Failed to init StanceControl mod";
+    }
+     
     return Mod::on_initialize();
 }
 
@@ -344,6 +449,11 @@ void StanceControl::on_config_load(const utility::Config &cfg) {
 
     swapIdleStances = cfg.get<bool>("swap_idle_stances").value_or(false);
     toggleSwapIdleStances(swapIdleStances);
+
+    mod_enabled_disable_combo_extend_speedup = cfg.get<bool>("disable_combo_extend_speedup").value_or(false);
+    toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
+
+    mod_enabled_faster_nu_lows = cfg.get<bool>("faster_nu_lows").value_or(false);
 }
 // during save
 void StanceControl::on_config_save(utility::Config &cfg) {
@@ -356,6 +466,10 @@ void StanceControl::on_config_save(utility::Config &cfg) {
     cfg.set<float>("stance_control_low_bound", lowBound);
 
     cfg.set<bool>("swap_idle_stances", swapIdleStances);
+
+    cfg.set<bool>("disable_combo_extend_speedup", mod_enabled_disable_combo_extend_speedup);
+
+    cfg.set<bool>("faster_nu_lows", mod_enabled_faster_nu_lows);
 }
 
 // will show up in debug window, dump ImGui widgets you want here
