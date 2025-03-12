@@ -2,7 +2,16 @@
 #if 1
 static bool imguiPopout = false;
 
+static uintptr_t gPcCommonTable = NULL;
+static float* OverheadKickAddr = NULL;
+
 std::optional<std::string> PlayerTracker::on_initialize() {
+    gPcCommonTable = g_framework->get_module().as<uintptr_t>() + 0x7421E0;
+    OverheadKickAddr = (float*)(gPcCommonTable + 0x13F0);
+    DWORD oldProtect;
+    VirtualProtect(OverheadKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect);
+    *OverheadKickAddr = 42.0f;
+    // VirtualProtect(OverheadKickAddr, sizeof(float), oldProtect, &oldProtect);
     return Mod::on_initialize();
 }
 
@@ -21,51 +30,6 @@ void setBit(T& flags, int bit, bool value) {
 }
 
 void DrawPlayerStats() {
-    if (mHRPc* player = nmh_sdk::get_mHRPc()) {
-        if (ImGui::CollapsingHeader("Jesus fuck this was meant to be easy", ImGuiTreeNodeFlags_DefaultOpen)) {
-            uintptr_t gPcCommonTable = g_framework->get_module().as<uintptr_t>() + 0x7421E0;
-
-            // MEMORY_BASIC_INFORMATION mbi;
-            // VirtualQuery((uintptr_t*)gPcCommonTable, &mbi, sizeof(mbi));
-            // int protectionFlag = 0;
-            // if (mbi.Protect & PAGE_READONLY) protectionFlag = 1;
-            // else if (mbi.Protect & PAGE_READWRITE) protectionFlag = 2;
-            // else if (mbi.Protect & PAGE_EXECUTE_READ) protectionFlag = 3;
-            // else if (mbi.Protect & PAGE_EXECUTE_READWRITE) protectionFlag = 4;
-            // ImGui::Combo("Memory Protection", &protectionFlag, "Unknown\0Read-Only\0Read-Write\0Execute-Read\0Execute-Read-Write\0");
-
-            float* HookKickAddr = (float*)(gPcCommonTable + 0x1314);
-            float* HighBeatAddr = (float*)(gPcCommonTable + 0x141C);
-            float* JumpingSlashAddr = (float*)(gPcCommonTable + 0x1600);
-            float* OverheadKickAddr = (float*)(gPcCommonTable + 0x13F0);
-            float* RoundhouseKickAddr = (float*)(gPcCommonTable + 0x1340);
-            float* HighChargeAddr = (float*)(gPcCommonTable + 0x1524);
-
-            DWORD oldProtect1, oldProtect2, oldProtect3, oldProtect4, oldProtect5, oldProtect6;
-
-            VirtualProtect(HookKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect1);
-            VirtualProtect(HighBeatAddr, sizeof(float), PAGE_READWRITE, &oldProtect2);
-            VirtualProtect(JumpingSlashAddr, sizeof(float), PAGE_READWRITE, &oldProtect3);
-            VirtualProtect(OverheadKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect4);
-            VirtualProtect(RoundhouseKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect5);
-            VirtualProtect(HighChargeAddr, sizeof(float), PAGE_READWRITE, &oldProtect6);
-
-            ImGui::SliderFloat("360 Hook Kick", HookKickAddr, 0.0f, 999.0f, "%.0f");
-            ImGui::SliderFloat("High Beat Hook Kick", HighBeatAddr, 0.0f, 999.0f, "%.0f");
-            ImGui::SliderFloat("Jumping Slash", JumpingSlashAddr, 0.0f, 999.0f, "%.0f");
-            ImGui::SliderFloat("Overhead Kick", OverheadKickAddr, 0.0f, 999.0f, "%.0f");
-            ImGui::SliderFloat("Roundhouse Kick", RoundhouseKickAddr, 0.0f, 999.0f, "%.0f");
-            ImGui::SliderFloat("High Charge", HighChargeAddr, 0.0f, 999.0f, "%.0f");
-
-            VirtualProtect(HookKickAddr, sizeof(float), oldProtect1, &oldProtect1);
-            VirtualProtect(HighBeatAddr, sizeof(float), oldProtect2, &oldProtect2);
-            VirtualProtect(JumpingSlashAddr, sizeof(float), oldProtect3, &oldProtect3);
-            VirtualProtect(OverheadKickAddr, sizeof(float), oldProtect4, &oldProtect4);
-            VirtualProtect(RoundhouseKickAddr, sizeof(float), oldProtect5, &oldProtect5);
-            VirtualProtect(HighChargeAddr, sizeof(float), oldProtect6, &oldProtect6);
-        }
-    }
-
     if (ImGui::CollapsingHeader("Useful", ImGuiTreeNodeFlags_DefaultOpen)) {
         if (mHRPc* player = nmh_sdk::get_mHRPc()) {
             ImGui::Text("Player");
@@ -102,6 +66,51 @@ void DrawPlayerStats() {
             }
         }
     }
+
+    if (mHRPc* player = nmh_sdk::get_mHRPc()) {
+        if (ImGui::CollapsingHeader("Cancel timings")) {
+            // MEMORY_BASIC_INFORMATION mbi;
+            // VirtualQuery((uintptr_t*)gPcCommonTable, &mbi, sizeof(mbi));
+            // int protectionFlag = 0;
+            // if (mbi.Protect & PAGE_READONLY) protectionFlag = 1;
+            // else if (mbi.Protect & PAGE_READWRITE) protectionFlag = 2;
+            // else if (mbi.Protect & PAGE_EXECUTE_READ) protectionFlag = 3;
+            // else if (mbi.Protect & PAGE_EXECUTE_READWRITE) protectionFlag = 4;
+            // ImGui::Combo("Memory Protection", &protectionFlag, "Unknown\0Read-Only\0Read-Write\0Execute-Read\0Execute-Read-Write\0");
+
+            // float* HookKickAddr = (float*)(gPcCommonTable + 0x1314);
+            // float* HighBeatAddr = (float*)(gPcCommonTable + 0x141C);
+            // float* JumpingSlashAddr = (float*)(gPcCommonTable + 0x1600);
+            
+            // float* RoundhouseKickAddr = (float*)(gPcCommonTable + 0x1340);
+            // float* HighChargeAddr = (float*)(gPcCommonTable + 0x1524);
+
+            // DWORD oldProtect1, oldProtect2, oldProtect3, oldProtect4, oldProtect5, oldProtect6;
+
+            // VirtualProtect(HookKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect1);
+            // VirtualProtect(HighBeatAddr, sizeof(float), PAGE_READWRITE, &oldProtect2);
+            // VirtualProtect(JumpingSlashAddr, sizeof(float), PAGE_READWRITE, &oldProtect3);
+            // VirtualProtect(OverheadKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect4);
+            // VirtualProtect(RoundhouseKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect5);
+            // VirtualProtect(HighChargeAddr, sizeof(float), PAGE_READWRITE, &oldProtect6);
+
+            // ImGui::SliderFloat("360 Hook Kick", HookKickAddr, 0.0f, 999.0f, "%.0f");
+            // ImGui::SliderFloat("High Beat Hook Kick", HighBeatAddr, 0.0f, 999.0f, "%.0f");
+            // ImGui::SliderFloat("Jumping Slash", JumpingSlashAddr, 0.0f, 999.0f, "%.0f");
+            ImGui::SliderFloat("Overhead Kick", OverheadKickAddr, 0.0f, 999.0f, "%.0f");
+            help_marker("Default 999");
+            // ImGui::SliderFloat("Roundhouse Kick", RoundhouseKickAddr, 0.0f, 999.0f, "%.0f");
+            // ImGui::SliderFloat("High Charge", HighChargeAddr, 0.0f, 999.0f, "%.0f");
+
+            // VirtualProtect(HookKickAddr, sizeof(float), oldProtect1, &oldProtect1);
+            // VirtualProtect(HighBeatAddr, sizeof(float), oldProtect2, &oldProtect2);
+            // VirtualProtect(JumpingSlashAddr, sizeof(float), oldProtect3, &oldProtect3);
+            // VirtualProtect(OverheadKickAddr, sizeof(float), oldProtect4, &oldProtect4);
+            // VirtualProtect(RoundhouseKickAddr, sizeof(float), oldProtect5, &oldProtect5);
+            // VirtualProtect(HighChargeAddr, sizeof(float), oldProtect6, &oldProtect6);
+        }
+    }
+
     if (ImGui::CollapsingHeader("HrGameTask")) {
         if (HrGameTask* hrGameTask = nmh_sdk::get_HrGameTask()) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrGameTask->Padding_972);
