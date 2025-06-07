@@ -35,6 +35,7 @@
 #include "mods/MoneyOnKillFix.hpp"
 #include "mods/Cheats.hpp"
 #include "mods/KillObscuringTreasureChests.hpp"
+#include "mods/Tony.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -79,6 +80,7 @@ Mods::Mods()
     ADD_MOD(MoneyOnKillFix);
     ADD_MOD(Cheats);
     ADD_MOD(KillObscuringTreasureChests);
+    ADD_MOD(Tony);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
