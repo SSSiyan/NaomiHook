@@ -3128,7 +3128,7 @@ public:
   /* 0x0448 */ enum HRTET::RandKey m_RandKey;
   /* 0x044c */ int m_ShowTimeCount;
   /* 0x0450 */ int m_ReverseWait;
-  /* 0x0454 */ struct HRTET::ItemMagic m_ItemMagic;
+  /* 0x0454 */ struct ItemMagic m_ItemMagic;
   /* 0x0464 */ int m_BaseBGMHandle;
   /* 0x0468 */ int m_SpBGMHandle;
   /* 0x046c */ bool m_BefGuard;

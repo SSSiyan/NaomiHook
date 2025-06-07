@@ -6,12 +6,6 @@ static uintptr_t gPcCommonTable = NULL;
 static float* OverheadKickAddr = NULL;
 
 std::optional<std::string> PlayerTracker::on_initialize() {
-    gPcCommonTable = g_framework->get_module().as<uintptr_t>() + 0x7421E0;
-    OverheadKickAddr = (float*)(gPcCommonTable + 0x13F0);
-    DWORD oldProtect;
-    VirtualProtect(OverheadKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect);
-    *OverheadKickAddr = 42.0f;
-    // VirtualProtect(OverheadKickAddr, sizeof(float), oldProtect, &oldProtect);
     return Mod::on_initialize();
 }
 
@@ -97,8 +91,8 @@ void DrawPlayerStats() {
             // ImGui::SliderFloat("360 Hook Kick", HookKickAddr, 0.0f, 999.0f, "%.0f");
             // ImGui::SliderFloat("High Beat Hook Kick", HighBeatAddr, 0.0f, 999.0f, "%.0f");
             // ImGui::SliderFloat("Jumping Slash", JumpingSlashAddr, 0.0f, 999.0f, "%.0f");
-            ImGui::SliderFloat("Overhead Kick", OverheadKickAddr, 0.0f, 999.0f, "%.0f");
-            help_marker("Default 999");
+            // ImGui::SliderFloat("Overhead Kick", OverheadKickAddr, 0.0f, 999.0f, "%.0f");
+            // help_marker("Default 999");
             // ImGui::SliderFloat("Roundhouse Kick", RoundhouseKickAddr, 0.0f, 999.0f, "%.0f");
             // ImGui::SliderFloat("High Charge", HighChargeAddr, 0.0f, 999.0f, "%.0f");
 

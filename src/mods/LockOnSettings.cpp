@@ -154,6 +154,20 @@ std::optional<std::string> LockOnSettings::on_initialize() {
     return Mod::on_initialize();
 }
 
+static void toggle_kick_cancel(bool enable) {
+    static uintptr_t gPcCommonTable = g_framework->get_module().as<uintptr_t>() + 0x7421E0;
+    static float* OverheadKickAddr = (float*)(gPcCommonTable + 0x13F0);
+    static DWORD oldProtect;
+    VirtualProtect(OverheadKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect);
+    if (enable) {
+        *OverheadKickAddr = 42.0f;
+    }
+    else {
+        *OverheadKickAddr = 999.0f;
+    }
+    VirtualProtect(OverheadKickAddr, sizeof(float), oldProtect, &oldProtect);
+}
+
 void LockOnSettings::on_draw_ui() {
     ImGui::Checkbox("Enable lockon during more actions", &lockon_more_actions);
 
@@ -173,23 +187,26 @@ void LockOnSettings::on_draw_ui() {
         help_marker("90 degrees default");
         ImGui::Unindent();
     }
-    ImGui::Checkbox("Lockon Disables Throws", &disable_throws_mod_enabled);
+    if (ImGui::Checkbox("Lockon Disables Throws", &disable_throws_mod_enabled)) {
+        toggle_kick_cancel(disable_throws_mod_enabled);
+    }
 }
 
 // during load
 void LockOnSettings::on_config_load(const utility::Config &cfg) {
     lockon_deathblows = cfg.get<bool>("lockon_deathblows").value_or(false);
-    toggle_deathblow_lockon(lockon_deathblows);
+    if (lockon_deathblows) toggle_deathblow_lockon(lockon_deathblows);
     lockon_deathblows_start = cfg.get<bool>("lockon_deathblows_start").value_or(false);
-    toggle_deathblow_lockon_start(lockon_deathblows_start);
+    if (lockon_deathblows_start) toggle_deathblow_lockon_start(lockon_deathblows_start);
     lockon_parry_qtes = cfg.get<bool>("lockon_parry_qtes").value_or(false);
-    toggle_parry_qte_lockon(lockon_parry_qtes);
+    if (lockon_parry_qtes) toggle_parry_qte_lockon(lockon_parry_qtes);
 
     lockon_more_actions = cfg.get<bool>("more_lockon_actions").value_or(false);
     horizontal_limit_toggle = cfg.get<bool>("target_switch_degrees_toggle").value_or(false);
     horizontal_limit_custom_search_degrees = cfg.get<float>("custom_search_degrees").value_or(1.57f);
 
     disable_throws_mod_enabled = cfg.get<bool>("lockon_disables_throws").value_or(false);
+    if (disable_throws_mod_enabled) toggle_kick_cancel(disable_throws_mod_enabled);
 }
 
 // during save

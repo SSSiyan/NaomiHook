@@ -1,4 +1,6 @@
 set(MODS_SRC
+    mods/Tony.hpp
+    mods/Tony.cpp
     mods/HpColor.hpp
     mods/HpColor.cpp
     mods/BeamColor.hpp
