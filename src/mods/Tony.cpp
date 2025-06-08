@@ -51,6 +51,7 @@ void Tony::on_frame() {
     ImVec2 screenSize = ImGui::GetIO().DisplaySize;
     float fontSize = ImGui::GetFontSize();
     static constexpr float displayDuration = 2.0f;
+    static constexpr float slideOutDuration = 0.3f;
     std::vector<TrickGroup> activeGroups;
     
     // Create activeGroups vector and clean up expired groups
@@ -87,6 +88,7 @@ void Tony::on_frame() {
         const auto& group = activeGroups[groupIndex];
         float elapsed = std::chrono::duration<float>(now - group.mostRecentTime).count();
         float animationOffset = 0.0f;
+        float slideOutStartTime = displayDuration - slideOutDuration;
         
         // Handle slide-in animation for new groups
         if (group.isNew) {
@@ -109,17 +111,14 @@ void Tony::on_frame() {
                     }
                 }
             }
-        } else {
-            float slideOutStartTime = displayDuration - 0.3f;
-            if (elapsed > slideOutStartTime) {
-                float slideOutDuration = 0.3f;
-                float slideOutProgress = (elapsed - slideOutStartTime) / slideOutDuration;
-                slideOutProgress = std::max(0.0f, std::min(1.0f, slideOutProgress));
-                
-                slideOutProgress = slideOutProgress * slideOutProgress * slideOutProgress;
-                
-                animationOffset = -screenSize.x * slideOutProgress;
-            }
+        } 
+        else if (elapsed > slideOutStartTime) {
+            float slideOutProgress = (elapsed - slideOutStartTime) / slideOutDuration;
+            slideOutProgress = std::max(0.0f, std::min(1.0f, slideOutProgress));
+            
+            slideOutProgress = slideOutProgress * slideOutProgress * slideOutProgress;
+            
+            animationOffset = -screenSize.x * slideOutProgress;
         }
         
         ImVec4 color1(1.0f, 1.0f, 1.0f, 1.0f); // white
