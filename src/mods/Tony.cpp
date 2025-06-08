@@ -235,9 +235,9 @@ static void DisplayGroups(const ImVec2& screenSize, float fontSize, float startY
     }
     
     std::sort(activeGroups.begin(), activeGroups.end(),
-        [](const TrickGroup& a, const TrickGroup& b) {
-            return a.mostRecentTime > b.mostRecentTime;
-        });
+    [](const TrickGroup& a, const TrickGroup& b) {
+        return a.firstAppearanceTime > b.firstAppearanceTime;
+    });
     
     ImGui::SetNextWindowPos(ImVec2(0.0f, startY));
     ImGui::SetNextWindowSize(ImVec2(screenSize.x * SCREEN_WIDTH_RATIO, screenSize.y * windowHeightRatio));
