@@ -1,23 +1,32 @@
 #include "Tony.hpp"
+
 #if 1
 bool Tony::mod_enabled = false;
-uintptr_t Tony::jmp_ret1 = NULL;
-static constexpr float displayDuration = 1.0f;
+// uintptr_t Tony::jmp_ret1 = NULL;
+// uintptr_t Tony::jmp_ret2 = NULL;
+// uintptr_t Tony::jmp_ret3 = NULL;
+uintptr_t Tony::jmp_ret4 = NULL;
+uintptr_t Tony::jmp_ret5 = NULL;
+
+// static uintptr_t gpBattle = NULL;
 
 struct TrickScore {
     std::string text;
-    float score;
+    int money;
+    bool isReward;
     std::chrono::steady_clock::time_point timePerformed;
 
     TrickScore()
         : text(""),
-        score(0.0f),
+        money(0),
+        isReward(false),
         timePerformed(std::chrono::steady_clock::now()) {
     }
 
-    TrickScore(const std::string& text, float score, float time)
+    TrickScore(const std::string& text, int money, bool isReward, float time)
         : text(text),
-        score(score),
+        money(money),
+        isReward(isReward),
         timePerformed(std::chrono::steady_clock::now()) {
     }
 };
@@ -30,10 +39,12 @@ void Tony::on_frame() {
     auto now = std::chrono::steady_clock::now();
     ImVec2 screenSize = ImGui::GetIO().DisplaySize;
     float fontSize = ImGui::GetFontSize();
+    static constexpr float displayDuration = 2.0f;
         
     struct ConsecutiveGroup {
         std::string trickName;
-        float score;
+        int money;
+        bool isReward;
         int count;
         std::chrono::steady_clock::time_point mostRecentTime;
         std::chrono::steady_clock::time_point firstAppearanceTime;
@@ -47,7 +58,8 @@ void Tony::on_frame() {
     if (!trickScores.empty()) {
         ConsecutiveGroup currentGroup;
         currentGroup.trickName = trickScores[0].text;
-        currentGroup.score = trickScores[0].score;
+        currentGroup.money = trickScores[0].money;
+        currentGroup.isReward = trickScores[0].isReward;
         currentGroup.count = 1;
         currentGroup.mostRecentTime = trickScores[0].timePerformed;
         currentGroup.firstAppearanceTime = trickScores[0].timePerformed;
@@ -59,6 +71,8 @@ void Tony::on_frame() {
             if (trickScores[i].text == currentGroup.trickName) {
                 // same trick, extend the current group
                 currentGroup.count++;
+                currentGroup.money += trickScores[i].money;
+                currentGroup.isReward = trickScores[i].isReward;
                 currentGroup.endIndex = i;
                 if (trickScores[i].timePerformed > currentGroup.mostRecentTime) {
                     currentGroup.mostRecentTime = trickScores[i].timePerformed;
@@ -68,7 +82,8 @@ void Tony::on_frame() {
                 consecutiveGroups.push_back(currentGroup);
                     
                 currentGroup.trickName = trickScores[i].text;
-                currentGroup.score = trickScores[i].score;
+                currentGroup.money = trickScores[i].money;
+                currentGroup.isReward = trickScores[i].isReward;
                 currentGroup.count = 1;
                 currentGroup.mostRecentTime = trickScores[i].timePerformed;
                 currentGroup.firstAppearanceTime = trickScores[i].timePerformed;
@@ -89,10 +104,7 @@ void Tony::on_frame() {
     for (auto& group : consecutiveGroups) {
         float elapsed = std::chrono::duration<float>(now - group.mostRecentTime).count();
         bool timedOut = (elapsed > displayDuration);
-        
-        // check if this is a new entry (appeared within the last 0.5 seconds)
-        float timeSinceFirstAppearance = std::chrono::duration<float>(now - group.firstAppearanceTime).count();
-        group.isNew = (timeSinceFirstAppearance < 0.5f);
+        group.isNew = (group.count == 1);
             
         if (timedOut) {
             // Mark all tricks in this group for removal
@@ -110,20 +122,17 @@ void Tony::on_frame() {
             return a.mostRecentTime > b.mostRecentTime;
         });
     
-    ImGui::SetNextWindowPos(ImVec2(0.0f, screenSize.y * 0.4f));
+    ImGui::SetNextWindowPos(ImVec2(0.0f, screenSize.y * 0.3f));
     ImGui::SetNextWindowSize(ImVec2(screenSize.x * 0.3f, screenSize.y * 0.3f));
     ImGui::Begin("TrickScoresWindow", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoScrollbar);
     ImGui::SetWindowFontScale(1.5f);
         
-    // display active groups with individual entry animation
+    // display active groups
     for (size_t groupIndex = 0; groupIndex < activeGroups.size(); ++groupIndex) {
         const auto& group = activeGroups[groupIndex];
         float elapsed = std::chrono::duration<float>(now - group.mostRecentTime).count();
-        float fade = 1.0f - (elapsed / displayDuration);
-        fade = std::max(0.0f, std::min(1.0f, fade)); // Clamp fade between 0 and 1
+        float animationOffset = 0.0f;
         
-        // animation
-        float entryFlyInOffset = 0.0f;
         if (group.isNew) {
             float timeSinceFirstAppearance = std::chrono::duration<float>(now - group.firstAppearanceTime).count();
             float animationDuration = 0.2f;
@@ -132,11 +141,22 @@ void Tony::on_frame() {
             
             progress = 1.0f - std::pow(1.0f - progress, 3.0f);
             
-            entryFlyInOffset = screenSize.x * (1.0f - progress);
+            animationOffset = -screenSize.x * (1.0f - progress);
+        } else {
+            float slideOutStartTime = displayDuration - 0.3f;
+            if (elapsed > slideOutStartTime) {
+                float slideOutDuration = 0.3f;
+                float slideOutProgress = (elapsed - slideOutStartTime) / slideOutDuration;
+                slideOutProgress = std::max(0.0f, std::min(1.0f, slideOutProgress));
+                
+                slideOutProgress = slideOutProgress * slideOutProgress * slideOutProgress;
+                
+                animationOffset = -screenSize.x * slideOutProgress;
+            }
         }
             
-        ImVec4 color(1.0f, 1.0f, 1.0f, fade);
-        ImVec4 color2(1.0f, 1.0f, 0.0f, fade);
+        ImVec4 color1(1.0f, 1.0f, 1.0f, 1.0f); // white
+        ImVec4 color2(1.0f, 1.0f, 0.0f, 1.0f); // yellow
             
         std::string displayText = group.trickName;
         if (group.count > 1) {
@@ -145,25 +165,26 @@ void Tony::on_frame() {
             
         float windowWidth = ImGui::GetContentRegionAvail().x;
         char scoreBuffer[32];
-        snprintf(scoreBuffer, sizeof(scoreBuffer), "%.1f", group.score);
+        snprintf(scoreBuffer, sizeof(scoreBuffer), "%i", group.money);
         float textWidth = ImGui::CalcTextSize(displayText.c_str()).x;
         float scoreWidth = ImGui::CalcTextSize(scoreBuffer).x;
         float customSpacing = fontSize * 1.0f;
         
         float targetX = screenSize.x * 0.01f;
-        float leftAlignX = targetX - entryFlyInOffset; // Start offscreen, end at target
-        float scoreX = targetX + textWidth + customSpacing - entryFlyInOffset; // Score positioned after text
+        float leftAlignX = targetX + animationOffset;
+        float scoreX = targetX + textWidth + customSpacing + animationOffset;
         
         // draw trick name (left-aligned)
         ImGui::SetCursorPosX(leftAlignX);
-        ImGui::PushStyleColor(ImGuiCol_Text, color);
+        if (!group.isReward) ImGui::PushStyleColor(ImGuiCol_Text, color1);
+        else ImGui::PushStyleColor(ImGuiCol_Text, color2);
         ImGui::Text("%s", displayText.c_str());
         ImGui::PopStyleColor();
             
         // draw score
         ImGui::SameLine(scoreX);
         ImGui::PushStyleColor(ImGuiCol_Text, color2);
-        ImGui::Text("+%.1f", group.score);
+        if (!group.isReward) ImGui::Text("+%i", group.money);
         ImGui::PopStyleColor();
     }
         
@@ -180,10 +201,11 @@ void Tony::on_frame() {
     ImGui::End();
 }
 
-static void AddTrickScore(int id, float score) {
+static void AddTrickScore(int id, int money, bool isReward) {
     TrickScore newScore;
-    newScore.text = MoveNames[id];
-    newScore.score = score;
+    newScore.text = isReward ? "Kill Reward" : MoveNames[id];
+    newScore.money = money;
+    newScore.isReward = isReward;
     newScore.timePerformed = std::chrono::steady_clock::now();
 
     if (trickScores.size() >= maxScores) {
@@ -193,7 +215,8 @@ static void AddTrickScore(int id, float score) {
 }
 
 // clang-format off
-naked void detour1() { // basic attacks // player in edi
+
+/*naked void detour1() { // most attacks // player in edi
     __asm {
         // 
             cmp byte ptr [Tony::mod_enabled], 0
@@ -201,7 +224,7 @@ naked void detour1() { // basic attacks // player in edi
 
             pushad
             push [esp+0x20+0xC] // damageAmount
-            push ecx // damageID
+            push ecx // moveID
             call AddTrickScore
             add esp, 8
             popad
@@ -211,7 +234,91 @@ naked void detour1() { // basic attacks // player in edi
             jmp dword ptr [Tony::jmp_ret1]
     }
 }
- 
+
+naked void detour2() { // execution qtes // player in edi
+    __asm {
+        // 
+            cmp byte ptr [Tony::mod_enabled], 0
+            je originalcode
+
+            pushad
+            push 0
+            push [edi+0x18C] // moveID
+            call AddTrickScore
+            add esp, 8
+            popad
+
+        originalcode:
+            mov edx, 0x00000379
+            jmp dword ptr [Tony::jmp_ret2]
+    }
+}
+
+naked void detour3() { // throws hitting the ground // player in nowhere??
+    __asm {
+        // original movss
+            movss [edi+0x24], xmm0
+            cmp byte ptr [Tony::mod_enabled], 0
+            je originalcode
+            
+            pushad
+
+            mov edx, [gpBattle]
+            mov edx, [edx]
+            mov edx, [edx+0x164]
+
+            push [edi+0x24] // damage
+            push [edx+0x18C] // moveID
+            call AddTrickScore
+            add esp, 8
+
+        popcode:
+            popad
+        originalcode:
+            jmp dword ptr [Tony::jmp_ret3]
+    }
+}*/
+
+naked void detour4() { // +5 money gains // player in edi
+    __asm {
+        // 
+            cmp byte ptr [Tony::mod_enabled], 0
+            je originalcode
+
+            pushad
+            push 0 // is reward
+            push 5 // money gain
+            push [edi+0x18C] // moveID
+            call AddTrickScore
+            add esp, 0xC
+            popad
+
+        originalcode:
+            cmp ecx, 0x000000C2
+            jmp dword ptr [Tony::jmp_ret4]
+    }
+}
+
+naked void detour5() { // money rewards // player in edi
+    __asm {
+        // 
+            cmp byte ptr [Tony::mod_enabled], 0
+            je originalcode
+
+            pushad
+            push 1 // is reward
+            push eax // money gained
+            push [ecx+0x18C] // moveID
+            call AddTrickScore
+            add esp, 0xC
+            popad
+
+        originalcode:
+            add [ecx+0x000012EC], eax
+            jmp dword ptr [Tony::jmp_ret5]
+    }
+}
+
  // clang-format on
 
 void Tony::on_draw_ui() {
@@ -219,9 +326,30 @@ void Tony::on_draw_ui() {
 }
 
 std::optional<std::string> Tony::on_initialize() {
-    if (!install_hook_offset(0x3CB850, m_hook1, &detour1, &Tony::jmp_ret1, 6)) {
+    // gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
+    /*if (!install_hook_offset(0x3CB850, m_hook1, &detour1, &Tony::jmp_ret1, 6)) { // most hits
         spdlog::error("Failed to init Tony mod\n");
         return "Failed to init Tony mod";
+    }
+
+    if (!install_hook_offset(0x3CAFA1, m_hook2, &detour2, &Tony::jmp_ret2, 5)) { // executions
+        spdlog::error("Failed to init Tony mod 2\n");
+        return "Failed to init Tony mod 2";
+    }
+
+    if (!install_hook_offset(0xA4160, m_hook3, &detour3, &Tony::jmp_ret3, 5)) { // throws hitting the ground // doesn't work idk why yet
+        spdlog::error("Failed to init Tony mod 3\n");
+        return "Failed to init Tony mod 3";
+    }*/
+
+    if (!install_hook_offset(0x3CB92D, m_hook4, &detour4, &Tony::jmp_ret4, 6)) { // +5 money gains
+        spdlog::error("Failed to init Tony mod 4\n");
+        return "Failed to init Tony mod 4";
+    }
+
+    if (!install_hook_offset(0x3E1CD6, m_hook5, &detour5, &Tony::jmp_ret5, 6)) { // +5 money gains
+        spdlog::error("Failed to init Tony mod 4\n");
+        return "Failed to init Tony mod 4";
     }
 
     return Mod::on_initialize();
