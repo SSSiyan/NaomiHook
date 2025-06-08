@@ -126,14 +126,14 @@ void Tony::on_frame() {
         ImVec4 color2(1.0f, 1.0f, 0.0f, 1.0f); // yellow
         
         std::string displayText = group.trickName;
-        if (group.count > 1) {
-            displayText += " x" + std::to_string(group.count);
+        if (group.count > 1 && !group.isReward) {
+            displayText += "x" + std::to_string(group.count);
         }
         
         char scoreBuffer[32];
         snprintf(scoreBuffer, sizeof(scoreBuffer), "%i", group.money);
         float textWidth = ImGui::CalcTextSize(displayText.c_str()).x;
-        float customSpacing = fontSize * 1.0f;
+        float customSpacing = fontSize * 0.5f;
         
         float targetX = screenSize.x * 0.01f;
         float leftAlignX = targetX + animationOffset;
@@ -149,12 +149,14 @@ void Tony::on_frame() {
         ImGui::PopStyleColor();
         
         // Display money gain
-        if (!group.isReward) {
-            ImGui::SameLine(scoreX);
-            ImGui::PushStyleColor(ImGuiCol_Text, color2);
+        ImGui::SameLine(scoreX);
+        ImGui::PushStyleColor(ImGuiCol_Text, color2);
+        if (group.isReward) {
+            ImGui::Text("=%i", group.money);
+        } else {
             ImGui::Text("+%i", group.money);
-            ImGui::PopStyleColor();
         }
+        ImGui::PopStyleColor();
     }
     
     ImGui::End();
