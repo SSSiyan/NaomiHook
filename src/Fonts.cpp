@@ -33,6 +33,9 @@ void load_fonts(OurImGuiContext* ctx, ImGuiIO& io, unsigned int dpi) {
     ctx->modname_font = io.Fonts->AddFontFromMemoryCompressedTTF(font_main_compressed_data, font_main_compressed_size, font_scaled(38.0f, dpi));
     IM_ASSERT(ctx->modname_font != nullptr);
 
+    ctx->tony_font = io.Fonts->AddFontFromFileTTF("tony_font.ttf", font_scaled(18.0f, dpi));
+    IM_ASSERT(ctx->tony_font != nullptr);
+
     // rebuild font atlas
     io.Fonts->Build();
 }

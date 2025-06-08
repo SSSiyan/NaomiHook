@@ -54,6 +54,7 @@ struct OurImGuiContext {
     ImFont* fancy_font{};
     ImFont* infobox_font{};
     ImFont* modname_font{};
+    ImFont* tony_font{};
 
     ModCategory selected_category{};
     AnimationState an_settings_state{};

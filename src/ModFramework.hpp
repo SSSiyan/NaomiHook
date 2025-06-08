@@ -41,6 +41,10 @@ public:
         return m_d3d11_hook.get();
     }
 
+    OurImGuiContext* get_our_imgui_ctx() const {
+        return m_our_imgui_ctx.get();
+    }
+
     void on_frame();
     void on_reset();
     void after_reset();
