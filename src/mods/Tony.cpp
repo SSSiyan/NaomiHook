@@ -172,6 +172,10 @@ static void RenderGroupText(const TrickGroup& group, float animationOffset, floa
     ImVec4 textColor = isRewardGroup ? ImVec4(1.0f, 1.0f, 0.0f, 1.0f) : ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     ImVec4 scoreColor(1.0f, 1.0f, 0.0f, 1.0f);
     
+    ImVec4 shadowColor(0.0f, 0.0f, 0.0f, 0.7f);
+    float shadowOffsetX = 2.0f;
+    float shadowOffsetY = 2.0f;
+    
     std::string displayText = group.trickName;
     if (!isRewardGroup && group.count > 1) {
         displayText += "x " + std::to_string(group.count);
@@ -183,14 +187,30 @@ static void RenderGroupText(const TrickGroup& group, float animationOffset, floa
     float leftAlignX = targetX + animationOffset;
     float scoreX = targetX + textWidth + customSpacing + animationOffset;
     
+    // text shadow
+    ImGui::SetCursorPos(ImVec2(leftAlignX + shadowOffsetX, yPos + shadowOffsetY));
+    ImGui::PushStyleColor(ImGuiCol_Text, shadowColor);
+    ImGui::Text("%s", displayText.c_str());
+    ImGui::PopStyleColor();
+    
+    // text
     ImGui::SetCursorPos(ImVec2(leftAlignX, yPos));
     ImGui::PushStyleColor(ImGuiCol_Text, textColor);
     ImGui::Text("%s", displayText.c_str());
     ImGui::PopStyleColor();
     
-    ImGui::SameLine(scoreX);
-    ImGui::PushStyleColor(ImGuiCol_Text, scoreColor);
+    // score shadow
+    ImGui::SameLine(scoreX + shadowOffsetX);
+    ImGui::SetCursorPosY(yPos + shadowOffsetY);
+    ImGui::PushStyleColor(ImGuiCol_Text, shadowColor);
     const char* scorePrefix = isRewardGroup ? "=" : "+";
+    ImGui::Text("%s%d", scorePrefix, group.money);
+    ImGui::PopStyleColor();
+    
+    // score
+    ImGui::SameLine(scoreX);
+    ImGui::SetCursorPosY(yPos);
+    ImGui::PushStyleColor(ImGuiCol_Text, scoreColor);
     ImGui::Text("%s%d", scorePrefix, group.money);
     ImGui::PopStyleColor();
 }
