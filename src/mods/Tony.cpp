@@ -30,109 +30,65 @@ struct TrickScore {
         timePerformed(std::chrono::steady_clock::now()) {
     }
 };
-
 static std::vector<TrickScore>trickScores{};
 static constexpr int maxScores = INT_MAX;
 
+struct TrickGroup {
+    std::string trickName;
+    int money;
+    bool isReward;
+    int count;
+    std::chrono::steady_clock::time_point mostRecentTime;
+    std::chrono::steady_clock::time_point firstAppearanceTime;
+    bool isNew;
+};
+static std::vector<TrickGroup> trickGroups;
+
 void Tony::on_frame() {
     if (!mod_enabled) { return; }
+    
     auto now = std::chrono::steady_clock::now();
     ImVec2 screenSize = ImGui::GetIO().DisplaySize;
     float fontSize = ImGui::GetFontSize();
     static constexpr float displayDuration = 2.0f;
-        
-    struct ConsecutiveGroup {
-        std::string trickName;
-        int money;
-        bool isReward;
-        int count;
-        std::chrono::steady_clock::time_point mostRecentTime;
-        std::chrono::steady_clock::time_point firstAppearanceTime;
-        int startIndex;
-        int endIndex;
-        bool isNew;
-    };
-        
-    std::vector<ConsecutiveGroup> consecutiveGroups;
-        
-    if (!trickScores.empty()) {
-        ConsecutiveGroup currentGroup;
-        currentGroup.trickName = trickScores[0].text;
-        currentGroup.money = trickScores[0].money;
-        currentGroup.isReward = trickScores[0].isReward;
-        currentGroup.count = 1;
-        currentGroup.mostRecentTime = trickScores[0].timePerformed;
-        currentGroup.firstAppearanceTime = trickScores[0].timePerformed;
-        currentGroup.startIndex = 0;
-        currentGroup.endIndex = 0;
-        currentGroup.isNew = false;
-            
-        for (uint32_t i = 1; i < trickScores.size(); i++) {
-            if (trickScores[i].text == currentGroup.trickName) {
-                // same trick, extend the current group
-                currentGroup.count++;
-                currentGroup.money += trickScores[i].money;
-                currentGroup.isReward = trickScores[i].isReward;
-                currentGroup.endIndex = i;
-                if (trickScores[i].timePerformed > currentGroup.mostRecentTime) {
-                    currentGroup.mostRecentTime = trickScores[i].timePerformed;
-                }
-            } else {
-                // different trick, save current group and start a new one
-                consecutiveGroups.push_back(currentGroup);
-                    
-                currentGroup.trickName = trickScores[i].text;
-                currentGroup.money = trickScores[i].money;
-                currentGroup.isReward = trickScores[i].isReward;
-                currentGroup.count = 1;
-                currentGroup.mostRecentTime = trickScores[i].timePerformed;
-                currentGroup.firstAppearanceTime = trickScores[i].timePerformed;
-                currentGroup.startIndex = i;
-                currentGroup.endIndex = i;
-                currentGroup.isNew = false;
-            }
-        }
-            
-        // add the last group
-        consecutiveGroups.push_back(currentGroup);
-    }
-        
-    // check which groups have timed out
-    std::vector<ConsecutiveGroup> activeGroups;
-    std::vector<int> trickIndicesToRemove;
-        
-    for (auto& group : consecutiveGroups) {
-        float elapsed = std::chrono::duration<float>(now - group.mostRecentTime).count();
+    std::vector<TrickGroup> activeGroups;
+    
+    // Create activeGroups vector and clean up expired groups
+    for (auto it = trickGroups.begin(); it != trickGroups.end();) {
+        float elapsed = std::chrono::duration<float>(now - it->mostRecentTime).count();
         bool timedOut = (elapsed > displayDuration);
-        group.isNew = (group.count == 1);
-            
+        
         if (timedOut) {
-            // Mark all tricks in this group for removal
-            for (int i = group.startIndex; i <= group.endIndex; i++) {
-                trickIndicesToRemove.push_back(i);
-            }
+            it = trickGroups.erase(it);
         } else {
-            activeGroups.push_back(group);
+            activeGroups.push_back(*it);
+            ++it;
         }
     }
-        
+    
     // sort active groups by how recent they were
     std::sort(activeGroups.begin(), activeGroups.end(), 
-        [](const ConsecutiveGroup& a, const ConsecutiveGroup& b) {
+        [](const TrickGroup& a, const TrickGroup& b) {
             return a.mostRecentTime > b.mostRecentTime;
         });
+    
+    if (activeGroups.empty()) { return; } // Nothing to display
     
     ImGui::SetNextWindowPos(ImVec2(0.0f, screenSize.y * 0.3f));
     ImGui::SetNextWindowSize(ImVec2(screenSize.x * 0.3f, screenSize.y * 0.3f));
     ImGui::Begin("TrickScoresWindow", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoScrollbar);
     ImGui::SetWindowFontScale(1.5f);
-        
-    // display active groups
+    
+    // Calculate line height with some padding
+    float lineHeight = fontSize * 1.5f * 1.2f; // font scale * padding multiplier
+    
+    // Display all active groups
     for (size_t groupIndex = 0; groupIndex < activeGroups.size(); ++groupIndex) {
         const auto& group = activeGroups[groupIndex];
         float elapsed = std::chrono::duration<float>(now - group.mostRecentTime).count();
         float animationOffset = 0.0f;
         
+        // Handle slide-in animation for new groups
         if (group.isNew) {
             float timeSinceFirstAppearance = std::chrono::duration<float>(now - group.firstAppearanceTime).count();
             float animationDuration = 0.2f;
@@ -142,6 +98,17 @@ void Tony::on_frame() {
             progress = 1.0f - std::pow(1.0f - progress, 3.0f);
             
             animationOffset = -screenSize.x * (1.0f - progress);
+            
+            // reset isNew flag in the original trickGroups after animation completes
+            if (progress >= 1.0f) {
+                for (auto& originalGroup : trickGroups) {
+                    if (originalGroup.trickName == group.trickName && 
+                        originalGroup.mostRecentTime == group.mostRecentTime) {
+                        originalGroup.isNew = false;
+                        break;
+                    }
+                }
+            }
         } else {
             float slideOutStartTime = displayDuration - 0.3f;
             if (elapsed > slideOutStartTime) {
@@ -154,64 +121,90 @@ void Tony::on_frame() {
                 animationOffset = -screenSize.x * slideOutProgress;
             }
         }
-            
+        
         ImVec4 color1(1.0f, 1.0f, 1.0f, 1.0f); // white
         ImVec4 color2(1.0f, 1.0f, 0.0f, 1.0f); // yellow
-            
+        
         std::string displayText = group.trickName;
         if (group.count > 1) {
             displayText += " x" + std::to_string(group.count);
         }
-            
-        float windowWidth = ImGui::GetContentRegionAvail().x;
+        
         char scoreBuffer[32];
         snprintf(scoreBuffer, sizeof(scoreBuffer), "%i", group.money);
         float textWidth = ImGui::CalcTextSize(displayText.c_str()).x;
-        float scoreWidth = ImGui::CalcTextSize(scoreBuffer).x;
         float customSpacing = fontSize * 1.0f;
         
         float targetX = screenSize.x * 0.01f;
         float leftAlignX = targetX + animationOffset;
         float scoreX = targetX + textWidth + customSpacing + animationOffset;
         
-        // draw trick name (left-aligned)
-        ImGui::SetCursorPosX(leftAlignX);
+        float yPos = lineHeight * groupIndex;
+        ImGui::SetCursorPos(ImVec2(leftAlignX, yPos));
+        
+        // Display trick name
         if (!group.isReward) ImGui::PushStyleColor(ImGuiCol_Text, color1);
         else ImGui::PushStyleColor(ImGuiCol_Text, color2);
         ImGui::Text("%s", displayText.c_str());
         ImGui::PopStyleColor();
-            
-        // draw score
-        ImGui::SameLine(scoreX);
-        ImGui::PushStyleColor(ImGuiCol_Text, color2);
-        if (!group.isReward) ImGui::Text("+%i", group.money);
-        ImGui::PopStyleColor();
-    }
         
-    // sort to remove in descending order
-    std::sort(trickIndicesToRemove.begin(), trickIndicesToRemove.end(), std::greater<int>());
-        
-    // remove timed-out tricks
-    for (uint32_t index : trickIndicesToRemove) {
-        if (index >= 0 && index < trickScores.size()) {
-            trickScores.erase(trickScores.begin() + index);
+        // Display money gain
+        if (!group.isReward) {
+            ImGui::SameLine(scoreX);
+            ImGui::PushStyleColor(ImGuiCol_Text, color2);
+            ImGui::Text("+%i", group.money);
+            ImGui::PopStyleColor();
         }
     }
-        
+    
     ImGui::End();
 }
 
 static void AddTrickScore(int id, int money, bool isReward) {
-    TrickScore newScore;
-    newScore.text = isReward ? "Kill Reward" : MoveNames[id];
-    newScore.money = money;
-    newScore.isReward = isReward;
-    newScore.timePerformed = std::chrono::steady_clock::now();
-
-    if (trickScores.size() >= maxScores) {
-        trickScores.pop_back();
+    std::string trickName = isReward ? "Kill Reward" : MoveNames[id];
+    auto now = std::chrono::steady_clock::now();
+    static constexpr float displayDuration = 2.0f;
+    
+    // First, clean up expired groups
+    for (auto it = trickGroups.begin(); it != trickGroups.end();) {
+        float elapsed = std::chrono::duration<float>(now - it->mostRecentTime).count();
+        bool timedOut = (elapsed > displayDuration);
+        
+        if (timedOut) {
+            it = trickGroups.erase(it);
+        } else {
+            ++it;
+        }
     }
-    trickScores.insert(trickScores.begin(), newScore);
+    
+    // Look for existing group with the same trick name AND same reward status
+    bool foundExisting = false;
+    
+    if (!trickGroups.empty() && 
+        trickGroups[0].trickName == trickName && 
+        trickGroups[0].isReward == isReward) {
+        
+        // Update the most recent group
+        trickGroups[0].count++;
+        trickGroups[0].money += money;
+        trickGroups[0].mostRecentTime = now;
+        trickGroups[0].isNew = false;
+        foundExisting = true;
+    }
+    
+    if (!foundExisting) {
+        // Create new group
+        TrickGroup newGroup;
+        newGroup.trickName = trickName;
+        newGroup.money = money;
+        newGroup.isReward = isReward;
+        newGroup.count = 1;
+        newGroup.mostRecentTime = now;
+        newGroup.firstAppearanceTime = now;
+        newGroup.isNew = true;
+        
+        trickGroups.insert(trickGroups.begin(), newGroup);
+    }
 }
 
 // clang-format off
