@@ -178,7 +178,7 @@ static void RenderGroupText(const TrickGroup& group, float animationOffset, floa
     
     std::string displayText = group.trickName;
     if (!isRewardGroup && group.count > 1) {
-        displayText += "x " + std::to_string(group.count);
+        displayText += " x " + std::to_string(group.count);
     }
     
     float textWidth = ImGui::CalcTextSize(displayText.c_str()).x;
@@ -203,7 +203,7 @@ static void RenderGroupText(const TrickGroup& group, float animationOffset, floa
     ImGui::SameLine(scoreX + shadowOffsetX);
     ImGui::SetCursorPosY(yPos + shadowOffsetY);
     ImGui::PushStyleColor(ImGuiCol_Text, shadowColor);
-    const char* scorePrefix = isRewardGroup ? "=" : "+";
+    const char* scorePrefix = isRewardGroup ? " =" : " +";
     ImGui::Text("%s%d", scorePrefix, group.money);
     ImGui::PopStyleColor();
     
@@ -235,9 +235,9 @@ static void DisplayGroups(const ImVec2& screenSize, float fontSize, float startY
     }
     
     std::sort(activeGroups.begin(), activeGroups.end(),
-    [](const TrickGroup& a, const TrickGroup& b) {
-        return a.firstAppearanceTime > b.firstAppearanceTime;
-    });
+        [](const TrickGroup& a, const TrickGroup& b) {
+            return a.firstAppearanceTime > b.firstAppearanceTime;
+        });
     
     ImGui::SetNextWindowPos(ImVec2(0.0f, startY));
     ImGui::SetNextWindowSize(ImVec2(screenSize.x * SCREEN_WIDTH_RATIO, screenSize.y * windowHeightRatio));
@@ -272,14 +272,12 @@ static void AddTrickScore(int id, int money, bool isReward) {
     bool foundExisting = false;
     if (!trickGroups.empty()) {
         for (auto it = trickGroups.rbegin(); it != trickGroups.rend(); ++it) {
-            if (it->isReward == isReward) {
-                if (it->trickName == trickName) {
-                    it->count++;
-                    it->money += money;
-                    it->mostRecentTime = now;
-                    it->isNew = false;
-                    foundExisting = true;
-                }
+            if (it->isReward == isReward && it->trickName == trickName) {
+                it->count++;
+                it->money += money;
+                it->mostRecentTime = now;
+                it->isNew = false;
+                foundExisting = true;
                 break;
             }
         }
