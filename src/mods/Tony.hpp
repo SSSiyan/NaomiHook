@@ -175,48 +175,48 @@ static const char* MoveNames[] = {
   "ePcMtDdUtsbs", // 130,
   "ePcMtLSFly", // 131,
   "ePcMtLSRtn", // 132,
-  "ePcMtBtAtkFghtCmbA", // 133,
-  "ePcMtBtAtkFghtCmbB", // 134,
-  "ePcMtBtAtkFghtCmbC", // 135,
-  "ePcMtBtAtkFghtCmbD", // 136,
-  "ePcMtBtAtkFghtCmbE", // 137,
-  "ePcMtBtAtkFghtCmbF", // 138,
-  "ePcMtBtAtkFghtDsh", // 139,
-  "ePcMtBtAtkFghtRrgSbt", // 140,
-  "ePcMtBtAtkFghtRHKck", // 141,
-  "ePcMtBtAtkFghtRLKck", // 142,
-  "ePcMtBtAtkFghtTbgr", // 143,
+  "BEAT Combo ",						// 133, ePcMtBtAtkFghtCmbA
+  "BEAT Combo ",						// 134, ePcMtBtAtkFghtCmbB
+  "BEAT Combo ",						// 135, ePcMtBtAtkFghtCmbC
+  "BEAT Combo ",						// 136, ePcMtBtAtkFghtCmbD
+  "BEAT Combo ",						// 137, ePcMtBtAtkFghtCmbE
+  "BEAT Combo ",						// 138, ePcMtBtAtkFghtCmbF
+  "While-Running Left Hook ",			// 139, ePcMtBtAtkFghtDsh
+  "Spinning Hook Kick ",				// 140, ePcMtBtAtkFghtRrgSbt
+  "Roundhouse Kick ",					// 141, ePcMtBtAtkFghtRHKck
+  "Ankle Kick ",						// 142, ePcMtBtAtkFghtRLKck
+  "Hiza Geri Knee Kick ",				// 143, ePcMtBtAtkFghtTbgr
   "ePcMtBtAtkFghtRlt", // 144,
-  "ePcMtBtAtkFghtNlKck", // 145,
-  "ePcMtBtAtkFghtRrgElbw", // 146,
-  "ePcMtBtAtkFghtTrKick", // 147,
-  "ePcMtBtAtkFghtLHk", // 148,
-  "ePcMtBtAtkFghtLUpr", // 149,
-  "ePcMtBtAtkFghtRrgSbt2", // 150,
-  "ePcMtBtAtkFghtDsprx", // 151,
-  "ePcMtBtAtkFghtBbstr", // 152,
-  "ePcMtBtAtkFghtDdt", // 153,
-  "ePcMtBtAtkFghtPdrvr", // 154,
-  "ePcMtBtAtkFghtFstnr", // 155,
-  "ePcMtBtAtkFghtPbmb", // 156,
-  "ePcMtBtAtkFght53", // 157,
-  "ePcMtBtAtkFghtKbrd", // 158,
-  "ePcMtBtAtkFghtJmsprx", // 159,
-  "ePcMtBtAtkFghtTgsprx", // 160,
-  "ePcMtBtAtkFghtSldr", // 161,
-  "ePcMtBtAtkFghtFnck", // 162,
-  "ePcMtBtAtkFghtCpchd", // 163,
-  "ePcMtBtAtkFghtRvsams", // 164,
-  "ePcMtBtAtkFghtKnnk", // 165,
-  "ePcMtBtAtkFghtWwrst", // 166,
+  "Overhead Kick ",						// 145, ePcMtBtAtkFghtNlKck
+  "Right Elbow ",						// 146, ePcMtBtAtkFghtRrgElbw
+  "Spinning Back Kick ",				// 147, ePcMtBtAtkFghtTrKick
+  "Left Hook ",							// 148, ePcMtBtAtkFghtLHk
+  "Left Uppercut ",						// 149, ePcMtBtAtkFghtLUpr
+  "Spinning Hook Kick Quick ",			// 150, ePcMtBtAtkFghtRrgSbt2
+  "Dragon Suplex ",						// 151, ePcMtBtAtkFghtDsprx
+  "Brain Buster ",						// 152, ePcMtBtAtkFghtBbstr
+  "DDT ",								// 153, ePcMtBtAtkFghtDdt
+  "Tombstone Piledriver ",				// 154, ePcMtBtAtkFghtPdrvr
+  "Hurricanrana ",						// 155, ePcMtBtAtkFghtFstnr
+  "Powerbomb ",							// 156, ePcMtBtAtkFghtPbmb
+  "Brain Buster Slam ",					// 157, ePcMtBtAtkFght53
+  "Quebradora Con Giro ",				// 158, ePcMtBtAtkFghtKbrd
+  "German Suplex ",						// 159, ePcMtBtAtkFghtJmsprx
+  "Tiger Suplex ",						// 160, ePcMtBtAtkFghtTgsprx
+  "Belly to Belly ",					// 161, ePcMtBtAtkFghtSldr
+  "Front Neck Chancery Drop ",			// 162, ePcMtBtAtkFghtFnck
+  "Captured ",							// 163, ePcMtBtAtkFghtCpchd
+  "Reverse Armsault ",					// 164, ePcMtBtAtkFghtRvsams
+  "Double Arm Suplex ",					// 165, ePcMtBtAtkFghtKnnk
+  "Double Wrist Suplex ",				// 166, ePcMtBtAtkFghtWwrst
   "ePcMtBtChgStrt", // 167,
   "ePcMtBtChgLp", // 168,
-  "ePcMtBtAtkChg", // 169,
-  "ePcMtBtAtkChgUp", // 170,
-  "ePcMtBtAtkNrmlDsh", // 171,
-  "ePcMtBtCtch", // 172,
+  "Half Charged Slash ",				// 169, ePcMtBtAtkChg
+  "High Charged Slash ",				// 170, ePcMtBtAtkChgUp
+  "Running Slash ",						// 171, ePcMtBtAtkNrmlDsh
+  "Throw Bonus! ",						// 172, ePcMtBtCtch Wrestling Start
   "ePcMtBtCtchMss", // 173,
-  "ePcMtBtLSSonic", // 174,
+  "Blueberry Cheese Brownie ",			// 174, ePcMtBtLSSonic
   "ePcMtBtLSBombSt", // 175,
   "ePcMtBtLSBombLp", // 176,
   "ePcMtBtLSBombEd", // 177,
@@ -236,8 +236,8 @@ static const char* MoveNames[] = {
   "ePcMtBtDSAtkLgLp", // 191,
   "ePcMtBtDSAtkLgEd", // 192,
   "ePcMtBtAtkDwnB", // 193,
-  "ePcMtBtDashAtk", // 194,
-  "ePcMtBtOkiAtk", // 195,
+  "Jumping Slash ",						 // 194, ePcMtBtDashAtk
+  "Reversal! ",							 // 195, ePcMtBtOkiAtk
   "ePcMtBtJmpDwnSt", // 196,
   "ePcMtBtJmpDwnAr", // 197,
   "ePcMtBtJmpDwnAt", // 198,
@@ -265,31 +265,31 @@ static const char* MoveNames[] = {
   "ePcMtBt01WlkBR", // 220,
   "ePcMtBt01Rn", // 221,
   "ePcMtBt01RnEd", // 222,
-  "ePcMtBtAtk01CmbUpA", // 223,
-  "ePcMtBtAtk01CmbUpB", // 224,
-  "ePcMtBtAtk01CmbUpC", // 225,
-  "ePcMtBtAtk01CmbUpD", // 226,
-  "ePcMtBtAtk01CmbUpFnsh", // 227,
-  "ePcMtBtAtk01CmbMidA", // 228,
-  "ePcMtBtAtk01CmbMidB", // 229,
-  "ePcMtBtAtk01CmbMidC", // 230,
-  "ePcMtBtAtk01CmbMidD", // 231,
-  "ePcMtBtAtk01CmbMidE", // 232,
-  "ePcMtBtAtk01CmbMidF", // 233,
-  "ePcMtBtAtk01CmbMidG", // 234,
-  "ePcMtBtAtk01CmbMidH", // 235,
-  "ePcMtBtAtk01CmbMidFnsh", // 236,
-  "ePcMtBtAtk01CmbBtmA", // 237,
-  "ePcMtBtAtk01CmbBtmB", // 238,
-  "ePcMtBtAtk01CmbBtmC", // 239,
-  "ePcMtBtAtk01CmbBtmD", // 240,
-  "ePcMtBtAtk01CmbBtmE", // 241,
-  "ePcMtBtAtk01CmbBtmF", // 242,
-  "ePcMtBtAtk01CmbBtmG", // 243,
-  "ePcMtBtAtk01CmbBtmFnsh", // 244,
-  "ePcMtBtAtk01CmbR2LFnsh", // 245,
-  "ePcMtBtAtk01Rng", // 246,
-  "ePcMtBtAtk01Dwn", // 247,
+  "[Blood Berry] High Slash ",               // 223, ePcMtBtAtk01CmbUpA
+  "[Blood Berry] High Slash ",			     // 224, ePcMtBtAtk01CmbUpB
+  "[Blood Berry] High Slash ",               // 225, ePcMtBtAtk01CmbUpC
+  "[Blood Berry] High Slash ",               // 226, ePcMtBtAtk01CmbUpD
+  "[Blood Berry] DEATH BLOW ",			     // 227, ePcMtBtAtk01CmbUpFnsh
+  "[Blood Berry] Mid Slash ",                // 228, ePcMtBtAtk01CmbMidA
+  "[Blood Berry] Mid Slash ",                // 229, ePcMtBtAtk01CmbMidB
+  "[Blood Berry] Mid Slash ",                // 230, ePcMtBtAtk01CmbMidC
+  "[Blood Berry] Mid Slash ",                // 231, ePcMtBtAtk01CmbMidD
+  "[Blood Berry] Mid Slash ",                // 232, ePcMtBtAtk01CmbMidE
+  "[Blood Berry] Mid Slash ",                // 233, ePcMtBtAtk01CmbMidF
+  "[Blood Berry] Mid Slash ",                // 234, ePcMtBtAtk01CmbMidG
+  "[Blood Berry] Mid Slash ",                // 235, ePcMtBtAtk01CmbMidH
+  "[Blood Berry] DEATH BLOW ",			     // 236, ePcMtBtAtk01CmbMidFnsh
+  "[Blood Berry] Low Slash ",			     // 237, ePcMtBtAtk01CmbBtmA
+  "[Blood Berry] Low Slash ",			     // 238, ePcMtBtAtk01CmbBtmB
+  "[Blood Berry] Low Slash ",			     // 239, ePcMtBtAtk01CmbBtmC
+  "[Blood Berry] Low Slash ",			     // 240, ePcMtBtAtk01CmbBtmD
+  "[Blood Berry] Low Slash ",			     // 241, ePcMtBtAtk01CmbBtmE
+  "[Blood Berry] Low Slash ",			     // 242, ePcMtBtAtk01CmbBtmF
+  "[Blood Berry] Low Slash ",			     // 243, ePcMtBtAtk01CmbBtmG
+  "[Blood Berry] DEATH BLOW ",			     // 244, ePcMtBtAtk01CmbBtmFnsh
+  "[Blood Berry] DEATH BLOW ",			     // 245, ePcMtBtAtk01CmbR2LFnsh
+  "[Blood Berry] Low Charged Slash ",		 // 246, ePcMtBtAtk01Rng
+  "[Blood Berry] Execution ",				 // 247, ePcMtBtAtk01Dwn
   "ePcMtBtAtk01Tb", // 248,
   "ePcMtBattou01", // 249,
   "ePcMtBattou01Lp", // 250,
@@ -313,29 +313,29 @@ static const char* MoveNames[] = {
   "ePcMtBt02WlkBR", // 268,
   "ePcMtBt02Rn", // 269,
   "ePcMtBt02RnEd", // 270,
-  "ePcMtBtAtk02CmbUpA", // 271,
-  "ePcMtBtAtk02CmbUpB", // 272,
-  "ePcMtBtAtk02CmbUpC", // 273,
-  "ePcMtBtAtk02CmbUpD", // 274,
-  "ePcMtBtAtk02CmbUpE", // 275,
-  "ePcMtBtAtk02CmbUpF", // 276,
-  "ePcMtBtAtk02CmbUpG", // 277,
-  "ePcMtBtAtk02CmbUpFnsh", // 278,
-  "ePcMtBtAtk02CmbBtmA", // 279,
-  "ePcMtBtAtk02CmbBtmB", // 280,
-  "ePcMtBtAtk02CmbBtmC", // 281,
-  "ePcMtBtAtk02CmbBtmD", // 282,
-  "ePcMtBtAtk02CmbBtmE", // 283,
-  "ePcMtBtAtk02CmbBtmF", // 284,
-  "ePcMtBtAtk02CmbBtmG", // 285,
-  "ePcMtBtAtk02CmbBtmH", // 286,
-  "ePcMtBtAtk02CmbBtmFnsh", // 287,
-  "ePcMtBtAtk02CmbL2RFnsh", // 288,
-  "ePcMtBtAtk02CmbD2UFnsh", // 289,
-  "ePcMtBtAtk02RngCmbA", // 290,
-  "ePcMtBtAtk02RngCmbB", // 291,
-  "ePcMtBtAtk02RngCmbC", // 292,
-  "ePcMtBtAtk02Dwn", // 293,
+  "[MK-III] High Slash ",			 // 271, ePcMtBtAtk02CmbUpA
+  "[MK-III] High Slash ",			 // 272, ePcMtBtAtk02CmbUpB
+  "[MK-III] High Slash ",			 // 273, ePcMtBtAtk02CmbUpC
+  "[MK-III] High Slash ",			 // 274, ePcMtBtAtk02CmbUpD
+  "[MK-III] High Slash ",			 // 275, ePcMtBtAtk02CmbUpE
+  "[MK-III] High Slash ",			 // 276, ePcMtBtAtk02CmbUpF
+  "[MK-III] High Slash ",			 // 277, ePcMtBtAtk02CmbUpG
+  "[MK-III] DEATH BLOW ",			 // 278, ePcMtBtAtk02CmbUpFnsh AniObi Spin
+  "[MK-III] Low Slash ",			 // 279, ePcMtBtAtk02CmbBtmA
+  "[MK-III] Low Slash ",			 // 280, ePcMtBtAtk02CmbBtmB
+  "[MK-III] Low Slash ",			 // 281, ePcMtBtAtk02CmbBtmC
+  "[MK-III] Low Slash ",			 // 282, ePcMtBtAtk02CmbBtmD
+  "[MK-III] Low Slash ",			 // 283, ePcMtBtAtk02CmbBtmE
+  "[MK-III] Low Slash ",			 // 284, ePcMtBtAtk02CmbBtmF
+  "[MK-III] Low Slash ",			 // 285, ePcMtBtAtk02CmbBtmG
+  "[MK-III] Low Slash ",			 // 286, ePcMtBtAtk02CmbBtmH
+  "[MK-III] DEATH BLOW ",			 // 287, ePcMtBtAtk02CmbBtmFnsh
+  "[MK-III] DEATH BLOW ",			 // 288, ePcMtBtAtk02CmbL2RFnsh
+  "[MK-III] DEATH BLOW ",			 // 289, ePcMtBtAtk02CmbD2UFnsh
+  "[MK-III] Low Charge Combo A ",    // 290,ePcMtBtAtk02RngCmbA
+  "[MK-III] Low Charge Combo B ",    // 291,ePcMtBtAtk02RngCmbB
+  "[MK-III] Low Charge Combo C ",    // 292,ePcMtBtAtk02RngCmbC
+  "[MK-III] Execution ",		     // 293, ePcMtBtAtk02Dwn
   "ePcMtBtAtk02Tb", // 294,
   "ePcMtBattou02", // 295,
   "ePcMtBattou02Lp", // 296,
@@ -361,29 +361,29 @@ static const char* MoveNames[] = {
   "ePcMtBt03WlkBR", // 316,
   "ePcMtBt03Rn", // 317,
   "ePcMtBt03RnEd", // 318,
-  "ePcMtBtAtk03CmbUpA", // 319,
-  "ePcMtBtAtk03CmbUpB", // 320,
-  "ePcMtBtAtk03CmbUpC", // 321,
-  "ePcMtBtAtk03CmbUpD", // 322,
-  "ePcMtBtAtk03CmbUpE", // 323,
-  "ePcMtBtAtk03CmbUpFnsh", // 324,
-  "ePcMtBtAtk03CmbMidA", // 325,
-  "ePcMtBtAtk03CmbMidB", // 326,
-  "ePcMtBtAtk03CmbMidC", // 327,
-  "ePcMtBtAtk03CmbMidD", // 328,
-  "ePcMtBtAtk03CmbMidE", // 329,
-  "ePcMtBtAtk03CmbMidF", // 330,
-  "ePcMtBtAtk03CmbMidG", // 331,
-  "ePcMtBtAtk03CmbMidH", // 332,
-  "ePcMtBtAtk03CmbMidFnsh", // 333,
-  "ePcMtBtAtk03CmbBtmA", // 334,
-  "ePcMtBtAtk03CmbBtmB", // 335,
-  "ePcMtBtAtk03CmbBtmC", // 336,
-  "ePcMtBtAtk03CmbBtmD", // 337,
-  "ePcMtBtAtk03CmbBtmFnsh", // 338,
-  "ePcMtBtAtk03CmbL2RFnsh", // 339,
-  "ePcMtBtAtk03Rng", // 340,
-  "ePcMtBtAtk03Dwn", // 341,
+  "[MK-I] High Slash ",			   // 319, ePcMtBtAtk03CmbUpA
+  "[MK-I] High Slash ",			   // 320, ePcMtBtAtk03CmbUpB
+  "[MK-I] High Slash ",			   // 321, ePcMtBtAtk03CmbUpC
+  "[MK-I] High Slash ",			   // 322, ePcMtBtAtk03CmbUpD
+  "[MK-I] High Slash ",			   // 323, ePcMtBtAtk03CmbUpE
+  "[MK-I] DEATH BLOW ",			   // 324,
+  "[MK-I] Mid Slash ",			   // 325, ePcMtBtAtk03CmbMidA
+  "[MK-I] Mid Slash ",			   // 326, ePcMtBtAtk03CmbMidB
+  "[MK-I] Mid Slash ",			   // 327, ePcMtBtAtk03CmbMidC
+  "[MK-I] Mid Slash ",			   // 328, ePcMtBtAtk03CmbMidD
+  "[MK-I] Mid Slash ",			   // 329, ePcMtBtAtk03CmbMidE
+  "[MK-I] Mid Slash ",			   // 330, ePcMtBtAtk03CmbMidF
+  "[MK-I] Mid Slash ",			   // 331, ePcMtBtAtk03CmbMidG
+  "[MK-I] Mid Slash ",			   // 332, ePcMtBtAtk03CmbMidH
+  "[MK-I] DEATH BLOW ",			   // 333, ePcMtBtAtk03CmbMidFnsh
+  "[MK-I] Low Slash ",			   // 334, ePcMtBtAtk03CmbBtmA
+  "[MK-I] Low Slash ",			   // 335,
+  "[MK-I] Low Slash ",			   // 336, ePcMtBtAtk03CmbBtmC
+  "[MK-I] Low Slash ",			   // 337, ePcMtBtAtk03CmbBtmD
+  "[MK-I] DEATH BLOW ",			   // 338, ePcMtBtAtk03CmbBtmFnsh
+  "[MK-I] DEATH BLOW ",			   // 339, ePcMtBtAtk03CmbL2RFnsh
+  "[MK-I] Low Charged Slash ",     // 340, ePcMtBtAtk03Rng
+  "[MK-I] Execution ",             // 341, ePcMtBtAtk03Dwn
   "ePcMtBtAtk03Tb", // 342,
   "ePcMtBattou03", // 343,
   "ePcMtBattou03Lp", // 344,
@@ -408,28 +408,28 @@ static const char* MoveNames[] = {
   "ePcMtBt04WlkBR", // 363,
   "ePcMtBt04Rn", // 364,
   "ePcMtBt04RnEd", // 365,
-  "ePcMtBtAtk04CmbUpA", // 366,
-  "ePcMtBtAtk04CmbUpB", // 367,
-  "ePcMtBtAtk04CmbUpC", // 368,
-  "ePcMtBtAtk04CmbUpD", // 369,
-  "ePcMtBtAtk04CmbUpFnsh", // 370,
-  "ePcMtBtAtk04CmbMidA", // 371,
-  "ePcMtBtAtk04CmbMidB", // 372,
-  "ePcMtBtAtk04CmbMidC", // 373,
-  "ePcMtBtAtk04CmbMidD", // 374,
-  "ePcMtBtAtk04CmbMidE", // 375,
-  "ePcMtBtAtk04CmbMidF", // 376,
-  "ePcMtBtAtk04CmbMidG", // 377,
-  "ePcMtBtAtk04CmbMidFnsh", // 378,
-  "ePcMtBtAtk04CmbBtmA", // 379,
-  "ePcMtBtAtk04CmbBtmB", // 380,
-  "ePcMtBtAtk04CmbBtmC", // 381,
-  "ePcMtBtAtk04CmbBtmD", // 382,
-  "ePcMtBtAtk04CmbBtmE", // 383,
-  "ePcMtBtAtk04CmbBtmFnsh", // 384,
-  "ePcMtBtAtk04CmbR2LFnsh", // 385,
-  "ePcMtBtAtk04Rng", // 386,
-  "ePcMtBtAtk04Dwn", // 387,
+  "[MK-II] High Slash ",			 // 366, ePcMtBtAtk04CmbUpA
+  "[MK-II] High Slash ",			 // 367, ePcMtBtAtk04CmbUpB
+  "[MK-II] High Slash ",			 // 368, ePcMtBtAtk04CmbUpC
+  "[MK-II] High Slash ",			 // 369, ePcMtBtAtk04CmbUpD
+  "[MK-II] DEATH BLOW ",			 // 370, ePcMtBtAtk04CmbUpFnsh
+  "[MK-II] Mid Slash ",			     // 371, ePcMtBtAtk04CmbMidA
+  "[MK-II] Mid Slash ",			     // 372, ePcMtBtAtk04CmbMidB
+  "[MK-II] Mid Slash ",			     // 373, ePcMtBtAtk04CmbMidC
+  "[MK-II] Mid Slash ",			     // 374, ePcMtBtAtk04CmbMidD
+  "[MK-II] Mid Slash ",			     // 375, ePcMtBtAtk04CmbMidE
+  "[MK-II] Mid Slash ",			     // 376, ePcMtBtAtk04CmbMidF
+  "[MK-II] Mid Slash ",			     // 377, ePcMtBtAtk04CmbMidG
+  "[MK-II] DEATH BLOW ",			 // 378, ePcMtBtAtk04CmbMidFnsh
+  "[MK-II] Low Slash ",			     // 379, ePcMtBtAtk04CmbBtmA
+  "[MK-II] Low Slash ",			     // 380, ePcMtBtAtk04CmbBtmB
+  "[MK-II] Low Slash ",			     // 381, ePcMtBtAtk04CmbBtmC
+  "[MK-II] Low Slash ",			     // 382, ePcMtBtAtk04CmbBtmD
+  "[MK-II] Low Slash ",			     // 383, ePcMtBtAtk04CmbBtmE
+  "[MK-II] DEATH BLOW ",			 // 384, ePcMtBtAtk04CmbBtmFnsh
+  "[MK-II] DEATH BLOW ",			 // 385, ePcMtBtAtk04CmbR2LFnsh
+  "[MK-II] Low Charged Slash ",      // 386, ePcMtBtAtk04Rng
+  "[MK-II] Execution",			     // 387, ePcMtBtAtk04Dwn
   "ePcMtBtAtk04Tb", // 388,
   "ePcMtBattou04", // 389,
   "ePcMtBattou04Lp", // 390,
