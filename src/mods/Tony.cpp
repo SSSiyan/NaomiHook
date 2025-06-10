@@ -15,8 +15,12 @@ static constexpr float SCREEN_MARGIN_RATIO = 0.01f;
 static constexpr float LINE_HEIGHT_MULTIPLIER = 1.8f;
 
 bool Tony::mod_enabled = false;
+uintptr_t Tony::jmp_ret1 = NULL;
+uintptr_t Tony::jmp_ret2 = NULL;
+uintptr_t Tony::jmp_ret3 = NULL;
 uintptr_t Tony::jmp_ret4 = NULL;
 uintptr_t Tony::jmp_ret5 = NULL;
+static uintptr_t gpBattle = NULL;
 
 static std::chrono::steady_clock::time_point lastRealTime = std::chrono::steady_clock::now();
 static std::chrono::duration<float> accumulatedGameTime = std::chrono::duration<float>::zero();
@@ -294,6 +298,39 @@ static void AddTrickScore(int id, int money, bool isReward) {
     }
 }
 
+static void AddTrickScore2(const char* trickName, int money, bool isReward) {
+    if (IsGamePaused()) {
+        return;
+    }
+    
+    std::string trickNameStr = trickName;
+    float now = getGameTimeSeconds();
+    
+    bool foundExisting = false;
+    if (!trickGroups.empty()) {
+        for (auto it = trickGroups.rbegin(); it != trickGroups.rend(); ++it) {
+            if (it->isReward == isReward && it->trickName == trickNameStr) {
+                it->count++;
+                it->money += money;
+                it->mostRecentTime = now;
+                it->isNew = false;
+                foundExisting = true;
+                break;
+            }
+        }
+    }
+    
+    if (!foundExisting) {
+        TrickGroup newGroup(trickNameStr, money, isReward, now);
+        
+        if (isReward) {
+            trickGroups.push_back(newGroup);
+        } else {
+            trickGroups.insert(trickGroups.begin(), newGroup);
+        }
+    }
+}
+
 void Tony::on_frame() {
     if (!mod_enabled) { 
         return; 
@@ -348,6 +385,65 @@ void Tony::on_frame() {
 }
 
 // clang-format off
+naked void detour1() { // most attacks // player in edi
+    __asm {
+        cmp byte ptr [Tony::mod_enabled], 0
+        je originalcode
+    
+        pushad
+        push [esp+0x20+0xC] // damage
+        push ecx // moveID
+        call AddTrickScore
+        add esp, 8
+        popad
+    
+        originalcode:
+        cmp ecx,0x000000AB
+        jmp dword ptr [Tony::jmp_ret1]
+    }
+}
+naked void detour2() { // execution qtes // player in edi
+    __asm {
+        // 
+        cmp byte ptr[Tony::mod_enabled], 0
+        je originalcode
+
+        pushad
+        push 0
+        push 0
+        push [edi+0x18C] // moveID
+        call AddTrickScore
+        add esp, 0xC
+        popad
+
+        originalcode :
+        mov edx, 0x00000379
+        jmp dword ptr[Tony::jmp_ret2]
+    }
+}
+
+static constexpr const char* throwSuccessName = "Successful input";
+naked void detour3() { // throw input success // player in edi
+    __asm {
+        // original movss
+        mov eax, [ecx+0x0000030C]
+        cmp byte ptr [Tony::mod_enabled], 0
+        je originalcode
+            
+        pushad
+
+        push 0 // is reward
+        push 0 // [edi+0x24] // damage
+        push [edi+0x18C] // moveID
+        call AddTrickScore
+        add esp, 0xC
+    
+        popcode:
+        popad
+        originalcode:
+        jmp dword ptr [Tony::jmp_ret3]
+    }
+}
 naked void detour4() { // +5 money gains // player in edi
     __asm {
         cmp byte ptr [Tony::mod_enabled], 0
@@ -366,7 +462,6 @@ naked void detour4() { // +5 money gains // player in edi
         jmp dword ptr [Tony::jmp_ret4]
     }
 }
-
 naked void detour5() { // money rewards // player in edi
     __asm {
         cmp byte ptr [Tony::mod_enabled], 0
@@ -392,6 +487,22 @@ void Tony::on_draw_ui() {
 }
 
 std::optional<std::string> Tony::on_initialize() {
+    gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
+    /*if (!install_hook_offset(0x3CB850, m_hook1, &detour1, &Tony::jmp_ret1, 6)) { // most hits
+        spdlog::error("Failed to init Tony mod\n");
+        return "Failed to init Tony mod";
+    }
+
+    if (!install_hook_offset(0x3CAFA1, m_hook2, &detour2, &Tony::jmp_ret2, 5)) { // executions
+        spdlog::error("Failed to init Tony mod 2\n");
+        return "Failed to init Tony mod 2";
+    }*/
+    // nmh.mHRChara::mSetCharaHit is called on auto executions but probably also elsewhen
+    if (!install_hook_offset(0xA0D33, m_hook3, &detour3, &Tony::jmp_ret3, 6)) { // throw input success
+        spdlog::error("Failed to init Tony mod 3\n");
+        return "Failed to init Tony mod 3";
+    }
+
     if (!install_hook_offset(0x3CB92D, m_hook4, &detour4, &Tony::jmp_ret4, 6)) { // +5 money gains
         spdlog::error("Failed to init Tony mod 4\n");
         return "Failed to init Tony mod 4";
