@@ -77,21 +77,33 @@ naked void detour2() { // mid sub battery func, skip mk3 compares if in certain 
     }
 }
 
-static constexpr float justCharge = 0.500f;
-static constexpr float halfCharge = 0.625f;
+
+static constexpr float justCharge = 1.250f;
+static constexpr float justChargeEnd = 1.263f;
+static constexpr float halfCharge = 1.300f;
+static constexpr float halfChargeReduction = 0.8f;
 naked void detour3() { // just charges // player in ecx
     __asm {
         // 
             cmp byte ptr [ChargeSubsBattery::mod_enabled], 0
             je originalcode
-
-            movss xmm4, [ecx+0x28F0+0x70+0x4] // player->mSnd.pitchChargeMax.mCurValue
+            movss xmm4, [ecx+0x28F0+0x4C+0x4] // player->mSnd.pitchCharge.mCurValue
             comiss xmm4, [justCharge]
-            jbe retcode // do not sub battery
+            jb originalcode
+            comiss xmm4, [justChargeEnd]
+            ja check_half_charge
+            jmp retcode
+            
+        check_half_charge:
             comiss xmm4, [halfCharge]
             jae originalcode // default, divide battery by 0.25
-            sar eax, 02 // divide subbed battery by 2 (0.25/2 = 0.125)
-
+            
+            // Multiply eax by 0.8 to reduce by 20%
+            cvtsi2ss xmm0, eax
+            mulss xmm0, [halfChargeReduction]
+            cvttss2si eax, xmm0
+            jmp originalcode
+            
         originalcode:
             push eax
             call dword ptr [ChargeSubsBattery::mSubBattery] // fucks eax, edx
