@@ -4,6 +4,7 @@
 #include "fw-imgui/FontFancy.cpp"
 #include "fw-imgui/FontInfoblock.cpp"
 #include "fw-imgui/FontMain.cpp"
+#include "fw-imgui/FontTony.cpp"
 
 const float font_scaled(float size, unsigned int dpi) {
     static constexpr float default_dpi = 96.0;
@@ -33,7 +34,7 @@ void load_fonts(OurImGuiContext* ctx, ImGuiIO& io, unsigned int dpi) {
     ctx->modname_font = io.Fonts->AddFontFromMemoryCompressedTTF(font_main_compressed_data, font_main_compressed_size, font_scaled(38.0f, dpi));
     IM_ASSERT(ctx->modname_font != nullptr);
 
-    ctx->tony_font = io.Fonts->AddFontFromFileTTF("tony_font.ttf", font_scaled(18.0f, dpi));
+    ctx->tony_font = io.Fonts->AddFontFromMemoryCompressedTTF(font_tony_compressed_data, font_tony_compressed_size, font_scaled(14.0f, dpi));
     IM_ASSERT(ctx->tony_font != nullptr);
 
     // rebuild font atlas

@@ -127,6 +127,7 @@ set(IMGUI_SRC
     fw-imgui/FontFancy.cpp
     fw-imgui/FontInfoblock.cpp
     fw-imgui/FontMain.cpp
+    fw-imgui/FontTony.cpp
     fw-imgui/Texture2DD3D11.hpp
     fw-imgui/Texture2DD3D11.cpp
     fw-imgui/imgui_impl_win32.h
