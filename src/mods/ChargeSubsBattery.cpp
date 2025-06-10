@@ -4,11 +4,12 @@ bool ChargeSubsBattery::mod_enabled = false;
 uintptr_t ChargeSubsBattery::jmp_ret1 = NULL;
 uintptr_t ChargeSubsBattery::mSubBattery = NULL;
 int ChargeSubsBattery::BatterySubCounter = 0;
-int ChargeSubsBattery::subWhenOver = 0;
 
 uintptr_t ChargeSubsBattery::jmp_ret2 = NULL;
 uintptr_t detour2_je1 = NULL;
 uintptr_t detour2_je2 = NULL;
+
+uintptr_t ChargeSubsBattery::jmp_ret3 = NULL;
 
 // clang-format off
 naked void detour1() { // ticks when effect starts // player in ebx
@@ -75,6 +76,29 @@ naked void detour2() { // mid sub battery func, skip mk3 compares if in certain 
             jmp dword ptr [detour2_je2]
     }
 }
+
+static constexpr float justCharge = 0.500f;
+static constexpr float halfCharge = 0.625f;
+naked void detour3() { // just charges // player in ecx
+    __asm {
+        // 
+            cmp byte ptr [ChargeSubsBattery::mod_enabled], 0
+            je originalcode
+
+            movss xmm4, [ecx+0x28F0+0x70+0x4] // player->mSnd.pitchChargeMax.mCurValue
+            comiss xmm4, [justCharge]
+            jbe retcode // do not sub battery
+            comiss xmm4, [halfCharge]
+            jae originalcode // default, divide battery by 0.25
+            sar eax, 02 // divide subbed battery by 2 (0.25/2 = 0.125)
+
+        originalcode:
+            push eax
+            call dword ptr [ChargeSubsBattery::mSubBattery] // fucks eax, edx
+        retcode:
+            jmp dword ptr [ChargeSubsBattery::jmp_ret3]
+    }
+}
  // clang-format on
 
 std::optional<std::string> ChargeSubsBattery::on_initialize() {
@@ -91,6 +115,10 @@ std::optional<std::string> ChargeSubsBattery::on_initialize() {
         return "Failed to init ChargeSubsBattery 2 mod";
     }
 
+    if (!install_hook_offset(0x3CB921, m_hook3, &detour3, &ChargeSubsBattery::jmp_ret3, 6)) { // just charges
+        spdlog::error("Failed to init ChargeSubsBattery 2 mod\n");
+        return "Failed to init ChargeSubsBattery 2 mod";
+    }
     return Mod::on_initialize();
 }
 
@@ -106,12 +134,10 @@ void ChargeSubsBattery::on_draw_ui() {
 // during load
 void ChargeSubsBattery::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("charge_subs_battery").value_or(false);
-    //subWhenOver = cfg.get<int>("customBatterySubAmount").value_or(0); // removed option so removing load too
 }
 // during save
 void ChargeSubsBattery::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("charge_subs_battery", mod_enabled);
-    //cfg.set<int>("customBatterySubAmount", subWhenOver);
 }
 
 // do something every frame
