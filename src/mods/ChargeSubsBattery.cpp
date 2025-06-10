@@ -77,28 +77,52 @@ naked void detour2() { // mid sub battery func, skip mk3 compares if in certain 
     }
 }
 
+static constexpr float lowJustCharge = 1.250f;
+static constexpr float lowJustChargeEnd = 1.263f;
+static constexpr float lowHalfCharge = 1.300f;
 
-static constexpr float justCharge = 1.250f;
-static constexpr float justChargeEnd = 1.263f;
-static constexpr float halfCharge = 1.300f;
+static constexpr float highJustCharge = 0.875f;
+static constexpr float highJustChargeEnd = 0.887f;
+static constexpr float highHalfCharge = 0.900f;
+
 static constexpr float halfChargeReduction = 0.8f;
+
 naked void detour3() { // just charges // player in ecx
     __asm {
         // 
             cmp byte ptr [ChargeSubsBattery::mod_enabled], 0
             je originalcode
+
+            cmp dword ptr [ecx+0x18C], ePcMtBtAtkChgUp
+            je high_charge
+
+        // low_charge:
             movss xmm4, [ecx+0x28F0+0x4C+0x4] // player->mSnd.pitchCharge.mCurValue
-            comiss xmm4, [justCharge]
+            comiss xmm4, [lowJustCharge]
             jb originalcode
-            comiss xmm4, [justChargeEnd]
-            ja check_half_charge
+            comiss xmm4, [lowJustChargeEnd]
+            ja check_half_low_charge
             jmp retcode
             
-        check_half_charge:
-            comiss xmm4, [halfCharge]
+        check_half_low_charge:
+            comiss xmm4, [lowHalfCharge]
             jae originalcode // default, divide battery by 0.25
+            cvtsi2ss xmm0, eax
+            mulss xmm0, [halfChargeReduction]
+            cvttss2si eax, xmm0
+            jmp originalcode
+
+        high_charge:
+            movss xmm4, [ecx+0x28F0+0x4C+0x4] // player->mSnd.pitchCharge.mCurValue
+            comiss xmm4, [highJustCharge]
+            jb originalcode
+            comiss xmm4, [highJustChargeEnd]
+            ja check_half_high_charge
+            jmp retcode
             
-            // Multiply eax by 0.8 to reduce by 20%
+        check_half_high_charge:
+            comiss xmm4, [highHalfCharge]
+            jae originalcode // default, divide battery by 0.25
             cvtsi2ss xmm0, eax
             mulss xmm0, [halfChargeReduction]
             cvttss2si eax, xmm0
