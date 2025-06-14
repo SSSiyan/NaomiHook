@@ -173,17 +173,19 @@ static void MarkAnimationComplete(TrickGroup& group, float now) {
 
 static void RenderGroupText(const TrickGroup& group, float animationOffset, float yPos, 
                            float fontSize, float screenWidth, bool isRewardGroup) {
-    ImVec4 textColor = isRewardGroup ? ImVec4(1.0f, 1.0f, 0.0f, 1.0f) : ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-    ImVec4 scoreColor(1.0f, 1.0f, 0.0f, 1.0f);
+    ImColor orangeCol = ImColor(1.0f, 0.569f, 0.0f, 1.0f);
+    ImColor whiteCol  = ImColor(1.0f, 1.0f, 1.0f, 1.0f);
+    ImVec4 textColor  = isRewardGroup ? orangeCol : whiteCol;
+    ImVec4 scoreColor = orangeCol;
     
     ImVec4 shadowColor(0.0f, 0.0f, 0.0f, 0.7f);
     float shadowOffsetX = 2.0f;
     float shadowOffsetY = 2.0f;
     
     std::string displayText = group.trickName;
-    if (!isRewardGroup && group.count > 1) {
-        displayText += " x " + std::to_string(group.count);
-    }
+    // if (!isRewardGroup && group.count > 1) {
+    //     displayText += " x " + std::to_string(group.count);
+    // }
     
     float textWidth = ImGui::CalcTextSize(displayText.c_str()).x;
     float customSpacing = fontSize * TEXT_SPACING_RATIO;
