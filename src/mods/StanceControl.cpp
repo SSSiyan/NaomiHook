@@ -473,9 +473,11 @@ static uint32_t g_frame_counter = 0;
 void StanceControl::on_frame() {
     if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
         auto mode = mHRPc->mInputMode;
-        bool isThrowing = nmh_sdk::CheckThrowAttack();
+        uintptr_t baseAddress = g_framework->get_module().as<uintptr_t>();
+        HrCamera* hrCamera = reinterpret_cast<HrCamera*>(baseAddress + 0x82A4A0);
+        int camMode = hrCamera->MAIN.Mode;
         if (mode == ePcInputMenu) { return; }
-        if (mHRPc->mOperate && !isThrowing && StanceControl::mod_enabled && show_new_ui) {
+        if (mHRPc->mOperate && camMode != HRCAMERA_MODE_MOTION && StanceControl::mod_enabled && show_new_ui) {
 
             static constexpr TextureAtlas atlas{};
             struct KanaeDisp {
