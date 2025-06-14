@@ -327,7 +327,7 @@ naked void detour2() { // play weapon anims // player in esi
 }
  // clang-format on
 
-bool load_weapon_switcher_texture() {
+static bool load_weapon_switcher_texture() {
     auto [data, size] = utility::decompress_file_from_memory_with_size(sword_switch_compressed_data, sword_switch_compressed_size);
     if (!data) {
         return false;

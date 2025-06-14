@@ -1,4 +1,13 @@
 #include "StanceControl.hpp"
+#include "fw-imgui/Texture2DD3D11.hpp"
+#include "fw-imgui/KanaeTextureAtlas.cpp"
+#include "utility/Compressed.hpp"
+#include "imgui_internal.h"
+#include "ScreenInfo.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/glm.hpp"
+#include "glm/gtc/noise.hpp"
+
 #if 1
 bool StanceControl::mod_enabled = false;
 bool StanceControl::invert_input = false;
@@ -35,6 +44,79 @@ bool StanceControl::mod_enabled_faster_nu_lows = false;
 uintptr_t StanceControl::jmp_ret4;
 
 static uintptr_t mCheckNormalAttack = NULL;
+
+
+
+// directx stuff
+static std::unique_ptr<Texture2DD3D11> g_kanae_texture_atlas{};
+#pragma region TextureAtlasDefinitions
+// https://mustache.github.io/
+// https://github.com/odrick/free-tex-packer
+
+struct Frame {
+    ImVec2 pos,size;
+    ImVec2 uv0, uv1;
+};
+
+struct TextureAtlas {
+    static constexpr auto BACK_GLOW_HIGH() {
+        return Frame {
+            ImVec2 { 0.0f, 0.0f },  
+            ImVec2 { 1920.0f, 1080.0f },
+            ImVec2 { 0.0f / 4096.0f, 0.0f / 4096.0f },
+            ImVec2 { ( 0.0f + 1920.0f ) / 4096.0f, ( 0.0f + 1080.0f ) / 4096.0f }
+        }; //BACK_GLOW_HIGH
+    };
+    static constexpr auto BACK_GLOW_LOW() {
+        return Frame {
+            ImVec2 { 0.0f, 1080.0f },  
+            ImVec2 { 1920.0f, 1080.0f },
+            ImVec2 { 0.0f / 4096.0f, 1080.0f / 4096.0f },
+            ImVec2 { ( 0.0f + 1920.0f ) / 4096.0f, ( 1080.0f + 1080.0f ) / 4096.0f }
+        }; //BACK_GLOW_LOW
+    };
+    static constexpr auto BACK_GLOW_MID() {
+        return Frame {
+            ImVec2 { 1920.0f, 0.0f },  
+            ImVec2 { 1920.0f, 1080.0f },
+            ImVec2 { 1920.0f / 4096.0f, 0.0f / 4096.0f },
+            ImVec2 { ( 1920.0f + 1920.0f ) / 4096.0f, ( 0.0f + 1080.0f ) / 4096.0f }
+        }; //BACK_GLOW_MID
+    };
+    static constexpr auto HIGH_GLOW_1() {
+        return Frame {
+            ImVec2 { 1920.0f, 1080.0f },  
+            ImVec2 { 1920.0f, 1080.0f },
+            ImVec2 { 1920.0f / 4096.0f, 1080.0f / 4096.0f },
+            ImVec2 { ( 1920.0f + 1920.0f ) / 4096.0f, ( 1080.0f + 1080.0f ) / 4096.0f }
+        }; //HIGH_GLOW_1
+    };
+    static constexpr auto LOW_GLOW_1() {
+        return Frame {
+            ImVec2 { 0.0f, 2160.0f },  
+            ImVec2 { 1920.0f, 1080.0f },
+            ImVec2 { 0.0f / 4096.0f, 2160.0f / 4096.0f },
+            ImVec2 { ( 0.0f + 1920.0f ) / 4096.0f, ( 2160.0f + 1080.0f ) / 4096.0f }
+        }; //LOW_GLOW_1
+    };
+    static constexpr auto MID_GLOW_1() {
+        return Frame {
+            ImVec2 { 1920.0f, 2160.0f },  
+            ImVec2 { 1920.0f, 1080.0f },
+            ImVec2 { 1920.0f / 4096.0f, 2160.0f / 4096.0f },
+            ImVec2 { ( 1920.0f + 1920.0f ) / 4096.0f, ( 2160.0f + 1080.0f ) / 4096.0f }
+        }; //MID_GLOW_1
+    };
+
+    static constexpr auto meta_size() {
+        return ImVec2{ 4096.0f, 4096.0f  };
+    };
+};
+
+#pragma endregion
+
+
+static std::unique_ptr<FunctionHook> g_kanae_himitsu;
 
 void StanceControl::toggleSwapIdleStances(bool enable) {
     if (enable) {
@@ -275,6 +357,31 @@ naked void detour4() { // faster nu lows if combo extend
     }
 }
 
+static bool g_kanae_drawcall { false };
+
+static uintptr_t g_kanae_himitsu_skip       { NULL };
+static uintptr_t g_kanae_himitsu_return     { NULL };
+static uintptr_t g_kanae_ghm_draw_text_addr { NULL };
+naked void kanae_himitsu_detour() {
+
+    __asm {
+
+        cmp byte ptr [StanceControl::mod_enabled], 0
+        je original_code
+
+        push eax
+        mov al, 1
+        mov byte ptr [g_kanae_drawcall], al
+        pop eax
+        add esp, 8
+        jmp dword ptr [g_kanae_himitsu_skip]
+
+    original_code:
+        call dword ptr [g_kanae_ghm_draw_text_addr]
+        jmp dword ptr [g_kanae_himitsu_return]
+    }
+}
+
  // clang-format on
 
 const char* StanceControl::defaultDescription = "Manually adjust the current stance using R2/RT like you can with motion controls. "
@@ -349,6 +456,7 @@ void StanceControl::on_draw_ui() {
         StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";
 }
 
+
 void TextCentered(std::string text) {
     auto windowWidth = ImGui::GetWindowSize().x;
     auto textWidth   = ImGui::CalcTextSize(text.c_str()).x;
@@ -357,11 +465,72 @@ void TextCentered(std::string text) {
     ImGui::Text(text.c_str());
 }
 
+static constexpr size_t    templeos_hymn_risen_range  = 677;
+static constexpr uint8_t   templeos_hymn_risen_values[] = {
+    217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 187, 187, 187, 187, 187, 187, 187, 307, 307, 307, 307, 187, 307, 307, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 187, 187, 187, 187, 187, 187, 187, 307, 307, 307, 307, 307, 307, 307, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 217, 217, 217, 217, 217, 217, 217, 307, 307, 307, 307, 307, 307, 307, 174, 174, 174, 174, 174, 174, 174, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 217, 217, 217, 217, 217, 217, 217, 307, 307, 307, 307, 307, 307, 307, 174, 174, 174, 174, 174, 174, 174, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, };
+
 // do something every frame
+static uint32_t g_frame_counter = 0;
 void StanceControl::on_frame() {
     if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
+        auto mode = mHRPc->mInputMode;
+        if (mode == ePcInputMenu) { return; }
         if (mHRPc->mOperate && StanceControl::mod_enabled && show_new_ui) {
-            ImVec2 windowPos = ImVec2((ImGui::GetIO().DisplaySize.x * 0.924f), (ImGui::GetIO().DisplaySize.y * 0.2f));
+
+            static constexpr TextureAtlas atlas{};
+            struct KanaeDisp {
+                std::array<Frame, 3> f;
+            };
+
+            static constexpr KanaeDisp kanae {
+                { atlas.BACK_GLOW_HIGH(), atlas.BACK_GLOW_LOW(), atlas.BACK_GLOW_MID() } 
+            };
+            static constexpr KanaeDisp kanae_glow {
+                { atlas.HIGH_GLOW_1(), atlas.LOW_GLOW_1(), atlas.MID_GLOW_1() }
+            };
+
+            int pose = mHRPc->mPcStatus.pose;
+
+            const auto& io = ImGui::GetIO();
+            const auto& tex = g_kanae_texture_atlas->GetTexture();
+            ImDrawList* dl = ImGui::GetForegroundDrawList();
+
+            auto* scinfo = ScreenInfo::get_screen_info();
+            assert(scinfo);
+
+            ImVec2 points[] = {
+                ImVec2(scinfo->screen_left,  scinfo->screen_top),
+                ImVec2(scinfo->screen_right, scinfo->screen_bottom),
+
+            };
+            ImVec2 kanae_uvs[] = {
+                ImVec2(kanae.f[pose].uv0),
+                ImVec2(kanae.f[pose].uv1),
+            };
+            ImVec2 glow_uvs[] = {
+                ImVec2(kanae_glow.f[pose].uv0),
+                ImVec2(kanae_glow.f[pose].uv1),
+            };
+
+            dl->AddImage(tex, points[0], points[1], kanae_uvs[0], kanae_uvs[1]);
+            //dl->AddImageQuad(tex, points[0], points[1], points[2], points[3], kanae_uvs[0], kanae_uvs[1], kanae_uvs[2], kanae_uvs[3]);
+            
+#if 1
+            float meme = (float)templeos_hymn_risen_values[g_frame_counter % templeos_hymn_risen_range];
+            float glow = glm::clamp(meme, 179.0f, 255.0f);
+#else // game logic i think
+
+            HrScreenStatus* v4 = nmh_sdk::get_mHRBattle()->mBtEffect.pScreenStatus;
+            float glow = (((float)v4->m_GearRandCounter[1] / (float)v4->m_GearRandCounter[0]) * 255.0);
+#endif
+            ImU32 oppacity = IM_COL32(255, 255, 255, (char)glow);
+            dl->AddImage(tex, points[0], points[1], glow_uvs[0], glow_uvs[1], oppacity);
+            //dl->AddImageQuad(tex, points[0], points[1], points[2], points[3], glow_uvs[0], glow_uvs[1], glow_uvs[2], glow_uvs[3], oppacity);
+            //dl->AddRectFilled(p0, p1, -1, 2.0f);
+
+#if 0
+
+            ImVec2 windowPos = g_kanae_ichi;//ImVec2((ImGui::GetIO().DisplaySize.x * 0.924f), (ImGui::GetIO().DisplaySize.y * 0.2f));
             ImVec2 windowSize = (ImVec2((ImGui::GetIO().DisplaySize.x * 0.05f), (ImGui::GetIO().DisplaySize.y * 0.1f)));
             ImGui::SetNextWindowPos(windowPos);
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -400,13 +569,42 @@ void StanceControl::on_frame() {
             ImGui::EndTable();
             ImGui::PopStyleColor();
             ImGui::End();
+#endif
+            g_frame_counter += 1;
         }
+        
+        g_kanae_drawcall = false;
     }
 }
 
+static bool load_kanae_texture() {
+    auto [data, size] = utility::decompress_file_from_memory_with_size(kanae_ta_compressed_data, kanae_ta_compressed_size);
+    if (!data) {
+        return false;
+    }
+
+    g_kanae_texture_atlas = std::make_unique<Texture2DD3D11>((const unsigned char*)data, size, g_framework->d3d11()->get_device());
+
+    assert(g_kanae_texture_atlas->IsValid());
+    if (!g_kanae_texture_atlas->IsValid()) {
+        return false;
+    }
+
+    return true;
+}
+
+void StanceControl::on_d3d_reset() {
+    g_kanae_texture_atlas.reset();
+    load_kanae_texture();
+}
+
 std::optional<std::string> StanceControl::on_initialize() {
-    gpPad = g_framework->get_module().as<uintptr_t>() + 0x849D10;
-    clashing = g_framework->get_module().as<uintptr_t>() + 0x3DFFC0;
+
+    gpPad                      = g_framework->get_module().as<uintptr_t>() + 0x849D10;
+    clashing                   = g_framework->get_module().as<uintptr_t>() + 0x3DFFC0;
+    g_kanae_himitsu_skip       = g_framework->get_module().as<uintptr_t>() + 0x409D1D;
+    g_kanae_ghm_draw_text_addr = g_framework->get_module().as<uintptr_t>() + 0x5E8BC0;
+
     if (!install_hook_offset(0x3D7D6B, m_hook1, &detour1, &StanceControl::jmp_ret1, 8)) {
         spdlog::error("Failed to init StanceControl mod\n");
         return "Failed to init StanceControl mod";
@@ -429,7 +627,17 @@ std::optional<std::string> StanceControl::on_initialize() {
         spdlog::error("Failed to init StanceControl mod\n");
         return "Failed to init StanceControl mod";
     }
-     
+
+    if (!install_hook_offset(0x409A8D, g_kanae_himitsu, &kanae_himitsu_detour, &g_kanae_himitsu_return, 5)) {
+        spdlog::error("Failed to init StanceControl kanae detour\n");
+        return "Failed to init StanceControl kanae detour\n";
+    }
+
+    if (!load_kanae_texture()) {
+        spdlog::error("Failed to load kanae texture\n");
+        return "Failed to load kanae texture\n";
+    }
+
     return Mod::on_initialize();
 }
 

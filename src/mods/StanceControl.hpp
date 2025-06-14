@@ -68,6 +68,7 @@ public:
   void on_draw_ui() override;
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
+  void on_d3d_reset() override;
 private:
 	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3, m_hook4;
 	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3, m_patch4;

@@ -64,7 +64,9 @@ set(MODS_SRC
     mods/Volume.hpp 
     mods/Volume.cpp 
     mods/ResolutionScaleFix.hpp  
-    mods/ResolutionScaleFix.cpp 
+    mods/ResolutionScaleFix.cpp
+    mods/ScreenInfo.hpp 
+    mods/ScreenInfo.cpp 
 )
 
 set(HOOKS_SRC
@@ -124,6 +126,9 @@ set(UTILITY_SRC
 
 set(IMGUI_SRC
     fw-imgui/SwordsTextureAtlas.cpp
+    fw-imgui/SwordSwitchAtlas.cpp
+    fw-imgui/StageWarpAtlas.cpp
+    fw-imgui/KanaeTextureAtlas.cpp
     fw-imgui/FontFancy.cpp
     fw-imgui/FontInfoblock.cpp
     fw-imgui/FontMain.cpp

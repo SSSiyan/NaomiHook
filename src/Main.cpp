@@ -3,6 +3,7 @@
 
 #include "ModFramework.hpp"
 #include "mods/ResolutionScaleFix.hpp"
+#include "mods/ScreenInfo.hpp"
 
 #define DLLPATH "\\\\.\\GLOBALROOT\\SystemRoot\\SysWOW64\\XInput1_4.dll"
 
@@ -49,6 +50,7 @@ static DWORD WINAPI startup_thread([[maybe_unused]] LPVOID parameter) {
 
 HMODULE g_nmhfix_handle {NULL};
 Mod* g_dpi_fix_mod {nullptr};
+Mod* g_screen_info_mod {nullptr};
 
 BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
     if (reason == DLL_PROCESS_ATTACH) {
@@ -68,10 +70,18 @@ BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
             sprintf(buffer, "Failed to initialize ResoultionScaleFix: %s", maybe_error.value().c_str() );
             MessageBox(NULL, buffer, "NMH1", MB_ICONINFORMATION);
         }
+        g_screen_info_mod = new ScreenInfo();
+        maybe_error = g_screen_info_mod->on_initialize();
+        if (maybe_error.has_value()) {
+            char buffer[512];
+            sprintf(buffer, "Failed to initialize ScreenInfo: %s", maybe_error.value().c_str() );
+            MessageBox(NULL, buffer, "NMH1", MB_ICONINFORMATION);
+        }
     }
     if (reason == DLL_PROCESS_DETACH) {
         FreeLibrary(g_nmhfix_handle);
         delete g_dpi_fix_mod;
+        delete g_screen_info_mod;
     }
     return TRUE;
 }
