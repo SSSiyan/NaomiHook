@@ -65,8 +65,6 @@ set(MODS_SRC
     mods/Volume.cpp 
     mods/ResolutionScaleFix.hpp  
     mods/ResolutionScaleFix.cpp
-    mods/ScreenInfo.hpp 
-    mods/ScreenInfo.cpp 
 )
 
 set(HOOKS_SRC

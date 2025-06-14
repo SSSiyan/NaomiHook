@@ -3,7 +3,6 @@
 
 #include "ModFramework.hpp"
 #include "mods/ResolutionScaleFix.hpp"
-#include "mods/ScreenInfo.hpp"
 
 #define DLLPATH "\\\\.\\GLOBALROOT\\SystemRoot\\SysWOW64\\XInput1_4.dll"
 
@@ -68,13 +67,6 @@ BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
         if (maybe_error.has_value()) {
             char buffer[512];
             sprintf(buffer, "Failed to initialize ResoultionScaleFix: %s", maybe_error.value().c_str() );
-            MessageBox(NULL, buffer, "NMH1", MB_ICONINFORMATION);
-        }
-        g_screen_info_mod = new ScreenInfo();
-        maybe_error = g_screen_info_mod->on_initialize();
-        if (maybe_error.has_value()) {
-            char buffer[512];
-            sprintf(buffer, "Failed to initialize ScreenInfo: %s", maybe_error.value().c_str() );
             MessageBox(NULL, buffer, "NMH1", MB_ICONINFORMATION);
         }
     }

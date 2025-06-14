@@ -39,6 +39,13 @@ namespace nmh_sdk {
 		return NULL;
     }
 
+    DolphinApp* get_DolphinApp() {
+        static uintptr_t dolphinAppPtr = g_framework->get_module().as<uintptr_t>() + 0x83DDE0;
+        if (DolphinApp* dolphinApp = (DolphinApp*)*(uintptr_t*)dolphinAppPtr)
+            return dolphinApp;
+		return NULL;
+    }
+
     // Set stage
     void SetStage(const char* _StgName, int _StgAdd, int _Arg1, int _Arg2, bool inBossInfoDisp, int inFadeType, __int64 inSetVolRate, bool inPause, unsigned int a10) {
         uintptr_t setStageAddress = (g_framework->get_module().as<uintptr_t>() + 0x3FD690);

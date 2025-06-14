@@ -1431,6 +1431,101 @@ struct Vec2D
   /* 0x0004 */ float y;
 }; /* size: 0x0008 */
 
+class DolphinConfig
+{
+public:
+  /* 0x0000 */ const int VERSION; // was union
+  /* 0x0004 */ int enableAA;
+  /* 0x0008 */ bool enableEnhancedShadows;
+  /* 0x0009 */ bool force43Aspect;
+  /* 0x000a */ bool force169Aspect;
+  /* 0x000b */ bool enableFullScreen;
+  /* 0x000c */ glm::vec2 windowPos; // int
+  /* 0x0014 */ glm::vec2 windowSize; // int
+  /* 0x001c */ float soundVolume;
+  /* 0x0020 */ float musicVolume;
+  /* 0x0024 */ float cutsceneVolume;
+  /* 0x0028 */ float mouseAimSensitivity;
+  /* 0x002c */ float mouseAimSensitivityOrg;
+  /* 0x0030 */ float mouseLinearity;
+  /* 0x0034 */ float mouseIntersection;
+  /* 0x0038 */ float leftThumbDeadzone;
+  /* 0x003c */ float rightThumbDeadzone;
+  /* 0x0040 */ bool useGamepad;
+  /* 0x0041 */ bool enableVibration;
+  /* 0x0042 */ bool enableInverseY;
+  /* 0x0043 */ bool enableInverseX;
+  /* 0x0044 */ int kbActions[33]; // was enum
+  /* 0x00c8 */ int mouseActions[26]; // was enum
+  /* 0x0130 */ int padActions[26]; // was enum
+  /* 0x0198 */ char pad_198[0x10]; // class EE::EventBinder<EE::FastDelegate2<int,int,void> > windowMoved;
+  /* 0x01a8 */ char pad_1a8[0x10]; // class EE::EventBinder<EE::FastDelegate2<int,int,void> > windowResized;
+  /* 0x01b8 */ char pad_1b8[0x10]; // class EE::EventBinder<EE::FastDelegate1<bool,void> > fullScreenToggled;
+  /* 0x01c8 */ char pad_1c8[0x98]; // class EE::IniFile iniFile;
+  /* 0x0260 */ bool isDirty;
+  /* 0x0261 */ volatile bool isSaving;
+  /* 0x0262 */ bool isDuringStartup;
+  /* 0x0263 */ bool toolResult;
+  /* 0x0264 */ int version;
+  /* 0x0268 */ char pad_268[0x10]; // was ee::thread
+  /* 0x0000 */ // class DolphinConfig* singleton;
+}; /* size: 0x0278 */
+
+class EE_Rect
+{
+public:
+  /* 0x0000 */ int left;
+  /* 0x0004 */ int top;
+  /* 0x0008 */ int right;
+  /* 0x000c */ int bottom;
+}; /* size: 0x0010 */
+
+class DolphinGame
+{
+public:
+  /* 0x0000 */ long Padding_156[2];
+  /* 0x0008 */ unsigned int sampleCountMax;
+  /* 0x000c */ unsigned int aaLevel;
+  /* 0x0010 */ class EE_Rect screenRect;
+  /* 0x0020 */ // class EE::SmartPtr<EE::RenderTarget> colorTarget;
+  /* 0x0024 */ // class EE::SmartPtr<EE::RenderTarget> tempTarget;
+  /* 0x0028 */ // class EE::SmartPtr<EE::RenderTarget> colorTargetResolved;
+  /* 0x002c */ // class EE::SmartPtr<EE::DepthStencilTarget> depthTarget;
+  /* 0x0030 */ // class EE::RenderingStateStack stateStack;
+  /* 0x0048 */ // class EE::SmartPtr<EE::QuadBatch<EE::QuadVertex,EE::DefaultQuadBatchData> > quadBatch;
+  /* 0x004c */ // struct DolphinGame::PixelShaderConstsBLUR psConstsBLUR;
+  /* 0x00dc */ // int lastBlur;
+  /* 0x00e0 */ // class EE::SmartPtr<EE::MoviePlayer> moviePlayer; // i got mad lazy
+  /* 0x00e4 */ // class EE::AxesManager axes;
+  /* 0x0128 */ // class EE::SixAxisManager sixAxis;
+  /* 0x0164 */ // class EE::ButtonsManager buttons;
+  /* 0x01b0 */ // class EE::ButtonsManager keyboard;
+  /* 0x01fc */ // class EE::ButtonsManager mouse;
+  /* 0x0248 */ // class EE::PointerManager pointer;
+  /* 0x0268 */ // class EE::ForceFeedbackManager forceFeedback;
+  /* 0x0288 */ // bool isCursorHidden;
+  /* 0x0289 */ // bool forceHideCursor;
+  /* 0x028a */ // bool lockCursorAtCenter;
+  /* 0x028b */ // bool mouseUsed;
+  /* 0x028c */ // bool kbDirUsed;
+  /* 0x028d */ // char Padding_157[3];
+  /* 0x0290 */ // int switchControlsCounter;
+}; /* size: 0x0294 */
+
+class DolphinApp
+{
+public:
+  /* 0x0000 */ class DolphinApp* singleton;
+  /* 0x0004 */ char Padding_4[0x8];
+  /* 0x000c */ class DolphinConfig config;
+  /* 0x0284 */ bool isActive;
+  /* 0x0285 */ char Padding_320[3];
+  /* 0x0288 */ class GlobalData* globalData;
+  /* 0x028c */ class DolphinGame* game;
+  /* 0x0290 */ // class EE::EventBinder<EE::FastDelegate2<int,int,void> > windowResized;
+  /* 0x02a0 */ // class EE::EventBinder<EE::FastDelegate1<bool,void> > fullScreenToggled;
+}; /* size: 0x02b0 */
+
 struct stRovicofInfo
 {
   /* 0x0000 */ bool questOffer;

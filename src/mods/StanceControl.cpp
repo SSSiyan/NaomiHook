@@ -3,7 +3,6 @@
 #include "fw-imgui/KanaeTextureAtlas.cpp"
 #include "utility/Compressed.hpp"
 #include "imgui_internal.h"
-#include "ScreenInfo.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/glm.hpp"
 #include "glm/gtc/noise.hpp"
@@ -495,12 +494,12 @@ void StanceControl::on_frame() {
             const auto& tex = g_kanae_texture_atlas->GetTexture();
             ImDrawList* dl = ImGui::GetForegroundDrawList();
 
-            auto* scinfo = ScreenInfo::get_screen_info();
+            DolphinGame* scinfo = nmh_sdk::get_DolphinApp()->game;
             assert(scinfo);
 
             ImVec2 points[] = {
-                ImVec2(scinfo->screen_left,  scinfo->screen_top),
-                ImVec2(scinfo->screen_right, scinfo->screen_bottom),
+                ImVec2(scinfo->screenRect.left,  scinfo->screenRect.top),
+                ImVec2(scinfo->screenRect.right, scinfo->screenRect.bottom),
 
             };
             ImVec2 kanae_uvs[] = {
