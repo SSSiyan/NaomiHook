@@ -473,8 +473,9 @@ static uint32_t g_frame_counter = 0;
 void StanceControl::on_frame() {
     if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
         auto mode = mHRPc->mInputMode;
+        bool isThrowing = nmh_sdk::CheckThrowAttack();
         if (mode == ePcInputMenu) { return; }
-        if (mHRPc->mOperate && StanceControl::mod_enabled && show_new_ui) {
+        if (mHRPc->mOperate && !isThrowing && StanceControl::mod_enabled && show_new_ui) {
 
             static constexpr TextureAtlas atlas{};
             struct KanaeDisp {
@@ -605,26 +606,26 @@ std::optional<std::string> StanceControl::on_initialize() {
     g_kanae_ghm_draw_text_addr = g_framework->get_module().as<uintptr_t>() + 0x5E8BC0;
 
     if (!install_hook_offset(0x3D7D6B, m_hook1, &detour1, &StanceControl::jmp_ret1, 8)) {
-        spdlog::error("Failed to init StanceControl mod\n");
-        return "Failed to init StanceControl mod";
+        spdlog::error("Failed to init StanceControl mod 1\n");
+        return "Failed to init StanceControl mod 1";
     }
 
     jmp2je = g_framework->get_module().as<uintptr_t>() + 0x3C46F8;
     if (!install_hook_offset(0x3C4645, m_hook2, &detour2, &StanceControl::jmp_ret2, 13)) {
-        spdlog::error("Failed to init StanceControl mod\n");
-        return "Failed to init StanceControl mod";
+        spdlog::error("Failed to init StanceControl mod 2\n");
+        return "Failed to init StanceControl mod 2";
     }
 
     jmp_jne3 = g_framework->get_module().as<uintptr_t>() + 0x3D7EC8;
     if (!install_hook_offset(0x3D7EBF, m_hook3, &detour3, &StanceControl::jmp_ret3, 7)) {
-        spdlog::error("Failed to init StanceControl mod\n");
-        return "Failed to init StanceControl mod";
+        spdlog::error("Failed to init StanceControl mod 3\n");
+        return "Failed to init StanceControl mod 3";
     }
 
     mCheckNormalAttack = g_framework->get_module().as<uintptr_t>() + 0x3D3D60;
     if (!install_hook_offset(0x3C72DD, m_hook4, &detour4, &StanceControl::jmp_ret4, 5)) {
-        spdlog::error("Failed to init StanceControl mod\n");
-        return "Failed to init StanceControl mod";
+        spdlog::error("Failed to init StanceControl mod 4\n");
+        return "Failed to init StanceControl mod 4";
     }
 
     if (!install_hook_offset(0x409A8D, g_kanae_himitsu, &kanae_himitsu_detour, &g_kanae_himitsu_return, 5)) {

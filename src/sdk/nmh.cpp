@@ -203,7 +203,16 @@ namespace nmh_sdk {
         if (mHRPc* mHRPc = get_mHRPc()) {
             return getScreenPos(Src, Dest);
         }
-        return true;
+        return true; // player ptr invalid
+    }
+
+    bool CheckThrowAttack() {
+        uintptr_t checkThrowAttackAddress = (g_framework->get_module().as<uintptr_t>() + 0x3E24B0);
+        mCheckThrowAttackFunc checkThrowAttack = (mCheckThrowAttackFunc)checkThrowAttackAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            return checkThrowAttack(mHRPc, -1);
+        }
+        return true; // player ptr invalid
     }
 
     // Spawn enemies
