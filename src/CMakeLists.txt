@@ -150,6 +150,8 @@ set(FRAMEWORK_SRC
     GuiFunctions.cpp
     Fonts.hpp
     Fonts.cpp
+    ImageViewer.hpp
+    ImageViewer.cpp
     Config.hpp
 )
 

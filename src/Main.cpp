@@ -49,7 +49,6 @@ static DWORD WINAPI startup_thread([[maybe_unused]] LPVOID parameter) {
 
 HMODULE g_nmhfix_handle {NULL};
 Mod* g_dpi_fix_mod {nullptr};
-Mod* g_screen_info_mod {nullptr};
 
 BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
     if (reason == DLL_PROCESS_ATTACH) {
@@ -73,7 +72,6 @@ BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
     if (reason == DLL_PROCESS_DETACH) {
         FreeLibrary(g_nmhfix_handle);
         delete g_dpi_fix_mod;
-        delete g_screen_info_mod;
     }
     return TRUE;
 }

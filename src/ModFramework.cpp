@@ -21,6 +21,7 @@
 #include "GuiFunctions.hpp"
 #include "Fonts.hpp"
 #include "mods/DisableMouse.hpp"
+#include "ImageViewer.hpp"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -212,6 +213,9 @@ void ModFramework::draw_ui() {
     else if(!m_error.empty()) {
         //ImGui::TextWrapped("ModFramework error: %s", m_error.c_str());
     }
+#if 0
+    imview_draw();
+#endif
 
 #if 0
     ImGui::End();
@@ -315,6 +319,10 @@ bool ModFramework::initialize() {
     auto& io = ImGui::GetIO();
 
     load_fonts(m_our_imgui_ctx.get(), io, dpi);
+
+#if 0
+    imview_init();
+#endif
 
     if (m_first_frame) {
         m_first_frame = false;
