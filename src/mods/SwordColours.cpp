@@ -117,13 +117,16 @@ struct TextureAtlas {
 static constexpr TextureAtlas g_atlas{};
 #pragma endregion
 
+static constexpr float frameTime = 0.0125;
+
 static constexpr float lowJustCharge = 1.250f;
-static constexpr float lowJustChargeEnd = 1.263f;
-static constexpr float lowHalfCharge = 1.300f;
+static constexpr float lowJustChargeEnd = lowJustCharge + (frameTime * 2.0f);
+static constexpr float lowHalfCharge = lowJustChargeEnd + (frameTime * 2.0f);
 
 static constexpr float highJustCharge = 0.875f;
-static constexpr float highJustChargeEnd = 0.887f;
-static constexpr float highHalfCharge = 0.900f;
+static constexpr float highJustChargeEnd = highJustCharge + (frameTime);
+static constexpr float highHalfCharge = highJustChargeEnd + (frameTime);
+
 // clang-format off
 naked void detour1() { // swords, player in ebx
     __asm {
@@ -151,7 +154,7 @@ naked void detour1() { // swords, player in ebx
             comiss xmm4, [lowJustCharge]
             jb getSwordID
             comiss xmm4, [lowJustChargeEnd]
-            ja check_half_low_charge
+            jae check_half_low_charge
             push eax // 4
             mov eax,[colours_picked_rgbaInt+0x50]
             mov [esp+0x4+0x4],eax
@@ -164,7 +167,7 @@ naked void detour1() { // swords, player in ebx
             
         check_half_low_charge:
             comiss xmm4, [lowHalfCharge]
-            jae getSwordID // default, divide battery by 0.25
+            ja getSwordID // default, divide battery by 0.25
             push eax // 4
             mov eax,[colours_picked_rgbaInt+0x60]
             mov [esp+0x4+0x4],eax
@@ -180,7 +183,7 @@ naked void detour1() { // swords, player in ebx
             comiss xmm4, [highJustCharge]
             jb getSwordID
             comiss xmm4, [highJustChargeEnd]
-            ja check_half_high_charge
+            jae check_half_high_charge
             push eax // 4
             mov eax,[colours_picked_rgbaInt+0x50]
             mov [esp+0x4+0x4],eax
@@ -193,7 +196,7 @@ naked void detour1() { // swords, player in ebx
             
         check_half_high_charge:
             comiss xmm4, [highHalfCharge]
-            jae getSwordID // default, divide battery by 0.25
+            ja getSwordID // default, divide battery by 0.25
             push eax // 4
             mov eax,[colours_picked_rgbaInt+0x60]
             mov [esp+0x4+0x4],eax

@@ -49,7 +49,7 @@ void SoundTracker::on_draw_ui() {
 
             if (ImGui::CollapsingHeader("Pitch Charge")) {
                 ImGui::Indent();
-                ImGui::InputFloat("Current Value ## Pitch Charge", &player->mSnd.pitchCharge.mCurValue);
+                ImGui::InputFloat("Current Value ## Pitch Charge", &player->mSnd.pitchCharge.mCurValue, 0.0f, 0.0f, "%.6f");
                 ImGui::InputFloat("Destination Value ## Pitch Charge", &player->mSnd.pitchCharge.mDstValue);
                 ImGui::InputFloat("Source Value ## Pitch Charge", &player->mSnd.pitchCharge.mSrcValue);
                 ImGui::InputInt("Count ## Pitch Charge", (int*)(&player->mSnd.pitchCharge.mCount));
