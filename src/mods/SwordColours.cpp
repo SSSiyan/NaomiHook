@@ -22,8 +22,8 @@ struct IntColor {
     int a;
 };
 
-static ImColor colours_picked_rgba[5];
-static IntColor colours_picked_rgbaInt[5];
+static ImColor colours_picked_rgba[7];
+static IntColor colours_picked_rgbaInt[7];
 
 // directx stuff
 static std::unique_ptr<Texture2DD3D11> g_sword_texture_atlas{};
@@ -117,6 +117,13 @@ struct TextureAtlas {
 static constexpr TextureAtlas g_atlas{};
 #pragma endregion
 
+static constexpr float lowJustCharge = 1.250f;
+static constexpr float lowJustChargeEnd = 1.263f;
+static constexpr float lowHalfCharge = 1.300f;
+
+static constexpr float highJustCharge = 0.875f;
+static constexpr float highJustChargeEnd = 0.887f;
+static constexpr float highHalfCharge = 0.900f;
 // clang-format off
 naked void detour1() { // swords, player in ebx
     __asm {
@@ -133,9 +140,69 @@ naked void detour1() { // swords, player in ebx
             pop eax
             jne originalcode
 
-            cmp dword ptr [SwordColours::deathblowTimer], 100
-            jbe deathblowColour
-            jmp getSwordID
+        // CheckCharges:
+            // cmp dword ptr [SwordColours::deathblowTimer], 100
+            // jbe deathblowColour
+            cmp dword ptr [ebx+0x18C], ePcMtBtAtkChgUp
+            je high_charge
+
+        // low_charge:
+            movss xmm4, [ebx+0x28F0+0x4C+0x4] // player->mSnd.pitchCharge.mCurValue
+            comiss xmm4, [lowJustCharge]
+            jb getSwordID
+            comiss xmm4, [lowJustChargeEnd]
+            ja check_half_low_charge
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt+0x50]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x50+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x50+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
+            
+        check_half_low_charge:
+            comiss xmm4, [lowHalfCharge]
+            jae getSwordID // default, divide battery by 0.25
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt+0x60]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x60+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x60+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
+
+        high_charge:
+            movss xmm4, [ebx+0x28F0+0x4C+0x4] // player->mSnd.pitchCharge.mCurValue
+            comiss xmm4, [highJustCharge]
+            jb getSwordID
+            comiss xmm4, [highJustChargeEnd]
+            ja check_half_high_charge
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt+0x50]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x50+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x50+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
+            
+        check_half_high_charge:
+            comiss xmm4, [highHalfCharge]
+            jae getSwordID // default, divide battery by 0.25
+            push eax // 4
+            mov eax,[colours_picked_rgbaInt+0x60]
+            mov [esp+0x4+0x4],eax
+            mov eax,[colours_picked_rgbaInt+0x60+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[colours_picked_rgbaInt+0x60+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
 
         getSwordID:
             cmp [ebx+0x42C], BLOOD_BERRY
@@ -587,6 +654,9 @@ void SwordColours::on_draw_ui() {
         help_marker("Turn the Beam Katana the color of your choice during a Death Blow."
             "A feature inspired by NMH3, this timer controls how long the colour will stay applied when initiating a Deathblow");
         ImGui::Unindent();
+
+        draw_sword_behavior("Just Charge", swords[1].blade, swords[1].hilt, colours_picked_rgba[5], colours_picked_rgbaInt[5], cfg_defaults[4]);
+        draw_sword_behavior("Late Charge", swords[1].blade, swords[1].hilt, colours_picked_rgba[6], colours_picked_rgbaInt[6], cfg_defaults[4]);
     }
 }
 
