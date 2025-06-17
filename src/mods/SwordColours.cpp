@@ -22,8 +22,8 @@ struct IntColor {
     int a;
 };
 
-static ImColor colours_picked_rgba[7];
-static IntColor colours_picked_rgbaInt[7];
+static ImColor colours_picked_rgba[5];
+static IntColor colours_picked_rgbaInt[5];
 
 // directx stuff
 static std::unique_ptr<Texture2DD3D11> g_sword_texture_atlas{};
@@ -117,6 +117,7 @@ struct TextureAtlas {
 static constexpr TextureAtlas g_atlas{};
 #pragma endregion
 
+/*
 static constexpr float frameTime = 0.0125;
 
 static constexpr float lowJustCharge = 1.250f;
@@ -126,7 +127,7 @@ static constexpr float lowHalfCharge = lowJustChargeEnd + (frameTime * 2.0f);
 static constexpr float highJustCharge = 0.875f;
 static constexpr float highJustChargeEnd = highJustCharge + (frameTime);
 static constexpr float highHalfCharge = highJustChargeEnd + (frameTime);
-
+*/
 // clang-format off
 naked void detour1() { // swords, player in ebx
     __asm {
@@ -142,13 +143,14 @@ naked void detour1() { // swords, player in ebx
             cmp eax, ebx
             pop eax
             jne originalcode
-
+            
+            cmp dword ptr [SwordColours::deathblowTimer], 100
+            jbe deathblowColour
+            jmp getSwordID
         // CheckCharges:
-            // cmp dword ptr [SwordColours::deathblowTimer], 100
-            // jbe deathblowColour
-            cmp dword ptr [ebx+0x18C], ePcMtBtAtkChgUp
-            je high_charge
-
+            // cmp dword ptr [ebx+0x18C], ePcMtBtAtkChgUp
+            // je high_charge
+        /*
         // low_charge:
             movss xmm4, [ebx+0x28F0+0x4C+0x4] // player->mSnd.pitchCharge.mCurValue
             comiss xmm4, [lowJustCharge]
@@ -206,7 +208,7 @@ naked void detour1() { // swords, player in ebx
             mov [esp+0x4+0xC],eax
             pop eax
             jmp originalcode
-
+            */
         getSwordID:
             cmp [ebx+0x42C], BLOOD_BERRY
             je berryColour
@@ -658,8 +660,8 @@ void SwordColours::on_draw_ui() {
             "A feature inspired by NMH3, this timer controls how long the colour will stay applied when initiating a Deathblow");
         ImGui::Unindent();
 
-        draw_sword_behavior("Just Charge", swords[1].blade, swords[1].hilt, colours_picked_rgba[5], colours_picked_rgbaInt[5], cfg_defaults[4]);
-        draw_sword_behavior("Late Charge", swords[1].blade, swords[1].hilt, colours_picked_rgba[6], colours_picked_rgbaInt[6], cfg_defaults[4]);
+        // draw_sword_behavior("Just Charge", swords[1].blade, swords[1].hilt, colours_picked_rgba[5], colours_picked_rgbaInt[5], cfg_defaults[4]);
+        // draw_sword_behavior("Late Charge", swords[1].blade, swords[1].hilt, colours_picked_rgba[6], colours_picked_rgbaInt[6], cfg_defaults[4]);
     }
 }
 
