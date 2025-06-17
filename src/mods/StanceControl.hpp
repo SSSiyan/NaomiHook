@@ -42,6 +42,10 @@ public:
   static bool mod_enabled_disable_combo_extend_speedup;
   void toggle_disable_combo_extend_speedup(bool enable);
 
+  static bool mod_enabled_gear_system;
+
+  void disable_cam_reset(bool enable);
+
   static bool mod_enabled_faster_nu_lows;
   static uintptr_t jmp_ret4;
 
@@ -74,4 +78,5 @@ private:
 	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3, m_patch4;
 	std::unique_ptr<Patch> patch_swap_idle_stance1, patch_swap_idle_stance2;
 	std::unique_ptr<Patch> patch_disable_combo_extend_speedup;
+	std::unique_ptr<Patch> patch_disable_cam_reset;
 };

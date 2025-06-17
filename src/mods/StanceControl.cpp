@@ -44,7 +44,7 @@ uintptr_t StanceControl::jmp_ret4;
 
 static uintptr_t mCheckNormalAttack = NULL;
 
-
+bool StanceControl::mod_enabled_gear_system = false;
 
 // directx stuff
 static std::unique_ptr<Texture2DD3D11> g_kanae_texture_atlas{};
@@ -159,10 +159,22 @@ void StanceControl::toggle_disable_combo_extend_speedup (bool enable) {
     }
 }
 
+void StanceControl::disable_cam_reset(bool enable) {
+    if (enable) {
+        install_patch_offset(0x3D7116, patch_disable_cam_reset, "\x90\x90\x90\x90\x90\x90\x90", 7); // 
+    }
+    else {
+        install_patch_offset(0x3D7116, patch_disable_cam_reset, "\x80\x3D\xE6\xB9\xF7\x00\x00", 7); // 
+    }
+}
+
+static constexpr float midStanceBlend = 0.0f;
 // clang-format off
 naked void detour1() { // originalcode writes stance blend to 0, we write actual values and set stance using it
     __asm {
     //
+        cmp byte ptr [StanceControl::mod_enabled_gear_system], 1 // one or the other
+        je GearSystemCode
         cmp byte ptr [StanceControl::mod_enabled], 0
         je originalcode
     //
@@ -223,6 +235,12 @@ naked void detour1() { // originalcode writes stance blend to 0, we write actual
         comiss xmm0, [StanceControl::lowBoundGuard]
         jb writeLow
         jmp writeMid
+
+    GearSystemCode: // set stance blend depending on stance
+        cmp dword ptr [esi+0x1350], 2 // mid stance
+        jne originalcode
+        movss xmm0, [midStanceBlend]
+        jmp originalcode
     }
 }
 
@@ -294,7 +312,11 @@ naked void detour4() { // faster nu lows if combo extend
     __asm {
         //
             cmp byte ptr [StanceControl::mod_enabled], 0
+            je check2
+        check2:
+            cmp byte ptr [StanceControl::mod_enabled_gear_system], 0
             je originalcode
+        // one of the cheats is in use so check if this is ticked
             cmp byte ptr [StanceControl::mod_enabled_faster_nu_lows], 0
             je originalcode
 
@@ -364,10 +386,12 @@ static uintptr_t g_kanae_ghm_draw_text_addr { NULL };
 naked void kanae_himitsu_detour() {
 
     __asm {
-
+        cmp byte ptr [StanceControl::mod_enabled_gear_system], 1
+        je new_code
         cmp byte ptr [StanceControl::mod_enabled], 0
         je original_code
 
+    new_code:
         push eax
         mov al, 1
         mov byte ptr [g_kanae_drawcall], al
@@ -397,6 +421,10 @@ void StanceControl::on_draw_ui() {
         StanceControl::hoveredDescription = defaultDescription;
     if (ImGui::Checkbox("Stance Control on R2", &mod_enabled)) {
         toggle(mod_enabled);
+        if (mod_enabled_gear_system) {
+            mod_enabled_gear_system = false;
+            disable_cam_reset(mod_enabled_gear_system); // re-enable cam reset
+        }
     }
     if (ImGui::IsItemHovered())
         StanceControl::hoveredDescription = "Remaps lock on cycle to R3. This is needed to avoid switching targets with every press of R2 when using this feature.";
@@ -417,16 +445,16 @@ void StanceControl::on_draw_ui() {
         if (ImGui::IsItemHovered())
             StanceControl::hoveredDescription = "How little should r2 be pushed to enter low stance\n-0.9 default";
 
-        ImGui::Checkbox("Invert", &StanceControl::invert_input);
-        if (ImGui::IsItemHovered())
-            StanceControl::hoveredDescription = "Swap Low and High";
+        // ImGui::Checkbox("Invert", &StanceControl::invert_input);
+        // if (ImGui::IsItemHovered())
+        //     StanceControl::hoveredDescription = "Swap Low and High";
+        // 
+        // ImGui::Checkbox("Invert Mid", &StanceControl::invert_mid);
+        // if (ImGui::IsItemHovered())
+        //     StanceControl::hoveredDescription = "Swap Mid and Low. The unused combos assigned to Mid stance are actually the original Low attacks. "
+        //     "For this feature to make more sense, you can tick this to reorganize the stance order.";
 
-        ImGui::Checkbox("Invert Mid", &StanceControl::invert_mid);
-        if (ImGui::IsItemHovered())
-            StanceControl::hoveredDescription = "Swap Mid and Low. The unused combos assigned to Mid stance are actually the original Low attacks. "
-            "For this feature to make more sense, you can tick this to reorganize the stance order.";
-
-        ImGui::Checkbox("Show Custom Stance UI", &StanceControl::show_new_ui);
+        // ImGui::Checkbox("Show Custom Stance UI", &StanceControl::show_new_ui);
 
         ImGui::Checkbox("Combo Extend Speedup On Low Attacks", &mod_enabled_faster_nu_lows);
         if (ImGui::IsItemHovered())
@@ -435,18 +463,36 @@ void StanceControl::on_draw_ui() {
         ImGui::Unindent();
     }
 
-    if (ImGui::Checkbox("Swap Vanilla Mid and Low UI", &StanceControl::edit_old_ui)) {
-        toggle_display_edit(edit_old_ui);
+    if (ImGui::Checkbox("Gear System", &mod_enabled_gear_system)) {
+        toggle(mod_enabled_gear_system); // disable stance switching when pressing face buttons
+        disable_cam_reset(mod_enabled_gear_system); // disable cam reset, we need the button
+        mod_enabled = false;
     }
     if (ImGui::IsItemHovered())
-        StanceControl::hoveredDescription = "Makes the vanilla stance display consider the default low stance as mid stance.";
+        StanceControl::hoveredDescription = "Pressing R1 moves up a stance, pressing R2 moves down a stance";
+
+    if (mod_enabled_gear_system) {
+        ImGui::Indent();
+        ImGui::Checkbox("Combo Extend Speedup On Low Attacks", &mod_enabled_faster_nu_lows);
+        if (ImGui::IsItemHovered())
+            StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks";
+        ImGui::Unindent();
+    }
+
+    ImGui::Spacing();
+
+    // if (ImGui::Checkbox("Swap Vanilla Mid and Low UI", &StanceControl::edit_old_ui)) {
+    //     toggle_display_edit(edit_old_ui);
+    // }
+    // if (ImGui::IsItemHovered())
+    //     StanceControl::hoveredDescription = "Makes the vanilla stance display consider the default low stance as mid stance.";
 
     if (ImGui::Checkbox("Swap Idle Stances", &swapIdleStances)) {
         toggleSwapIdleStances(swapIdleStances);
     }
     if (ImGui::IsItemHovered())
         StanceControl::hoveredDescription = "The High/Low stances are mistakenly inverted by default, forcing Travis to take on the incorrect stance. This setting "
-                "corrects that issue and is purely cosmetic.";
+                "corrects that issue. This is purely cosmetic.";
 
     if (ImGui::Checkbox("Disable Combo Extend Speedup", &mod_enabled_disable_combo_extend_speedup)) {
         toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
@@ -467,17 +513,38 @@ void TextCentered(std::string text) {
 static constexpr size_t    templeos_hymn_risen_range  = 677;
 static constexpr uint8_t   templeos_hymn_risen_values[] = {
     217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 187, 187, 187, 187, 187, 187, 187, 307, 307, 307, 307, 187, 307, 307, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 187, 187, 187, 187, 187, 187, 187, 307, 307, 307, 307, 307, 307, 307, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 217, 217, 217, 217, 217, 217, 217, 307, 307, 307, 307, 307, 307, 307, 174, 174, 174, 174, 174, 174, 174, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 217, 217, 217, 217, 217, 217, 217, 307, 307, 307, 307, 307, 307, 307, 174, 174, 174, 174, 174, 174, 174, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, };
+ 
+static void GearControls(mHRPc* player) { 
+    if (!player || !StanceControl::gpPad) return;
+    int8_t* r1Press = (int8_t*)(StanceControl::gpPad + 0x1CD6);  
+    float* r2Press = (float*)(StanceControl::gpPad + 0x64);
+    int8_t* stance = (int8_t*)&(player->mPcStatus.pose);
+    static constexpr float r2PressThreshold = 20.0f; // 20/255
+    if (!r1Press || !stance) return;
+    static bool r1WasPressed = false;
+    static bool r2WasPressed = false;
+    bool r1JustPressed = (*r1Press && !r1WasPressed);
+    bool r2JustPressed = (*r2Press > r2PressThreshold && !r2WasPressed);
+    if (r1JustPressed) {
+        *stance = (*stance == 2) ? 0 : (*stance == 1) ? 2 : *stance;
+    } else if (r2JustPressed) {
+        *stance = (*stance == 0) ? 2 : (*stance == 2) ? 1 : *stance;
+    }
+    r1WasPressed = *r1Press;
+    r2WasPressed = (*r2Press > r2PressThreshold);
+}
 
 // do something every frame
 static uint32_t g_frame_counter = 0;
 void StanceControl::on_frame() {
     if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
+        if (mod_enabled_gear_system) GearControls(mHRPc);
         auto mode = mHRPc->mInputMode;
         uintptr_t baseAddress = g_framework->get_module().as<uintptr_t>();
         HrCamera* hrCamera = reinterpret_cast<HrCamera*>(baseAddress + 0x82A4A0);
         int camMode = hrCamera->MAIN.Mode;
         if (mode == ePcInputMenu) { return; }
-        if (mHRPc->mOperate && camMode != HRCAMERA_MODE_MOTION && StanceControl::mod_enabled && show_new_ui) {
+        if (mHRPc->mOperate && camMode != HRCAMERA_MODE_MOTION && ((StanceControl::mod_enabled && show_new_ui) || mod_enabled_gear_system)) {
 
             static constexpr TextureAtlas atlas{};
             struct KanaeDisp {
@@ -644,7 +711,7 @@ std::optional<std::string> StanceControl::on_initialize() {
 }
 
 // during load
-void StanceControl::on_config_load(const utility::Config &cfg) {
+void StanceControl::on_config_load(const utility::Config& cfg) {
     mod_enabled = cfg.get<bool>("stance_control").value_or(false);
     toggle(mod_enabled);
     invert_input = cfg.get<bool>("stance_control_invert").value_or(false);
@@ -664,6 +731,12 @@ void StanceControl::on_config_load(const utility::Config &cfg) {
     toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
 
     mod_enabled_faster_nu_lows = cfg.get<bool>("faster_nu_lows").value_or(false);
+
+    mod_enabled_gear_system = cfg.get<bool>("gear_system").value_or(false);
+    if (mod_enabled_gear_system) {
+        toggle(mod_enabled_gear_system); // disable stance switching when pressing face buttons
+        disable_cam_reset(mod_enabled_gear_system); // disable cam reset, we need the button
+    }
 }
 // during save
 void StanceControl::on_config_save(utility::Config &cfg) {
@@ -680,6 +753,8 @@ void StanceControl::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("disable_combo_extend_speedup", mod_enabled_disable_combo_extend_speedup);
 
     cfg.set<bool>("faster_nu_lows", mod_enabled_faster_nu_lows);
+
+    cfg.set<bool>("gear_system", mod_enabled_gear_system);
 }
 
 // will show up in debug window, dump ImGui widgets you want here
