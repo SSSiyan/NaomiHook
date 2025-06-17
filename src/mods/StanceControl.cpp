@@ -45,6 +45,7 @@ uintptr_t StanceControl::jmp_ret4;
 static uintptr_t mCheckNormalAttack = NULL;
 
 bool StanceControl::mod_enabled_gear_system = false;
+bool StanceControl::gear_system_holds = false;
 
 // directx stuff
 static std::unique_ptr<Texture2DD3D11> g_kanae_texture_atlas{};
@@ -247,9 +248,13 @@ naked void detour1() { // originalcode writes stance blend to 0, we write actual
 naked void detour2() { // remap lock on cycle
     __asm {
     //
-        cmp byte ptr [StanceControl::mod_enabled], 0
-        je originalcode
-    //
+        cmp byte ptr [StanceControl::mod_enabled], 1
+        je cheatcode
+        cmp byte ptr [StanceControl::mod_enabled_gear_system], 1
+        je cheatcode
+        jmp originalcode
+
+    cheatcode:
         push eax
         push ecx
         mov eax, [StanceControl::gpPad]
@@ -311,12 +316,12 @@ naked void detour3() { // enable guard stance blend unless clashing
 naked void detour4() { // faster nu lows if combo extend
     __asm {
         //
-            cmp byte ptr [StanceControl::mod_enabled], 0
-            je check2
+            cmp byte ptr [StanceControl::mod_enabled], 1
+            je checkCheat
         check2:
             cmp byte ptr [StanceControl::mod_enabled_gear_system], 0
             je originalcode
-        // one of the cheats is in use so check if this is ticked
+        checkCheat:
             cmp byte ptr [StanceControl::mod_enabled_faster_nu_lows], 0
             je originalcode
 
@@ -473,6 +478,10 @@ void StanceControl::on_draw_ui() {
 
     if (mod_enabled_gear_system) {
         ImGui::Indent();
+        ImGui::Checkbox("Use Hold Inputs", &gear_system_holds);
+        if (ImGui::IsItemHovered())
+            StanceControl::hoveredDescription = "Instead of toggling stances, access them with hold inputs. Hold R1 for High, R2 for low";
+
         ImGui::Checkbox("Combo Extend Speedup On Low Attacks", &mod_enabled_faster_nu_lows);
         if (ImGui::IsItemHovered())
             StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks";
@@ -514,24 +523,43 @@ static constexpr size_t    templeos_hymn_risen_range  = 677;
 static constexpr uint8_t   templeos_hymn_risen_values[] = {
     217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 187, 187, 187, 187, 187, 187, 187, 307, 307, 307, 307, 187, 307, 307, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 187, 187, 187, 187, 187, 187, 187, 307, 307, 307, 307, 307, 307, 307, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 217, 217, 217, 217, 217, 217, 217, 307, 307, 307, 307, 307, 307, 307, 174, 174, 174, 174, 174, 174, 174, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 217, 217, 217, 217, 217, 217, 217, 307, 307, 307, 307, 307, 307, 307, 174, 174, 174, 174, 174, 174, 174, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, };
  
-static void GearControls(mHRPc* player) { 
-    if (!player || !StanceControl::gpPad) return;
-    int8_t* r1Press = (int8_t*)(StanceControl::gpPad + 0x1CD6);  
-    float* r2Press = (float*)(StanceControl::gpPad + 0x64);
+void StanceControl::GearControls(mHRPc* player) { 
+    if (!player || !gpPad) return;
+    
+    int8_t* r1Press = (int8_t*)(gpPad + 0x1CD4);  
+    float* r2Press = (float*)(gpPad + 0x64);
     int8_t* stance = (int8_t*)&(player->mPcStatus.pose);
     static constexpr float r2PressThreshold = 20.0f; // 20/255
+    
     if (!r1Press || !stance) return;
-    static bool r1WasPressed = false;
-    static bool r2WasPressed = false;
-    bool r1JustPressed = (*r1Press && !r1WasPressed);
-    bool r2JustPressed = (*r2Press > r2PressThreshold && !r2WasPressed);
-    if (r1JustPressed) {
-        *stance = (*stance == 2) ? 0 : (*stance == 1) ? 2 : *stance;
-    } else if (r2JustPressed) {
-        *stance = (*stance == 0) ? 2 : (*stance == 2) ? 1 : *stance;
+    
+    if (!gear_system_holds) {
+        static bool r1WasPressed = false;
+        static bool r2WasPressed = false;
+        
+        bool r1JustPressed = (*r1Press && !r1WasPressed);
+        bool r2JustPressed = (*r2Press > r2PressThreshold && !r2WasPressed);
+        
+        if (r1JustPressed) {
+            *stance = (*stance == 2) ? 0 : (*stance == 1) ? 2 : *stance;
+        } else if (r2JustPressed) {
+            *stance = (*stance == 0) ? 2 : (*stance == 2) ? 1 : *stance;
+        }
+        
+        r1WasPressed = *r1Press;
+        r2WasPressed = (*r2Press > r2PressThreshold);
+    } else {
+        bool r1Held = *r1Press;
+        bool r2Held = (*r2Press > r2PressThreshold);
+        
+        if (r1Held) {
+            *stance = 0;
+        } else if (r2Held) {
+            *stance = 1;
+        } else {
+            *stance = 2; // default
+        }
     }
-    r1WasPressed = *r1Press;
-    r2WasPressed = (*r2Press > r2PressThreshold);
 }
 
 // do something every frame
@@ -733,6 +761,7 @@ void StanceControl::on_config_load(const utility::Config& cfg) {
     mod_enabled_faster_nu_lows = cfg.get<bool>("faster_nu_lows").value_or(false);
 
     mod_enabled_gear_system = cfg.get<bool>("gear_system").value_or(false);
+    gear_system_holds = cfg.get<bool>("gear_system_holds").value_or(false);
     if (mod_enabled_gear_system) {
         toggle(mod_enabled_gear_system); // disable stance switching when pressing face buttons
         disable_cam_reset(mod_enabled_gear_system); // disable cam reset, we need the button
@@ -755,6 +784,7 @@ void StanceControl::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("faster_nu_lows", mod_enabled_faster_nu_lows);
 
     cfg.set<bool>("gear_system", mod_enabled_gear_system);
+    cfg.set<bool>("gear_system_holds", gear_system_holds);
 }
 
 // will show up in debug window, dump ImGui widgets you want here

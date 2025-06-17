@@ -43,8 +43,9 @@ public:
   void toggle_disable_combo_extend_speedup(bool enable);
 
   static bool mod_enabled_gear_system;
-
+  static bool gear_system_holds;
   void disable_cam_reset(bool enable);
+  void GearControls(mHRPc* player);
 
   static bool mod_enabled_faster_nu_lows;
   static uintptr_t jmp_ret4;
