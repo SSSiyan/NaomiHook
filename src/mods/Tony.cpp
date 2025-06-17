@@ -173,7 +173,7 @@ static void MarkAnimationComplete(TrickGroup& group, float now) {
 
 static void RenderGroupText(const TrickGroup& group, float animationOffset, float yPos, 
                            float fontSize, float screenWidth, bool isRewardGroup) {
-    ImColor orangeCol = ImColor(1.0f, 0.569f, 0.0f, 1.0f);
+    ImColor orangeCol = ImColor(1.0f, 0.687f, 0.275f, 1.0f);
     ImColor whiteCol  = ImColor(1.0f, 1.0f, 1.0f, 1.0f);
     ImVec4 textColor  = isRewardGroup ? orangeCol : whiteCol;
     ImVec4 scoreColor = orangeCol;

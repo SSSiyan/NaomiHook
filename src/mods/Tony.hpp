@@ -186,7 +186,7 @@ static const char* MoveNames[] = {
   "Roundhouse Kick",					// 141, ePcMtBtAtkFghtRHKck
   "Ankle Kick",						// 142, ePcMtBtAtkFghtRLKck
   "Hiza Geri Knee Kick",				// 143, ePcMtBtAtkFghtTbgr
-  "ePcMtBtAtkFghtRlt", // 144,
+  "ePcMtBtAtkFghtRlt",				// 144, ePcMtBtAtkFghtRlt Unused Black Screen Punch
   "Overhead Kick",						// 145, ePcMtBtAtkFghtNlKck
   "Right Elbow",						// 146, ePcMtBtAtkFghtRrgElbw
   "Spinning Back Kick",				// 147, ePcMtBtAtkFghtTrKick
@@ -211,7 +211,7 @@ static const char* MoveNames[] = {
   "Double Wrist Suplex",				// 166, ePcMtBtAtkFghtWwrst
   "ePcMtBtChgStrt", // 167,
   "ePcMtBtChgLp", // 168,
-  "Half Charged Slash",				// 169, ePcMtBtAtkChg
+  "Mid Charged Slash",				// 169, ePcMtBtAtkChg
   "High Charged Slash",				// 170, ePcMtBtAtkChgUp
   "Running Slash",						// 171, ePcMtBtAtkNrmlDsh
   "Throw Bonus!",						// 172, ePcMtBtCtch Wrestling Start
@@ -222,19 +222,19 @@ static const char* MoveNames[] = {
   "ePcMtBtLSBombEd", // 177,
   "ePcMtBtDSIdl", // 178,
   "ePcMtBtDSRn", // 179,
-  "ePcMtBtDSAtkR", // 180,
-  "ePcMtBtDSAtkL", // 181,
-  "ePcMtBtDSAtkB", // 182,
-  "ePcMtBtDSAtkFDwn", // 183,
-  "ePcMtBtDSAtkBDwn", // 184,
-  "ePcMtBtDSAtkMdR", // 185,
-  "ePcMtBtDSAtkMdL", // 186,
-  "ePcMtBtDSAtkMdB", // 187,
-  "ePcMtBtDSAtkMdFDwn", // 188,
-  "ePcMtBtDSAtkMdBDwn", // 189,
-  "ePcMtBtDSAtkLgSt", // 190,
-  "ePcMtBtDSAtkLgLp", // 191,
-  "ePcMtBtDSAtkLgEd", // 192,
+  "DARKSIDE KILL", // 180, ePcMtBtDSAtkR
+  "DARKSIDE KILL", // 181, ePcMtBtDSAtkL
+  "DARKSIDE KILL", // 182, ePcMtBtDSAtkB
+  "DARKSIDE KILL", // 183, ePcMtBtDSAtkFDwn
+  "DARKSIDE KILL", // 184, ePcMtBtDSAtkBDwn
+  "DARKSIDE KILL", // 185, ePcMtBtDSAtkMdR Rapid Slash
+  "DARKSIDE KILL", // 186, ePcMtBtDSAtkMdL Stinger
+  "DARKSIDE KILL", // 187, ePcMtBtDSAtkMdB
+  "DARKSIDE KILL", // 188, ePcMtBtDSAtkMdFDwn
+  "DARKSIDE KILL", // 189, ePcMtBtDSAtkMdBDwn
+  "ePcMtBtDSAtkLgSt", // 190, ePcMtBtDSAtkLgSt
+  "ePcMtBtDSAtkLgLp", // 191, ePcMtBtDSAtkLgLp
+  "ePcMtBtDSAtkLgEd", // 192, ePcMtBtDSAtkLgEd
   "ePcMtBtAtkDwnB", // 193,
   "Jumping Slash",						 // 194, ePcMtBtDashAtk
   "Reversal!",							 // 195, ePcMtBtOkiAtk
@@ -247,7 +247,7 @@ static const char* MoveNames[] = {
   "ePcMtStdPickUp", // 202,
   "ePcMtStdPickUpOk", // 203,
   "ePcMtStdPickUpMiss", // 204,
-  "ePcMtMax", // 205,
+  "NICE THROW!", // 205, Boss Throw?
   "ePcMtBt01IdlU", // 206,
   "ePcMtBt01IdlM", // 207,
   "ePcMtBt01IdlD", // 208,

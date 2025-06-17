@@ -152,7 +152,7 @@ std::array<StageWarp::Stage, 78> StageWarp::stage_items = {
     Stage {"STG1702",  62, "Train", ""},                                  // 62
     Stage {"STG1703",  63, "Train Station (Boarding)", ""},               // 63
     Stage {"STG1707",  64, "Train Station Exit", ""},                     // 64
-    Stage {"STG1708",  65, "Train Station Harvey (Boarding)", ""},        // 65
+    Stage {"STG1708",  65, "Harvey Zako", ""},        // 65
     Stage {"STG1709",  66, "Train Station Harvey (Exit)", ""},            // 66
     Stage {"STG9000",  67, "DeathMetal Toilet", ""},                      // 67
     Stage {"STG9001",  68, "Darkstar Toilet", ""},                        // 68

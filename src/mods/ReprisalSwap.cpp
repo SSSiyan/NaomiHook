@@ -16,7 +16,7 @@ naked void detour1() {
         cmp byte ptr [eax+0x1CC], 1 // high attack // From nmh.PC_INPUT_ATTACK+99
         pop eax
         jne originalcode
-        mov eax, 169 // new motNum
+        mov eax, 170 // new motNum
     originalcode:
         push eax // default eax
         call esi
