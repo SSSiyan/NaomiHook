@@ -6,6 +6,12 @@ class Mods;
 struct OurImGuiContext;
 struct ID3D11Device;
 
+struct MouseRaw {
+    int x = 0;
+    int y = 0;
+    int wheel = 0;
+};
+
 #include "D3D11Hook.hpp"
 #include "WindowsMessageHook.hpp"
 #include "utility/Address.hpp"
@@ -30,7 +36,7 @@ public:
     }
 
     Address get_module() const {
-        return m_game_module;
+        return GetModuleHandle(NULL);
     }
 
     bool is_ready() const {
@@ -51,6 +57,15 @@ public:
     bool on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_param);
 
     void save_config();
+    void reset_mouse();
+  
+public:
+    MouseRaw mouser;
+    bool m_capture_mouse { false };
+    bool m_capture_mouse_old { false };
+    
+    float window_size_x{};
+    float window_size_y{};
 
     HWND m_wnd{0};
 

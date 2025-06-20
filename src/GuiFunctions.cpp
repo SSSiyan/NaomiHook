@@ -1,6 +1,7 @@
 #include "GuiFunctions.hpp"
 #include "Config.hpp"
 #include "utility/Hash.hpp"
+#include "mods/KbmControls.hpp"
 #include <string>
 #include "LicenseStrings.hpp"
 
@@ -387,6 +388,11 @@ namespace gui {
                 ImGui::ShowDemoWindow();
             }*/
             ImGui::End();
+            
+            auto wew = dynamic_cast<KbmControls*>(g_framework->get_mods()->m_mods.back().get());
+            if (wew) {
+                wew->on_draw_ui();
+            }
         }
     }
 } // namespace gui

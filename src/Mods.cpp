@@ -31,6 +31,7 @@
 #include "mods/SoundTracker.hpp"
 #include "mods/QuickBoot.hpp"
 #include "mods/ArcadeMode.hpp"
+#include "mods/KbmControls.hpp"
 #include "mods/StanceControl.hpp"
 #include "mods/MoneyOnKillFix.hpp"
 #include "mods/Cheats.hpp"
@@ -81,6 +82,8 @@ Mods::Mods()
     ADD_MOD(Cheats);
     ADD_MOD(KillObscuringTreasureChests);
     ADD_MOD(Tony);
+    ADD_MOD(KbmControls);
+  
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

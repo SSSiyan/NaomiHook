@@ -182,11 +182,11 @@ class ModInt32 : public ModValue<int32_t> {
 public:
     using Ptr = std::unique_ptr<ModInt32>;
 
-    static auto create(std::string_view config_name, uint32_t default_value = 0) {
+    static auto create(std::string_view config_name, int32_t default_value = 0) {
         return std::make_unique<ModInt32>(config_name, default_value);
     }
 
-    ModInt32(std::string_view config_name, uint32_t default_value = 0)
+    ModInt32(std::string_view config_name, int32_t default_value = 0)
         : ModValue{ config_name, static_cast<int>(default_value) }
     {
     }
@@ -208,12 +208,12 @@ class ModKey: public ModInt32 {
 public:
     using Ptr = std::unique_ptr<ModKey>;
 
-    static auto create(std::string_view config_name, int32_t default_value = UNBOUND_KEY) {
+    static auto create(std::string_view config_name, ImGuiKey default_value = ImGuiKey_None) {
         return std::make_unique<ModKey>(config_name, default_value);
     }
 
-    ModKey(std::string_view config_name, int32_t default_value = UNBOUND_KEY)
-        : ModInt32{ config_name, static_cast<uint32_t>(default_value) }
+    ModKey(std::string_view config_name, ImGuiKey default_value = UNBOUND_KEY)
+        : ModInt32 { config_name, default_value }
     {
     }
 
@@ -226,6 +226,7 @@ public:
         ImGui::Button(name.data());
 
         if (ImGui::IsItemHovered()) {
+#if 0
             auto& keys = g_framework->get_keyboard_state();
 
             for (auto k = 0; k < keys.size(); ++k) {
@@ -234,14 +235,23 @@ public:
                     break;
                 }
             }
+#endif
+            for (int k = ImGuiKey_NamedKey_BEGIN; k < ImGuiKey_NamedKey_END; ++k) {
+                const ImGuiKey key = (ImGuiKey)k;
+                if (ImGui::IsKeyPressed(key)) {
+                    m_value = is_erase_key(key) ? UNBOUND_KEY : key;
+                    break;
+                }
+            }
 
             ImGui::SameLine();
-            ImGui::Text("Press any key");
+            ImGui::Text("Press any key...");
+            ImGui::Text("ESCAPE or BACKSPACE to cancel");
         }
         else {
             ImGui::SameLine();
 
-            if (m_value >= 0 && m_value <= 255) {
+            if (m_value >= ImGuiKey_NamedKey_BEGIN && m_value <= ImGuiKey_NamedKey_END) {
                 ImGui::Text("%i", m_value);
             }
             else {
@@ -255,32 +265,17 @@ public:
     }
 
     bool is_key_down() const {
-        if (m_value < 0 || m_value > 255) {
-            return false;
-        }
-
-        return g_framework->get_keyboard_state()[(uint8_t)m_value] != 0;
+        return ImGui::IsKeyDown((ImGuiKey)m_value);
     }
 
     bool is_key_down_once() {
-        auto down = is_key_down();
-
-        if (!m_was_key_down && down) {
-            m_was_key_down = true;
-            return true;
-        }
-
-        if (!down) {
-            m_was_key_down = false;
-        }
-
-        return false;
+        return ImGui::IsKeyPressed((ImGuiKey)m_value);
     }
 
-    bool is_erase_key(int k) const {
+    bool is_erase_key(ImGuiKey k) const {
         switch (k) {
-        case DIK_ESCAPE:
-        case DIK_BACKSPACE:
+        case ImGuiKey_Backspace:
+        case ImGuiKey_Escape:
             return true;
 
         default:
@@ -288,14 +283,12 @@ public:
         }
     }
 
-    static constexpr int32_t UNBOUND_KEY = -1;
+    static constexpr ImGuiKey UNBOUND_KEY = ImGuiKey_None;
 
-protected:
-    bool m_was_key_down{ false };
 };
 
 class Mod {
-protected:
+public:
     using ValueList = std::vector<std::reference_wrapper<IModValue>>;
 
 public:

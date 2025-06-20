@@ -2,6 +2,7 @@
 #include <windows.h>
 
 #include "ModFramework.hpp"
+
 #include "mods/ResolutionScaleFix.hpp"
 
 #define DLLPATH "\\\\.\\GLOBALROOT\\SystemRoot\\SysWOW64\\XInput1_4.dll"
@@ -48,6 +49,7 @@ static DWORD WINAPI startup_thread([[maybe_unused]] LPVOID parameter) {
 }
 
 HMODULE g_nmhfix_handle {NULL};
+
 Mod* g_dpi_fix_mod {nullptr};
 
 BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
@@ -60,6 +62,8 @@ BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
         if(!nmhfix_handle) {
             g_nmhfix_handle = LoadLibraryA("NMHFix.asi");
         }
+        g_mod_arcade = new ArcadeMode;
+        g_mod_arcade->on_initialize();
         CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)startup_thread, nullptr, 0, nullptr);
         g_dpi_fix_mod = new ResolutionScaleFix();
         auto maybe_error = g_dpi_fix_mod->on_initialize();
