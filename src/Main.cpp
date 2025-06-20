@@ -3,7 +3,7 @@
 
 #include "ModFramework.hpp"
 
-#include "mods/ArcadeMode.hpp"
+#include "mods/ResolutionScaleFix.hpp"
 
 #define DLLPATH "\\\\.\\GLOBALROOT\\SystemRoot\\SysWOW64\\XInput1_4.dll"
 
@@ -49,7 +49,8 @@ static DWORD WINAPI startup_thread([[maybe_unused]] LPVOID parameter) {
 }
 
 HMODULE g_nmhfix_handle {NULL};
-Mod* g_mod_arcade {nullptr};
+
+Mod* g_dpi_fix_mod {nullptr};
 
 BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
     if (reason == DLL_PROCESS_ATTACH) {
@@ -64,10 +65,17 @@ BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
         g_mod_arcade = new ArcadeMode;
         g_mod_arcade->on_initialize();
         CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)startup_thread, nullptr, 0, nullptr);
+        g_dpi_fix_mod = new ResolutionScaleFix();
+        auto maybe_error = g_dpi_fix_mod->on_initialize();
+        if (maybe_error.has_value()) {
+            char buffer[512];
+            sprintf(buffer, "Failed to initialize ResoultionScaleFix: %s", maybe_error.value().c_str() );
+            MessageBox(NULL, buffer, "NMH1", MB_ICONINFORMATION);
+        }
     }
     if (reason == DLL_PROCESS_DETACH) {
         FreeLibrary(g_nmhfix_handle);
-        delete g_mod_arcade;
+        delete g_dpi_fix_mod;
     }
     return TRUE;
 }

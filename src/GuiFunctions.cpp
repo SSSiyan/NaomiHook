@@ -16,17 +16,22 @@
 #define GUI_VERSION "0.0.0"
 #define IMGUI_WINDOW_PADDING 10.0f
 
-#define IMGUI_WINDOW_BG_COLOR IM_COL32(48, 48, 48, 222)
-#define IMGUI_WINDOW_CT_COLOR IM_COL32(255, 201, 115, 255)
-#define IMGUI_WINDOW_IN_COLOR IM_COL32(189, 95, 88, 255)
+#define IMGUI_WINDOW_BG_COLOR IM_COL32(48, 48, 48, 222) // background
+#define IMGUI_WINDOW_CT_COLOR IM_COL32(255, 201, 115, 255) // header
+#define IMGUI_WINDOW_IN_COLOR IM_COL32(189, 95, 88, 255) // description
 
-#define IMGUI_WINDOW_ST_MODNAME_COLOR 0xffbfe6ff
+#define IMGUI_WINDOW_ST_MODNAME_COLOR 0xffbfe6ff // mod title at top right
 
 namespace gui {
-    void dark_theme() {
+    void dark_theme(unsigned int dpi) {
         {
-            // Deep Dark style by janekb04 from ImThemes
+            static constexpr float default_dpi = 96.0f;
+            const float dpi_fuqtor = (float)dpi / default_dpi;
+
             ImGuiStyle& style = ImGui::GetStyle();
+            style.ScaleAllSizes(dpi_fuqtor);
+
+            // Deep Dark style by janekb04 from ImThemes
             style.Alpha = 1.0f;
             style.DisabledAlpha = 0.6000000238418579f;
             style.WindowPadding = ImVec2(8.0f, 8.0f);
@@ -38,8 +43,8 @@ namespace gui {
             style.PopupBorderSize = 1.0f;
             style.FramePadding = ImVec2(5.0f, 2.0f);
             style.FrameBorderSize = 1.0f;
-            style.ItemSpacing = ImVec2(6.0f, 6.0f);
-            style.ItemInnerSpacing = ImVec2(6.0f, 6.0f);
+            style.ItemSpacing = ImVec2(6.0f, 2.0f);
+            style.ItemInnerSpacing = ImVec2(7.0f, 6.0f);
             style.CellPadding = ImVec2(6.0f, 6.0f);
             style.IndentSpacing = 25.0f;
             style.ColumnsMinSpacing = 6.0f;
@@ -108,7 +113,7 @@ namespace gui {
         colors[ImGuiCol_WindowBg]            = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
         colors[ImGuiCol_ChildBg]             = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
         colors[ImGuiCol_PopupBg]             = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
-        colors[ImGuiCol_CheckMark]           = ImVec4(0.86f, 0.65f, 0.33f, 1.00f);
+        colors[ImGuiCol_CheckMark]           = ImVec4(0.129f, 0.184f, 0.859f, 1.00f);
         colors[ImGuiCol_TabSelected]         = ImVec4(0.51f, 0.40f, 0.24f, 1.00f);
         colors[ImGuiCol_TabSelectedOverline] = ImVec4(1.00f, 0.79f, 0.45f, 1.00f);
         colors[ImGuiCol_TabDimmedSelected]   = ImVec4(0.42f, 0.31f, 0.14f, 1.00f);
@@ -238,7 +243,8 @@ namespace gui {
             ImGui::PushStyleColor(ImGuiCol_Text, IMGUI_WINDOW_IN_COLOR);
 
             if (ctx->selected_mod) {
-                ImGui::TextWrapped(ctx->selected_mod->get_description());
+                //ImGui::TextWrapped(ctx->selected_mod->get_description());
+                ctx->selected_mod->render_description();
             }
 
             ImGui::PopStyleColor();
@@ -287,7 +293,7 @@ namespace gui {
     static void draw_category(OurImGuiContext* ctx, const char* category_name, ModCategory category_enum) {
 
         static constexpr auto entry_func = [](OurImGuiContext* ctx, Mod* mod) {
-            ImColor color        = ImColor(170, 94, 88); // red
+            ImColor color        = ImColor(170, 94, 88); // cheat entry colour
             ImVec2 pos           = ImGui::GetCursorPos();
             std::string btn_name = mod->get_mod_name();
             btn_name += "_btn";
@@ -359,6 +365,11 @@ namespace gui {
 
             ImGui::Begin(PROJECT_NAME " " GUI_VERSION, window_open, ImGuiWindowFlags_NoCollapse);
             {
+                ImVec2 sz = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetFontSize()*1.2f);
+                if (ImGui::Button("Save Config", sz)) {
+                    pmods->on_config_save();
+                }
+
                 ImGui::PushFont(ctx->fancy_font);
 
                 draw_category(ctx, "GAMEPLAY",  ModCategory::GAMEPLAY);
@@ -369,16 +380,13 @@ namespace gui {
 
                 ImGui::PopFont();
             }
-            static bool showImGuiDemoWindow = false;
+            /*static bool showImGuiDemoWindow = false;
             ImGui::Checkbox("Show ImGui Demo Window", &showImGuiDemoWindow);
             help_marker("Check out tools>style editor to play with changes to appearance.\n"
                 "Check out widgets to see if there's anything else you wanna use somewhere");
             if (showImGuiDemoWindow) {
                 ImGui::ShowDemoWindow();
-            }
-            if (ImGui::Button("Save Config")) {
-                pmods->on_config_save();
-            }
+            }*/
             ImGui::End();
             
             auto wew = dynamic_cast<KbmControls*>(g_framework->get_mods()->m_mods.back().get());

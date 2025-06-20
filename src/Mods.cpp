@@ -8,32 +8,35 @@
 // #include "mods/BeamColor.hpp"
 // #include "mods/HpColor.hpp"
 #include "mods/PlayerTracker.hpp"
+#include "mods/EnemyTracker.hpp"
+#include "mods/EnemySpawn.hpp"
 #include "mods/DisableCrashDumps.hpp"
 #include "mods/AcceptPadInputsTabbedOut.hpp"
 #include "mods/WeaponSwitcher.hpp"
-#include "mods/ForceFOV.hpp"
 #include "mods/StageWarp.hpp"
 #include "mods/ClothesSwitcher.hpp"
 #include "mods/LockOnSettings.hpp"
 #include "mods/HitstopSettings.hpp"
-#include "mods/ScreenshakeSettings.hpp"
-#include "mods/RollForward.hpp"
+#include "mods/CameraSettings.hpp"
+#include "mods/DodgeSettings.hpp"
 #include "mods/SprintSettings.hpp"
 #include "mods/SwordColours.hpp"
 #include "mods/ThrowBattery.hpp"
-#include "mods/DodgeBattery.hpp"
 #include "mods/HPHitNumber.hpp"
 #include "mods/ChargeSubsBattery.hpp"
-#include "mods/LockOnDisablesThrows.hpp"
 #include "mods/DebugText.hpp"
-#include "mods/Invincibility.hpp"
-#include "mods/RollRotation.hpp"
-#include "mods/SwapIdleStances.hpp"
 #include "mods/ReprisalSwap.hpp"
 #include "mods/DisableMouse.hpp"
+#include "mods/Volume.hpp"
 #include "mods/SoundTracker.hpp"
+#include "mods/QuickBoot.hpp"
 #include "mods/ArcadeMode.hpp"
 #include "mods/KbmControls.hpp"
+#include "mods/StanceControl.hpp"
+#include "mods/MoneyOnKillFix.hpp"
+#include "mods/Cheats.hpp"
+#include "mods/KillObscuringTreasureChests.hpp"
+#include "mods/Tony.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -50,33 +53,37 @@ Mods::Mods()
     // ADD_MOD(SimpleMod);
     // ADD_MOD(BeamColor);
     // ADD_MOD(HpColor);
-    ADD_MOD(PlayerTracker);
-    ADD_MOD(KbmControls);
+    ADD_MOD(PlayerTracker); // keep first
+    ADD_MOD(EnemyTracker); // keep second
+    ADD_MOD(EnemySpawn);
     ADD_MOD(DisableCrashDumps);
     ADD_MOD(AcceptPadInputsTabbedOut);
     ADD_MOD(WeaponSwitcher);
-    ADD_MOD(ForceFOV);
     ADD_MOD(StageWarp);
     ADD_MOD(ClothesSwitcher);
     ADD_MOD(LockOnSettings);
     ADD_MOD(HitstopSettings);
-    ADD_MOD(ScreenshakeSettings);
-    ADD_MOD(RollForward);
+    ADD_MOD(CameraSettings);
+    ADD_MOD(DodgeSettings);
     ADD_MOD(SprintSettings);
     ADD_MOD(SwordColours);
     ADD_MOD(ThrowBattery);
-    ADD_MOD(DodgeBattery);
     ADD_MOD(HPHitNumber);
     ADD_MOD(ChargeSubsBattery);
-    ADD_MOD(LockOnDisablesThrows);
     ADD_MOD(DebugText);
-    ADD_MOD(Invincibility);
-    ADD_MOD(RollRotation);
-    ADD_MOD(SwapIdleStances);
     ADD_MOD(ReprisalSwap);
     ADD_MOD(DisableMouse);
+    ADD_MOD(Volume);
     ADD_MOD(SoundTracker);
-    //ADD_MOD(ArcadeMode);
+    ADD_MOD(ArcadeMode);
+    ADD_MOD(QuickBoot); // requires ArcadeMode
+    ADD_MOD(StanceControl);
+    ADD_MOD(MoneyOnKillFix);
+    ADD_MOD(Cheats);
+    ADD_MOD(KillObscuringTreasureChests);
+    ADD_MOD(Tony);
+    ADD_MOD(KbmControls);
+  
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
@@ -104,8 +111,6 @@ std::optional<std::string> Mods::on_initialize() const {
     return std::nullopt;
 }
 
-
-
 void Mods::on_frame() const {
     for (auto& mod : m_mods) {
         mod->on_frame();
@@ -115,8 +120,8 @@ void Mods::on_frame() const {
 void Mods::on_draw_custom_imgui_window() {
     PlayerTracker* pt = dynamic_cast<PlayerTracker*>(m_mods[0].get());
     pt->custom_imgui_window();
-    KbmControls* kbm = dynamic_cast<KbmControls*>(m_mods[1].get());
-    kbm->custom_imgui_window();
+    EnemyTracker* et = dynamic_cast<EnemyTracker*>(m_mods[1].get());
+    et->custom_imgui_window();
 }
 
 void Mods::on_draw_debug_ui() const {
@@ -164,7 +169,6 @@ void Mods::on_d3d11_reset()
         mod->on_d3d_reset();
     }
 }
-
 
 #if 0
 

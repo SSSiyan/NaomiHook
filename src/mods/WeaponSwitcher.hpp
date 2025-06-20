@@ -10,14 +10,16 @@ public:
   static uintptr_t jmp_ret1;
   static uintptr_t jmp_ret2;
   static int weaponSwitchCooldown;
+  // static bool weapon_switcher_ui;
 
   void toggleForceMap(bool enable);
   static bool CanWeaponSwitch(pcItem desiredWeapon);
+  void Display_UI();
 
   // mod name string for config
   std::string get_mod_name() const override { return "WeaponSwitcher"; }
   std::string get_human_readable_name() const { return "Weapon Switcher"; }
-  const char* get_description() const override { return R"(Weapon Switcher)"; };
+  const char* get_description() const override { return R"(Enable NMH2 styled weapon switching. While in combat, stand still and use the directional pad to select a katana.)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
@@ -33,6 +35,7 @@ public:
   void on_draw_ui() override;
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
+  void on_d3d_reset() override;
 private:
 	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
 	std::unique_ptr<Patch> m_patch;

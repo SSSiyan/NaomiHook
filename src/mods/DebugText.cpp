@@ -51,9 +51,16 @@ std::optional<std::string> DebugText::on_initialize() {
 void DebugText::on_draw_ui() {
     ImGui::Checkbox("Draw Debug Text", &mod_enabled);
     if (mod_enabled) {
-        ImGui::SliderFloat("xPos", &xPos, 0.0f, 854.0f, "%.0f");
-        ImGui::SliderFloat("yPos", &yPos, 0.0f, 480.0f, "%.0f");
+        float fontSize = ImGui::GetFontSize();
+        float combo_width = ImGui::GetFrameHeight();
+        // float combo_width = ImGui::CalcItemWidth();
+        ImGui::Indent();
         ImGui::InputText("##customDebugInputText", &customDebugString[0], 256);
+        ImGui::Text("xPos");
+        ImGui::SliderFloat("## xPos Slider Float", &xPos, 0.0f, 854.0f, "%.0f");
+        ImGui::Text("yPos");
+        ImGui::VSliderFloat("## yPos Slider Float", ImVec2(combo_width * 1.2, fontSize * 10.0f), &yPos, 480.0f, 0.0f, "%.0f");
+        ImGui::Unindent();
     }
 }
 

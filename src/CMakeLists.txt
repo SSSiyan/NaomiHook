@@ -1,6 +1,8 @@
 set(MODS_SRC
     mods/KbmControls.hpp 
     mods/KbmControls.cpp 
+    mods/Tony.hpp
+    mods/Tony.cpp
     mods/HpColor.hpp
     mods/HpColor.cpp
     mods/BeamColor.hpp
@@ -11,8 +13,6 @@ set(MODS_SRC
     mods/DisableCrashDumps.cpp
     mods/AcceptPadInputsTabbedOut.hpp
     mods/AcceptPadInputsTabbedOut.cpp
-    mods/ForceFOV.hpp
-    mods/ForceFOV.cpp
     mods/StageWarp.hpp
     mods/StageWarp.cpp
     mods/PlayerTracker.hpp
@@ -25,32 +25,22 @@ set(MODS_SRC
     mods/LockOnSettings.cpp 
     mods/HitstopSettings.hpp 
     mods/HitstopSettings.cpp 
-    mods/ScreenshakeSettings.hpp 
-    mods/ScreenshakeSettings.cpp 
-    mods/RollForward.hpp 
-    mods/RollForward.cpp 
+    mods/CameraSettings.hpp 
+    mods/CameraSettings.cpp 
+    mods/DodgeSettings.hpp 
+    mods/DodgeSettings.cpp 
     mods/SprintSettings.hpp
     mods/SprintSettings.cpp
     mods/SwordColours.hpp 
     mods/SwordColours.cpp 
     mods/ThrowBattery.hpp 
     mods/ThrowBattery.cpp 
-    mods/DodgeBattery.hpp 
-    mods/DodgeBattery.cpp 
     mods/HPHitNumber.hpp 
     mods/HPHitNumber.cpp 
     mods/ChargeSubsBattery.hpp 
     mods/ChargeSubsBattery.cpp 
-    mods/LockOnDisablesThrows.hpp 
-    mods/LockOnDisablesThrows.cpp 
     mods/DebugText.hpp 
     mods/DebugText.cpp 
-    mods/Invincibility.hpp 
-    mods/Invincibility.cpp 
-    mods/RollRotation.hpp 
-    mods/RollRotation.cpp 
-    mods/SwapIdleStances.hpp 
-    mods/SwapIdleStances.cpp 
     mods/ReprisalSwap.hpp 
     mods/ReprisalSwap.cpp 
     mods/DisableMouse.hpp 
@@ -59,7 +49,24 @@ set(MODS_SRC
     mods/SoundTracker.cpp 
     mods/ArcadeMode.hpp 
     mods/ArcadeMode.cpp 
-
+    mods/QuickBoot.hpp 
+    mods/QuickBoot.cpp 
+    mods/EnemyTracker.hpp 
+    mods/EnemyTracker.cpp 
+    mods/StanceControl.hpp 
+    mods/StanceControl.cpp 
+    mods/EnemySpawn.hpp 
+    mods/EnemySpawn.cpp 
+    mods/MoneyOnKillFix.hpp 
+    mods/MoneyOnKillFix.cpp 
+    mods/Cheats.hpp 
+    mods/Cheats.cpp 
+    mods/KillObscuringTreasureChests.hpp
+    mods/KillObscuringTreasureChests.cpp
+    mods/Volume.hpp 
+    mods/Volume.cpp 
+    mods/ResolutionScaleFix.hpp  
+    mods/ResolutionScaleFix.cpp
 )
 
 set(HOOKS_SRC
@@ -119,9 +126,13 @@ set(UTILITY_SRC
 
 set(IMGUI_SRC
     fw-imgui/SwordsTextureAtlas.cpp
+    fw-imgui/SwordSwitchAtlas.cpp
+    fw-imgui/StageWarpAtlas.cpp
+    fw-imgui/KanaeTextureAtlas.cpp
     fw-imgui/FontFancy.cpp
     fw-imgui/FontInfoblock.cpp
     fw-imgui/FontMain.cpp
+    fw-imgui/FontTony.cpp
     fw-imgui/Texture2DD3D11.hpp
     fw-imgui/Texture2DD3D11.cpp
     fw-imgui/imgui_impl_win32.h
@@ -141,6 +152,8 @@ set(FRAMEWORK_SRC
     GuiFunctions.cpp
     Fonts.hpp
     Fonts.cpp
+    ImageViewer.hpp
+    ImageViewer.cpp
     Config.hpp
 )
 

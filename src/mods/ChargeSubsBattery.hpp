@@ -10,12 +10,17 @@ public:
   static uintptr_t mSubBattery;
   static uintptr_t jmp_ret1;
   static int BatterySubCounter;
-  static int subWhenOver;
+  static constexpr int subWhenOver = 0;
+
+  static uintptr_t jmp_ret2;
+
+  static uintptr_t jmp_ret3;
 
   // mod name string for config
   std::string get_mod_name() const override { return "ChargeSubsBattery"; }
-  std::string get_human_readable_name() const { return "Charge Subs Battery"; }
-  const char* get_description() const override { return R"(Charge Subs Battery)"; };
+  std::string get_human_readable_name() const { return "Charging Uses Battery"; }
+  const char* get_description() const override { return R"(Applies a nerf to charge attacks on beam katanas that causes the battery to drain as the charge is held.
+This was implemented to promote the usage of other tools. The MK3's battery upgrade works like Heroes Paradise and only drains with charge attacks.)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
@@ -32,6 +37,6 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1;
+	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3;
 	// std::unique_ptr<Patch> m_patch;
 };

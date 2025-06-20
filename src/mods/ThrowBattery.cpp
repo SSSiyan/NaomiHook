@@ -70,22 +70,25 @@ std::optional<std::string> ThrowBattery::on_initialize() {
 }
 
 void ThrowBattery::on_draw_ui() {
-    ImGui::Checkbox("Gain Battery from throws", &mod_enabled);
-    if (mod_enabled) {
+    ImGui::Checkbox("Gain Battery From Throws", &mod_enabled);
+    /*if (mod_enabled) {
+        ImGui::Indent();
         ImGui::Text("Custom Battery Amount");
         ImGui::SliderInt("##CustomScreenshakeAmountSliderInt", &batteryThrowReward, 0, 200);
-    }
+        help_marker("120 Default");
+        ImGui::Unindent();
+    }*/
 }
 
 // during load
 void ThrowBattery::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("getBatteryFromThrows").value_or(false);
-    batteryThrowReward = cfg.get<int>("batteryThrowReward").value_or(120);
+    //batteryThrowReward = cfg.get<int>("batteryThrowReward").value_or(120);
 }
 // during save
 void ThrowBattery::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("getBatteryFromThrows", mod_enabled);
-    cfg.set<int>("batteryThrowReward", batteryThrowReward);
+    //cfg.set<int>("batteryThrowReward", batteryThrowReward);
 }
 
 // do something every frame

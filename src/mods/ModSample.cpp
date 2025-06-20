@@ -3,7 +3,7 @@
 
 // clang-format off
 #if 0
-static naked void detour() {
+naked void detour() {
     __asm {
         mov qword ptr [ModSample::variable], rbx
         mov rax, 0xDEADBEEF

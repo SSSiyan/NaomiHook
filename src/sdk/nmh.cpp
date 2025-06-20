@@ -45,6 +45,13 @@ namespace nmh_sdk {
 		return NULL;
     }
 
+    DolphinApp* get_DolphinApp() {
+        static uintptr_t dolphinAppPtr = g_framework->get_module().as<uintptr_t>() + 0x83DDE0;
+        if (DolphinApp* dolphinApp = (DolphinApp*)*(uintptr_t*)dolphinAppPtr)
+            return dolphinApp;
+		return NULL;
+    }
+
     // Set stage
     void SetStage(const char* _StgName, int _StgAdd, int _Arg1, int _Arg2, bool inBossInfoDisp, int inFadeType, __int64 inSetVolRate, bool inPause, unsigned int a10) {
         uintptr_t setStageAddress = (g_framework->get_module().as<uintptr_t>() + 0x3FD690);
@@ -60,9 +67,7 @@ namespace nmh_sdk {
             }
         }
         // set player visible in case cutscenes have set you invisible
-        if (mHRPc* mHRPc = get_mHRPc()) {
-            SetVisible(true);
-        }
+        SetVisible(true);
     }
 
     void SetVisible(bool inVisible) {
@@ -148,5 +153,81 @@ namespace nmh_sdk {
             return checkSideStep(mHRPc, unkn);
         }
         return true; // player ptr is invalid, treat as if we're dodging
+    }
+
+    // Trigger Darksides
+    bool Start777() {
+        uintptr_t start777Address = (g_framework->get_module().as<uintptr_t>() + 0x3C1AE0);
+        mStart777Func start777 = (mStart777Func)start777Address;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            start777(mHRPc);
+            return false;
+        }
+        return true; // player ptr invalid
+    }
+    bool StartBar(bool inDontCallStencil, int inTick) {
+        uintptr_t startBarAddress = (g_framework->get_module().as<uintptr_t>() + 0x3C1BD0);
+        mStartBarFunc startBar = (mStartBarFunc)startBarAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            startBar(mHRPc, inDontCallStencil, inTick);
+            return false;
+        }
+        return true; // player ptr invalid
+    }
+    bool StartBell() {
+        uintptr_t startBellAddress = (g_framework->get_module().as<uintptr_t>() + 0x3C1EE0);
+        mStartBellFunc startBell = (mStartBellFunc)startBellAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            startBell(mHRPc);
+            return false;
+        }
+        return true; // player ptr invalid
+    }
+    bool StartHopper() {
+        uintptr_t startHopperAddress = (g_framework->get_module().as<uintptr_t>() + 0x3C2120);
+        mStartHopperFunc startHopper = (mStartHopperFunc)startHopperAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            startHopper(mHRPc);
+            return false;
+        }
+        return true; // player ptr invalid
+    }
+    bool StartCherry() {
+        uintptr_t startCherryAddress = (g_framework->get_module().as<uintptr_t>() + 0x3C2330);
+        mStartCherryFunc startCherry = (mStartCherryFunc)startCherryAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            startCherry(mHRPc);
+            return false;
+        }
+        return true; // player ptr invalid
+    }
+
+    // Take 3d pos, put screen space pos in Dest
+    bool GetScreenPos(Vec* Src, Vec* Dest) {
+        uintptr_t getScreenPosAddress = (g_framework->get_module().as<uintptr_t>() + 0x5E8560);
+        mGetScreenPosFunc getScreenPos = (mGetScreenPosFunc)getScreenPosAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            return getScreenPos(Src, Dest);
+        }
+        return true; // player ptr invalid
+    }
+
+    bool CheckThrowAttack() {
+        uintptr_t checkThrowAttackAddress = (g_framework->get_module().as<uintptr_t>() + 0x3E24B0);
+        mCheckThrowAttackFunc checkThrowAttack = (mCheckThrowAttackFunc)checkThrowAttackAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            return checkThrowAttack(mHRPc, -1);
+        }
+        return true; // player ptr invalid
+    }
+
+    // Spawn enemies
+    int setInitNpcDat(int inResNo, enCharaType inChType, int inRepop, const Vec* inPos, const Vec* inRot, enPopReqType inPopType, bool inDisEnableCollision) {
+        uintptr_t mSetInitNpcDatAddress = (g_framework->get_module().as<uintptr_t>() + 0x3B6B30);
+        mSetInitNpcDatFunc mSetInitNpcDat = (mSetInitNpcDatFunc)mSetInitNpcDatAddress;
+        if (mHRBattle* mHRBattle = get_mHRBattle()) {
+            return mSetInitNpcDat(mHRBattle, inResNo, inChType, inRepop, inPos, inRot, inPopType, inDisEnableCollision);
+        }
+        return 0;
     }
 }

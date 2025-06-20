@@ -4,7 +4,7 @@ bool HPHitNumber::mod_enabled = false;
 uintptr_t HPHitNumber::jmp_ret1 = NULL;
 uintptr_t HPHitNumber::jmp_ret2 = NULL;
 uintptr_t HPHitNumber::gpBattle = NULL;
-float HPHitNumber::verticalOffset = 0.0f;
+float HPHitNumber::verticalOffset = 285.0f;
 
 void HPHitNumber::toggle(bool enable) { // hide "HIT" text
     if (enable) {
@@ -28,11 +28,11 @@ naked void detour1() { // show hp instead of hit number
             test eax, eax
             je originalcode
             mov eax, [eax+0x2b60] // enemy
-            test eax,eax
+            test eax, eax
             je originalcode
             push ecx
             mov ecx, [eax+0x360] // lock on HUD
-            test ecx,ecx
+            test ecx, ecx
             je popcode
             mov word ptr [ecx+0x8E], 3 // which lockon to show
             mov word ptr [ecx+0x95], 1 // display HIT
@@ -83,24 +83,24 @@ std::optional<std::string> HPHitNumber::on_initialize() {
 }
 
 void HPHitNumber::on_draw_ui() {
-    if (ImGui::Checkbox("HP Hit Number", &mod_enabled)) {
+    if (ImGui::Checkbox("HP over HIT Number", &mod_enabled)) {
         toggle(mod_enabled);
     }
-    ImGui::Text("HP Number Vertical Offset");
-    ImGui::SliderFloat("## HP number vertical offset inputfloat", &verticalOffset, 0.0f, 500.0f, "%.0f");
-    help_marker("I never tested this at other resolutions so leaving the option here\nDefault 285");
+    //ImGui::Text("HP Number Vertical Offset");
+    //ImGui::SliderFloat("## HP number vertical offset inputfloat", &verticalOffset, 0.0f, 500.0f, "%.0f");
+    //help_marker("I never tested this at other resolutions so leaving the option here\nDefault 285");
 }
 
 // during load
 void HPHitNumber::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("hpHitNumber").value_or(false);
     toggle(mod_enabled);
-    verticalOffset = cfg.get<float>("hpHitNumberVerticalOffset").value_or(285.0f);
+    //verticalOffset = cfg.get<float>("hpHitNumberVerticalOffset").value_or(285.0f);
 }
 // during save
 void HPHitNumber::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("hpHitNumber", mod_enabled);
-    cfg.set<float>("hpHitNumberVerticalOffset", verticalOffset);
+    //cfg.set<float>("hpHitNumberVerticalOffset", verticalOffset);
 }
 
 // do something every frame

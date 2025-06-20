@@ -47,13 +47,18 @@ public:
         return m_d3d11_hook.get();
     }
 
+    OurImGuiContext* get_our_imgui_ctx() const {
+        return m_our_imgui_ctx.get();
+    }
+
     void on_frame();
     void on_reset();
+    void after_reset();
     bool on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_param);
 
     void save_config();
-
     void reset_mouse();
+  
 public:
     MouseRaw mouser;
     bool m_capture_mouse { false };
@@ -61,6 +66,8 @@ public:
     
     float window_size_x{};
     float window_size_y{};
+
+    HWND m_wnd{0};
 
 private:
     void draw_ui();
@@ -76,7 +83,6 @@ private:
     bool m_draw_ui{ false };
     std::atomic<bool> m_game_data_initialized{ false };
 
-    HWND m_wnd{ 0 };
     HMODULE m_game_module{ 0 };
     uint8_t m_menu_key{ VK_DELETE };
 

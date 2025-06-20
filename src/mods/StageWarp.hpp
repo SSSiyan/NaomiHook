@@ -1,16 +1,34 @@
 #pragma once
+#if 1
 #include "Mod.hpp"
 #include "sdk/ReClass.hpp"
 class StageWarp : public Mod {
 public:
   StageWarp() = default;
-  
+
+  struct Stage {
+	const char* name;
+	int arrayItem;
+	const char* info;
+	const char* longerInfo;
+  };
+
+  static std::array<Stage, 78> stage_items;
+
   ModCategory get_category() { return ModCategory::STAGE; };
+
+
+  static const char* defaultDescription;
+  static const char* hoveredDescription;
+  static const char* defaultStageName;
+  static const char* stageName;
 
   // mod name string for config
   std::string get_mod_name() const override { return "StageWarp"; }
   std::string get_human_readable_name() const { return "Stage Warp"; }
-  const char* get_description() const override { return R"(Stage Warp)"; };
+  //const char* get_description() const override { return R"(Teleport to any stage in the game. 'Wii/Unused' contains warps to stages which aren't included with the Steam release of NMH1, so to make use of these, you'll need to have the files from the Wii version.)"; };
+
+  void render_description() const override;
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
@@ -30,3 +48,4 @@ private:
 	// std::unique_ptr<FunctionHook> m_hook1;
 	// std::unique_ptr<Patch> m_patch;
 };
+#endif

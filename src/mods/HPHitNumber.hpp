@@ -16,8 +16,8 @@ public:
 
   // mod name string for config
   std::string get_mod_name() const override { return "HPHitNumber"; }
-  std::string get_human_readable_name() const { return "HP HIT Number"; }
-  const char* get_description() const override { return R"(HP HIT Number)"; };
+  std::string get_human_readable_name() const { return "HP over HIT Number"; }
+  const char* get_description() const override { return R"(NMH1 displays a hit counter when locked on to an enemy. This setting repurposes that display to show enemy HP as a number instead.)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

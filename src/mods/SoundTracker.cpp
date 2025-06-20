@@ -21,7 +21,7 @@ void setBit(T& flags, int bit, bool value) {
 
 void SoundTracker::on_draw_ui() {
     if (mHRPc* player = nmh_sdk::get_mHRPc()) {
-        if (ImGui::CollapsingHeader("Player -> mSnd")) {
+        if (ImGui::CollapsingHeader("Player -> mSnd", ImGuiTreeNodeFlags_DefaultOpen)) {
             ImGui::InputInt("SE Handle Lightsavor Ready", &player->mSnd.seHdlLightsavorReady);
             ImGui::InputFloat("SE Volume Lightsavor Ready", &player->mSnd.seVolLightsavorReady);
             ImGui::Checkbox("SE Don't Play Again LS Ready", &player->mSnd.seDontPlaySeAgainLSReady);
@@ -49,7 +49,7 @@ void SoundTracker::on_draw_ui() {
 
             if (ImGui::CollapsingHeader("Pitch Charge")) {
                 ImGui::Indent();
-                ImGui::InputFloat("Current Value ## Pitch Charge", &player->mSnd.pitchCharge.mCurValue);
+                ImGui::InputFloat("Current Value ## Pitch Charge", &player->mSnd.pitchCharge.mCurValue, 0.0f, 0.0f, "%.6f");
                 ImGui::InputFloat("Destination Value ## Pitch Charge", &player->mSnd.pitchCharge.mDstValue);
                 ImGui::InputFloat("Source Value ## Pitch Charge", &player->mSnd.pitchCharge.mSrcValue);
                 ImGui::InputInt("Count ## Pitch Charge", (int*)(&player->mSnd.pitchCharge.mCount));

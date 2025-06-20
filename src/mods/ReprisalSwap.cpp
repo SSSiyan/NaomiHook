@@ -2,7 +2,7 @@
 #if 1
 bool ReprisalSwap::mod_enabled = false;
 uintptr_t ReprisalSwap::jmp_ret1 = NULL;
-uintptr_t ReprisalSwap::gpPad = NULL;
+uintptr_t ReprisalSwap::gpPadUni = NULL;
 
 // clang-format off
 naked void detour1() {
@@ -11,12 +11,12 @@ naked void detour1() {
         je originalcode
 
         push eax
-        mov eax, [ReprisalSwap::gpPad]
+        mov eax, [ReprisalSwap::gpPadUni]
         mov eax, [eax]
-        cmp byte ptr [eax+0x1CC], 1 // high attack // Ffom nmh.PC_INPUT_ATTACK+99
+        cmp byte ptr [eax+0x1CC], 1 // high attack // From nmh.PC_INPUT_ATTACK+99
         pop eax
         jne originalcode
-        mov eax, 169 // new motNum
+        mov eax, 170 // new motNum
     originalcode:
         push eax // default eax
         call esi
@@ -27,7 +27,7 @@ naked void detour1() {
  // clang-format on
 
 std::optional<std::string> ReprisalSwap::on_initialize() {
-    gpPad = (g_framework->get_module().as<uintptr_t>() + 0x843588); 
+    gpPadUni = g_framework->get_module().as<uintptr_t>() + 0x843588; 
     if (!install_hook_offset(0x3CE22E, m_hook1, &detour1, &ReprisalSwap::jmp_ret1, 8)) {
         spdlog::error("Failed to init ReprisalSwap mod\n");
         return "Failed to init ReprisalSwap mod";
@@ -36,7 +36,7 @@ std::optional<std::string> ReprisalSwap::on_initialize() {
 }
 
 void ReprisalSwap::on_draw_ui() {
-    ImGui::Checkbox("Reprisal Swap", &mod_enabled);
+    ImGui::Checkbox("High Attack Reprisal", &mod_enabled);
 }
 
 // during load

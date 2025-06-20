@@ -21,11 +21,14 @@
 #include "GuiFunctions.hpp"
 #include "Fonts.hpp"
 #include "mods/DisableMouse.hpp"
+#include "ImageViewer.hpp"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 std::unique_ptr<ModFramework> g_framework{};
 
+UINT g_bb_width{};
+UINT g_bb_height{};
 //static glm::vec2 g_window_dims{};
 typedef void(__fastcall *PADSetHideMouseCursor_ptr)(bool s, bool lock);
 static PADSetHideMouseCursor_ptr PADSetHideMouseCursor_ee { nullptr };
@@ -109,6 +112,7 @@ ModFramework::ModFramework()
     m_d3d11_hook = std::make_unique<D3D11Hook>();
     m_d3d11_hook->on_present([this](D3D11Hook& hook) { on_frame(); });
     m_d3d11_hook->on_resize_buffers([this](D3D11Hook& hook) { on_reset(); });
+    m_d3d11_hook->after_resize_buffers([this](D3D11Hook& hook) { after_reset(); });
 
     m_valid = m_d3d11_hook->hook();
 
@@ -175,16 +179,33 @@ void ModFramework::on_reset() {
     spdlog::info("Reset!");
     if(!m_initialized) { return; }
 
+    cleanup_render_target();
 #if 1
-    ImGui_ImplDX11_InvalidateDeviceObjects();
+    //ImGui_ImplDX11_InvalidateDeviceObjects();
 
     // Crashes if we don't release it at this point.
-    create_render_target();
-    ImGui_ImplDX11_CreateDeviceObjects();
+    //ImGui_ImplDX11_CreateDeviceObjects();
 #endif
+    ImGui_ImplDX11_InvalidateDeviceObjects();
+
     m_mods->on_d3d11_reset();
 }
 
+void ModFramework::after_reset() {
+    DXGI_SWAP_CHAIN_DESC swapChainDesc;
+    auto swap_chain = m_d3d11_hook->get_swap_chain();
+    if (!swap_chain) {
+        return;
+    }
+    swap_chain->GetDesc(&swapChainDesc);
+    g_bb_width  = swapChainDesc.BufferDesc.Width;
+    g_bb_height = swapChainDesc.BufferDesc.Height;
+
+    create_render_target();
+    ImGui_ImplDX11_CreateDeviceObjects();
+    auto& io = ImGui::GetIO();
+    io.DisplaySize = ImVec2((float)g_bb_width, (float)g_bb_height);
+}
 
 bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_param) {
     if (!m_initialized) {
@@ -256,6 +277,10 @@ void ModFramework::reset_mouse() {
 }
 
 void ModFramework::draw_ui() {
+#ifndef _NDEBUG
+    auto& io = ImGui::GetIO();
+    //ImGui::Text("Resolution: %f, %f; backbuffer: %d, %d", io.DisplaySize.x, io.DisplaySize.y, g_bb_width, g_bb_height);
+#endif // !_NDEBUG
 
     if (!m_draw_ui) {
         return;
@@ -283,6 +308,9 @@ void ModFramework::draw_ui() {
     else if(!m_error.empty()) {
         //ImGui::TextWrapped("ModFramework error: %s", m_error.c_str());
     }
+#if 0
+    imview_draw();
+#endif
 
 #if 0
     ImGui::End();
@@ -404,12 +432,17 @@ bool ModFramework::initialize() {
         return false;
     }
 
-    gui::dark_theme();
+    UINT dpi = GetDpiForWindow(m_wnd);
 
+    gui::dark_theme(dpi);
 
     auto& io = ImGui::GetIO();
 
-    load_fonts(m_our_imgui_ctx.get(), io);
+    load_fonts(m_our_imgui_ctx.get(), io, dpi);
+
+#if 0
+    imview_init();
+#endif
 
 
     if (m_first_frame) {
@@ -443,7 +476,6 @@ bool ModFramework::initialize() {
 }
 
 void ModFramework::create_render_target() {
-    cleanup_render_target();
 
     ID3D11Texture2D* back_buffer{ nullptr };
     if (m_d3d11_hook->get_swap_chain()->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&back_buffer) == S_OK) {

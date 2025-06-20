@@ -3,4 +3,4 @@
 struct OurImGuiContext;
 struct ImGuiIO;
 
-void load_fonts(OurImGuiContext* ctx, ImGuiIO& io);
+void load_fonts(OurImGuiContext* ctx, ImGuiIO& io, unsigned int dpi);

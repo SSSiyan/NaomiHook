@@ -44,24 +44,126 @@ enum enCharaCondition
   eConditionMax = 6,
 };
 
+enum enCharaType
+{
+  eCharaTypeNone = 0,
+  eCharaTypePC = 1,
+  eCharaTypeSLV = 2,
+  eCharaTypeNPC = 3,
+  eCharaTypeNPCNotMove = 4,
+  eCharaTypeOBJ = 5,
+  eCharaTypeOBJNotMove = 6,
+  eCharaTypeZKPipe = 7,
+  eCharaTypeTGR = 8,
+  eCharaTypeTYG = 9,
+  eCharaTypeJST = 10,
+  eCharaTypeSFF = 11,
+  eCharaTypeEFL = 12,
+  eCharaTypeOBJ700 = 13,
+  eCharaTypeMGE = 14,
+  eCharaTypeENX = 15,
+  eCharaTypeMAM = 16,
+  eCharaTypeZKClone = 17,
+  eCharaTypeTET = 18,
+  eCharaTypeGEN = 19,
+  eCharaTypeTKL = 20,
+  eCharaTypeZKKatana = 21,
+  eCharaTypeZKAxe = 22,
+  eCharaTypeZKBeamKatanaA = 23,
+  eCharaTypeZKBeamKatanaB = 24,
+  eCharaTypeZKHandGun = 25,
+  eCharaTypeZKSubMachineGun = 26,
+  eCharaTypeZKShotGun = 27,
+  eCharaTypeZKBall = 28,
+  eCharaTypeOBJ013_0 = 29,
+  eCharaTypeOBJ013_1 = 30,
+  eCharaTypeOBJ013_2 = 31,
+  eCharaTypeOBJ630 = 32,
+  eCharaTypeOBJ631 = 33,
+  eCharaTypeOBJ632 = 34,
+  eCharaTypeMAM_Jr = 35,
+  eCharaTypeHML = 36,
+  eCharaTypeNZN = 37,
+  eCharaTypeZakoBike = 38,
+  eCharaTypeOBJ161 = 39,
+  eCharaTypeOBJ162 = 40,
+  eCharaTypeSCP = 41,
+  eCharaTypeOBJ164 = 42,
+  eCharaTypeZKNone = 43,
+  eCharaTypeDAG = 44,
+  eCharaTypeOBJ169 = 45,
+  eCharaTypeZKHammer = 46,
+  eCharaTypeZKKakuzai = 47,
+  eCharaTypeZKBat = 48,
+  eCharaTypeZKSchop = 49,
+  eCharaTypeZKSignboard = 50,
+  eCharaTypeZKSword = 51,
+  eCharaTypeZKKaeinbin = 52,
+  eCharaTypeOBJ180 = 53,
+  eCharaTypeOBJ181 = 54,
+  eCharaTypeOBJ182 = 55,
+  eCharaTypeETG = 56,
+  eCharaTypeSCT = 57,
+  eCharaTypeOBJ955 = 58,
+  eCharaTypeSLV2 = 59,
+  eCharaTypeWEL = 60,
+  eCharaTypeSLV3 = 61,
+  eCharaTypeOBJ095 = 62,
+  eCharaTypeOBJ431 = 63,
+  eCharaTypeOBJ629 = 64,
+  eCharaTypeOBJ183 = 65,
+  eCharaTypeSubMissionNpc = 500,
+  eCharaTypeOBJ021 = 501,
+  eCharaTypeSMJ = 502,
+  eCharaTypeOBJ008 = 503,
+  eCharaTypeOBJ009 = 504,
+  eCharaTypeOBJ010 = 505,
+  eCharaTypeOBJ011 = 506,
+  eCharaTypeOBJ012 = 507,
+  eCharaTypeOBJ106 = 508,
+  eCharaTypeOBJ107 = 509,
+  eCharaTypeOBJ108 = 510,
+  eCharaTypeOBJ019 = 511,
+  eCharaTypeOBJ435 = 512,
+  eCharaTypeOBJ065_1 = 513,
+  eCharaTypeOBJ065_2 = 514,
+  eCharaTypeOBJ065_3 = 515,
+  eCharaTypeSML = 516,
+  eCharaTypeOBJ156_1 = 517,
+  eCharaTypeOBJ156_2 = 518,
+  eCharaTypeOBJ155 = 519,
+  eCharaTypeOBJ159 = 520,
+  eCharaTypeOBJ158 = 521,
+  eCharaTypeSMQ = 522,
+  eCharaTypeOBJ_GAS = 523,
+  eCharaTypeSM_CAT = 524,
+};
+
+enum enPopReqType {
+  ePopTypeDistance = 0,
+  ePopTypeAlways = 1,
+  ePopTypeOrder = 2,
+  ePopTypeMax = 3,
+};
+
 enum pcItem {
     // Swords
     BLOOD_BERRY = 0,
     TSUBAKI_MK3 = 1,
     TSUBAKI_MK1 = 2,
     TSUBAKI_MK2 = 3,
-    SWORD4 = 4,
-    SWORD5 = 5,
-    SWORD6 = 6,
-    SWORD7 = 7,
-    SWORD8 = 8,
-    SWORD9 = 9,
-    SWORD10 = 10,
-    SWORD11 = 11,
-    SWORD12 = 12,
-    SWORD13 = 13,
-    SWORD14 = 14,
-    SWORD15 = 15,
+    BLOOD_BERRY_DAMAGE = 4,
+    TSUBAKI_MK3_DAMAGE = 5,
+    TSUBAKI_MK1_DAMAGE = 6,
+    TSUBAKI_MK2_DAMAGE = 7,
+    BLOOD_BERRY_BATTERY= 8,
+    TSUBAKI_MK3_BATTERY= 9,
+    TSUBAKI_MK1_BATTERY = 10,
+    TSUBAKI_MK2_BATTERY = 11,
+    BLOOD_BERRY_BATTERY_DAMAGE = 12,
+    TSUBAKI_MK3_BATTERY_DAMAGE = 13,
+    TSUBAKI_MK1_BATTERY_DAMAGE = 14,
+    TSUBAKI_MK2_BATTERY_DAMAGE = 15,
     SWORD16 = 16,
     SWORD17 = 17,
     SWORD18 = 18,
@@ -1316,12 +1418,126 @@ enum enThrowKind
   enThrowKindMax = 12,
 };
 
+enum HRCAMERA_MODE
+{
+  HRCAMERA_MODE_HOMING = 0,
+  HRCAMERA_MODE_MOTION = 1,
+  HRCAMERA_MODE_FREE = 2,
+  HRCAMERA_MODE_MOVE = 3,
+  HRCAMERA_MODE_BATTLE = 4,
+  HRCAMERA_MODE_IDLE = 5,
+  HRCAMERA_MODE_NORMAL = 6,
+  HRCAMERA_MODE_BATTLE2 = 7,
+  HRCAMERA_MODE_MOVE2 = 8,
+};
+
 struct Vec
 {
   /* 0x0000 */ float x;
   /* 0x0004 */ float y;
   /* 0x0008 */ float z;
 }; /* size: 0x000c */
+
+struct Vec2D
+{
+  /* 0x0000 */ float x;
+  /* 0x0004 */ float y;
+}; /* size: 0x0008 */
+
+class DolphinConfig
+{
+public:
+  /* 0x0000 */ const int VERSION; // was union
+  /* 0x0004 */ int enableAA;
+  /* 0x0008 */ bool enableEnhancedShadows;
+  /* 0x0009 */ bool force43Aspect;
+  /* 0x000a */ bool force169Aspect;
+  /* 0x000b */ bool enableFullScreen;
+  /* 0x000c */ glm::vec2 windowPos; // int
+  /* 0x0014 */ glm::vec2 windowSize; // int
+  /* 0x001c */ float soundVolume;
+  /* 0x0020 */ float musicVolume;
+  /* 0x0024 */ float cutsceneVolume;
+  /* 0x0028 */ float mouseAimSensitivity;
+  /* 0x002c */ float mouseAimSensitivityOrg;
+  /* 0x0030 */ float mouseLinearity;
+  /* 0x0034 */ float mouseIntersection;
+  /* 0x0038 */ float leftThumbDeadzone;
+  /* 0x003c */ float rightThumbDeadzone;
+  /* 0x0040 */ bool useGamepad;
+  /* 0x0041 */ bool enableVibration;
+  /* 0x0042 */ bool enableInverseY;
+  /* 0x0043 */ bool enableInverseX;
+  /* 0x0044 */ int kbActions[33]; // was enum
+  /* 0x00c8 */ int mouseActions[26]; // was enum
+  /* 0x0130 */ int padActions[26]; // was enum
+  /* 0x0198 */ char pad_198[0x10]; // class EE::EventBinder<EE::FastDelegate2<int,int,void> > windowMoved;
+  /* 0x01a8 */ char pad_1a8[0x10]; // class EE::EventBinder<EE::FastDelegate2<int,int,void> > windowResized;
+  /* 0x01b8 */ char pad_1b8[0x10]; // class EE::EventBinder<EE::FastDelegate1<bool,void> > fullScreenToggled;
+  /* 0x01c8 */ char pad_1c8[0x98]; // class EE::IniFile iniFile;
+  /* 0x0260 */ bool isDirty;
+  /* 0x0261 */ volatile bool isSaving;
+  /* 0x0262 */ bool isDuringStartup;
+  /* 0x0263 */ bool toolResult;
+  /* 0x0264 */ int version;
+  /* 0x0268 */ char pad_268[0x10]; // was ee::thread
+  /* 0x0000 */ // class DolphinConfig* singleton;
+}; /* size: 0x0278 */
+
+class EE_Rect
+{
+public:
+  /* 0x0000 */ int left;
+  /* 0x0004 */ int top;
+  /* 0x0008 */ int right;
+  /* 0x000c */ int bottom;
+}; /* size: 0x0010 */
+
+class DolphinGame
+{
+public:
+  /* 0x0000 */ long Padding_156[2];
+  /* 0x0008 */ unsigned int sampleCountMax;
+  /* 0x000c */ unsigned int aaLevel;
+  /* 0x0010 */ class EE_Rect screenRect;
+  /* 0x0020 */ // class EE::SmartPtr<EE::RenderTarget> colorTarget;
+  /* 0x0024 */ // class EE::SmartPtr<EE::RenderTarget> tempTarget;
+  /* 0x0028 */ // class EE::SmartPtr<EE::RenderTarget> colorTargetResolved;
+  /* 0x002c */ // class EE::SmartPtr<EE::DepthStencilTarget> depthTarget;
+  /* 0x0030 */ // class EE::RenderingStateStack stateStack;
+  /* 0x0048 */ // class EE::SmartPtr<EE::QuadBatch<EE::QuadVertex,EE::DefaultQuadBatchData> > quadBatch;
+  /* 0x004c */ // struct DolphinGame::PixelShaderConstsBLUR psConstsBLUR;
+  /* 0x00dc */ // int lastBlur;
+  /* 0x00e0 */ // class EE::SmartPtr<EE::MoviePlayer> moviePlayer; // i got mad lazy
+  /* 0x00e4 */ // class EE::AxesManager axes;
+  /* 0x0128 */ // class EE::SixAxisManager sixAxis;
+  /* 0x0164 */ // class EE::ButtonsManager buttons;
+  /* 0x01b0 */ // class EE::ButtonsManager keyboard;
+  /* 0x01fc */ // class EE::ButtonsManager mouse;
+  /* 0x0248 */ // class EE::PointerManager pointer;
+  /* 0x0268 */ // class EE::ForceFeedbackManager forceFeedback;
+  /* 0x0288 */ // bool isCursorHidden;
+  /* 0x0289 */ // bool forceHideCursor;
+  /* 0x028a */ // bool lockCursorAtCenter;
+  /* 0x028b */ // bool mouseUsed;
+  /* 0x028c */ // bool kbDirUsed;
+  /* 0x028d */ // char Padding_157[3];
+  /* 0x0290 */ // int switchControlsCounter;
+}; /* size: 0x0294 */
+
+class DolphinApp
+{
+public:
+  /* 0x0000 */ class DolphinApp* singleton;
+  /* 0x0004 */ char Padding_4[0x8];
+  /* 0x000c */ class DolphinConfig config;
+  /* 0x0284 */ bool isActive;
+  /* 0x0285 */ char Padding_320[3];
+  /* 0x0288 */ class GlobalData* globalData;
+  /* 0x028c */ class DolphinGame* game;
+  /* 0x0290 */ // class EE::EventBinder<EE::FastDelegate2<int,int,void> > windowResized;
+  /* 0x02a0 */ // class EE::EventBinder<EE::FastDelegate1<bool,void> > fullScreenToggled;
+}; /* size: 0x02b0 */
 
 struct stRovicofInfo
 {
@@ -2304,7 +2520,7 @@ struct Quaternion
 
 class ghmListObj
 {
-  /* 0x0000 */ long Padding_9;
+  /* 0x0000 */ int Padding_9;
   /* 0x0004 */ class ghmListObj* mpPrev;
   /* 0x0008 */ class ghmListObj* mpNext;
   /* 0x000c */ int mPriority;
@@ -2392,7 +2608,7 @@ class ghmCapsule
 class ghmGcCollObjCapsule
 {
   /* 0x0000 */ class ghmLozenge mMoveShape;
-  /* 0x0030 */ long Padding_152[4];
+  /* 0x0030 */ char Padding_152[0x10];
   /* 0x0040 */ class ghmCapsule mShape;
 }; /* size: 0x0060 */
 
@@ -2508,6 +2724,781 @@ struct stCharaStatus
   }; /* size: 0x0008 */
 }; /* size: 0x0304 */
 
+enum AiMode {
+  AI_INIT = 0,
+  AI_WAIT = 1,
+  AI_DARKSIDE = 2,
+};
+
+struct ZakoAi
+{
+  /* 0x0000 */ enum AiMode mMode;
+  /* 0x0004 */ int mRecastCnt;
+  /* 0x0008 */ int mAtkCastCnt;
+  /* 0x000c */ int mRunCount;
+  /* 0x0010 */ int mAsibumiCount;
+  /* 0x0014 */ struct Vec mAsibumiStartPos;
+  /* 0x0020 */ float mAsibumiLength;
+  /* 0x0024 */ int mRestoreDirecCount;
+  /* 0x0028 */ float mBoidTargetDirec;
+  /* 0x002c */ float mBoidNowDirec;
+  /* 0x0030 */ bool mZakoBoss;
+  /* 0x0031 */ char Padding_1405[3];
+  /* 0x0034 */ int mDarkSideType;
+  /* 0x0038 */ int mDarkSideProc;
+  /* 0x003c */ int mDarkSideFrame;
+  /* 0x0040 */ bool mDownAtkMove;
+  /* 0x0041 */ bool mLongAtkMove;
+  /* 0x0042 */ char Padding_1406[2];
+  /* 0x0044 */ int mLongAtkWaitCount;
+  /* 0x0048 */ int mMawariKinshiCount;
+  /* 0x004c */ bool mEndurance;
+  /* 0x004d */ char Padding_1407[3];
+  /* 0x0050 */ float mMawarikomiDirec;
+  /* 0x0054 */ bool mBackStepChk;
+  /* 0x0055 */ char __PADDING__[3];
+}; /* size: 0x0058 */
+
+class HRZAKO
+{
+public:
+  /* 0x0000 */ char Padding_1408[0x3f8];
+  /* 0x03f8 */ bool mRandingSmoke;
+  /* 0x03f9 */ bool mStartAttack;
+  /* 0x03fa */ bool mFirstVoice;
+  /* 0x03fb */ char Padding_1409;
+  /* 0x03fc */ int mIdleMot;
+  /* 0x0400 */ int mStandbyTick;
+  /* 0x0404 */ int mShotNum;
+  /* 0x0408 */ int mShotNumMax;
+  /* 0x040c */ int mReloadNum;
+  /* 0x0410 */ int mBallNum;
+  /* 0x0414 */ int mBallNumMax;
+  /* 0x0418 */ struct ZakoAi mAi;
+  /* 0x0470 */ struct Vec mBoidPos;
+  /* 0x047c */ float mWalkSpeed;
+  /* 0x0480 */ float mRunSpeedRate;
+  /* 0x0484 */ unsigned char mBitMoveUpDate;
+  /* 0x0485 */ char Padding_1410[3];
+  /* 0x0488 */ float mTargetDirec;
+  /* 0x048c */ float mNowDirecY;
+  /* 0x0490 */ int mBasicMotionID;
+  /* 0x0494 */ int mDamageWaitTick;
+  /* 0x0498 */ bool mQuickStandUp;
+  /* 0x0499 */ bool mDownSE;
+  /* 0x049a */ char Padding_1411[2];
+  /* 0x049c */ class EffectHandGun** mppEfHandGun;
+  /* 0x04a0 */ struct tagHRTASKCHECK* mpEfHandGunTaskCheck;
+  /* 0x04a4 */ class EffectBall** mppEfBall;
+  /* 0x04a8 */ struct tagHRTASKCHECK* mpEfBallTaskCheck;
+  /* 0x04ac */ class EffectQuestion* mpEfQuestion;
+  /* 0x04b0 */ int mPiyoriTick;
+  /* 0x04b4 */ int mLoseSightTick;
+  /* 0x04b8 */ bool mDmgVoice;
+  /* 0x04b9 */ char Padding_1412[3];
+  /* 0x04bc */ int mDeadModelType;
+  /* 0x04c0 */ float mPiyoriStoreDamage;
+  /* 0x04c4 */ int mPiyoriStoreTick;
+  /* 0x04c8 */ bool mAlreadyHitDownAttack;
+  union
+  {
+    /* 0x0000 */ int mEnCountVoiceTick;
+    /* 0x0000 */ bool mAiKyouseiUpGuard;
+    /* 0x0000 */ bool mAiKyouseiDownGuard;
+    /* 0x0000 */ bool mAiKyouseiRash;
+    /* 0x0000 */ bool mAiEventRunMode;
+    /* 0x0000 */ float mAiEventRunDirec;
+    /* 0x0000 */ bool mAiIkasamaThrowDown;
+    /* 0x0000 */ bool mAiKyouseiGuardOnly;
+    /* 0x0000 */ bool mMoneyFarTooLittle;
+  }; /* size: 0x0004 */
+}; /* size: 0x04cc */
+
+class rLineList
+{
+  /* 0x0000 */ char Padding_1385[0x10];
+  /* 0x0010 */ struct Vec m_Position[2];
+  /* 0x0028 */ struct rColor m_Color[2];
+  /* 0x0048 */ struct rST m_ST[2];
+  /* 0x0058 */ struct rColorAnime m_ColorAnime[2];
+}; /* size: 0x00a8 */
+
+class HRJST
+{
+public:
+enum LiftMode
+{
+  Boss = 0,
+  Light = 1,
+  ConA = 2,
+  ConB = 3,
+};
+  /* 0x0000 */ char Padding_1542[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ float m_AttackWait;
+  /* 0x0408 */ int m_MotionFrame;
+  /* 0x040c */ struct Vec m_MoveVec;
+  /* 0x0418 */ struct Vec m_TackleMove;
+  /* 0x0424 */ struct Vec m_BrainPos;
+  /* 0x0430 */ bool m_JumpEnable;
+  /* 0x0431 */ bool m_JumpFlag;
+  /* 0x0432 */ bool m_Elevator;
+  /* 0x0433 */ char Padding_1543;
+  /* 0x0434 */ int m_PcElectSEID;
+  /* 0x0438 */ int m_EyeBeamSEID;
+  /* 0x043c */ int m_BeamHitSEID;
+  /* 0x0440 */ int m_JstBeamSEID;
+  /* 0x0444 */ int m_DemoCut;
+  /* 0x0448 */ bool m_Demo;
+  /* 0x0449 */ char Padding_1544[3];
+  /* 0x044c */ int m_DemoCount;
+  /* 0x0450 */ bool m_Lift[4];
+  /* 0x0454 */ int m_RandLift[3];
+  /* 0x0460 */ enum enPcPose m_BeforePcPose;
+  /* 0x0464 */ enum HRJST::LiftMode m_CameraEndWait;
+  /* 0x0468 */ bool m_BefGuard;
+  /* 0x0469 */ char Padding_1545[3];
+  /* 0x046c */ struct Vec m_PcPosition;
+  /* 0x0478 */ struct Vec m_PcNavel;
+  /* 0x0484 */ struct Vec m_PcDirection;
+  /* 0x0490 */ float m_PcDistance;
+  /* 0x0494 */ float m_PcRandTime;
+  /* 0x0498 */ bool m_PcShare;
+  /* 0x0499 */ char Padding_1546[3];
+  /* 0x049c */ int m_PcMotionNo;
+  /* 0x04a0 */ float m_HitWait;
+  /* 0x04a4 */ int m_SoundID;
+  /* 0x04a8 */ class EffectEyeBeam* m_pRightEyeBeam;
+  /* 0x04ac */ class EffectEyeBeam* m_pLeftEyeBeam;
+  /* 0x04b0 */ class EffectHadoken* m_pHadoKen;
+  /* 0x04b4 */ class EffectFinalFlash* m_pFinalFlash;
+  /* 0x04b8 */ class EffectLamp* m_pLamp[4];
+  /* 0x04c8 */ class EffectFlashBlur* m_FlashBlur;
+  /* 0x04cc */ class EffectMetalElect* m_pElect;
+  /* 0x04d0 */ class EffectPaund* m_pPaund;
+  /* 0x04d4 */ struct tagHRTASKCHECK m_RightEyeCheck;
+  /* 0x04dc */ struct tagHRTASKCHECK m_LeftEyeCheck;
+  /* 0x04e4 */ struct tagHRTASKCHECK m_HadokenCheck;
+  /* 0x04ec */ struct tagHRTASKCHECK m_FinalFlashCheck;
+  /* 0x04f4 */ struct tagHRTASKCHECK m_PaundCheck;
+  /* 0x04fc */ class rPrimUnific m_LineUni[4];
+  /* 0x057c */ class rLineList m_Line[2][4];
+  /* 0x0abc */ class TGan* m_DemoCamera;
+  /* 0x0ac0 */ class TGmf* m_ContainerA;
+  /* 0x0ac4 */ class TGmf* m_ContainerB;
+  /* 0x0ac8 */ class TGmf* m_Light;
+  /* 0x0acc */ class TGan* m_ContainerAUp;
+  /* 0x0ad0 */ class TGan* m_ContainerBUp;
+  /* 0x0ad4 */ class TGan* m_ContainerALoop;
+  /* 0x0ad8 */ class TGan* m_ContainerBLoop;
+  /* 0x0adc */ class TGan* m_ContainerADown;
+  /* 0x0ae0 */ class TGan* m_ContainerBDown;
+  /* 0x0ae4 */ class TGan* m_LightUp;
+  /* 0x0ae8 */ class TGan* m_LightLoop;
+  /* 0x0aec */ class TGan* m_LightDown;
+}; /* size: 0x0af0 */
+
+class HRMAM
+{
+public:
+    enum E_MAM_STAT
+    {
+      E_MAM_STAT_100 = 0,
+      E_MAM_STAT_60 = 1,
+      E_MAM_STAT_30 = 2,
+    };
+  /* 0x0000 */ char Padding_1587[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ float m_AttackWait;
+  /* 0x0408 */ int m_MotionFrame;
+  /* 0x040c */ struct Vec m_MoveVec;
+  /* 0x0418 */ struct Vec m_TackleMove;
+  /* 0x0424 */ short m_TubazeriaiCount;
+  /* 0x0426 */ char Padding_1588[2];
+  /* 0x0428 */ int m_FromStartTick;
+  /* 0x042c */ enum enPcPose m_BeforePcPose;
+  union
+  {
+    struct /* bitfield */
+    {
+      /* 0x0430 */ unsigned short m_AtkTackleReq : 1; /* bit position: 0 */
+      /* 0x0430 */ unsigned short m_AtkThrowReq : 1; /* bit position: 1 */
+      /* 0x0430 */ unsigned short m_AtkBunsinReq : 1; /* bit position: 2 */
+      /* 0x0430 */ unsigned short m_BackStepCount : 1; /* bit position: 3 */
+      /* 0x0430 */ unsigned short m_SetBunsinVec : 1; /* bit position: 4 */
+      /* 0x0430 */ unsigned short m_CreateBunsin : 1; /* bit position: 5 */
+      /* 0x0430 */ unsigned short m_DeadOK : 1; /* bit position: 6 */
+      /* 0x0430 */ unsigned short m_IdolRot : 1; /* bit position: 7 */
+      /* 0x0430 */ unsigned short m_PcThowed : 1; /* bit position: 8 */
+      /* 0x0430 */ unsigned short m_StartMonolog : 4; /* bit position: 9 */
+      /* 0x0430 */ unsigned short pad : 3; /* bit position: 13 */
+    }; /* bitfield */
+    /* 0x0430 */ unsigned short flag;
+  }; /* size: 0x0002 */
+  /* 0x0432 */ char Padding_1589[2];
+  /* 0x0434 */ enum HRMAM::E_MAM_STAT m_Genki;
+  /* 0x0438 */ int m_BunsinId[2];
+  /* 0x0440 */ int m_LoopSoundID;
+  /* 0x0444 */ int m_TubaSEWait;
+  /* 0x0448 */ short m_SukiCounter;
+  /* 0x044a */ char Padding_1590[2];
+  /* 0x044c */ struct Vec m_AwayPos[13];
+  /* 0x04e8 */ struct Vec m_WallPos[4];
+  /* 0x0518 */ int m_AwayPosIndex;
+  /* 0x051c */ bool m_FirstBunsin;
+  /* 0x051d */ bool m_BefGuard;
+  /* 0x051e */ char Padding_1591[2];
+  /* 0x0520 */ struct Vec m_PcPosition;
+  /* 0x052c */ struct Vec m_PcNavel;
+  /* 0x0538 */ struct Vec m_PcDirection;
+  /* 0x0544 */ float m_PcDistance;
+  /* 0x0548 */ float m_PcRandTime;
+  /* 0x054c */ float m_Inner;
+  /* 0x0550 */ bool m_PcShare;
+  /* 0x0551 */ char Padding_1592[3];
+  /* 0x0554 */ int m_PcMotionNo;
+  /* 0x0558 */ float m_HitWait;
+  /* 0x055c */ enum enPcPose m_OldPcPose;
+  /* 0x0560 */ int m_MonoLogID;
+  /* 0x0564 */ struct tagGHMR_TEX mTraceTex;
+  /* 0x058c */ class EffectSwordLaser* m_pSwordLaser;
+  /* 0x0590 */ unsigned int m_MonologHandle;
+  /* 0x0594 */ class HrDebugAtkCheck* m_pDebugAtkCheck;
+  /* 0x0598 */ struct tagGHMR_TEX m_SlashTex;
+  /* 0x05c0 */ int m_CameraMode;
+}; /* size: 0x05c4 */
+
+class HRMAMJR
+{
+public:
+  /* 0x0000 */ char Padding_1615[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ float m_AttackWait;
+  /* 0x0408 */ int m_MotionFrame;
+  /* 0x040c */ struct Vec m_MoveVec;
+  /* 0x0418 */ struct Vec m_TackleMove;
+  /* 0x0424 */ bool m_BackStepCount;
+  /* 0x0425 */ bool m_InitAtack;
+  /* 0x0426 */ short m_DeadCounter;
+  /* 0x0428 */ struct Vec m_EnPosition;
+  /* 0x0434 */ struct Vec m_EnDirection;
+  /* 0x0440 */ float m_EnDistance;
+  /* 0x0444 */ struct Vec m_PcPosition;
+  /* 0x0450 */ struct Vec m_PcNavel;
+  /* 0x045c */ struct Vec m_PcDirection;
+  /* 0x0468 */ float m_PcDistance;
+  /* 0x046c */ float m_PcRandTime;
+  /* 0x0470 */ float m_Inner;
+  /* 0x0474 */ bool m_PcShare;
+  /* 0x0475 */ char Padding_1616[3];
+  /* 0x0478 */ int m_PcMotionNo;
+  /* 0x047c */ float m_HitWait;
+  /* 0x0480 */ struct tagGHMR_TEX mTraceTex;
+}; /* size: 0x04a8 */
+
+class HRMGE
+{
+public:
+    enum DemoEnum
+    {
+      DemoInit = 0,
+      ShotAIn = 1,
+      ShotAOut = 2,
+      ShotBIn = 3,
+      ShotBOut = 4,
+      ShotCIn = 5,
+      ShotCOut = 6,
+      ShotDIn = 7,
+      ShotDOut = 8,
+      ShortShotIn = 9,
+    };
+    enum ShootMode
+    {
+      InitShoot = 0,
+      RightShoot = 1,
+      LeftShoot = 2,
+    };
+  /* 0x0000 */ char Padding_1578[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ float m_AttackWait;
+  /* 0x0408 */ int m_MotionFrame;
+  /* 0x040c */ int m_DamageAccum;
+  /* 0x0410 */ float m_RotDiv;
+  /* 0x0414 */ bool m_SongMode;
+  /* 0x0415 */ char Padding_1579[3];
+  /* 0x0418 */ struct Vec m_MoveVec;
+  /* 0x0424 */ struct Vec m_MoundPos;
+  /* 0x0430 */ int m_RandKey;
+  /* 0x0434 */ struct Vec m_BeforePos;
+  /* 0x0440 */ int m_WepNum;
+  /* 0x0444 */ bool m_SongWait;
+  /* 0x0445 */ char Padding_1580[3];
+  /* 0x0448 */ enum enPcPose m_BeforePcPose;
+  /* 0x044c */ int m_BGMHandle;
+  /* 0x0450 */ int m_SubBGMHandle;
+  /* 0x0454 */ enum HRMGE::DemoEnum m_SetDemoNum;
+  /* 0x0458 */ bool m_FirstDemoIn;
+  /* 0x0459 */ char Padding_1581[3];
+  /* 0x045c */ int m_FadeCount;
+  /* 0x0460 */ float m_ReloadSpeed;
+  /* 0x0464 */ float m_BackDmgCount;
+  /* 0x0468 */ bool m_BefGuard;
+  /* 0x0469 */ char Padding_1582[3];
+  /* 0x046c */ float m_FirtRotDamage;
+  /* 0x0470 */ struct Vec m_PcPosition;
+  /* 0x047c */ struct Vec m_PcNavel;
+  /* 0x0488 */ struct Vec m_PcDirection;
+  /* 0x0494 */ struct Vec m_PcBeforePos;
+  /* 0x04a0 */ float m_PcDistance;
+  /* 0x04a4 */ float m_PcRotY;
+  /* 0x04a8 */ float m_PcRandTime;
+  /* 0x04ac */ float m_HitWait;
+  /* 0x04b0 */ int m_Battery;
+  /* 0x04b4 */ class TGmf* m_pRightGunGmf;
+  /* 0x04b8 */ class TGmf* m_pLeftGunGmf;
+  /* 0x04bc */ class TGmf* m_pMicGmf;
+  /* 0x04c0 */ class EffectCartridge* m_pCart[20];
+  /* 0x0510 */ class EffectGun* m_Gun[20];
+  /* 0x0560 */ int m_ShootFrame;
+  /* 0x0564 */ enum HRMGE::ShootMode m_ShootMode;
+  /* 0x0568 */ struct Vec m_RightGunPos;
+  /* 0x0574 */ struct Vec m_LeftGunPos;
+  /* 0x0580 */ struct Vec m_RightGunCart;
+  /* 0x058c */ struct Vec m_LeftGunCart;
+  /* 0x0598 */ struct Vec m_MicPos;
+  /* 0x05a4 */ struct tagHRTASKCHECK m_CartCheck[20];
+  /* 0x0644 */ struct tagHRTASKCHECK m_GunCheck[20];
+  /* 0x06e4 */ class EffectStadiumScreen* m_Screen;
+  /* 0x06e8 */ class rPrimUnific m_PrimUni;
+  /* 0x0708 */ class rQuad m_Quad;
+}; /* size: 0x07b8 */
+
+class HRTGR
+{
+public:
+  /* 0x0000 */ char Padding_891[0x3f8];
+  /* 0x03f8 */ bool mStartAttack;
+  /* 0x03f9 */ bool mAlreadyStandby;
+  /* 0x03fa */ bool mGuardMode;
+  /* 0x03fb */ char Padding_892;
+  /* 0x03fc */ short mRanbuRateOffset;
+  /* 0x03fe */ unsigned char mRapidStepNum;
+  /* 0x03ff */ unsigned char mRapidSonicNum;
+  /* 0x0400 */ int mStandbyTick;
+  /* 0x0404 */ float mPiyoriFrame;
+  /* 0x0408 */ int mGuardTick;
+  /* 0x040c */ bool m_BefGuard;
+  /* 0x040d */ char Padding_893[3];
+  /* 0x0410 */ struct tagGHMR_TEX mTraceTex;
+  /* 0x0438 */ class EffectWaveBlow* mpEfWaveBlow[8];
+  /* 0x0458 */ struct tagHRTASKCHECK mTaskCheckWaveBlow[8];
+  union
+  {
+    struct /* bitfield */
+    {
+      /* 0x0498 */ unsigned int mAdvAtk0 : 1; /* bit position: 0 */
+      /* 0x0498 */ unsigned int mAdvAtk1 : 1; /* bit position: 1 */
+      /* 0x0498 */ unsigned int mAdvAtk2 : 1; /* bit position: 2 */
+      /* 0x0498 */ unsigned int mBlwAtk : 1; /* bit position: 3 */
+      /* 0x0498 */ unsigned int mBlwUsed : 1; /* bit position: 4 */
+      /* 0x0498 */ unsigned int mUseBlwRapid : 1; /* bit position: 5 */
+      /* 0x0498 */ unsigned int mBlwAtkRpd0 : 1; /* bit position: 6 */
+      /* 0x0498 */ unsigned int mBlwAtkRpd1 : 1; /* bit position: 7 */
+      /* 0x0498 */ unsigned int mWallTurn : 1; /* bit position: 8 */
+      /* 0x0498 */ unsigned int mPadding : 23; /* bit position: 9 */
+    }; /* bitfield */
+    /* 0x0498 */ unsigned int mFlag;
+  }; /* size: 0x0004 */
+}; /* size: 0x049c */
+
+class HRSFF
+{
+public:
+enum HoleState
+{
+  Lid = 0,
+  Open = 1,
+  Bury = 2,
+};
+enum RandKey
+{
+  RightCon = 0,
+  LeftCon = 1,
+  AButton = 2,
+  NonKey = 3,
+};
+  /* 0x0000 */ long Padding_1558[0x3f8];
+  /* 0x03f8 */ struct Vec m_HolePos[14];
+  /* 0x04a0 */ enum HRSFF::HoleState m_HoleState[14];
+  /* 0x04d8 */ struct Vec m_SafePos[6];
+  /* 0x0520 */ int m_ActionMode;
+  /* 0x0524 */ float m_ActionTime;
+  /* 0x0528 */ float m_RandTime;
+  /* 0x052c */ int m_MotionFrame;
+  /* 0x0530 */ struct Vec m_MoveVec;
+  /* 0x053c */ int m_TargetHoleNum;
+  /* 0x0540 */ int m_TargetSafePos;
+  /* 0x0544 */ bool m_ColHole;
+  /* 0x0545 */ bool m_HoleReq[14];
+  /* 0x0553 */ char Padding_1559;
+  /* 0x0554 */ int m_HoleReqFrame[14];
+  /* 0x058c */ bool m_SmokeHit;
+  /* 0x058d */ bool m_Demo;
+  /* 0x058e */ char Padding_1560[2];
+  /* 0x0590 */ enum enPcPose m_BeforePcPose;
+  /* 0x0594 */ bool m_PcDead;
+  /* 0x0595 */ char Padding_1561[3];
+  /* 0x0598 */ enum HRSFF::RandKey m_RandKey;
+  /* 0x059c */ int m_CallBackID;
+  /* 0x05a0 */ bool m_PineapReq;
+  /* 0x05a1 */ bool m_StoneUp;
+  /* 0x05a2 */ bool m_BefGuard;
+  /* 0x05a3 */ char Padding_1562;
+  /* 0x05a4 */ struct Vec m_PcPosition;
+  /* 0x05b0 */ struct Vec m_PcNavel;
+  /* 0x05bc */ struct Vec m_PcDirection;
+  /* 0x05c8 */ float m_PcDistance;
+  /* 0x05cc */ float m_HitWait;
+  /* 0x05d0 */ bool m_PcShare;
+  /* 0x05d1 */ char Padding_1563[3];
+  /* 0x05d4 */ int m_PcMotionNo;
+  /* 0x05d8 */ float m_PcRandTime;
+  /* 0x05dc */ float m_PineapleTime;
+  /* 0x05e0 */ int m_HoleDownNum;
+  /* 0x05e4 */ struct Vec m_BeforePos;
+  /* 0x05f0 */ class EffectMacross* m_pMacross[10];
+  /* 0x0618 */ class EffectPineaple* m_pPineaple[4];
+  /* 0x0628 */ class EffectSmoke* m_pSmoke;
+  /* 0x062c */ class EffectKnife* m_pKnife;
+  /* 0x0630 */ class EffectSmoke* m_pPcSmoke[28];
+  /* 0x06a0 */ struct tagHRTASKCHECK m_pMacrossCheck[10];
+  /* 0x06f0 */ struct tagHRTASKCHECK m_pPineapleCheck[4];
+  /* 0x0710 */ struct tagHRTASKCHECK m_pSmokeCheck;
+  /* 0x0718 */ struct tagHRTASKCHECK m_pKnifeCheck;
+  /* 0x0720 */ struct tagHRTASKCHECK m_pPcSmokeCheck[28];
+  /* 0x0800 */ class TGmf* m_pPineapleGmf;
+  /* 0x0804 */ class TGmf* m_pMineGmf;
+  /* 0x0808 */ bool m_MineVisible;
+}; /* size: 0x080c */
+
+class HRTET
+{
+public:
+    enum DemoEnum
+    {
+      DemoInit = 0,
+      ShowIn = 1,
+      ShortShowIn = 2,
+      ShowTrue = 3,
+      ShowFalse = 4,
+    };
+
+    enum RandKey
+    {
+      RightCon = 0,
+      LeftCon = 1,
+      AButton = 2,
+    };
+
+    struct ItemMagic
+    {
+      /* 0x0000 */ bool Active;
+      /* 0x0001 */ char Padding_1602[3];
+      /* 0x0004 */ struct Vec Pos;
+    }; /* size: 0x0010 */
+
+  /* 0x0000 */ char Padding_1603[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ int m_MotionFrame;
+  /* 0x0408 */ struct Vec m_MoveVec;
+  /* 0x0414 */ struct Vec m_BeforePos;
+  /* 0x0420 */ float m_BeforeRotY;
+  /* 0x0424 */ float m_ShowHitCount;
+  /* 0x0428 */ int m_AmbCount;
+  /* 0x042c */ bool m_BossVisible;
+  /* 0x042d */ bool m_PigionEnable;
+  /* 0x042e */ bool m_FirstShow;
+  /* 0x042f */ bool m_BossPause;
+  /* 0x0430 */ struct Vec m_BeforeAcc;
+  /* 0x043c */ enum enPcPose m_BeforePcPose;
+  /* 0x0440 */ enum HRTET::DemoEnum m_SetDemoNum;
+  /* 0x0444 */ int m_FadeFrame;
+  /* 0x0448 */ enum HRTET::RandKey m_RandKey;
+  /* 0x044c */ int m_ShowTimeCount;
+  /* 0x0450 */ int m_ReverseWait;
+  /* 0x0454 */ struct ItemMagic m_ItemMagic;
+  /* 0x0464 */ int m_BaseBGMHandle;
+  /* 0x0468 */ int m_SpBGMHandle;
+  /* 0x046c */ bool m_BefGuard;
+  /* 0x046d */ bool m_FirstShowTime;
+  /* 0x046e */ char Padding_1604[2];
+  /* 0x0470 */ struct Vec m_PcPosition;
+  /* 0x047c */ struct Vec m_PcNavel;
+  /* 0x0488 */ struct Vec m_PcDirection;
+  /* 0x0494 */ struct Vec m_PcBeforePos;
+  /* 0x04a0 */ float m_PcBeforeRotY;
+  /* 0x04a4 */ float m_PcDistance;
+  /* 0x04a8 */ float m_HitWait;
+  /* 0x04ac */ bool m_PcShare;
+  /* 0x04ad */ char Padding_1605[3];
+  /* 0x04b0 */ int m_PcMotionNo;
+  /* 0x04b4 */ float m_PcRandTime;
+  /* 0x04b8 */ int m_LoopSEID;
+  /* 0x04bc */ class TGmf* m_pBoxGmf;
+  /* 0x04c0 */ int m_BoxMotionNo;
+  /* 0x04c4 */ int m_ShakeCount;
+  /* 0x04c8 */ float m_ShakeAcc;
+  /* 0x04cc */ class TGmf* m_pAssistAGmf;
+  /* 0x04d0 */ class TGmf* m_pAssistBGmf;
+  /* 0x04d4 */ struct Vec m_AssistAPos;
+  /* 0x04e0 */ struct Vec m_AssistBPos;
+  /* 0x04ec */ struct Vec m_AssistARot;
+  /* 0x04f8 */ struct Vec m_AssistBRot;
+  /* 0x0504 */ class TGmf* m_pLeftArmsGmf;
+  /* 0x0508 */ class TGmf* m_pRightArmsGmf;
+  /* 0x050c */ bool m_RArmVisible;
+  /* 0x050d */ bool m_LArmVisible;
+  /* 0x050e */ bool m_AssistAVisible;
+  /* 0x050f */ bool m_AssistBVisible;
+  /* 0x0510 */ bool m_BoxVisible;
+  /* 0x0511 */ bool m_ArmVisible;
+  /* 0x0512 */ char Padding_1606[2];
+  /* 0x0514 */ int m_AssistMotionNo;
+  /* 0x0518 */ class TGmf* m_Light[4];
+  /* 0x0528 */ bool m_FadeFlag;
+  /* 0x0529 */ char Padding_1607[3];
+  /* 0x052c */ class TGan* m_pStageMotion;
+  /* 0x0530 */ class EffectSlashTrack* m_RSlash;
+  /* 0x0534 */ class EffectSlashTrack* m_LSlash;
+  /* 0x0538 */ class EffectTheaterSpot* m_EnemySpot;
+  /* 0x053c */ class EffectTheaterSpot* m_PcSpot;
+  /* 0x0540 */ class EffectTheaterSpot* m_AsiASpot;
+  /* 0x0544 */ class EffectTheaterSpot* m_AsiBSpot;
+  /* 0x0548 */ class EffectViewReverse* m_ViewReverse;
+  /* 0x054c */ class EffectSwordLaser* m_SwordR;
+  /* 0x0550 */ class EffectSwordLaser* m_SwordB;
+  /* 0x0554 */ class EffectHarveyStar* m_pStar;
+  /* 0x0558 */ class EffectMagicHeart* m_pHeart;
+  /* 0x055c */ class EffectPigeon* m_Pigeon[6];
+  /* 0x0574 */ struct tagHRTASKCHECK m_PigeonCheck[6];
+  /* 0x05a4 */ class TGmf* m_pAmbGmf;
+  /* 0x05a8 */ bool m_AmbVisible;
+  /* 0x05a9 */ char Padding_1608[3];
+  /* 0x05ac */ class TGmf* m_pSlvGmf;
+  /* 0x05b0 */ class TGan* m_pSlvMotion[2];
+  /* 0x05b8 */ float m_SlvRandTime;
+  /* 0x05bc */ class EffectTopSpin* m_pTopSpin;
+  /* 0x05c0 */ class EffectKeepSmoke* m_pSmoke;
+}; /* size: 0x05c4 */
+
+class HREFL
+{
+public:
+  /* 0x0000 */ char Padding_704[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ int m_MotionFrame;
+  /* 0x0408 */ struct Vec m_MoveVec;
+  /* 0x0414 */ float m_AttackWait;
+  /* 0x0418 */ bool m_BusterHit;
+  /* 0x0419 */ bool m_MiniDemo;
+  /* 0x041a */ bool m_HitFirst;
+  /* 0x041b */ bool m_BusterBreak;
+  /* 0x041c */ float m_KeyCount;
+  /* 0x0420 */ bool m_PcDead;
+  /* 0x0421 */ bool m_EffectHit;
+  /* 0x0422 */ char Padding_705[2];
+  /* 0x0424 */ int m_TsubaSE;
+  /* 0x0428 */ struct Vec m_PcPosition;
+  /* 0x0434 */ struct Vec m_PcNavel;
+  /* 0x0440 */ struct Vec m_PcDirection;
+  /* 0x044c */ float m_PcDistance;
+  /* 0x0450 */ float m_HitWait;
+  /* 0x0454 */ bool m_PcShare;
+  /* 0x0455 */ char Padding_706[3];
+  /* 0x0458 */ int m_PcMotionNo;
+  /* 0x045c */ class TGmf* m_pGmf;
+  /* 0x0460 */ class EffectBuster* m_pBuster;
+  /* 0x0464 */ struct Vec m_BusterPos;
+  /* 0x0470 */ float m_BusterRot;
+  /* 0x0474 */ bool m_BusterFlag;
+  /* 0x0475 */ char Padding_707[3];
+  /* 0x0478 */ struct tagHRTASKCHECK m_pBusterCheck;
+  /* 0x0480 */ class EffectCloseContest* m_Close;
+}; /* size: 0x0484 */
+
+class HRTYG
+{
+public:
+enum DemoEnum
+{
+  DemoInit = 0,
+  Beer = 1,
+  BatFire = 2,
+};
+
+  /* 0x0000 */ char Padding_1524[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ int m_MotionFrame;
+  /* 0x0408 */ int m_EnemyPopCount;
+  /* 0x040c */ int m_EnemyPopMax;
+  /* 0x0410 */ int m_EnemyPopNum;
+  /* 0x0414 */ int m_EnemyKillNum;
+  /* 0x0418 */ int m_NewPopIndex;
+  /* 0x041c */ float m_ClonePopFrame;
+  /* 0x0420 */ int m_CloneRetNum;
+  /* 0x0424 */ int m_CloneRetMax;
+  /* 0x0428 */ int m_OldPopFrame;
+  /* 0x042c */ int m_DrinkCount;
+  /* 0x0430 */ bool m_DrinkCamera;
+  /* 0x0431 */ bool m_BattleClone;
+  /* 0x0432 */ char Padding_1525[2];
+  /* 0x0434 */ struct Vec m_MoveVec;
+  /* 0x0440 */ struct Vec m_BatPos;
+  /* 0x044c */ struct Vec m_EfPos;
+  /* 0x0458 */ struct tagGHMR_TEX m_SlashTex;
+  /* 0x0480 */ bool m_RetCamera;
+  /* 0x0481 */ bool m_SwingCamera;
+  /* 0x0482 */ char Padding_1526[2];
+  /* 0x0484 */ enum enPcPose m_BeforePcPose;
+  /* 0x0488 */ enum HRTYG::DemoEnum m_DemoNum;
+  /* 0x048c */ bool m_BatFireFlag;
+  /* 0x048d */ char Padding_1527[3];
+  /* 0x0490 */ float m_LampCount;
+  /* 0x0494 */ bool m_ZakoTsuba;
+  /* 0x0495 */ bool m_BefGuard;
+  /* 0x0496 */ bool m_JumpShakeEffect;
+  /* 0x0497 */ bool m_CryFirst;
+  /* 0x0498 */ int m_SEReqCount;
+  /* 0x049c */ bool m_FirstFireAtk;
+  /* 0x049d */ char Padding_1528[3];
+  /* 0x04a0 */ struct Vec m_PcPosition;
+  /* 0x04ac */ struct Vec m_PcNavel;
+  /* 0x04b8 */ struct Vec m_PcDirection;
+  /* 0x04c4 */ float m_PcDistance;
+  /* 0x04c8 */ float m_HitWait;
+  /* 0x04cc */ bool m_PcShare;
+  /* 0x04cd */ char Padding_1529[3];
+  /* 0x04d0 */ int m_PcMotionNo;
+  /* 0x04d4 */ class TGmf* m_RefrigeGmf;
+  /* 0x04d8 */ class TGan* m_RefrigeGan;
+  /* 0x04dc */ struct Vec m_RefrigePos;
+  /* 0x04e8 */ class TGmf* m_CanGmf;
+  /* 0x04ec */ class TGan* m_CanCloseGan;
+  /* 0x04f0 */ class TGan* m_CanOpenGan;
+  /* 0x04f4 */ class EffectBatFire* m_pBatFire;
+  /* 0x04f8 */ class EffectShockWave* m_ShockWave;
+  /* 0x04fc */ struct tagHRTASKCHECK m_WaveCheck;
+  /* 0x0504 */ class EffectCloseContest* m_Close;
+  /* 0x0508 */ class EffectBelt* m_Belt;
+}; /* size: 0x050c */
+
+class HRGEN
+{
+public:
+enum DemoEnum
+{
+  DemoInit = 0,
+  DragonA = 1,
+  DragonB = 2,
+  DragonC = 3,
+};
+
+  /* 0x0000 */ long Padding_1609[254];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ int m_MotionFrame;
+  /* 0x0408 */ struct Vec m_MoveVec;
+  /* 0x0414 */ int m_ComboCount;
+  /* 0x0418 */ int m_AvoidCount;
+  /* 0x041c */ float m_AddRot;
+  /* 0x0420 */ float m_RotLength;
+  /* 0x0424 */ bool m_Demo;
+  /* 0x0425 */ char Padding_1610[3];
+  /* 0x0428 */ int m_Stage;
+  /* 0x042c */ enum HRGEN::DemoEnum m_DemoNum;
+  /* 0x0430 */ int m_BGMHandle;
+  /* 0x0434 */ int m_GuardModeCount;
+  /* 0x0438 */ float m_Fov;
+  /* 0x043c */ float m_Aspect;
+  /* 0x0440 */ float m_Near;
+  /* 0x0444 */ float m_Far;
+  /* 0x0448 */ struct Vec m_PcPosition;
+  /* 0x0454 */ struct Vec m_PcNavel;
+  /* 0x0460 */ struct Vec m_PcDirection;
+  /* 0x046c */ float m_PcDistance;
+  /* 0x0470 */ float m_HitWait;
+  /* 0x0474 */ bool m_PcShare;
+  /* 0x0475 */ char Padding_1611[3];
+  /* 0x0478 */ int m_PcMotionNo;
+  /* 0x047c */ float m_PcRandTime;
+  /* 0x0480 */ class EffectSlashTrack* m_pSlash[2];
+  /* 0x0488 */ class TGmf* m_DragonModel;
+  /* 0x048c */ struct Vec m_RHandPos;
+  /* 0x0498 */ struct Vec m_LHandPos;
+  /* 0x04a4 */ struct Vec m_RFootPos;
+  /* 0x04b0 */ struct Vec m_LFootPos;
+}; /* size: 0x04bc */
+
+class HRTKL
+{
+public:
+enum ComboMode
+{
+  ComboModeA = 0,
+  ComboModeB = 1,
+  ComboModeC = 2,
+};
+
+  /* 0x0000 */ char Padding_1612[0x3f8];
+  /* 0x03f8 */ int m_ActionMode;
+  /* 0x03fc */ float m_ActionTime;
+  /* 0x0400 */ float m_RandTime;
+  /* 0x0404 */ int m_MotionFrame;
+  /* 0x0408 */ struct Vec m_MoveVec;
+  /* 0x0414 */ enum HRTKL::ComboMode m_ComboMode;
+  /* 0x0418 */ enum enPcPose m_BeforePcPose;
+  /* 0x041c */ bool m_BefGuard;
+  /* 0x041d */ char Padding_1613[3];
+  /* 0x0420 */ class TGmf* m_pCatGmf[5];
+  /* 0x0434 */ class TGan* m_pCatGan[5];
+  /* 0x0448 */ struct Vec m_PcPosition;
+  /* 0x0454 */ struct Vec m_PcFrontPos;
+  /* 0x0460 */ struct Vec m_PcBackPos;
+  /* 0x046c */ struct Vec m_PcRightPos;
+  /* 0x0478 */ struct Vec m_PcLeftPos;
+  /* 0x0484 */ struct Vec m_PcNavel;
+  /* 0x0490 */ struct Vec m_PcDirection;
+  /* 0x049c */ float m_PcDistance;
+  /* 0x04a0 */ float m_HitWait;
+  /* 0x04a4 */ bool m_PcShare;
+  /* 0x04a5 */ char Padding_1614[3];
+  /* 0x04a8 */ int m_PcMotionNo;
+  /* 0x04ac */ float m_PcRandTime;
+  /* 0x04b0 */ class EffectPlasma* m_pPlasma[5];
+  /* 0x04c4 */ struct tagHRTASKCHECK m_PlasmaCheck[5];
+  /* 0x04ec */ struct Vec m_SlashPos;
+  /* 0x04f8 */ struct Vec m_OldSlashPos;
+  /* 0x0504 */ class TGmf* m_pObjAGmf;
+  /* 0x0508 */ class TGmf* m_pObjBGmf;
+  /* 0x050c */ class TGan* m_pObjAMotion;
+  /* 0x0510 */ class TGan* m_pObjBMotion;
+  /* 0x0514 */ class EffectSwordLaser* m_pSwordEff[5];
+}; /* size: 0x0528 */
 
 class stCharaFileData
 {
@@ -2866,7 +3857,7 @@ struct stBikeEffect
 
 class hPath
 {
-  /* 0x0000 */ long Padding_1121;
+  /* 0x0000 */ int Padding_1121;
   /* 0x0004 */ char* mName;
   /* 0x0008 */ int mPointNum;
   /* 0x000c */ struct Vec* mPointList;
@@ -3061,7 +4052,7 @@ public: // edited
 
 class HsMessage
 {
-  /* 0x0000 */ long Padding_1049[8];
+  /* 0x0000 */ char Padding_1049[0x20];
   /* 0x0020 */ unsigned int m_MesHndl[2];
   /* 0x0028 */ unsigned int m_ItemAtt;
   /* 0x002c */ unsigned int m_Item_Endian_No;
@@ -3127,7 +4118,7 @@ public: // edited
       /* 0x017c */ class HrMenuCurBox m_CurBox[7];
       /* 0x0278 */ class HrMenuCurBox m_CurBoxConfig[2][4];
       /* 0x0398 */ const int layoutOffset;
-      /* 0x039c */ long Padding_1057;
+      /* 0x039c */ int Padding_1057;
       /* 0x03a0 */ __int64 m_SecTemp[2];
       /* 0x03b0 */ bool m_StartWBFlag;
       /* 0x03b1 */ bool m_TitleWBFlag;
@@ -3293,7 +4284,7 @@ public: // edited
       /* 0x3c10 */ char pad_3c10[0xC]; // class MouseDeltaTracker mouseDeltaTracker; // edited
       /* 0x3c1c */ const int MouseInteractionsCount[11];
       /* 0x3c48 */ class NMH1MouseInteractionObject* MouseInteractions[11];
-      /* 0x3c74 */ long Padding_1074;
+      /* 0x3c74 */ int Padding_1074;
       /* 0x3c78 */ char pad_3c78[0x1DCE]; // class NMH1MouseInteractionObject miMain[8];                 // edited
       /* 0x4138 */ // class NMH1MouseInteractionObject miMap[3];                  // edited
       /* 0x4300 */ // class NMH1MouseInteractionObject miRanking[1];              // edited
@@ -3748,7 +4739,7 @@ public:
       Data_Load = 10,
       Num = 11,
     };
-  /* 0x0000 */ long Padding_1229[2];
+  /* 0x0000 */ int Padding_1229[2];
   /* 0x0008 */ bool m_Access_f;
   /* 0x0009 */ char Padding_1230[3];
   /* 0x000c */ unsigned int m_Access_No;
@@ -3810,6 +4801,183 @@ public:
   /* 0x0064 */ int m_Dag_Counter;
   /* 0x0068 */ bool m_Dag_LockFlag;
 }; /* size: 0x006c */
+
+struct HRSAVEDATA_SAVEHEADER
+{
+  /* 0x0000 */ unsigned char t_SaveBit;
+  /* 0x0001 */ unsigned char t_SaveDataVer;
+  /* 0x0002 */ char t_Header[4];
+}; /* size: 0x0006 */
+
+struct HRSAVEDATA_EVENTFLAG
+{
+  /* 0x0000 */ unsigned char t_Flag[128];
+}; /* size: 0x0080 */
+
+struct HRSAVEDATA_SM
+{
+  /* 0x0000 */ int mResultNum;
+  /* 0x0004 */ char mTopRanking;
+  /* 0x0005 */ char mNew;
+  union
+  {
+    struct /* bitfield */
+    {
+      /* 0x0006 */ unsigned char mVisible : 1; /* bit position: 0 */
+      /* 0x0006 */ unsigned char mAccept : 1; /* bit position: 1 */
+    }; /* bitfield */
+    /* 0x0006 */ unsigned char mFlag;
+  }; /* size: 0x0001 */
+  /* 0x0007 */ char Padding_1226;
+  /* 0x0008 */ int mPopTime;
+}; /* size: 0x000c */
+
+struct HRSTG_SCORE
+{
+  /* 0x0000 */ int t_Score;
+  /* 0x0004 */ char t_Name[4];
+}; /* size: 0x0008 */
+
+struct HRSAVEDATA_STG
+{
+  /* 0x0000 */ struct HRSTG_SCORE t_Score[10];
+}; /* size: 0x0050 */
+
+class hBjObjectManager
+{
+  /* 0x0000 */ int Padding_1215;
+  /* 0x0004 */ class hBjObject* mTop;
+  /* 0x0008 */ class hBjObject* mEnd;
+  /* 0x000c */ unsigned int mTexNum;
+  /* 0x0010 */ struct tagGHMR_TEX* mpTex;
+  /* 0x0014 */ class ghmResGroup* mpRes;
+}; /* size: 0x0018 */
+
+struct bjStar
+{
+  /* 0x0000 */ struct Vec mPos;
+  /* 0x000c */ float mSpeed;
+  /* 0x0010 */ float mSize;
+  /* 0x0014 */ unsigned char mR;
+  /* 0x0015 */ unsigned char mG;
+  /* 0x0016 */ unsigned char mB;
+  /* 0x0017 */ unsigned char mA;
+}; /* size: 0x0018 */
+
+class hBjStage
+{
+  /* 0x0000 */ int Padding_1216;
+  /* 0x0004 */ class hBjObjectManager* mManager;
+  /* 0x0008 */ class ghmResGroup* mpRes;
+  /* 0x000c */ struct tagGHMR_TEX* mpTex;
+  /* 0x0010 */ class hBjSys* mpSys;
+  /* 0x0014 */ int mStageID;
+  /* 0x0018 */ int mState;
+  /* 0x001c */ int mCount;
+  /* 0x0020 */ int mTableCount;
+  /* 0x0024 */ int mWarnCount;
+  /* 0x0028 */ int mWarnState;
+  /* 0x002c */ int* mpBGMHandle;
+  /* 0x0030 */ int mTableCnt;
+  /* 0x0034 */ int mEnemyOutCount;
+  /* 0x0038 */ int mEnemyDeadCount;
+  /* 0x003c */ struct bjStar mBgStar[50];
+}; /* size: 0x04ec */
+
+class hBjSys
+{
+  union
+  {
+    /* 0x0000 */ int mGlovalScore;
+    /* 0x0000 */ int mGlovalBomb;
+    struct
+    {
+      /* 0x0000 */ unsigned int mGlovalColor;
+      /* 0x0004 */ int mState;
+      /* 0x0008 */ int mSubState;
+      /* 0x000c */ int mCounter;
+      /* 0x0010 */ int mSubCounter;
+    }; /* size: 0x0014 */
+    /* 0x0000 */ int mScore;
+    /* 0x0000 */ int mHighScore;
+    /* 0x0000 */ int mPlayerNum;
+    /* 0x0000 */ int mBombGauge;
+    /* 0x0000 */ int mBombGaugeMax;
+    struct
+    {
+      /* 0x0000 */ int mBombGaugeFlash;
+      /* 0x0004 */ char Padding_1217[0x10];
+      /* 0x0014 */ int mCursor;
+      /* 0x0018 */ int mFadeCount;
+      /* 0x001c */ int mFadeDest;
+      /* 0x0020 */ int mFadeFlag;
+    }; /* size: 0x0014 */
+    /* 0x0000 */ bool mGameClearFlag;
+    /* 0x0000 */ bool mBossDeadFlag;
+    /* 0x0000 */ int mGameClearState;
+    /* 0x0000 */ int mGameOverState;
+    struct
+    {
+      /* 0x0000 */ int mContinueCount;
+      /* 0x0004 */ char Padding_1218[0x20];
+      /* 0x0024 */ int mGameClearCnt;
+      /* 0x0028 */ int mDeadWaitCnt;
+      /* 0x002c */ int mGameMode;
+      /* 0x0030 */ class ghmResGroup* pResource;
+      /* 0x0034 */ class hBjObjectManager mObjManager;
+      /* 0x004c */ class hBjPlayer* mPlayer;
+      /* 0x0050 */ class hBjStage mStage;
+      /* 0x053c */ unsigned int mGanNum;
+      /* 0x0540 */ class TGan** mpGan;
+    }; /* size: 0x0524 */
+    struct
+    {
+      /* 0x0000 */ struct tagGHMR_TEX* mTexture;
+      /* 0x0004 */ char Padding_1219[0x540];
+      /* 0x0544 */ unsigned int mTexNum;
+    }; /* size: 0x0008 */
+    /* 0x0000 */ bool mbPause;
+    /* 0x0000 */ bool mbGameOver;
+  }; /* size: 0x0524 */
+  /* 0x0524 */ char Padding_1220[0x24];
+  /* 0x0548 */ int mBGMHandle;
+  /* 0x054c */ struct HRSAVEDATA_STG mHiScore;
+  /* 0x059c */ int mChangeNum;
+  /* 0x05a0 */ int mSelNum;
+  /* 0x05a4 */ int mPadDataNum;
+  /* 0x05a8 */ int mPadDataCnt;
+  /* 0x05ac */ struct BjPadData* mpPadData;
+  /* 0x05b0 */ void* mpKey;
+}; /* size: 0x05b4 */
+
+struct tagHRSAVEDATA
+{
+  /* 0x0000 */ struct HRSAVEDATA_SAVEHEADER t_Header;
+  /* 0x0006 */ char Padding_1227[2];
+  /* 0x0008 */ int t_MainScenarioID;
+  /* 0x000c */ int t_StageID;
+  /* 0x0010 */ __int64 t_Time;
+  /* 0x0018 */ __int64 t_ScenarioTime;
+  /* 0x0020 */ struct Vec t_SavePosition;
+  /* 0x002c */ struct HRSAVEDATA_EVENTFLAG t_Event;
+  /* 0x00ac */ struct stPcSaveData t_PcData;
+  /* 0x1204 */ struct HRSAVEDATA_SM t_SMResult[56];
+  /* 0x14a4 */ int t_KenterTixNum;
+  /* 0x14a8 */ int t_GetTopRankingNum;
+  /* 0x14ac */ int t_SEVol;
+  /* 0x14b0 */ int t_BGMVol;
+  /* 0x14b4 */ int t_Difficult;
+  /* 0x14b8 */ struct HRSAVEDATA_STG t_StgData;
+  /* 0x1508 */ int t_Subtitles;
+  /* 0x150c */ int t_dummy;
+  /* 0x1510 */ int t_CamYAxis;
+  /* 0x1514 */ int t_CamXAxis;
+  /* 0x1518 */ int t_Trainig_B_Num;
+  /* 0x151c */ short t_Trainig_S_Num;
+  /* 0x151e */ short t_VisitedToilets;
+  /* 0x1520 */ int t_KaihatutyuuWeaponCounter;
+  /* 0x1524 */ int t_KaihatutyuuWeaponID;
+}; /* size: 0x1528 */
 
 class HrGameTask
 {
@@ -3978,9 +5146,6 @@ public:
     /* 0x0000 */ int mRefreshCounter;
   //}; /* size: 0x0256 */ // edited
 }; /* size: 0x02ec */
-
-#undef BOOL
-#define BOOL bool
 
 enum HRCAMERA_MODE
 {
@@ -4153,4 +5318,431 @@ class HrCamera
 public:
   /* 0x0000 */ struct HrCamera__MAIN m;
 }; /* size: 0x0330 */
-#undef BOOL
+
+struct HrCamera {
+    struct MOVE2 {
+      /* 0x0000 */ struct Vec PcPos;
+      /* 0x000c */ float PcAngle;
+      /* 0x0010 */ float CamAngle;
+      /* 0x0014 */ float CamTargLength;
+      /* 0x0018 */ float CamYAngleRate;
+      /* 0x001c */ struct Vec AbsCamPos;
+      /* 0x0028 */ struct Vec AbsTargPos;
+      /* 0x0034 */ float PcLookRate;
+    }; /* size: 0x0038 */
+
+    struct MAIN {
+        struct BATTLE2 {
+          /* 0x0000 */ struct Vec PPos;
+          /* 0x000c */ struct Vec PPosOffset;
+          /* 0x0018 */ struct Vec EPos;
+          /* 0x0024 */ bool DebugMode;
+          /* 0x0025 */ char Padding_238[3];
+          /* 0x0028 */ struct HRCAMERA_BATTLE2_INFO DebugInfo;
+        }; /* size: 0x0044 */
+
+        struct MOTION {
+          /* 0x0000 */ class TGan* pGan;
+          /* 0x0004 */ class TGanPlay* pGanPlay;
+          /* 0x0008 */ class TGanPlayNode* pGanPlayNode;
+          /* 0x000c */ struct Vec Translate;
+          /* 0x0018 */ float RotateY;
+          /* 0x001c */ float Fov;
+          /* 0x0020 */ float Roll;
+          /* 0x0024 */ float MotionRateTime;
+          /* 0x0028 */ bool ValidFov;
+          /* 0x0029 */ bool ValidRoll;
+          /* 0x002a */ bool pause;
+          /* 0x002b */ bool coll;
+        }; /* size: 0x002c */
+
+        struct NORMAL
+        {
+          /* 0x0000 */ struct Vec CPos;
+          /* 0x000c */ struct Vec TPos;
+          /* 0x0018 */ bool ValidFov;
+          /* 0x0019 */ char Padding_239[3];
+          /* 0x001c */ float Fov;
+        }; /* size: 0x0020 */
+
+        struct HOMING
+        {
+            /* 0x0000 */ struct Vec T_Pos;
+            /* 0x000c */ struct Vec C_Pos;
+            /* 0x0018 */ float C_T_MaxLen;
+            /* 0x001c */ float C_T_LimitLen;
+            /* 0x0020 */ float C_T_MinLen;
+            /* 0x0024 */ float C_T_OrderLen;
+            /* 0x0028 */ float C_T_Angle;
+            /* 0x002c */ float T_PosAddY;
+            /* 0x0030 */ int MaxOverCount;
+            /* 0x0034 */ bool Setup;
+            /* 0x0035 */ bool MoveFlag;
+            /* 0x0036 */ char Padding_240[2];
+            /* 0x0038 */ struct Vec T_PosLog[20];
+        }; /* size: 0x0128 */
+
+        struct FREE
+        {
+          /* 0x0000 */ struct Vec C_T_Pos;
+          /* 0x000c */ float T_VDir;
+          /* 0x0010 */ float VDir;
+          /* 0x0014 */ float T_YDir;
+          /* 0x0018 */ float YDir;
+        }; /* size: 0x001c */
+
+        struct MOVE
+        {
+          /* 0x0000 */ struct Vec P_Pos;
+          /* 0x000c */ bool P_PosValid;
+          /* 0x000d */ bool CollValid;
+          /* 0x000e */ char Padding_241[2];
+          /* 0x0010 */ struct Vec T_Pos;
+          /* 0x001c */ float T_PosAddY;
+          /* 0x0020 */ struct Vec T_Dir;
+          /* 0x002c */ float T_RotY;
+          /* 0x0030 */ struct Vec Now_T_Dir;
+          /* 0x003c */ float C_T_Angle;
+          /* 0x0040 */ float C_T_Len;
+          /* 0x0044 */ float C_T_Now_Len;
+        }; /* size: 0x0048 */
+
+        struct BATTLE
+        {
+          /* 0x0000 */ struct Vec PlayerPos;
+          /* 0x000c */ struct Vec EnemyPos;
+          /* 0x0018 */ float T_PosAddY;
+          /* 0x001c */ float T_PosZ;
+          /* 0x0020 */ struct Vec T_Pos;
+          /* 0x002c */ float T_YRotMax;
+          /* 0x0030 */ float T_YRot;
+          /* 0x0034 */ float Now_T_YRot;
+          /* 0x0038 */ struct Vec T;
+          /* 0x0044 */ float C_T_Angle;
+          /* 0x0048 */ float C_T_Len;
+          /* 0x004c */ float C_T_Now_Len;
+        }; /* size: 0x0050 */
+
+        struct SHAKE
+        {
+          /* 0x0000 */ int Total;
+          /* 0x0004 */ int TotalCounter;
+          /* 0x0008 */ int Wait;
+          /* 0x000c */ int WaitCounter;
+          /* 0x0010 */ float YSize;
+          /* 0x0014 */ float XZSize;
+          /* 0x0018 */ struct Vec Pos;
+        }; /* size: 0x0024 */
+
+        /* 0x0000 */ enum HRCAMERA_MODE Mode;
+        /* 0x0004 */ struct MOVE2 mov2;
+        /* 0x003c */ struct HrCamera::MAIN::BATTLE2 bat2;
+        /* 0x0080 */ struct HrCamera::MAIN::MOTION motion;
+        /* 0x00ac */ struct HrCamera::MAIN::NORMAL nrm;
+        /* 0x00cc */ struct HrCamera::MAIN::HOMING homing;
+        /* 0x01f4 */ struct HrCamera::MAIN::FREE free;
+        /* 0x0210 */ struct HrCamera::MAIN::MOVE mov;
+        /* 0x0258 */ struct HrCamera::MAIN::BATTLE bat;
+        /* 0x02a8 */ struct HrCamera::MAIN::SHAKE shk;
+        /* 0x02cc */ struct Vec Pos;
+        /* 0x02d8 */ struct Vec Targ;
+        /* 0x02e4 */ float TwistAngle;
+        /* 0x02e8 */ struct Vec NowPos;
+        /* 0x02f4 */ struct Vec NowTarg;
+        /* 0x0300 */ struct Vec OldPos;
+        /* 0x030c */ struct Vec OldTarg;
+        /* 0x0318 */ bool Always;
+        /* 0x0319 */ bool Change;
+        /* 0x031a */ char Padding_242[2];
+        /* 0x031c */ float ChangeRate;
+        /* 0x0320 */ float ChangeSpeed;
+        /* 0x0324 */ int FrameCounter;
+        /* 0x0328 */ class ghmGcCollObjSphere* pCollSphereObj;
+        /* 0x032c */ bool IsHrAppCollAddObj;
+        /* 0x032d */ char __PADDING__[3];
+    } MAIN; /* size: 0x0330 */
+};
+
+class HsLineBox
+{
+public:
+  /* 0x0000 */ char Padding_915[0x20];
+  /* 0x0020 */ float m_w;
+  /* 0x0024 */ float m_h;
+  /* 0x0028 */ float m_Line;
+  /* 0x002c */ unsigned int m_LineColor;
+  /* 0x0030 */ enum HS_COLOR_DRAW_POINT m_Alpha_Point;
+  /* 0x0034 */ enum HS_MODEL_ALPHA_TYPE m_Line_Alpha_Type;
+  /* 0x0038 */ int m_Line_Alpha_Num;
+  /* 0x003c */ int m_Line_Alpha_Max_Num;
+  /* 0x0040 */ int m_Line_Alpha_1F_Num;
+}; /* size: 0x0044 */
+
+class HsPosBase
+{
+public:
+  /* 0x0000 */ int Padding_948;
+  /* 0x0004 */ float m_x;
+  /* 0x0008 */ float m_y;
+}; /* size: 0x000c */
+
+class HrTV
+{
+public:
+  /* 0x0000 */ char Padding_1331[0x4900];
+  /* 0x4900 */ class ghmResGroup* m_Tv_Res;
+  /* 0x4904 */ class HrSysMessage* m_pVideoMesDemo;
+  /* 0x4908 */ char m_InDemoLabel[128];
+  /* 0x4988 */ class HsMessage* m_pAllVideo;
+  /* 0x498c */ unsigned int m_DispVideoNum;
+  /* 0x4990 */ bool m_BGM_Vol_Off_f;
+  /* 0x4991 */ char Padding_1332[3];
+  /* 0x4994 */ class HsLineBox m_Item_Video_Box[6];
+  /* 0x4b2c */ class HsPosBase m_HsNextVideo[6];
+  /* 0x4b74 */ struct Vec2D m_HsVideoMoveAry[6];
+  /* 0x4ba4 */ class HsLineBox m_Video_Tri[6];
+  /* 0x4d3c */ enum HS_COMMAND_MOTION_STATE m_Command_Motion_State;
+  /* 0x4d40 */ enum HS_COMMAND_MOTION_TASK m_Command_Motion_Task;
+  /* 0x4d44 */ bool m_Films_Visible_f;
+  /* 0x4d45 */ bool m_Disp_ReflectedLight_f;
+  /* 0x4d46 */ bool m_PV_f;
+  /* 0x4d47 */ char Padding_1333;
+  /* 0x4d48 */ unsigned int mMessHndle;
+}; /* size: 0x4d50 */
+
+class HsModelMotion
+{
+public:
+  /* 0x0000 */ char Padding_945[0x2C];
+  /* 0x002c */ bool m_Loop_f;
+  /* 0x002d */ char Padding_946[3];
+  /* 0x0030 */ float m_StartMotionframe;
+}; /* size: 0x0034 */
+
+struct tagSICHR
+{
+  /* 0x0000 */ unsigned short Code;
+  /* 0x0002 */ unsigned short x;
+  /* 0x0004 */ unsigned short y;
+  /* 0x0006 */ unsigned short w;
+  /* 0x0008 */ unsigned short h;
+  /* 0x000a */ short dx;
+  /* 0x000c */ short dy;
+  /* 0x000e */ unsigned short addx;
+  /* 0x0010 */ unsigned char addw;
+  /* 0x0011 */ char Padding_124;
+  /* 0x0012 */ unsigned short Code2;
+}; /* size: 0x0014 */
+
+struct tagEXECHARAINFO
+{
+  /* 0x0000 */ struct tagGHMR_TEX Tex;
+  /* 0x0028 */ struct tagSICHR BaseInfo;
+}; /* size: 0x003c */
+
+struct tagFONTDRAWINFO
+{
+  /* 0x0000 */ float x;
+  /* 0x0004 */ float y;
+  /* 0x0008 */ unsigned int color;
+}; /* size: 0x000c */
+
+class ghmGcFont
+{
+  /* 0x0000 */ int Padding_125;
+  /* 0x0004 */ bool initflag;
+  /* 0x0005 */ char Padding_126[3];
+  /* 0x0008 */ struct tagSTRIMAGEFILEHEAD* head;
+  /* 0x000c */ struct tagSTRIMAGEFILEHEAD2* head2;
+  /* 0x0010 */ struct tagSISTRPACK* strpack;
+  /* 0x0014 */ struct tagSISTR* str;
+  /* 0x0018 */ struct tagSICHR* chr;
+  /* 0x001c */ class ghmGcFile* File;
+  /* 0x0020 */ struct GhmGcTexHeader* THeader;
+  /* 0x0024 */ struct tagGHMR_TEX Tex;
+  /* 0x004c */ struct GXColor color;
+  /* 0x0050 */ float exX;
+  /* 0x0054 */ float exY;
+  /* 0x0058 */ float LODBias;
+  /* 0x005c */ float jikan;
+  /* 0x0060 */ int kanaY;
+  /* 0x0064 */ bool ReverseFlag;
+  /* 0x0065 */ bool MemImageFlag;
+  /* 0x0066 */ bool fastDraw;
+  /* 0x0067 */ char Padding_127;
+  /* 0x0068 */ struct tagEXECHARAINFO ExeCharaInfo[16];
+  /* 0x0428 */ int ExeCharaInfoNum;
+  /* 0x042c */ struct tagFONTDRAWINFO drawInfo[128];
+  /* 0x0a2c */ int drawInfoNum;
+}; /* size: 0x0a30 */
+
+class HrCat
+{
+public:
+  /* 0x0000 */ char Padding_1334[0x3748];
+  /* 0x3748 */ enum HS_CAT_STATE m_HsCatState;
+  /* 0x374c */ class ghmResGroup* m_Cat_Res;
+  /* 0x3750 */ class TGmf* m_Etc_Model;
+  /* 0x3754 */ enum HS_CAT_FLOW_TYPE m_FlowType;
+  /* 0x3758 */ class HsModelMotion m_Trv_Motion[7];
+  /* 0x38c4 */ enum HS_COMMAND_MOTION_STATE m_Command_Motion_State;
+  /* 0x38c8 */ enum HS_COMMAND_MOTION_TASK m_Command_Motion_Task;
+  /* 0x38cc */ bool m_KeyLock_f;
+  /* 0x38cd */ char Padding_1335[3];
+  /* 0x38d0 */ int m_Motel_Cat_Orders;
+  /* 0x38d4 */ float m_Cntrol_ShakeSpd;
+  /* 0x38d8 */ bool m_Guide_Disp_f;
+  /* 0x38d9 */ bool m_Cont_Start_f;
+  /* 0x38da */ char Padding_1336[2];
+  /* 0x38dc */ float m_Alpha_Num;
+  /* 0x38e0 */ bool m_Alpha_Type;
+  /* 0x38e1 */ char Padding_1337[3];
+  /* 0x38e4 */ struct Vec m_Plus_Pos;
+  /* 0x38f0 */ bool m_Cat_Neck_Start_f;
+  /* 0x38f1 */ bool m_Cat_Jara_Swing_f;
+  /* 0x38f2 */ char Padding_1338[2];
+  /* 0x38f4 */ class ghmGcFont m_Guide_Font;
+  /* 0x4324 */ class HsLineBox m_Line_Box;
+}; /* size: 0x4368 */
+
+class HsCameraMotion
+{
+  /* 0x0000 */ char Padding_947[0x36];
+  /* 0x0034 */ char m_CameraName[0xA];
+}; /* size: 0x0040 */
+
+class HsTexture
+{
+  /* 0x0000 */ char Padding_914[0x20];
+  /* 0x0020 */ struct tagGHMR_TEX* m_pTex;
+  /* 0x0024 */ float m_Tex_w;
+  /* 0x0028 */ float m_Tex_h;
+  /* 0x002c */ float m_Tex_Max_w;
+  /* 0x0030 */ float m_Tex_Max_h;
+}; /* size: 0x0034 */
+
+class HsMoveTetris
+{
+  /* 0x0000 */ char Padding_949[0x18];
+  /* 0x0018 */ enum HS_MOTEL_TETRIS_TYPE m_Type;
+  /* 0x001c */ int m_No;
+  /* 0x0020 */ bool m_MoveFinish_f;
+}; /* size: 0x0024 */
+
+class HrMotel
+{
+public:
+  /* 0x0000 */ char Padding_1345[0x3748];
+  /* 0x3748 */ enum HS_MOTEL_STATE m_HrMotelState;
+  /* 0x374c */ class TGmf* m_pNeked_Trv_Model[2];
+  /* 0x3754 */ class TGmf* m_pD_Pants_Model;
+  /* 0x3758 */ class TGmf* m_pStg_Model;
+  /* 0x375c */ class TGmf* m_pFan_Model;
+  /* 0x3760 */ class TGmf* m_pCat_Model;
+  /* 0x3764 */ class TGmf* m_Etc_Model;
+  /* 0x3768 */ class HsModelMotion m_Trv_Motion_TOILET[3];
+  /* 0x3804 */ class HsModelMotion m_Trv_Motion_TV[3];
+  /* 0x38a0 */ class HsModelMotion m_Trv_Motion_FRIDGE[3];
+  /* 0x393c */ class HsModelMotion m_Trv_Motion_CAT[4];
+  /* 0x3a0c */ class HsModelMotion m_Trv_Motion_Collec;
+  /* 0x3a40 */ class HsModelMotion m_Trv_Motion_EXIT;
+  /* 0x3a74 */ class HsModelMotion m_Trv_Motion_CLOSET[4];
+  /* 0x3b44 */ class HsModelMotion m_Trv_Motion_DRAWER[4];
+  /* 0x3c14 */ class HsModelMotion m_Trv_Motion_MAP[3];
+  /* 0x3cb0 */ class HsModelMotion m_Trv_Motion_FAX[2];
+  /* 0x3d18 */ class HsModelMotion m_Trv_Motion_LIVING;
+  /* 0x3d4c */ class HsCameraMotion m_CameraMotion_TOILET[5];
+  /* 0x3e8c */ class HsCameraMotion m_CameraMotion_TV[3];
+  /* 0x3f4c */ class HsCameraMotion m_CameraMotion_FRIDGE[2];
+  /* 0x3fcc */ class HsCameraMotion m_CameraMotion_CAT[8];
+  /* 0x41cc */ class HsCameraMotion m_CameraMotion_Collec[2];
+  /* 0x424c */ class HsCameraMotion m_CameraMotion_BED[2];
+  /* 0x42cc */ class HsCameraMotion m_CameraMotion_EXIT;
+  /* 0x430c */ class HsCameraMotion m_CameraMotion_CLOSET[3];
+  /* 0x43cc */ class HsCameraMotion m_CameraMotion_DRAWER[4];
+  /* 0x44cc */ class HsCameraMotion m_CameraMotion_MAP[2];
+  /* 0x454c */ class HsCameraMotion m_CameraMotion_FAX[2];
+  /* 0x45cc */ class HsCameraMotion m_CameraMotion_LIVING;
+  /* 0x460c */ class HsModelMotion m_Fan_Motion[4];
+  /* 0x46dc */ class HsModelMotion m_Jara_Motion[7];
+  /* 0x4848 */ int m_EquParts[7];
+  /* 0x4864 */ class HsLineBox m_CursorBox;
+  /* 0x48a8 */ class HsLineBox m_BG_Tex;
+  /* 0x48ec */ class HsLineBox m_Arrow_Line[2];
+  /* 0x4974 */ class HsLineBox m_BG_Box[9];
+  /* 0x4bd8 */ class HsLineBox m_BG_Line_Y[2];
+  /* 0x4c60 */ class HsLineBox m_BG_Tri[6];
+  /* 0x4df8 */ class HsPosBase m_HsNextBg;
+  /* 0x4e04 */ struct Vec2D m_HsBgMoveAry;
+  /* 0x4e0c */ class HsPosBase m_HsNextBox[9];
+  /* 0x4e78 */ struct Vec2D m_HsBoxMoveAry[9];
+  /* 0x4ec0 */ class HsPosBase m_HsNextCur;
+  /* 0x4ecc */ struct Vec2D m_HsCurMoveAry;
+  /* 0x4ed4 */ class HsMessage** m_pHsMenuFontMes;
+  /* 0x4ed8 */ class HsMessage* m_pNextMenuFontMes;
+  /* 0x4edc */ struct Vec2D* m_pMenuFontMoveAry;
+  /* 0x4ee0 */ class HsMessage* m_pAllSysMes;
+  /* 0x4ee4 */ class HsTexture m_Guide_Tex[6];
+  /* 0x501c */ class ghmGcFont m_Guide_Font;
+  /* 0x5a4c */ unsigned int m_MesAryNum;
+  /* 0x5a50 */ struct Vec m_Hs_Trv_Pos;
+  /* 0x5a5c */ struct Vec m_Hs_Trv_Rot;
+  /* 0x5a68 */ unsigned int m_PointCurNum;
+  /* 0x5a6c */ enum HS_MOVE_TYPE m_CurMoveVec;
+  /* 0x5a70 */ enum HS_MOVE_TYPE m_MotMoveVec;
+  /* 0x5a74 */ enum HS_CUR_POINT m_CurPoint;
+  /* 0x5a78 */ enum HS_MENU_BAR_STATE m_LeftBar_state;
+  /* 0x5a7c */ enum HS_MOTEL_ROOM_TYPE m_RoomType;
+  /* 0x5a80 */ enum HS_MOTEL_COMMAND_TYPE m_RoomPoint[2];
+  /* 0x5a88 */ enum HS_MOTEL_CAMERA_VEC m_CameraState;
+  /* 0x5a8c */ enum HS_MOTEL_DIR_TYPE m_Room_Dir_Type;
+  /* 0x5a90 */ enum HS_CLASS_TASK m_CommandTask[12];
+  /* 0x5ac0 */ enum HS_MOTEL_FRIDGE_STATE m_Interior_State;
+  /* 0x5ac4 */ enum HS_COMMAND_MOTION_STATE m_Command_Motion_State;
+  /* 0x5ac8 */ enum HS_COMMAND_MOTION_TASK m_Command_Motion_Task;
+  /* 0x5acc */ enum HS_MOTEL_VISIBLE_MODE m_Visible_Mode;
+  /* 0x5ad0 */ enum HS_MOTEL_MENU_DISP_MODE m_MenuDispMode;
+  /* 0x5ad4 */ enum HS_MOTEL_INTO_MODE m_Into_Mode;
+  /* 0x5ad8 */ enum HS_MOTEL_LIGHT_TYPE m_LightType;
+  /* 0x5adc */ bool m_Video_Light_f;
+  /* 0x5add */ bool m_VideoWatched_f;
+  /* 0x5ade */ bool m_WeaponChange_f;
+  /* 0x5adf */ char Padding_1346;
+  /* 0x5ae0 */ float m_SoundVol;
+  /* 0x5ae4 */ float m_SE_Vol;
+  /* 0x5ae8 */ int m_Model_TypeNo;
+  /* 0x5aec */ int m_Cat_Flow_Type;
+  /* 0x5af0 */ class ghmResGroup* m_Motel_Res;
+  /* 0x5af4 */ class HrTV* m_pHsTV;
+  /* 0x5af8 */ class HrCloset* m_pHsCloset;
+  /* 0x5afc */ class HrDrawer* m_pHsDrawer;
+  /* 0x5b00 */ class HrMotelMap* m_pHsMap;
+  /* 0x5b04 */ class HrCat* m_pCat;
+  /* 0x5b08 */ class HrCollection* m_pCollec;
+  /* 0x5b0c */ class HrMainMissionFax* m_pHsFax;
+  /* 0x5b10 */ class HsMessage* m_pFaxMes;
+  /* 0x5b14 */ int m_Snd_Hndl;
+  /* 0x5b18 */ unsigned int m_Mes_Hndl;
+  /* 0x5b1c */ bool m_BedStart_f;
+  /* 0x5b1d */ bool m_CatControl_f;
+  /* 0x5b1e */ char Padding_1347[2];
+  /* 0x5b20 */ class HsMoveTetris m_Tetris[16];
+  /* 0x5d60 */ bool m_Toilet_SE_f;
+  /* 0x5d61 */ bool m_MiniDemo_f;
+  /* 0x5d62 */ bool m_JaraMove_f;
+  /* 0x5d63 */ bool m_Cat_Alpha_f;
+  /* 0x5d64 */ bool m_Cat_Load_f;
+  /* 0x5d65 */ bool m_PV_OuickBack_f;
+  /* 0x5d66 */ bool m_Load_Back_f;
+  /* 0x5d67 */ char Padding_1348;
+  /* 0x5d68 */ int m_Befor_Box_No;
+  /* 0x5d6c */ int m_After_Box_No;
+  /* 0x5d70 */ bool m_SaveClassLock_f;
+  /* 0x5d71 */ bool m_Shadow_Closet_f;
+  /* 0x5d72 */ char Padding_1349[2];
+  /* 0x5d74 */ class MouseDeltaTracker mouseDeltaTracker;
+  /* 0x5d80 */ class NMH1MouseInteractionObject* Interactions[2];
+  /* 0x5d88 */ const int InteractionCounts[2];
+  /* 0x5d90 */ class NMH1MouseInteractionObject livingRoomInteractions[9];
+  /* 0x62e8 */ class NMH1MouseInteractionObject bedRoomInteractions[7];
+}; /* size: 0x6710 */

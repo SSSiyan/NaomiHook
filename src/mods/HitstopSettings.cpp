@@ -22,19 +22,19 @@ naked void detour1() { // basic attacks // player in edi
         // newhitstop:
         push eax
         mov eax, [HitstopSettings::customBasicHitstopAmount]
-        mov dword ptr  [edi+0x000029AC],eax
+        mov dword ptr  [edi+0x000029AC], eax
         pop eax
         jmp dword ptr [HitstopSettings::jmp_ret1]
 
         darkhitstop:
         push eax
         mov eax, [HitstopSettings::customDarkHitstopAmount]
-        mov dword ptr  [edi+0x000029AC],eax
+        mov dword ptr  [edi+0x000029AC], eax
         pop eax
         jmp dword ptr [HitstopSettings::jmp_ret1]
 
         originalcode:
-        mov dword ptr [edi+0x000029AC],8
+        mov dword ptr [edi+0x000029AC], 8
         jmp dword ptr [HitstopSettings::jmp_ret1]
     }
 }
@@ -54,12 +54,14 @@ std::optional<std::string> HitstopSettings::on_initialize() {
 void HitstopSettings::on_draw_ui() {
     ImGui::Checkbox("Custom Hitstop On Normal Attacks", &mod_enabled);
     if (mod_enabled) {
+        ImGui::Indent();
         ImGui::Text("Custom Hitstop Amount");
         ImGui::SliderInt("##customBasicHitstopAmountSliderInt", &customBasicHitstopAmount, 0, 20);
         help_marker("Default 8");
         ImGui::Text("Custom Darkstep Hitstop Amount");
         ImGui::SliderInt("##customDarkHitstopAmountSliderInt", &customDarkHitstopAmount, 0, 20);
         help_marker("Default 8");
+        ImGui::Unindent();
     }
 }
 
