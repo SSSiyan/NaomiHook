@@ -6,9 +6,11 @@ class Mods;
 struct OurImGuiContext;
 struct ID3D11Device;
 
-namespace DirectX {
-    class Mouse;
-}
+struct MouseRaw {
+    int x = 0;
+    int y = 0;
+    int wheel = 0;
+};
 
 #include "D3D11Hook.hpp"
 #include "WindowsMessageHook.hpp"
@@ -51,9 +53,11 @@ public:
 
     void save_config();
 
+    void reset_mouse();
 public:
-    std::unique_ptr<DirectX::Mouse> m_mouse;
-    uint32_t m_mouse_mode {0}; // hack ;_;
+    MouseRaw mouser;
+    bool m_capture_mouse { false };
+    bool m_capture_mouse_old { false };
     
     float window_size_x{};
     float window_size_y{};

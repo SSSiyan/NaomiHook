@@ -80,10 +80,6 @@ set(SDK_SRC
 )
 
 set(UTILITY_SRC
-  utility/Keyboard.hpp
-  utility/Keyboard.cpp
-  utility/Mouse.hpp
-  utility/Mouse.cpp
   utility/StackTrace.hpp
   utility/ExceptionHandler.hpp
   utility/ExceptionHandler.cpp

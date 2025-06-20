@@ -22,8 +22,8 @@ public:
   std::optional<std::string> on_initialize() override;
 
   // Override this things if you want to store values in the config file
-  //void on_config_load(const utility::Config& cfg) override;
-  //void on_config_save(utility::Config& cfg) override;
+  void on_config_load(const utility::Config& cfg) override;
+  void on_config_save(utility::Config& cfg) override;
 
   // on_frame() is called every frame regardless whether the gui shows up.
   void on_frame() override;
@@ -32,6 +32,19 @@ public:
   void on_draw_ui() override;
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
+  
+  const ModToggle::Ptr m_mod_enabled            { ModToggle::create(generate_name("mode_enable")) };
+  const ModFloat::Ptr m_mouse_range             { ModFloat::create(generate_name("mouse_range"), 200.0f) };
+  const ModFloat::Ptr  m_base_mouse_sens        { ModFloat::create(generate_name("mouse_base_sensitivity"), 3.0f) };
+  const ModFloat::Ptr  m_cams_mouse_sens        { ModFloat::create(generate_name("mouse_cams_sensitivity"), 0.04f) };
+
+  ValueList mod_vars {
+      *m_mod_enabled,
+      *m_mouse_range,
+      *m_cams_mouse_sens,
+      *m_base_mouse_sens
+  };
+
 private:
   // std::unique_ptr<FunctionHook> m_hook;
     std::unique_ptr<FunctionHook> m_camera_rot_lr, m_camera_rot_ud;

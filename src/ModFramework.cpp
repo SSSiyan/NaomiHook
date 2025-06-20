@@ -22,13 +22,73 @@
 #include "Fonts.hpp"
 #include "mods/DisableMouse.hpp"
 
-#include "utility/Mouse.hpp"
-
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 std::unique_ptr<ModFramework> g_framework{};
 
 //static glm::vec2 g_window_dims{};
+typedef void(__fastcall *PADSetHideMouseCursor_ptr)(bool s, bool lock);
+static PADSetHideMouseCursor_ptr PADSetHideMouseCursor_ee { nullptr };
+
+#if 0
+inline void mouse_set_visible(BOOL visible)
+{
+
+
+    ShowCursor(FALSE);
+
+    CURSORINFO info = { sizeof(CURSORINFO), 0, nullptr, {} };
+    if (!GetCursorInfo(&info))
+    {
+        throw std::system_error(std::error_code(static_cast<int>(GetLastError()), std::system_category()), "GetCursorInfo");
+    }
+
+    const bool isvisible = (info.flags & CURSOR_SHOWING) != 0;
+    if (isvisible != visible)
+    {
+        ShowCursor(FALSE);
+        auto& io = ImGui::GetIO();
+        io.MouseDrawCursor = visible;
+    }
+    else {
+        ShowCursor(TRUE);
+    }
+}
+
+inline void mouse_center(HWND window) {
+    RECT window_rect;
+    GetWindowRect(window, &window_rect);
+
+    int centerX = (window_rect.left + window_rect.right)  / 2;
+    int centerY = (window_rect.top  + window_rect.bottom) / 2;
+
+    SetCursorPos(centerX, centerY);
+}
+
+inline void mouse_capture(HWND window) {
+    RECT window_rect;
+
+    GetClientRect(window, &window_rect);
+    ClientToScreen(window, (POINT*)&window_rect.left);
+    ClientToScreen(window, (POINT*)&window_rect.right);
+    ClipCursor(&window_rect);
+    mouse_set_visible(FALSE);
+}
+
+inline void mouse_release() {
+    ClipCursor(NULL);
+    mouse_set_visible(TRUE);
+}
+
+static void toggle_mouse(HWND window, bool capturing) {
+    if (capturing) {
+        mouse_capture(window);
+    }
+    else {
+        mouse_release();
+    }
+}
+#endif
 
 ModFramework::ModFramework()
     : m_game_module{ GetModuleHandle(0) },
@@ -57,6 +117,8 @@ ModFramework::ModFramework()
     if (m_valid) {
         spdlog::info("Hooked D3D11");
     }
+    uintptr_t offset = (uintptr_t)((uintptr_t)m_game_module + (ptrdiff_t)0x1BECC0);
+    PADSetHideMouseCursor_ee = (PADSetHideMouseCursor_ptr)offset;
 }
 
 ModFramework::~ModFramework() {
@@ -97,7 +159,16 @@ void ModFramework::on_frame() {
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    m_mouse->EndOfInputFrame();
+    // toggle mouse capture
+    if (ImGui::IsKeyPressed(ImGuiKey_LeftAlt)) {
+        m_capture_mouse = !m_capture_mouse;
+    }
+
+    if (m_capture_mouse != m_capture_mouse_old) {
+        PADSetHideMouseCursor_ee(m_capture_mouse, m_capture_mouse);
+
+        m_capture_mouse_old = m_capture_mouse;
+    }
 }
 
 void ModFramework::on_reset() {
@@ -115,16 +186,6 @@ void ModFramework::on_reset() {
 }
 
 
-inline void center_cursor(HWND window) {
-    RECT window_rect;
-    GetWindowRect(window, &window_rect);
-
-    int centerX = (window_rect.left + window_rect.right)  / 2;
-    int centerY = (window_rect.top  + window_rect.bottom) / 2;
-
-    SetCursorPos(centerX, centerY);
-}
-
 bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_param) {
     if (!m_initialized) {
         return true;
@@ -138,19 +199,14 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
     }
 #endif
 
-
     // TODO(): hotkey crap from dmc4hook?
     if (message == WM_KEYDOWN && w_param == VK_DELETE) {
         m_draw_ui = !m_draw_ui;
         DisableMouse::gui_open = m_draw_ui;
-        if (m_draw_ui) {
-            m_mouse->SetMode(DirectX::Mouse::MODE_ABSOLUTE);
-        }
-        else {
-            m_mouse->SetMode(DirectX::Mouse::MODE_RELATIVE);
-        }
-        m_mouse->SetVisible(true);
+        m_capture_mouse = !m_draw_ui;
+        //mouse_set_visible(m_draw_ui);
     }
+
 
     if (ImGui_ImplWin32_WndProcHandler(wnd, message, w_param, l_param) != 0) { // if (m_draw_ui && didn't work and stops us interacting with debug windows
         // If the user is interacting with the UI we block the message from going to the game.
@@ -161,27 +217,18 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
         }
     }
 
-    switch (message)
-    {
-    case WM_ACTIVATE:
-    case WM_ACTIVATEAPP:
-    case WM_INPUT:
-    case WM_MOUSEMOVE:
-    case WM_LBUTTONDOWN:
-    case WM_LBUTTONUP:
-    case WM_RBUTTONDOWN:
-    case WM_RBUTTONUP:
-    case WM_MBUTTONDOWN:
-    case WM_MBUTTONUP:
-    case WM_MOUSEWHEEL:
-    case WM_XBUTTONDOWN:
-    case WM_XBUTTONUP:
-    case WM_MOUSEHOVER:
-        DirectX::Mouse::ProcessMessage(message, w_param, l_param);
-        if(m_mouse_mode == DirectX::Mouse::MODE_RELATIVE) {
-            center_cursor(m_wnd);
+    if (message == WM_INPUT) {
+        size_t size = sizeof(RAWINPUT);
+        static RAWINPUT raw[sizeof(RAWINPUT)];
+        GetRawInputData((HRAWINPUT)l_param, RID_INPUT, raw, &size, sizeof(RAWINPUTHEADER));
+
+        if (raw->header.dwType == RIM_TYPEMOUSE) {
+            mouser.x = raw->data.mouse.lLastX;
+            mouser.y = raw->data.mouse.lLastY;
+
+            if (raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL)
+                mouser.wheel = (*(short*)&raw->data.mouse.usButtonData) / WHEEL_DELTA;
         }
-        return false;
     }
 
     return true;
@@ -202,6 +249,10 @@ void ModFramework::save_config() {
     }
 
     spdlog::info("Saved config");
+}
+
+void ModFramework::reset_mouse() {
+    memset(&mouser, 0, sizeof(MouseRaw));
 }
 
 void ModFramework::draw_ui() {
@@ -304,15 +355,30 @@ bool ModFramework::initialize() {
     window_size_x = window_rect.right - window_rect.left;
     window_size_y = window_rect.bottom - window_rect.top;
 
-    m_mouse = std::make_unique<DirectX::Mouse>();
-    m_mouse->SetWindow(m_wnd);
-
     // Explicitly call destructor first
     m_windows_message_hook.reset();
     m_windows_message_hook = std::make_unique<WindowsMessageHook>(m_wnd);
     m_windows_message_hook->on_message = [this](auto wnd, auto msg, auto wParam, auto lParam) {
         return on_message(wnd, msg, wParam, lParam);
     };
+
+    // Registering raw input devices
+#ifndef HID_USAGE_PAGE_GENERIC
+#define HID_USAGE_PAGE_GENERIC ((unsigned short) 0x01)
+#endif
+#ifndef HID_USAGE_GENERIC_MOUSE
+#define HID_USAGE_GENERIC_MOUSE ((unsigned short) 0x02)
+#endif
+
+    // We're configuring just one RAWINPUTDEVICE, the mouse,
+    // so it's a single-element array (a pointer).
+    RAWINPUTDEVICE rid[1];
+    rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
+    rid[0].usUsage = HID_USAGE_GENERIC_MOUSE;
+    rid[0].dwFlags = RIDEV_INPUTSINK;
+    rid[0].hwndTarget = m_wnd;
+    RegisterRawInputDevices(rid, 1, sizeof(rid[0]));
+    // End of resgistering.
 
     spdlog::info("Creating render target");
 
