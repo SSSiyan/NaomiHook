@@ -62,8 +62,6 @@ BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
         if(!nmhfix_handle) {
             g_nmhfix_handle = LoadLibraryA("NMHFix.asi");
         }
-        g_mod_arcade = new ArcadeMode;
-        g_mod_arcade->on_initialize();
         CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)startup_thread, nullptr, 0, nullptr);
         g_dpi_fix_mod = new ResolutionScaleFix();
         auto maybe_error = g_dpi_fix_mod->on_initialize();

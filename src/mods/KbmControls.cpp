@@ -275,7 +275,7 @@ static void MOVE2_SetCameraYAngleRate(float a1) noexcept {
     assert(camera != NULL);
     assert(pc != NULL);
 
-    if (camera->m.Mode != HRCAMERA_MODE::HRCAMERA_MODE_MOVE2) {
+    if (camera->MAIN.Mode != HRCAMERA_MODE::HRCAMERA_MODE_MOVE2) {
         return;
     }
 
@@ -311,8 +311,8 @@ static void MOVE2_SetCameraYAngleRate(float a1) noexcept {
 #endif
 
 
-    camera->m.mov2.CamAngle      += angle;//glm::clamp(camera->m.mov2.CamAngle + angle, -glm::pi<float>(), glm::pi<float>());
-    camera->m.mov2.CamYAngleRate = glm::clamp(camera->m.mov2.CamYAngleRate + angle_y, -0.09f, glm::pi<float>() * 0.6f);
+    camera->MAIN.mov2.CamAngle      += angle;//glm::clamp(camera->m.mov2.CamAngle + angle, -glm::pi<float>(), glm::pi<float>());
+    camera->MAIN.mov2.CamYAngleRate = glm::clamp(camera->MAIN.mov2.CamYAngleRate + angle_y, -0.09f, glm::pi<float>() * 0.6f);
     g_framework->reset_mouse();
 }
 
