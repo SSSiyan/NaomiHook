@@ -1,3 +1,4 @@
+//#define MOUSE_CONTROLS
 #pragma once
 
 #include "Mod.hpp"

@@ -162,7 +162,7 @@ void ModFramework::on_frame() {
     context->OMSetRenderTargets(1, &m_main_render_target_view, NULL);
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
+#ifdef MOUSE_CONTROLS // defined in mods.hpp
     // toggle mouse capture
     if (ImGui::IsKeyPressed(ImGuiKey_LeftAlt)) {
         m_capture_mouse = !m_capture_mouse;
@@ -173,6 +173,7 @@ void ModFramework::on_frame() {
 
         m_capture_mouse_old = m_capture_mouse;
     }
+#endif
 }
 
 void ModFramework::on_reset() {
@@ -223,9 +224,11 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
     // TODO(): hotkey crap from dmc4hook?
     if (message == WM_KEYDOWN && w_param == VK_DELETE) {
         m_draw_ui = !m_draw_ui;
-        DisableMouse::gui_open = m_draw_ui;
+        DisableMouse::gui_open = m_draw_ui; // stops mouse clicks registering on menus
+#ifdef MOUSE_CONTROLS
         m_capture_mouse = !m_draw_ui;
         //mouse_set_visible(m_draw_ui);
+#endif
     }
 
 
@@ -237,7 +240,7 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
             return false;
         }
     }
-
+#ifdef MOUSE_CONTROLS
     if (message == WM_INPUT) {
         size_t size = sizeof(RAWINPUT);
         static RAWINPUT raw[sizeof(RAWINPUT)];
@@ -251,7 +254,7 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
                 mouser.wheel = (*(short*)&raw->data.mouse.usButtonData) / WHEEL_DELTA;
         }
     }
-
+#endif
     return true;
 }
 
@@ -389,7 +392,7 @@ bool ModFramework::initialize() {
     m_windows_message_hook->on_message = [this](auto wnd, auto msg, auto wParam, auto lParam) {
         return on_message(wnd, msg, wParam, lParam);
     };
-
+#ifdef MOUSE_CONTROLS
     // Registering raw input devices
 #ifndef HID_USAGE_PAGE_GENERIC
 #define HID_USAGE_PAGE_GENERIC ((unsigned short) 0x01)
@@ -407,7 +410,7 @@ bool ModFramework::initialize() {
     rid[0].hwndTarget = m_wnd;
     RegisterRawInputDevices(rid, 1, sizeof(rid[0]));
     // End of resgistering.
-
+#endif
     spdlog::info("Creating render target");
 
     create_render_target();

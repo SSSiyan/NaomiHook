@@ -82,8 +82,9 @@ Mods::Mods()
     ADD_MOD(Cheats);
     ADD_MOD(KillObscuringTreasureChests);
     ADD_MOD(Tony);
+#ifdef MOUSE_CONTROLS
     ADD_MOD(KbmControls);
-  
+#endif
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
