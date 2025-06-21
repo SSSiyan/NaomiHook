@@ -16,6 +16,10 @@ public:
 
   static uintptr_t jmp_ret3;
 
+  static uintptr_t jmp_ret4;
+  static uintptr_t midChargeSelector;
+  static uintptr_t midChargeSelectorSkip;
+
   // mod name string for config
   std::string get_mod_name() const override { return "ChargeSubsBattery"; }
   std::string get_human_readable_name() const { return "Charging Uses Battery"; }
@@ -37,6 +41,6 @@ This was implemented to promote the usage of other tools. The MK3's battery upgr
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3;
+	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3, m_hook4;
 	// std::unique_ptr<Patch> m_patch;
 };

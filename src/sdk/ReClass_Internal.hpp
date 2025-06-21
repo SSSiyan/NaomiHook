@@ -44,6 +44,14 @@ enum enCharaCondition
   eConditionMax = 6,
 };
 
+enum enPcPose
+{
+  ePcPoseUpper = 0,
+  ePcPoseMiddle = 1,
+  ePcPoseBottom = 2,
+  ePcPoseMax = 3,
+};
+
 enum enCharaType
 {
   eCharaTypeNone = 0,

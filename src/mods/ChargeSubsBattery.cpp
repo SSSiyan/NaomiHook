@@ -11,6 +11,10 @@ uintptr_t detour2_je2 = NULL;
 
 uintptr_t ChargeSubsBattery::jmp_ret3 = NULL;
 
+uintptr_t ChargeSubsBattery::jmp_ret4 = NULL;
+uintptr_t ChargeSubsBattery::midChargeSelector = NULL;
+uintptr_t ChargeSubsBattery::midChargeSelectorSkip = NULL;
+
 // clang-format off
 naked void detour1() { // ticks when effect starts // player in ebx
     __asm {
@@ -137,6 +141,27 @@ naked void detour3() { // just charges // player in ecx
             jmp dword ptr [ChargeSubsBattery::jmp_ret3]
     }
 }
+
+naked void detour4() { // mid charge is half charge // player in edi
+    __asm {
+        // 
+            cmp byte ptr [ChargeSubsBattery::mod_enabled], 0
+            je originalcode
+
+            cmp dword ptr [edi+0x1350], ePcPoseBottom // 2
+            jne originalcode
+            mov eax, ePcMtBtAtkChg
+            jmp dword ptr [ChargeSubsBattery::midChargeSelectorSkip]
+
+        originalcode:
+            push edx // roundabout way of doing movzx eax,byte ptr [eax+nmh.mHRPc::mAttackProc+2888]
+            mov edx, [ChargeSubsBattery::midChargeSelector]
+            movzx eax, byte ptr [eax+edx]
+            pop edx
+        retcode:
+            jmp dword ptr [ChargeSubsBattery::jmp_ret4]
+    }
+}
  // clang-format on
 
 std::optional<std::string> ChargeSubsBattery::on_initialize() {
@@ -154,9 +179,17 @@ std::optional<std::string> ChargeSubsBattery::on_initialize() {
     }
 
     if (!install_hook_offset(0x3CB921, m_hook3, &detour3, &ChargeSubsBattery::jmp_ret3, 6)) { // just charges
-        spdlog::error("Failed to init ChargeSubsBattery 2 mod\n");
-        return "Failed to init ChargeSubsBattery 2 mod";
+        spdlog::error("Failed to init ChargeSubsBattery 3 mod\n");
+        return "Failed to init ChargeSubsBattery 3 mod";
     }
+
+    ChargeSubsBattery::midChargeSelector = g_framework->get_module().as<uintptr_t>() + 0x3D06B8;
+    ChargeSubsBattery::midChargeSelectorSkip = g_framework->get_module().as<uintptr_t>() + 0x3CEE16;
+    if (!install_hook_offset(0x3CEDD0, m_hook4, &detour4, &ChargeSubsBattery::jmp_ret4, 7)) { // mid charge is half charge
+        spdlog::error("Failed to init ChargeSubsBattery 4 mod\n");
+        return "Failed to init ChargeSubsBattery 4 mod";
+    }
+
     return Mod::on_initialize();
 }
 
