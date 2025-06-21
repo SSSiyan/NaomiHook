@@ -165,7 +165,7 @@ void StanceControl::disable_cam_reset(bool enable) {
         install_patch_offset(0x3D7116, patch_disable_cam_reset, "\x90\x90\x90\x90\x90\x90\x90", 7); // 
     }
     else {
-        install_patch_offset(0x3D7116, patch_disable_cam_reset, "\x80\x3D\xE6\xB9\xF7\x00\x00", 7); // 
+        install_patch_offset(0x3D7116, patch_disable_cam_reset, "\x80\x3D\xE6\xB9\x5D\x01\x00", 7); // cmp byte ptr [nmh.ghm_pad_uni+1CD6],00
     }
 }
 
