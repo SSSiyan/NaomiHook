@@ -162,10 +162,10 @@ void StanceControl::toggle_disable_combo_extend_speedup (bool enable) {
 
 void StanceControl::disable_cam_reset(bool enable) {
     if (enable) {
-        install_patch_offset(0x3D7116, patch_disable_cam_reset, "\x90\x90\x90\x90\x90\x90\x90", 7); // 
+        install_patch_offset(0x3D711D, patch_disable_cam_reset, "\xE9\xB8\x00\x00\x00\x00", 6); // jmp nmh.exe+3D71DA
     }
     else {
-        install_patch_offset(0x3D7116, patch_disable_cam_reset, "\x80\x3D\xE6\xB9\x43\x01\x00", 7); // cmp byte ptr [nmh.ghm_pad_uni+1CD6],00
+        install_patch_offset(0x3D711D, patch_disable_cam_reset, "\x0F\x84\xB7\x00\x00\x00", 6); // je nmh.exe+3D71DA
     }
 }
 
