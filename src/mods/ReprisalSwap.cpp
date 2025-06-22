@@ -8,9 +8,14 @@ uintptr_t ReprisalSwap::gpPadUni = NULL;
 // clang-format off
 naked void detour1() { // player in ecx
     __asm {
+        cmp [ecx+0x1350], 2 // mid
+        jne highchargecheck
+        mov eax, ePcMtBtAtkChg // mid charge
+        jmp originalcode
+
+    highchargecheck:
         cmp byte ptr [ReprisalSwap::mod_enabled], 0
         je originalcode
-
         push eax
         mov eax, [ReprisalSwap::gpPadUni]
         mov eax, [eax]
@@ -20,10 +25,6 @@ naked void detour1() { // player in ecx
         cmp byte ptr [ReprisalSwap::mid_stance_enabled], 0
         je highCharge
     // midCheck:
-        cmp [ecx+0x1350], 2 // mid
-        jne highcharge
-        mov eax, ePcMtBtAtkChg // mid charge
-        jmp originalcode
 
     highcharge:
         mov eax, ePcMtBtAtkChgUp // high charge
