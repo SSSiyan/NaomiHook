@@ -88,7 +88,7 @@ void update_description(const char* name, const char* info, Frame image) {
 
 std::array<StageWarp::Stage, 78> StageWarp::stage_items = { 
     Stage {"STG000",    0, "Santa Destroy Overworld", ""},                //  0
-    Stage {"STG0001",   1, "Beach Boss (Holly Summers)", ""},             //  1
+    Stage {"STG0001",   1, "Holly Summers Fight", ""},                    //  1
     Stage {"STG0002",   2, "Holly Summers Zako", ""},                     //  2
     Stage {"STG0003",   3, "Henry Fight True Ending", ""},                //  3
     Stage {"STG0004",   4, "Free Fight 3", ""},                           //  4
@@ -101,7 +101,7 @@ std::array<StageWarp::Stage, 78> StageWarp::stage_items = {
     Stage {"STG011",   11, "Shinobu Zako 2", ""},                         // 11
     Stage {"STG012",   12, "Shinobu Zako 3", ""},                         // 12
     Stage {"STG00013", 13, "City Street", ""},                            // 13
-    Stage {"STG013",   14, "Shinobu Boss Fight", ""},                     // 14
+    Stage {"STG013",   14, "Shinobu Fight", ""},                          // 14
     Stage {"STG00014", 15, "Speedbuster Zako", ""},                       // 15
     Stage {"STG00015", 16, "Beach Spawn", ""},                            // 16
     Stage {"STG00016", 17, "Homes Near Beach", ""},                       // 17

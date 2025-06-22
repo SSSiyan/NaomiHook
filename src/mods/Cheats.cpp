@@ -53,7 +53,7 @@ void Cheats::on_draw_ui() {
     if (ImGui::Checkbox("Deal No Damage", &deal_no_damage)) {
         toggleDealNoDamage(deal_no_damage);
     }
-    help_marker("Throws / Deathblows can still kill");
+    help_marker("Lethal Throws, Deathblows, and Charged Slashes can still kill enemies who don't have Endurance.");
 
     if (ImGui::Checkbox("Spend No Battery", &spend_no_battery)) {
         toggleSpendNoBattery(spend_no_battery);
