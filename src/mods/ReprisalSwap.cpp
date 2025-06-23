@@ -1,9 +1,13 @@
 #include "ReprisalSwap.hpp"
+#include "StanceControl.hpp"
 #if 1
 bool ReprisalSwap::mod_enabled = false;
 bool ReprisalSwap::mid_stance_enabled = false;
 uintptr_t ReprisalSwap::jmp_ret1 = NULL;
 uintptr_t ReprisalSwap::gpPadUni = NULL;
+
+uintptr_t ReprisalSwap::jmp_ret2 = NULL;
+uintptr_t ReprisalSwap::detour2je = NULL;
 
 // clang-format off
 naked void detour1() { // player in ecx
@@ -16,12 +20,23 @@ naked void detour1() { // player in ecx
     highchargecheck:
         cmp byte ptr [ReprisalSwap::mod_enabled], 0
         je originalcode
+
+    // if any 3 stance mod is enabled, don't check for input
+        cmp [ecx+0x1350], 0 // high
+        jne originalcode // this leaves only low
+        cmp byte ptr [StanceControl::mod_enabled], 1
+        je skipInputCheck
+        cmp byte ptr [StanceControl::mod_enabled_gear_system], 1
+        je skipInputCheck
+
+    // no 3 stance mods are enabled, check for input
         push eax
         mov eax, [ReprisalSwap::gpPadUni]
         mov eax, [eax]
         cmp byte ptr [eax+0x1CC], 1 // high attack // From nmh.PC_INPUT_ATTACK+99
         pop eax
         jne originalcode
+    skipInputCheck:
         cmp byte ptr [ReprisalSwap::mid_stance_enabled], 0
         je highCharge
     // midCheck:
@@ -35,6 +50,25 @@ naked void detour1() { // player in ecx
         jmp dword ptr [ReprisalSwap::jmp_ret1]
     }
 }
+
+naked void detour2() { // disable parries on new reprisals // player in edi
+    __asm {
+        cmp byte ptr [ReprisalSwap::mod_enabled], 0
+        je originalcode
+
+        cmp [edi+0x18C], ePcMtBtAtkChg
+        je jmp_je
+        cmp [edi+0x18C], ePcMtBtAtkChgUp
+        je jmp_je
+
+    originalcode:
+        cmp byte ptr [edi+0x00001664],00
+        jmp dword ptr [ReprisalSwap::jmp_ret2]
+
+    jmp_je:
+        jmp dword ptr [ReprisalSwap::detour2je]
+    }
+}
  // clang-format on
 
 std::optional<std::string> ReprisalSwap::on_initialize() {
@@ -42,6 +76,11 @@ std::optional<std::string> ReprisalSwap::on_initialize() {
     if (!install_hook_offset(0x3CE22E, m_hook1, &detour1, &ReprisalSwap::jmp_ret1, 8)) {
         spdlog::error("Failed to init ReprisalSwap mod\n");
         return "Failed to init ReprisalSwap mod";
+    }
+    detour2je = g_framework->get_module().as<uintptr_t>() + 0x3CAB5E;
+    if (!install_hook_offset(0x3CAB55, m_hook2, &detour2, &ReprisalSwap::jmp_ret2, 7)) {
+        spdlog::error("Failed to init ReprisalSwap mod 2\n");
+        return "Failed to init ReprisalSwap mod 2";
     }
     return Mod::on_initialize();
 }

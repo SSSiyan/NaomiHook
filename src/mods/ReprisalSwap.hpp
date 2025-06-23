@@ -11,6 +11,9 @@ public:
   static uintptr_t jmp_ret1;
   static uintptr_t gpPadUni;
 
+  static uintptr_t jmp_ret2;
+  static uintptr_t detour2je;
+
   // mod name string for config
   std::string get_mod_name() const override { return "ReprisalSwap"; }
   std::string get_human_readable_name() const { return "High Attack Reprisal"; }
@@ -34,6 +37,6 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1;
+	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
 	// std::unique_ptr<Patch> m_patch;
 };
