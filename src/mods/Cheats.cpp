@@ -6,6 +6,9 @@ bool Cheats::spend_no_battery = false;
 bool Cheats::enemies_dont_attack = false;
 bool Cheats::invincible = false; // DodgeSettings handles this
 
+const char* Cheats::defaultDescription = "Cheats";
+const char* Cheats::hoveredDescription = defaultDescription;
+
 void Cheats::toggleTakeNoDamage(bool enable) {
     if (enable) {
         install_patch_offset(0x3D680D, patchTakeNoDamage, "\x90\x90\x90\x90", 4); // nop 4
@@ -46,36 +49,50 @@ std::optional<std::string> Cheats::on_initialize() {
     return Mod::on_initialize();
 }
 
+void Cheats::render_description() const {
+    ImGui::TextWrapped(Cheats::hoveredDescription);
+}
+
 void Cheats::on_draw_ui() {
+    if (!ImGui::IsAnyItemHovered()) Cheats::hoveredDescription = defaultDescription;
+
     ImGui::Checkbox("Invincible", &invincible);
+    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Disable the player taking damage and animating when hit";
 
     if (ImGui::Checkbox("Take No Damage", &take_no_damage)) {
         toggleTakeNoDamage(take_no_damage);
     }
+    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Take no damage, but still receive hit effects";
 
     if (ImGui::Checkbox("Deal No Damage", &deal_no_damage)) {
         toggleDealNoDamage(deal_no_damage);
     }
-    help_marker("Lethal Throws, Deathblows, and Charged Slashes can still kill enemies who don't have Endurance.");
+    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Lethal Throws, Deathblows, and Charged Slashes can still kill enemies who don't have Endurance.";
 
     if (ImGui::Checkbox("Spend No Battery", &spend_no_battery)) {
         toggleSpendNoBattery(spend_no_battery);
     }
+    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
 
     if (ImGui::Checkbox("Enemies Don't Attack", &enemies_dont_attack)) {
         toggleEnemiesDontAttack(enemies_dont_attack);
     }
+    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
 
     float combo_width = ImGui::CalcItemWidth();
     if (ImGui::Button("Start 777", ImVec2(combo_width, NULL))) {
         nmh_sdk::Start777();
     }
+    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
+
     //static bool dont_call_stencil = false;
     //static int inTick = 0;
     if (ImGui::Button("Start Bar", ImVec2(combo_width, NULL))) {
         //nmh_sdk::StartBar(dont_call_stencil, inTick);
         nmh_sdk::StartBar(false, 0);
     }
+    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
+
     //ImGui::SameLine();
     //ImGui::Checkbox("Dont Stencil", &dont_call_stencil);
     //ImGui::SameLine();
@@ -85,12 +102,17 @@ void Cheats::on_draw_ui() {
     if (ImGui::Button("Start Bell", ImVec2(combo_width, NULL))) {
         nmh_sdk::StartBell();
     }
+    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
+
     if (ImGui::Button("Start Hopper", ImVec2(combo_width, NULL))) {
         nmh_sdk::StartHopper();
     }
+    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
+
     if (ImGui::Button("Start Cherry", ImVec2(combo_width, NULL))) {
         nmh_sdk::StartCherry();
     }
+    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
 }
 
 // during load

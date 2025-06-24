@@ -1,5 +1,8 @@
 #include "CameraSettings.hpp"
 #if 1
+const char* CameraSettings::defaultDescription = "Camera Settings";
+const char* CameraSettings::hoveredDescription = defaultDescription;
+
 bool CameraSettings::mod_enabled_screenshake = false;
 uintptr_t CameraSettings::screenshake_jmp_ret1 = NULL;
 uintptr_t CameraSettings::Offset_84BA18 = NULL;
@@ -113,32 +116,46 @@ std::optional<std::string> CameraSettings::on_initialize() {
     return Mod::on_initialize();
 }
 
+void CameraSettings::render_description() const {
+    ImGui::TextWrapped(CameraSettings::hoveredDescription);
+}
+
 void CameraSettings::on_draw_ui() {
+    if (!ImGui::IsAnyItemHovered()) CameraSettings::hoveredDescription = defaultDescription;
+
     ImGui::Checkbox("Custom Screenshake On Normal Attacks", &mod_enabled_screenshake);
+    if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = defaultDescription;
     if (mod_enabled_screenshake) {
         ImGui::Indent();
         ImGui::Text("Custom Screenshake Amount");
         ImGui::SliderInt("##CustomScreenshakeAmountSliderInt", &customBasicScreenshakeAmount, 0, 20);
-        help_marker("Default 6");
+        if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = "Default 6";
         ImGui::Unindent();
     }
+
     if (ImGui::Checkbox("Invert X Axis During First Person", &mod_enabled_first_person_x)) {
         toggle_first_person_x(mod_enabled_first_person_x);
     }
+    if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = defaultDescription;
+
     if (ImGui::Checkbox("Invert X Axis During Darkside", &mod_enabled_darkside_x)) {
         toggle_darkside_x(mod_enabled_darkside_x);
     }
+    if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = defaultDescription;
+
     ImGui::Checkbox("Custom FOV", &force_fov);
+    if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = defaultDescription;
     if (force_fov) {
         ImGui::Indent();
         ImGui::SliderFloat("##CustomFOVSliderFloat", &CameraSettings::custom_fov, 1.0f, 180.0f, "%.0f");
-        help_marker("Default 55");
+        if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = "Default 55";
         ImGui::Unindent();
     }
+
     if (ImGui::Checkbox("Disable Attack Camera Zoom", &disable_attack_zoom)) {
         fov_toggle(disable_attack_zoom);
     }
-    help_marker("Disable the zoom when attacking enemies while not locked on.");
+    if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = "Disable the zoom when attacking enemies while not locked on.";
 }
 
 // during load

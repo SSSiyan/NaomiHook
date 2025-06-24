@@ -1,5 +1,8 @@
 #include "HitstopSettings.hpp"
 #if 1
+const char* HitstopSettings::defaultDescription = "Fine tune the game feel by adjusting the duration of hitstop on attacks. Increase the number for longer, chunkier hits or decrease the number for quicker and snappier hits.";
+const char* HitstopSettings::hoveredDescription = defaultDescription;
+
 bool HitstopSettings::mod_enabled = false;
 uintptr_t HitstopSettings::jmp_ret1 = NULL;
 uintptr_t HitstopSettings::gpBattle = NULL;
@@ -51,16 +54,25 @@ std::optional<std::string> HitstopSettings::on_initialize() {
     return Mod::on_initialize();
 }
 
+void HitstopSettings::render_description() const {
+    ImGui::TextWrapped(HitstopSettings::hoveredDescription);
+}
+
 void HitstopSettings::on_draw_ui() {
+    if (!ImGui::IsAnyItemHovered()) HitstopSettings::hoveredDescription = defaultDescription;
+
     ImGui::Checkbox("Custom Hitstop On Normal Attacks", &mod_enabled);
+    if (ImGui::IsItemHovered()) HitstopSettings::hoveredDescription = defaultDescription;
     if (mod_enabled) {
         ImGui::Indent();
         ImGui::Text("Custom Hitstop Amount");
         ImGui::SliderInt("##customBasicHitstopAmountSliderInt", &customBasicHitstopAmount, 0, 20);
-        help_marker("Default 8");
+        if (ImGui::IsItemHovered()) HitstopSettings::hoveredDescription = "Default 8";
+
         ImGui::Text("Custom Darkstep Hitstop Amount");
         ImGui::SliderInt("##customDarkHitstopAmountSliderInt", &customDarkHitstopAmount, 0, 20);
-        help_marker("Default 8");
+        if (ImGui::IsItemHovered()) HitstopSettings::hoveredDescription = "Default 8";
+
         ImGui::Unindent();
     }
 }

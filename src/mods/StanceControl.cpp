@@ -422,8 +422,8 @@ void StanceControl::render_description() const {
 }
 
 void StanceControl::on_draw_ui() {
-    if (!ImGui::IsAnyItemHovered())
-        StanceControl::hoveredDescription = defaultDescription;
+    if (!ImGui::IsAnyItemHovered()) StanceControl::hoveredDescription = defaultDescription;
+
     if (ImGui::Checkbox("Stance Control on R2", &mod_enabled)) {
         toggle(mod_enabled);
         if (mod_enabled_gear_system) {
@@ -431,8 +431,7 @@ void StanceControl::on_draw_ui() {
             disable_cam_reset(mod_enabled_gear_system); // re-enable cam reset
         }
     }
-    if (ImGui::IsItemHovered())
-        StanceControl::hoveredDescription = "Remaps lock on cycle to R3. This is needed to avoid switching targets with every press of R2 when using this feature.";
+    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Remaps lock on cycle to R3. This is needed to avoid switching targets with every press of R2 when using this feature.";
     if (mod_enabled) {
         ImGui::Indent();
 
@@ -440,30 +439,25 @@ void StanceControl::on_draw_ui() {
         if (ImGui::SliderFloat("## highBound sliderfloat", &StanceControl::highBound, 0.0f, 1.0f, "%.2f")) {
             highBoundGuard = (highBound + 1.0f) / 2.0f;
         }
-        if (ImGui::IsItemHovered())
-            StanceControl::hoveredDescription = "How far should r2 be pushed to enter high stance\n0.9 default";
+        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "How far should r2 be pushed to enter high stance\n0.9 default";
 
         ImGui::Text("Low Bound");
         if (ImGui::SliderFloat("## lowBound sliderfloat", &StanceControl::lowBound, -1.0f, 0.0f, "%.2f")) {
             lowBoundGuard = (lowBound + 1.0f) / 2.0f;
         }
-        if (ImGui::IsItemHovered())
-            StanceControl::hoveredDescription = "How little should r2 be pushed to enter low stance\n-0.9 default";
+        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "How little should r2 be pushed to enter low stance\n-0.9 default";
 
         // ImGui::Checkbox("Invert", &StanceControl::invert_input);
-        // if (ImGui::IsItemHovered())
-        //     StanceControl::hoveredDescription = "Swap Low and High";
+        // if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Swap Low and High";
         // 
         // ImGui::Checkbox("Invert Mid", &StanceControl::invert_mid);
-        // if (ImGui::IsItemHovered())
-        //     StanceControl::hoveredDescription = "Swap Mid and Low. The unused combos assigned to Mid stance are actually the original Low attacks. "
+        // if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Swap Mid and Low. The unused combos assigned to Mid stance are actually the original Low attacks. "
         //     "For this feature to make more sense, you can tick this to reorganize the stance order.";
 
         // ImGui::Checkbox("Show Custom Stance UI", &StanceControl::show_new_ui);
 
         ImGui::Checkbox("Combo Extend Speedup On Low Attacks", &mod_enabled_faster_nu_lows);
-        if (ImGui::IsItemHovered())
-            StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks";
+        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks";
 
         ImGui::Unindent();
     }
@@ -473,18 +467,16 @@ void StanceControl::on_draw_ui() {
         disable_cam_reset(mod_enabled_gear_system); // disable cam reset, we need the button
         mod_enabled = false;
     }
-    if (ImGui::IsItemHovered())
-        StanceControl::hoveredDescription = "Pressing R1 moves up a stance, pressing R2 moves down a stance";
+    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Pressing R1 moves up a stance, pressing R2 moves down a stance";
 
     if (mod_enabled_gear_system) {
         ImGui::Indent();
         ImGui::Checkbox("Use Hold Inputs", &gear_system_holds);
-        if (ImGui::IsItemHovered())
-            StanceControl::hoveredDescription = "Instead of toggling stances, access them with hold inputs. Hold R1 for High, R2 for low";
+        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Instead of toggling stances, access them with hold inputs. Hold R1 for High, R2 for low";
 
         ImGui::Checkbox("Combo Extend Speedup On Low Attacks", &mod_enabled_faster_nu_lows);
-        if (ImGui::IsItemHovered())
-            StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks";
+        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks";
+
         ImGui::Unindent();
     }
 
@@ -493,21 +485,18 @@ void StanceControl::on_draw_ui() {
     // if (ImGui::Checkbox("Swap Vanilla Mid and Low UI", &StanceControl::edit_old_ui)) {
     //     toggle_display_edit(edit_old_ui);
     // }
-    // if (ImGui::IsItemHovered())
-    //     StanceControl::hoveredDescription = "Makes the vanilla stance display consider the default low stance as mid stance.";
+    // if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Makes the vanilla stance display consider the default low stance as mid stance.";
 
     if (ImGui::Checkbox("Swap Idle Stances", &swapIdleStances)) {
         toggleSwapIdleStances(swapIdleStances);
     }
-    if (ImGui::IsItemHovered())
-        StanceControl::hoveredDescription = "The High/Low stances are mistakenly inverted by default, forcing Travis to take on the incorrect stance. This setting "
+    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "The High/Low stances are mistakenly inverted by default, forcing Travis to take on the incorrect stance. This setting "
                 "corrects that issue. This is purely cosmetic.";
 
     if (ImGui::Checkbox("Disable Combo Extend Speedup", &mod_enabled_disable_combo_extend_speedup)) {
         toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
     }
-    if (ImGui::IsItemHovered())
-        StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";
+    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";
 }
 
 

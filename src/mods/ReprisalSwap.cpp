@@ -93,14 +93,13 @@ const char* ReprisalSwap::defaultDescription = "Reworks parry reprisals by assig
 const char* ReprisalSwap::hoveredDescription = defaultDescription;
 
 void ReprisalSwap::on_draw_ui() {
-    if (!ImGui::IsAnyItemHovered())
-        ReprisalSwap::hoveredDescription = defaultDescription;
+    if (!ImGui::IsAnyItemHovered()) ReprisalSwap::hoveredDescription = defaultDescription;
+
     ImGui::Checkbox("High Attack Reprisal", &mod_enabled); // high is pressed after gold block
-    if (ImGui::IsItemHovered())
-        ReprisalSwap::hoveredDescription = "Changes the parry reprisal to HIGH Charged Slash when performed in HIGH stance.";
+    if (ImGui::IsItemHovered()) ReprisalSwap::hoveredDescription = "Changes the parry reprisal to HIGH Charged Slash when performed in HIGH stance.";
+
     ImGui::Checkbox("Mid Stance Reprisal", &mid_stance_enabled); // high is pressed after gold block while in mid stance
-    if (ImGui::IsItemHovered())
-        ReprisalSwap::hoveredDescription = "Changes the parry reprisal to MID Charged Slash when performed in MID stance.";
+    if (ImGui::IsItemHovered()) ReprisalSwap::hoveredDescription = "Changes the parry reprisal to MID Charged Slash when performed in MID stance.";
 }
 
 // during load

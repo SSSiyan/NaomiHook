@@ -1,6 +1,9 @@
 #include "LockOnSettings.hpp"
 
 #if 1
+const char* LockOnSettings::defaultDescription = "Lock On Settings";
+const char* LockOnSettings::hoveredDescription = defaultDescription;
+
 bool      LockOnSettings::lockon_more_actions = false;
 bool      LockOnSettings::lockon_deathblows = false;
 bool      LockOnSettings::lockon_deathblows_start = false;
@@ -168,28 +171,44 @@ static void toggle_kick_cancel(bool enable) {
     VirtualProtect(OverheadKickAddr, sizeof(float), oldProtect, &oldProtect);
 }
 
+void LockOnSettings::render_description() const {
+    ImGui::TextWrapped(LockOnSettings::hoveredDescription);
+}
+
 void LockOnSettings::on_draw_ui() {
+    if (!ImGui::IsAnyItemHovered()) LockOnSettings::hoveredDescription = defaultDescription;
+
     ImGui::Checkbox("Enable lockon during more actions", &lockon_more_actions);
+    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "@DHMalice";
 
     if (ImGui::Checkbox("Full Lockon Freedom During Deathblows", &lockon_deathblows)) {
         toggle_deathblow_lockon(lockon_deathblows);
     }
+    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "@DHMalice";
+
     if (ImGui::Checkbox("Disable Deathblows removing your lockon", &lockon_deathblows_start)) {
         toggle_deathblow_lockon_start(lockon_deathblows_start);
     }
+    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "@DHMalice";
+
     if (ImGui::Checkbox("Disable Parry QTEs removing your lockon", &lockon_parry_qtes)) {
         toggle_parry_qte_lockon(lockon_parry_qtes);
     }
+    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "@DHMalice";
+
     ImGui::Checkbox("Custom Target Switch Horizontal Limit", &horizontal_limit_toggle);
+    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "@DHMalice";
     if (horizontal_limit_toggle) {
         ImGui::Indent();
         ImGui::SliderAngle("##CustomSearchDegreesSliderFloat", &horizontal_limit_custom_search_degrees, 0.0f, 360.0f, "%.0f");
-        help_marker("90 degrees default");
+        if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "90 degrees default";
         ImGui::Unindent();
     }
+
     if (ImGui::Checkbox("Lockon Disables Throws", &disable_throws_mod_enabled)) {
         toggle_kick_cancel(disable_throws_mod_enabled);
     }
+    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "@DHMalice";
 }
 
 // during load

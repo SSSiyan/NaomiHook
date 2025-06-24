@@ -2,6 +2,9 @@
 #include "ArcadeMode.hpp"
 #include "QuickBoot.hpp" // Quick boot uses this detour
 
+const char* ArcadeMode::defaultDescription = "Play through the entire game in one sitting while skipping all the stuff in between. Nothing but gameplay in this mode.";
+const char* ArcadeMode::hoveredDescription = defaultDescription;
+
 bool ArcadeMode::mod_enabled = false;
 
 uintptr_t ArcadeMode::jmp_ret1 = NULL;
@@ -119,11 +122,17 @@ std::optional<std::string> ArcadeMode::on_initialize() {
     return Mod::on_initialize();
 }
 
+void ArcadeMode::render_description() const {
+    ImGui::TextWrapped(ArcadeMode::hoveredDescription);
+}
+
 void ArcadeMode::on_draw_ui() {
+    if (!ImGui::IsAnyItemHovered()) ArcadeMode::hoveredDescription = defaultDescription;
+
     ImGui::Checkbox("Arcade Mode", &mod_enabled);
-    help_marker("Enable this option in the Motel then exit through the door to begin.\n"
+    if (ImGui::IsItemHovered()) ArcadeMode::hoveredDescription = "Enable this option in the Motel then exit through the door to begin.\n"
         "To function flawlessly this feature currently requires a savegame with no story progress or you will get stuck. We're working on it!\n"
-        "For now if you get stuck you can teleport to a new area in Stage Warp while this is ticked to jump to the next part.");
+        "For now if you get stuck you can teleport to a new area in Stage Warp while this is ticked to jump to the next part.";
 }
 
 // during load

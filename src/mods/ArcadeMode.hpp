@@ -16,7 +16,10 @@ public:
   // mod name string for config
   std::string get_mod_name() const override { return "ArcadeMode"; }
   std::string get_human_readable_name() const { return "Garden of Madness Mode"; }
-  const char* get_description() const override { return R"(Play through the entire game in one sitting while skipping all the stuff in between. Nothing but gameplay in this mode.)"; };
+  // const char* get_description() const override { return R"(Play through the entire game in one sitting while skipping all the stuff in between. Nothing but gameplay in this mode.)"; };
+  void render_description() const override;
+  static const char* defaultDescription;
+  static const char* hoveredDescription;
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
