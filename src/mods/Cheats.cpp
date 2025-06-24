@@ -4,6 +4,7 @@ bool Cheats::take_no_damage = false;
 bool Cheats::deal_no_damage = false;
 bool Cheats::spend_no_battery = false;
 bool Cheats::enemies_dont_attack = false;
+bool Cheats::invincible = false; // DodgeSettings handles this
 
 void Cheats::toggleTakeNoDamage(bool enable) {
     if (enable) {
@@ -46,6 +47,8 @@ std::optional<std::string> Cheats::on_initialize() {
 }
 
 void Cheats::on_draw_ui() {
+    ImGui::Checkbox("Invincible", &invincible);
+
     if (ImGui::Checkbox("Take No Damage", &take_no_damage)) {
         toggleTakeNoDamage(take_no_damage);
     }
@@ -103,6 +106,8 @@ void Cheats::on_config_load(const utility::Config &cfg) {
 
     enemies_dont_attack = cfg.get<bool>("enemies_dont_attack").value_or(false);
     toggleEnemiesDontAttack(enemies_dont_attack);
+
+    invincible = cfg.get<bool>("invincible").value_or(false);
 }
 // during save
 void Cheats::on_config_save(utility::Config &cfg) {
@@ -113,6 +118,8 @@ void Cheats::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("spend_no_battery", spend_no_battery);
 
     cfg.set<bool>("enemies_dont_attack", enemies_dont_attack);
+
+    cfg.set<bool>("invincible", invincible);
 }
 
 // do something every frame

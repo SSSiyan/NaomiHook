@@ -19,6 +19,8 @@ public:
   static bool enemies_dont_attack;
   void toggleEnemiesDontAttack(bool enabled);
 
+  static bool invincible; // DodgeSettings handles this
+
   // mod name string for config
   std::string get_mod_name() const override { return "Cheats"; }
   std::string get_human_readable_name() const { return "Cheats"; }

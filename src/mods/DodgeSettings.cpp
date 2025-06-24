@@ -1,4 +1,5 @@
 #include "DodgeSettings.hpp"
+#include "Cheats.hpp"
 #if 1
 bool DodgeSettings::roll_forward_mod_enabled = false;
 uintptr_t DodgeSettings::roll_forward_jmp_ret1 = NULL;
@@ -257,9 +258,13 @@ naked void roll_rotation_detour1() { // player in edi
 naked void darkstep_invinc_detour1() { // mSetDamage+F9 // damage receiver in esi
     __asm {
         //
-            cmp byte ptr [DodgeSettings::darkstep_invinc_mod_enabled], 0
-            je originalcode
+            cmp byte ptr [Cheats::invincible], 1
+            je jmp_ja
+            cmp byte ptr [DodgeSettings::darkstep_invinc_mod_enabled], 1
+            je checkDarkSideModeColor
+            jmp originalcode
 
+        checkDarkSideModeColor:
             push eax
             mov eax, [DodgeSettings::darkstep_invinc_CBgCtrl]
             mov eax, [eax]
@@ -268,15 +273,12 @@ naked void darkstep_invinc_detour1() { // mSetDamage+F9 // damage receiver in es
             jg jmp_ja
 
         originalcode:
-            cmp byte ptr [esi+0x000029A7], 01 // mStageChangeMuteki
+            cmp byte ptr [esi+0x000029A1],01 // mDead
         //jmp_ret:
             jmp dword ptr [DodgeSettings::darkstep_invinc_jmp_ret1]
 
         jmp_ja:
-            mov ecx, [DodgeSettings::darkstep_invinc_gpBattle]
-            mov ecx, [ecx]
-            mov ecx, [ecx+0x164]
-            jmp dword ptr [DodgeSettings::darkstep_invinc_jmp_ja1]
+            jmp dword ptr [DodgeSettings::darkstep_invinc_jmp_ja1] // nmh.mHRPc::mSetDamage+118B
     }
 }
  // clang-format on
@@ -343,9 +345,9 @@ std::optional<std::string> DodgeSettings::on_initialize() {
 
     // darkstep invinc
     DodgeSettings::darkstep_invinc_CBgCtrl = g_framework->get_module().as<uintptr_t>() + 0x8446F0;
-    DodgeSettings::darkstep_invinc_gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
+    // DodgeSettings::darkstep_invinc_gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
     DodgeSettings::darkstep_invinc_jmp_ja1 = g_framework->get_module().as<uintptr_t>() + 0x3D68FB;
-    if (!install_hook_offset(0x3D5869, darkstep_invinc_m_hook1, &darkstep_invinc_detour1, &DodgeSettings::darkstep_invinc_jmp_ret1, 7)) {
+    if (!install_hook_offset(0x3D57CF, darkstep_invinc_m_hook1, &darkstep_invinc_detour1, &DodgeSettings::darkstep_invinc_jmp_ret1, 7)) {
         spdlog::error("Failed to init Invincibility mod\n");
         return "Failed to init Invincibility mod";
     }
