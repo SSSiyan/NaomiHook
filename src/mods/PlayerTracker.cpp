@@ -2084,6 +2084,90 @@ void DrawPlayerStats() {
             }
         }
     }
+
+
+    if (ImGui::CollapsingHeader("HrScreenFilter")) {
+        if (HrScreenFilter* filter = nmh_sdk::get_HrScreenFilter()) {
+
+            auto& u = filter->uni;
+
+            ImGui::Text("InitFlag:");
+            ImGui::SameLine();
+            ImGui::InputInt("##InitFlag", &u.InitFlag);
+
+            ImGui::Separator();
+
+            ImGui::Text("Padding_1017 skipped");
+
+            // tagGHMR_TEX Full
+            ImGui::Text("Full:");
+            ImGui::Indent();
+            ImGui::InputScalar("Width##Full", ImGuiDataType_U16, &u.Full.Width);
+            ImGui::InputScalar("Height##Full", ImGuiDataType_U16, &u.Full.Height);
+            // that didnt work, idk what i was expecting
+            // ImGui::Image(u.Full.ImageBuffer, ImVec2(256.0f, 256.0f));
+            ImGui::Unindent();
+
+            ImGui::Separator();
+
+            // tagGHMR_TEX Div2
+            ImGui::Text("Div2:");
+            ImGui::Indent();
+            ImGui::InputScalar("Width##Full", ImGuiDataType_U16, &u.Div2.Width);
+            ImGui::InputScalar("Height##Full", ImGuiDataType_U16, &u.Div2.Height);
+            // ImGui::Image(u.Div2.ImageBuffer, ImVec2(128.0f, 128.0f));
+            ImGui::Unindent();
+
+            ImGui::Separator();
+
+            // Noise[3]
+            for (int i = 0; i < 3; ++i) {
+                ImGui::Text("Noise[%d]:", i);
+                ImGui::Indent();
+                ImGui::InputScalar(("Width##Noise" + std::to_string(i)).c_str(), ImGuiDataType_U16, &u.Noise[i].Width);
+                ImGui::InputScalar(("Height##Noise" + std::to_string(i)).c_str(), ImGuiDataType_U16, &u.Noise[i].Height);
+                ImGui::Unindent();
+            }
+
+            ImGui::Separator();
+
+            // Param[8][2]
+            for (int i = 0; i < 8; ++i) {
+                ImGui::PushID(i);
+                ImGui::Text("Param[%d]", i);
+                ImGui::SameLine();
+                ImGui::InputInt2("##Param", u.Param[i]);
+                ImGui::PopID();
+            }
+
+            ImGui::Separator();
+
+            ImGui::InputInt("AnimCounter", &u.AnimCounter);
+
+            ImGui::Text("CaptureOnly:");
+            ImGui::SameLine();
+            ImGui::InputInt("##CaptureOnly", &u.CaptureOnly);
+
+            ImGui::Separator();
+
+            ImGui::InputInt("NoiseLineNum", &u.NoiseLineNum);
+            ImGui::InputInt("NoiseRefreshWait", &u.NoiseRefreshWait);
+            ImGui::InputInt("NoiseRefreshCounter", &u.NoiseRefreshCounter);
+            ImGui::InputFloat("NoiseMax", &u.NoiseMax, 0.01f, 0.1f, "%.3f");
+            ImGui::InputFloat("NoiseDownSpeed", &u.NoiseDownSpeed, 0.01f, 0.1f, "%.3f");
+
+            ImGui::Separator();
+
+            if (ImGui::TreeNode("NoiseZure[0..480]")) {
+                for (int i = 0; i < 480; ++i) {
+                    ImGui::PushID(i);
+                    ImGui::InputFloat(("##NoiseZure" + std::to_string(i)).c_str(), &u.NoiseZure[i], 0.01f, 0.1f, "%.3f");
+                    ImGui::PopID();
+                }
+                ImGui::TreePop();
+            }
+        }
+    }
 }
 
 void PlayerTracker::on_draw_ui() {

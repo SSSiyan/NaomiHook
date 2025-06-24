@@ -38,6 +38,12 @@ namespace nmh_sdk {
         return HrCameraPtr;
     }
 
+    HrScreenFilter* get_HrScreenFilter()
+    {
+        static HrScreenFilter* HrScreenFilterPtr = (HrScreenFilter*)(g_framework->get_module().as<uintptr_t>() + 0x85E440);
+        return HrScreenFilterPtr;
+    }
+
     HrMenuTask* get_HrMenuTask() {
         static uintptr_t hrMenuTaskPtr = g_framework->get_module().as<uintptr_t>() + 0x8447D4;
         if (HrMenuTask* hrMenuTask = (HrMenuTask*)*(uintptr_t*)hrMenuTaskPtr)

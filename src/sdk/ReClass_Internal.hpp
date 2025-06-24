@@ -5602,3 +5602,24 @@ public:
   /* 0x5d90 */ class NMH1MouseInteractionObject livingRoomInteractions[9];
   /* 0x62e8 */ class NMH1MouseInteractionObject bedRoomInteractions[7];
 }; /* size: 0x6710 */
+
+struct HrScreenFilter {
+    struct UNION {
+        /* 0x0000 */ int InitFlag;
+        /* 0x0001 */ char Padding_1017[3];
+        /* 0x0004 */ struct tagGHMR_TEX Full;
+        /* 0x002c */ struct tagGHMR_TEX Div2;
+        /* 0x0054 */ struct tagGHMR_TEX Noise[3];
+        /* 0x00cc */ int Param[8][2];
+        /* 0x010c */ int AnimCounter;
+        /* 0x0110 */ int CaptureOnly;
+        /* 0x0111 */ char Padding_1018[3];
+        /* 0x0114 */ int NoiseLineNum;
+        /* 0x0118 */ int NoiseRefreshWait;
+        /* 0x011c */ int NoiseRefreshCounter;
+        /* 0x0120 */ float NoiseMax;
+        /* 0x0124 */ float NoiseDownSpeed;
+        /* 0x0128 */ float NoiseZure[480];
+    }; /* size: 0x08a8 */
+    /* 0x0000 */ HrScreenFilter::UNION uni;
+}; /* size: 0x0001 */

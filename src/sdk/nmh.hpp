@@ -9,6 +9,7 @@ namespace nmh_sdk {
 	DolphinApp* get_DolphinApp();
 	HrGameTask* get_HrGameTask();
     HrCamera* get_HrCamera();
+    HrScreenFilter* get_HrScreenFilter();
 
 	typedef bool(__thiscall* setStageFunc)(CBgCtrl* CBgCtrl, const char* _StgName, int _StgAdd, int _Arg1, int _Arg2, bool inBossInfoDisp, int inFadeType, __int64 inSetVolRate, bool inPause, unsigned int a10);
 	typedef bool(__thiscall* mSetVisibleFunc)(mHRPc* mHRPc, bool inVisible); // 0x3D6D90
