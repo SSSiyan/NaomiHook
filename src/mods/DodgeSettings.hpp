@@ -50,6 +50,7 @@ public:
   static uintptr_t darkstep_invinc_jmp_ja1;
   static uintptr_t darkstep_invinc_CBgCtrl;
   static uintptr_t darkstep_invinc_gpBattle;
+  static uintptr_t darkstep_check_throw_attack;
   /////////////////////////////////////////////////////////////
 
   static const char* defaultDescription;
