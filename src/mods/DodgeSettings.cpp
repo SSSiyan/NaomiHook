@@ -269,17 +269,19 @@ naked void darkstep_invinc_detour1() { // mSetDamage+F9 // damage receiver in es
             mov eax, [DodgeSettings::darkstep_invinc_CBgCtrl]
             mov eax, [eax]
             test eax, eax
-            je originalcode
+            je popcode
             cmp word ptr [eax+0xaa8], 0 // is screen m_DarkSideModeColor?
-            pop eax
             jg jmp_ja
 
+        popcode:
+            pop eax
         originalcode:
             cmp byte ptr [esi+0x000029A1],01 // mDead
         //jmp_ret:
             jmp dword ptr [DodgeSettings::darkstep_invinc_jmp_ret1]
 
         jmp_ja:
+            pop eax
             jmp dword ptr [DodgeSettings::darkstep_invinc_jmp_ja1] // nmh.mHRPc::mSetDamage+118B
     }
 }

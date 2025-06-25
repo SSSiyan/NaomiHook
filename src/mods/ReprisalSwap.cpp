@@ -12,7 +12,7 @@ uintptr_t ReprisalSwap::detour2je = NULL;
 // clang-format off
 naked void detour1() { // player in ecx
     __asm {
-        cmp [ecx+0x1350], 2 // mid
+        cmp dword ptr [ecx+0x1350], 2 // mid
         jne highchargecheck
         mov eax, ePcMtBtAtkChg // mid charge
         jmp originalcode
@@ -22,7 +22,7 @@ naked void detour1() { // player in ecx
         je originalcode
 
     // if any 3 stance mod is enabled, don't check for input
-        cmp [ecx+0x1350], 0 // high
+        cmp dword ptr [ecx+0x1350], 0 // high
         jne originalcode // this leaves only low
         cmp byte ptr [StanceControl::mod_enabled], 1
         je skipInputCheck
@@ -56,9 +56,9 @@ naked void detour2() { // disable parries on new reprisals // player in edi
         cmp byte ptr [ReprisalSwap::mod_enabled], 0
         je originalcode
 
-        cmp [edi+0x18C], ePcMtBtAtkChg
+        cmp dword ptr [edi+0x18C], ePcMtBtAtkChg
         je jmp_je
-        cmp [edi+0x18C], ePcMtBtAtkChgUp
+        cmp dword ptr [edi+0x18C], ePcMtBtAtkChgUp
         je jmp_je
 
     originalcode:
@@ -77,7 +77,7 @@ std::optional<std::string> ReprisalSwap::on_initialize() {
         spdlog::error("Failed to init ReprisalSwap mod\n");
         return "Failed to init ReprisalSwap mod";
     }
-    detour2je = g_framework->get_module().as<uintptr_t>() + 0x3CAB5E;
+    detour2je = g_framework->get_module().as<uintptr_t>() + 0x3CAB6F;
     if (!install_hook_offset(0x3CAB55, m_hook2, &detour2, &ReprisalSwap::jmp_ret2, 7)) {
         spdlog::error("Failed to init ReprisalSwap mod 2\n");
         return "Failed to init ReprisalSwap mod 2";
