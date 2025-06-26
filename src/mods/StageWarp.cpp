@@ -72,7 +72,7 @@ Frame stageImage;
 void StageWarp::render_description() const {
     ImVec2 availableSpace = ImGui::GetContentRegionAvail();
     //ImGui::Button(buttonIcon, ImVec2(availableSpace.y, availableSpace.y));
-    ImGui::Image(g_stage_warp_texture_atlas->GetTexture(), ImVec2(availableSpace.y, availableSpace.y), stageImage.uv0, stageImage.uv1, ImVec4(1,1,1,1));
+    ImGui::ImageWithBg((ImTextureID)g_stage_warp_texture_atlas->GetTexture(), ImVec2(availableSpace.y, availableSpace.y), stageImage.uv0, stageImage.uv1, ImVec4(1,1,1,1));
     ImGui::SameLine();
     ImGui::BeginGroup();
     ImGui::TextColored(stageNameColor, stageName);

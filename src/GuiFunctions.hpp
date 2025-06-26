@@ -32,7 +32,7 @@ struct Keyframe {
 };
 
 struct ImGuiRaiiFont {
-    explicit ImGuiRaiiFont(ImFont* font) { ImGui::PushFont(font); };
+    explicit ImGuiRaiiFont(ImFont* font, float scale) { ImGui::PushFont((ImFont*)font, scale); };
     ~ImGuiRaiiFont() noexcept { ImGui::PopFont(); }
     // no copies
     ImGuiRaiiFont(const ImGuiRaiiFont&)            = delete;

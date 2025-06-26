@@ -24,7 +24,7 @@ void setBit(T& flags, int bit, bool value) {
 }
 
 void DrawPlayerStats() {
-    if (ImGui::TreeNodeEx("Useful", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::TreeNodeEx("Useful", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (mHRPc* player = nmh_sdk::get_mHRPc()) {
             ImGui::Text("Player");
             ImGui::SliderFloat("Player HP ##Useful", &player->mCharaStatus.hp, 0.0f, player->mCharaStatus.maxHp);
@@ -63,7 +63,7 @@ void DrawPlayerStats() {
     }
 
     /*if (mHRPc* player = nmh_sdk::get_mHRPc()) {
-        if (ImGui::TreeNodeEx("Cancel timings")) {
+        if (ImGui::TreeNodeEx("Cancel timings", ImGuiTreeNodeFlags_DrawLinesFull)) {
             // MEMORY_BASIC_INFORMATION mbi;
             // VirtualQuery((uintptr_t*)gPcCommonTable, &mbi, sizeof(mbi));
             // int protectionFlag = 0;
@@ -106,7 +106,7 @@ void DrawPlayerStats() {
         }
     }*/
 
-    if (ImGui::TreeNodeEx("HrGameTask")) {
+    if (ImGui::TreeNodeEx("HrGameTask", ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (HrGameTask* hrGameTask = nmh_sdk::get_HrGameTask()) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrGameTask->Padding_972);
             // ImGui::Text("Base Address: 0x%08X", baseAddress);
@@ -153,7 +153,7 @@ void DrawPlayerStats() {
             ImGui::InputScalar("m_Process_id", ImGuiDataType_S32, &hrGameTask->m_Process_id);
             ImGui::InputScalar("m_Pro_Sts", ImGuiDataType_S32, &hrGameTask->m_Pro_Sts);
             ImGui::Text("mp_SaveData: %p", hrGameTask->mp_SaveData);
-            if (ImGui::TreeNodeEx("mp_SaveData")) { // @Siy
+            if (ImGui::TreeNodeEx("mp_SaveData", ImGuiTreeNodeFlags_DrawLinesFull)) { // @Siy
                 if (hrGameTask->mp_SaveData) {
                     ImGui::InputInt("mp_SaveData->t_MainScenarioID", &hrGameTask->mp_SaveData->t_MainScenarioID);
                 }
@@ -212,7 +212,7 @@ void DrawPlayerStats() {
         }
         ImGui::TreePop();
     }
-    if (ImGui::TreeNodeEx("m_pHrMenuTask")) {
+    if (ImGui::TreeNodeEx("m_pHrMenuTask", ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (HrMenuTask* HrMenuTask = nmh_sdk::get_HrMenuTask()) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&HrMenuTask->m_pHrMenuTask);
             // ImGui::Text("Base Address: 0x%08X", baseAddress);
@@ -231,7 +231,7 @@ void DrawPlayerStats() {
         }
         ImGui::TreePop();
     }   
-    if (ImGui::TreeNodeEx("HrMenuTask->hsSourceBase")) {
+    if (ImGui::TreeNodeEx("HrMenuTask->hsSourceBase", ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (hsSourceBase* hsMenu = nmh_sdk::get_HrMenuTask()->m_pHsMenu) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&HrMenuTask->m_pHsMenu->Padding_1229[0]);
             // ImGui::Text("Base Address: 0x%08X", baseAddress);
@@ -334,7 +334,7 @@ void DrawPlayerStats() {
         ImGui::TreePop();
     }
     if (CBgCtrl* CBgCtrl = nmh_sdk::get_CBgCtrl()) {
-        if (ImGui::TreeNodeEx("CBgCtrl")) {
+        if (ImGui::TreeNodeEx("CBgCtrl", ImGuiTreeNodeFlags_DrawLinesFull)) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&CBgCtrl->Padding_1372);
             // ImGui::Text("Base Address: 0x%08X", baseAddress);
             // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&CBgCtrl->mReleaseWaitCount);
@@ -437,7 +437,7 @@ void DrawPlayerStats() {
         }
     }
     if (mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle()) {
-        if (ImGui::TreeNodeEx("mHRBattle")) {
+        if (ImGui::TreeNodeEx("mHRBattle", ImGuiTreeNodeFlags_DrawLinesFull)) {
             ImGui::InputInt("mBtlInitProc", (int*)&mHRBattle->mBtlInitProc);
             ImGui::InputInt("mBtlFrameProc", (int*)&mHRBattle->mBtlFrameProc);
             ImGui::Text("struct mCamStatus Address: 0x%08X", ((uintptr_t)(&mHRBattle->mCamStatus)));
@@ -455,14 +455,14 @@ void DrawPlayerStats() {
             if (ImGui::Checkbox("chargeDamage", &chargeDamage)) setBit(mHRBattle->mFlag, 3, chargeDamage);
             ImGui::TreePop();
         }
-        if (ImGui::TreeNodeEx("mHRBattle stBtEffect")) {
+        if (ImGui::TreeNodeEx("mHRBattle stBtEffect", ImGuiTreeNodeFlags_DrawLinesFull)) {
             ImGui::InputInt("slowMotTotalTick", &mHRBattle->mBtEffect.slowMotTotalTick);
             ImGui::InputInt("slowMotTick", &mHRBattle->mBtEffect.slowMotTick);
             ImGui::InputInt("bulletSlowTick", &mHRBattle->mBtEffect.bulletSlowTick);
             ImGui::InputInt("bossBreakSlowTick", &mHRBattle->mBtEffect.bossBreakSlowTick);
             ImGui::TreePop();
         }
-        if (ImGui::TreeNodeEx("mHRBattle HrScreenStatus")) {
+        if (ImGui::TreeNodeEx("mHRBattle HrScreenStatus", ImGuiTreeNodeFlags_DrawLinesFull)) {
             if (mHRBattle->mBtEffect.pScreenStatus) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mHRBattle->mBtEffect.pScreenStatus->Padding_0[0]);
                 // ImGui::Text("Base Address: 0x%08X", baseAddress);
@@ -623,7 +623,7 @@ void DrawPlayerStats() {
             }
             ImGui::TreePop();
         }
-        if (ImGui::TreeNodeEx("mHRBattle HrScreenStatus HrInGameMenu")) {
+        if (ImGui::TreeNodeEx("mHRBattle HrScreenStatus HrInGameMenu", ImGuiTreeNodeFlags_DrawLinesFull)) {
             if (mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->Padding_1054[0]);
                 // ImGui::Text("Base Address: 0x%08X", baseAddress);
@@ -722,7 +722,7 @@ void DrawPlayerStats() {
                     ImGui::InputScalar(("Menu Icon Shift Counter " + std::to_string(i)).c_str(), ImGuiDataType_S16, &mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_MenuIconShift_COUNTER[i]);
                 }
                 ImGui::Separator();
-                if (ImGui::TreeNode("Dot Circle XY Grid")) {
+                if (ImGui::TreeNodeEx("Dot Circle XY Grid", ImGuiTreeNodeFlags_DrawLinesFull)) {
                     for (int i = 0; i < 23; i++) {
                         for (int j = 0; j < 23; j++) {
                             for (int k = 0; k < 2; k++) {
@@ -753,7 +753,7 @@ void DrawPlayerStats() {
             ImGui::TreePop();
         }
         if (mHRPc* player = nmh_sdk::get_mHRPc()) {
-            if (ImGui::TreeNodeEx("mHRPc")) {
+            if (ImGui::TreeNodeEx("mHRPc", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->pad_00);
                 // ImGui::Text("Base Address: 0x%08X", baseAddress);
                 // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&player->mOperate);
@@ -786,7 +786,7 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("mBanStatusScreen", &player->mBanStatusScreen);
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNodeEx("mHRPC tagMAIN")) {
+            if (ImGui::TreeNodeEx("mHRPC tagMAIN", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 if (player->tagMain) {
                     // ImGui::Text("pGlobalListPrev: %p", player->tagMain->pGlobalListPrev);
                     // ImGui::Text("pGlobalListNext: %p", player->tagMain->pGlobalListNext);
@@ -1015,10 +1015,10 @@ void DrawPlayerStats() {
                 }
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNodeEx("mHRPc tagMAIN tagMOTION")) {
+            if (ImGui::TreeNodeEx("mHRPc tagMAIN tagMOTION", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 for (int i = 0; i < 4; ++i) {
                     if (&player->tagMain->Motion[i]) {
-                        if (ImGui::TreeNodeEx(("Motion " + std::to_string(i)).c_str())) {
+                        if (ImGui::TreeNodeEx(("Motion " + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DrawLinesFull)) {
                             ImGui::Checkbox(("Valid 1 [" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Valid[0]);
                             ImGui::Checkbox(("Valid 2 [" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Valid[1]);
                             ImGui::InputFloat(("BlendWeight[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].BlendWeight);
@@ -1041,7 +1041,7 @@ void DrawPlayerStats() {
                                 ImGui::Checkbox(("LoopFlag2[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].LoopFlag2[j]);
                                 ImGui::InputFloat(("LoopMotionTime2[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].LoopMotionTime2[j]);
                                 ImGui::InputInt(("SetupMatrixFlagNum[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].SetupMatrixFlagNum[j]);
-                                if (ImGui::TreeNode(("MOVInfo[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str())) {
+                                if (ImGui::TreeNodeEx(("MOVInfo[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), ImGuiTreeNodeFlags_DrawLinesFull)) {
                                     // ImGui::Text("pGanPlay: %p", player->tagMain->Motion[i].MOVInfo[j].pGanPlay);
                                     ImGui::Checkbox(("ValidPrevPos[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].MOVInfo[j].ValidPrevPos);
                                     ImGui::InputFloat3(("NowPos[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), &player->tagMain->Motion[i].MOVInfo[j].NowPos.x);
@@ -1055,7 +1055,7 @@ void DrawPlayerStats() {
                 }
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNodeEx("mHRPc mCharaStatus")) {
+            if (ImGui::TreeNodeEx("mHRPc mCharaStatus", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->mCharaStatus.resNo);
                 // ImGui::Text("Base Address: 0x%08X", baseAddress);
                 // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&player->mCharaStatus.flag2);
@@ -1181,7 +1181,7 @@ void DrawPlayerStats() {
                 if (ImGui::Checkbox("jpnDead", &jpnDead)) setBit(player->mCharaStatus.flag2, 1, jpnDead);
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNodeEx("mHRPc mCharaStatus.dmgInfo")) {
+            if (ImGui::TreeNodeEx("mHRPc mCharaStatus.dmgInfo", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 ImGui::SliderFloat("Damage", &player->mCharaStatus.dmgInfo.dmg, 0.0f, 100.0f);
                 ImGui::InputInt("Damage Motion", &player->mCharaStatus.dmgInfo.dmgMot);
                 help_marker("Displays MotionID for current damage animation");
@@ -1212,14 +1212,14 @@ void DrawPlayerStats() {
                 ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &player->mCharaStatus.dmgInfo.m_BikeDeadRequest);
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNodeEx("mHRPc stPcStatus")) {
+            if (ImGui::TreeNodeEx("mHRPc stPcStatus", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->mPcStatus.atkMot);
                 // ImGui::Text("Base Address: 0x%08X", baseAddress);
                 // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&player->mPcStatus.skillCatch);
                 // ImGui::Text("Target Address: 0x%08X", targetAddress);
                 // uintptr_t offsetDifference = targetAddress - baseAddress;
                 // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
-                if (ImGui::TreeNodeEx("Weapon Info")) {
+                if (ImGui::TreeNodeEx("Weapon Info", ImGuiTreeNodeFlags_DrawLinesFull)) {
                     for (int i = 0; i < 16; i++) {
                         ImGui::Text("Weapon Info %d", i);
                         ImGui::InputInt(("ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.wepInfo[i].id);
@@ -1232,7 +1232,7 @@ void DrawPlayerStats() {
                     }
                     ImGui::TreePop();
                 }
-                if (ImGui::TreeNodeEx("Equipped Items")) {
+                if (ImGui::TreeNodeEx("Equipped Items", ImGuiTreeNodeFlags_DrawLinesFull)) {
                     for (int i = 0; i < 7; i++) {
                         ImGui::Text("Item %d", i);
                         ImGui::InputInt(("readProc ##" + std::to_string(i)).c_str(), (int*)&player->mPcStatus.equip[i].readProc);
@@ -1241,14 +1241,14 @@ void DrawPlayerStats() {
                     }
                     ImGui::TreePop();
                 }
-                if (ImGui::TreeNodeEx("Locker Items")) {
+                if (ImGui::TreeNodeEx("Locker Items", ImGuiTreeNodeFlags_DrawLinesFull)) {
                     for (int i = 0; i < 200; i++) {
                         ImGui::Text("Item %d", i);
                         ImGui::InputInt(("ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.locker[i].id);
                     }
                     ImGui::TreePop();
                 }
-                if (ImGui::TreeNodeEx("Inventory Items")) {
+                if (ImGui::TreeNodeEx("Inventory Items", ImGuiTreeNodeFlags_DrawLinesFull)) {
                     for (int i = 0; i < 300; i++) {
                         ImGui::Text("Item %d", i);
                         ImGui::InputInt(("ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.item[i].id);
@@ -1545,7 +1545,7 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Fire Man Tick", &player->mPcStatus.fireManTick);
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNodeEx("mHRPc mPcSaveData")) {
+            if (ImGui::TreeNodeEx("mHRPc mPcSaveData", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 ImGui::SliderFloat("Max HP", &player->mPcSaveData.maxHp, 0.0f, 1000.0f);
                 ImGui::SliderFloat("HP", &player->mPcSaveData.hp, 0.0f, player->mPcSaveData.maxHp, "%.1f");
                 ImGui::SliderFloat("Strength", &player->mPcSaveData.strength, 0.0f, 100.0f);
@@ -1577,9 +1577,9 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Clear Count", (int*)&player->mPcSaveData.clearNum);
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNodeEx("mHRBike")) {
+            if (ImGui::TreeNodeEx("mHRBike", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 if (player->mpBike) {
-                    if (ImGui::TreeNodeEx("mBike")) {
+                    if (ImGui::TreeNodeEx("mBike", ImGuiTreeNodeFlags_DrawLinesFull)) {
                         ImGui::Text("pGmf: %p", player->mpBike->mBike.pGmf);
                         ImGui::Text("pGan: %p", player->mpBike->mBike.pGan);
                         ImGui::Combo("process", (int*)&player->mpBike->mBike.process, "Process 0\0Process 1\0Process 2\0Process 3\0");
@@ -1682,7 +1682,7 @@ void DrawPlayerStats() {
                         ImGui::Text("modelAlpha: %p", player->mpBike->mBike.modelAlpha);
                         ImGui::TreePop();
                     }
-                    /*if (ImGui::TreeNodeEx("mBikeEffect")) {
+                    /*if (ImGui::TreeNodeEx("mBikeEffect", ImGuiTreeNodeFlags_DrawLinesFull)) {
                         ImGui::Text("Contents of stBikeEffect struct");
                         ImGui::TreePop();
                     }*/
@@ -1698,11 +1698,11 @@ void DrawPlayerStats() {
                     ImGui::InputFloat("mHitWait", &player->mpBike->mHitWait);
                     ImGui::Checkbox("mRotLock", &player->mpBike->mRotLock);
                     ImGui::Checkbox("mBkAtkOk", &player->mpBike->mBkAtkOk);
-                    /*if (ImGui::TreeNodeEx("mBkPathWalk")) {
+                    /*if (ImGui::TreeNodeEx("mBkPathWalk", ImGuiTreeNodeFlags_DrawLinesFull)) {
                         ImGui::Text("Contents of hPathWalk class");
                         ImGui::TreePop();
                     }
-                    if (ImGui::TreeNodeEx("mVirtualBkPath")) {
+                    if (ImGui::TreeNodeEx("mVirtualBkPath", ImGuiTreeNodeFlags_DrawLinesFull)) {
                         ImGui::Text("Contents of hPath class");
                         ImGui::TreePop();
                     }*/
@@ -1710,11 +1710,11 @@ void DrawPlayerStats() {
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNodeEx("hHRPc mPcEffect")) {
+            if (ImGui::TreeNodeEx("hHRPc mPcEffect", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 ImGui::Checkbox("Laser Track Fade", &player->mPcEffect.laserTrackFade);
                 ImGui::InputFloat("Laser Depth", &player->mPcEffect.laserDepth);
                 ImGui::InputInt("Laser Wait Tick", &player->mPcEffect.laserWaitTick);
-                if (ImGui::TreeNodeEx("EffectCloseContest")) {
+                if (ImGui::TreeNodeEx("EffectCloseContest", ImGuiTreeNodeFlags_DrawLinesFull)) {
                     if (player->mPcEffect.pCloseContest) {
                         bool state = getBit(player->mPcEffect.pCloseContest->m_Flag, 0);
                         if (ImGui::Checkbox("State", &state)) setBit(player->mPcEffect.pCloseContest->m_Flag, 0, state);
@@ -1726,7 +1726,7 @@ void DrawPlayerStats() {
                         if (ImGui::Checkbox("Visible", &visible)) setBit(player->mPcEffect.pCloseContest->m_Flag, 5, visible);
                         bool pause = getBit(player->mPcEffect.pCloseContest->m_Flag, 6);
                         if (ImGui::Checkbox("Paused", &pause)) setBit(player->mPcEffect.pCloseContest->m_Flag, 6, pause);
-                        if (ImGui::TreeNodeEx("Common")) {
+                        if (ImGui::TreeNodeEx("Common", ImGuiTreeNodeFlags_DrawLinesFull)) {
                             ImGui::InputInt("Load State", (int*)(&player->mPcEffect.pCloseContest->Uni.LoadState));
                             ImGui::Text("Texture: SoonTM");
                             ImGui::TreePop();
@@ -1747,7 +1747,7 @@ void DrawPlayerStats() {
                 ImGui::InputFloat("Speed Blur Alpha", &player->mPcEffect.speedBlurAlpha);
                 ImGui::InputFloat("Speed Blur Scale", &player->mPcEffect.speedBlurScale);
                 ImGui::InputInt("Speed Blur Repeat", &player->mPcEffect.speedBlurRepeat);
-                if (ImGui::TreeNodeEx("Speed Blur Repeat Number")) {
+                if (ImGui::TreeNodeEx("Speed Blur Repeat Number", ImGuiTreeNodeFlags_DrawLinesFull)) {
                     ImGui::InputFloat("Current Value ## Speed Blur Repeat Number", &player->mPcEffect.speedBlurRepeatNum.mCurValue);
                     ImGui::InputFloat("Destination Value ## Speed Blur Repeat Number", &player->mPcEffect.speedBlurRepeatNum.mDstValue);
                     ImGui::InputFloat("Source Value ## Speed Blur Repeat Number", &player->mPcEffect.speedBlurRepeatNum.mSrcValue);
@@ -1762,7 +1762,7 @@ void DrawPlayerStats() {
                 ImGui::Text("Throw Sabel Effect: SoonTM");
                 ImGui::InputInt("Light Reflect Tick", &player->mPcEffect.lightReflecteTick);
                 ImGui::Text("Concentration Line Effect: SoonTM");
-                if (ImGui::TreeNodeEx("Dark Value")) {
+                if (ImGui::TreeNodeEx("Dark Value", ImGuiTreeNodeFlags_DrawLinesFull)) {
                     ImGui::InputFloat("Current ## Dark Value", &player->mPcEffect.darkValue.mCurValue);
                     ImGui::InputFloat("Destination ## Dark Value", &player->mPcEffect.darkValue.mDstValue);
                     ImGui::InputFloat("Source ## Dark Value", &player->mPcEffect.darkValue.mSrcValue);
@@ -1779,7 +1779,7 @@ void DrawPlayerStats() {
                     ImGui::Text("Shinku Wave Task Check %d: SoonTM", i);
                 }
                 ImGui::Text("Model Fire Effect: SoonTM");
-                if (ImGui::TreeNodeEx("Model Fire Value")) {
+                if (ImGui::TreeNodeEx("Model Fire Value", ImGuiTreeNodeFlags_DrawLinesFull)) {
                     ImGui::InputFloat("Current ## Model Fire", &player->mPcEffect.modelFireValue.mCurValue);
                     ImGui::InputFloat("Destination ## Model Fire", &player->mPcEffect.modelFireValue.mDstValue);
                     ImGui::InputFloat("Source ## Model Fire", &player->mPcEffect.modelFireValue.mSrcValue);
@@ -1804,7 +1804,7 @@ void DrawPlayerStats() {
                 ImGui::Text("Warp Locus Effect: SoonTM");
                 ImGui::Text("Shinku Cursor Texture: SoonTM");
 
-                if (ImGui::TreeNodeEx("Hit Attack Projection")) {
+                if (ImGui::TreeNodeEx("Hit Attack Projection", ImGuiTreeNodeFlags_DrawLinesFull)) {
                     ImGui::InputFloat("Current Value ## Hit Attack Projection", &player->mPcEffect.hitAttackProjection.mCurValue);
                     ImGui::InputFloat("Destination Value ## Hit Attack Projection", &player->mPcEffect.hitAttackProjection.mDstValue);
                     ImGui::InputFloat("Source Value ## Hit Attack Projection", &player->mPcEffect.hitAttackProjection.mSrcValue);
@@ -1816,7 +1816,7 @@ void DrawPlayerStats() {
                 }
                 ImGui::Text("Monokuro Effect: SoonTM");
                 ImGui::Text("Slot Noise Effect: SoonTM");
-                if (ImGui::TreeNodeEx("Fast Action Blur")) {
+                if (ImGui::TreeNodeEx("Fast Action Blur", ImGuiTreeNodeFlags_DrawLinesFull)) {
                     ImGui::InputFloat("Current ## Fast Action Blur", &player->mPcEffect.fastActionBlur.mCurValue);
                     ImGui::InputFloat("Destination ## Fast Action Blur", &player->mPcEffect.fastActionBlur.mDstValue);
                     ImGui::InputFloat("Source ## Fast Action Blur", &player->mPcEffect.fastActionBlur.mSrcValue);
@@ -1831,10 +1831,10 @@ void DrawPlayerStats() {
             }
         }
     }
-    if (ImGui::TreeNodeEx("HrCamera")) {
+    if (ImGui::TreeNodeEx("HrCamera", ImGuiTreeNodeFlags_DrawLinesFull)) {
         uintptr_t baseAddress = g_framework->get_module().as<uintptr_t>();
         HrCamera* hrCamera = reinterpret_cast<HrCamera*>(baseAddress + 0x82A4A0);
-        if (ImGui::TreeNode("MOVE2")) {
+        if (ImGui::TreeNodeEx("MOVE2", ImGuiTreeNodeFlags_DrawLinesFull)) {
             ImGui::InputFloat3("Pc Pos", &hrCamera->MAIN.mov2.PcPos.x);
             ImGui::InputFloat("Pc Angle", &hrCamera->MAIN.mov2.PcAngle);
             ImGui::InputFloat("Cam Angle", &hrCamera->MAIN.mov2.CamAngle);
@@ -1845,14 +1845,14 @@ void DrawPlayerStats() {
             ImGui::InputFloat("Pc Look Rate", &hrCamera->MAIN.mov2.PcLookRate);
             ImGui::TreePop();
         }
-        if (ImGui::TreeNode("BATTLE2")) {
+        if (ImGui::TreeNodeEx("BATTLE2", ImGuiTreeNodeFlags_DrawLinesFull)) {
             ImGui::InputFloat3("Player Pos", &hrCamera->MAIN.bat2.PPos.x);
             ImGui::InputFloat3("Player Pos Offset", &hrCamera->MAIN.bat2.PPosOffset.x);
             ImGui::InputFloat3("Enemy Pos", &hrCamera->MAIN.bat2.EPos.x);
             ImGui::Checkbox("Debug Mode", &hrCamera->MAIN.bat2.DebugMode);
             ImGui::TreePop();
         }
-        if (ImGui::TreeNode("MOTION")) {
+        if (ImGui::TreeNodeEx("MOTION", ImGuiTreeNodeFlags_DrawLinesFull)) {
             ImGui::InputScalar("Gan Pointer", ImGuiDataType_U32, &hrCamera->MAIN.motion.pGan);
             ImGui::InputScalar("GanPlay Pointer", ImGuiDataType_U32, &hrCamera->MAIN.motion.pGanPlay);
             ImGui::InputScalar("GanPlayNode Pointer", ImGuiDataType_U32, &hrCamera->MAIN.motion.pGanPlayNode);
@@ -1867,14 +1867,14 @@ void DrawPlayerStats() {
             ImGui::Checkbox("Coll", &hrCamera->MAIN.motion.coll);
             ImGui::TreePop();
         }
-        if (ImGui::TreeNode("NORMAL")) {
+        if (ImGui::TreeNodeEx("NORMAL", ImGuiTreeNodeFlags_DrawLinesFull)) {
             ImGui::InputFloat3("Camera Pos", &hrCamera->MAIN.nrm.CPos.x);
             ImGui::InputFloat3("Target Pos", &hrCamera->MAIN.nrm.TPos.x);
             ImGui::Checkbox("Valid Fov", &hrCamera->MAIN.nrm.ValidFov);
             ImGui::InputFloat("Fov", &hrCamera->MAIN.nrm.Fov);
             ImGui::TreePop();
         }
-        if (ImGui::TreeNode("HOMING")) {
+        if (ImGui::TreeNodeEx("HOMING", ImGuiTreeNodeFlags_DrawLinesFull)) {
             ImGui::InputFloat3("Target Pos", &hrCamera->MAIN.homing.T_Pos.x);
             ImGui::InputFloat3("Camera Pos", &hrCamera->MAIN.homing.C_Pos.x);
             ImGui::InputFloat("Max Length", &hrCamera->MAIN.homing.C_T_MaxLen);
@@ -1891,7 +1891,7 @@ void DrawPlayerStats() {
             }
             ImGui::TreePop();
         }
-        if (ImGui::TreeNode("FREE")) {
+        if (ImGui::TreeNodeEx("FREE", ImGuiTreeNodeFlags_DrawLinesFull)) {
             ImGui::InputFloat3("Camera-Target Pos", &hrCamera->MAIN.free.C_T_Pos.x);
             ImGui::InputFloat("Target VDir", &hrCamera->MAIN.free.T_VDir);
             ImGui::InputFloat("VDir", &hrCamera->MAIN.free.VDir);
@@ -1899,7 +1899,7 @@ void DrawPlayerStats() {
             ImGui::InputFloat("YDir", &hrCamera->MAIN.free.YDir);
             ImGui::TreePop();
         }
-        if (ImGui::TreeNode("MOVE")) {
+        if (ImGui::TreeNodeEx("MOVE", ImGuiTreeNodeFlags_DrawLinesFull)) {
             ImGui::InputFloat3("Player Pos", &hrCamera->MAIN.mov.P_Pos.x);
             ImGui::Checkbox("Player Pos Valid", &hrCamera->MAIN.mov.P_PosValid);
             ImGui::Checkbox("Coll Valid", &hrCamera->MAIN.mov.CollValid);
@@ -1918,7 +1918,7 @@ void DrawPlayerStats() {
         ImGui::Checkbox("Change", &hrCamera->MAIN.Change);
         ImGui::TreePop();
     }
-    if (ImGui::TreeNodeEx("HrMotel")) {
+    if (ImGui::TreeNodeEx("HrMotel", ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (nmh_sdk::get_HrMenuTask()) {
             if (HrMotel* hrMotel = (HrMotel*)nmh_sdk::get_HrMenuTask()->m_pHsMenu) {
                 ImGui::InputInt("m_HrMotelState", (int*)&hrMotel->m_HrMotelState);
@@ -1988,7 +1988,7 @@ void DrawPlayerStats() {
         }
         ImGui::TreePop();
     }
-    if (ImGui::TreeNodeEx("HrMotel HrTV")) {
+    if (ImGui::TreeNodeEx("HrMotel HrTV", ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (nmh_sdk::get_HrMenuTask()) {
             if (HrMotel* hrMotel = (HrMotel*)nmh_sdk::get_HrMenuTask()->m_pHsMenu) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrMotel->Padding_1345);
@@ -2005,7 +2005,7 @@ void DrawPlayerStats() {
                     ImGui::InputScalar("Displayed Video Number", ImGuiDataType_U32, &hrTv->m_DispVideoNum);
                     ImGui::Checkbox("BGM Volume Off", &hrTv->m_BGM_Vol_Off_f);
                     for (int i = 0; i < 6; i++) {
-                        if (ImGui::TreeNode(("Item Video Box " + std::to_string(i)).c_str())) {
+                        if (ImGui::TreeNodeEx(("Item Video Box " + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DrawLinesFull)) {
                             ImGui::InputFloat("Width", &hrTv->m_Item_Video_Box[i].m_w);
                             ImGui::InputFloat("Height", &hrTv->m_Item_Video_Box[i].m_h);
                             ImGui::InputFloat("Line", &hrTv->m_Item_Video_Box[i].m_Line);
@@ -2032,7 +2032,7 @@ void DrawPlayerStats() {
                         }
                     }
                     for (int i = 0; i < 6; i++) {
-                        if (ImGui::TreeNode(("Next Video Pos " + std::to_string(i)).c_str())) {
+                        if (ImGui::TreeNodeEx(("Next Video Pos " + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DrawLinesFull)) {
                             ImGui::InputFloat("X Position", &hrTv->m_HsNextVideo[i].m_x);
                             ImGui::InputFloat("Y Position", &hrTv->m_HsNextVideo[i].m_y);
                             ImGui::TreePop();
@@ -2042,7 +2042,7 @@ void DrawPlayerStats() {
                         ImGui::InputFloat2(("Video Move Array " + std::to_string(i)).c_str(), &hrTv->m_HsVideoMoveAry[i].x);
                     }
                     for (int i = 0; i < 6; i++) {
-                        if (ImGui::TreeNode(("Video Tri " + std::to_string(i)).c_str())) {
+                        if (ImGui::TreeNodeEx(("Video Tri " + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DrawLinesFull)) {
                             ImGui::InputFloat("Width", &hrTv->m_Video_Tri[i].m_w);
                             ImGui::InputFloat("Height", &hrTv->m_Video_Tri[i].m_h);
                             ImGui::InputFloat("Line", &hrTv->m_Video_Tri[i].m_Line);
@@ -2066,18 +2066,18 @@ void DrawPlayerStats() {
         }
         ImGui::TreePop();
     }
-    if (ImGui::TreeNodeEx("HrMotel HrCat")) {
+    if (ImGui::TreeNodeEx("HrMotel HrCat", ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (nmh_sdk::get_HrMenuTask()) {
             if (HrMotel* hrMotel = (HrMotel*)nmh_sdk::get_HrMenuTask()->m_pHsMenu) {
                 if (HrCat* hrCat = hrMotel->m_pCat) {
-                    if (ImGui::TreeNodeEx("HrCat")) {
+                    if (ImGui::TreeNodeEx("HrCat", ImGuiTreeNodeFlags_DrawLinesFull)) {
                         ImGui::InputScalar("m_HsCatState", ImGuiDataType_S32, &hrCat->m_HsCatState);
                         ImGui::InputScalar("m_HsCatState", ImGuiDataType_S32, &hrCat->m_HsCatState);
                         ImGui::Text("m_Cat_Res: %p", hrCat->m_Cat_Res);  // Pointer
                         ImGui::Text("m_Etc_Model: %p", hrCat->m_Etc_Model);  // Pointer
                         ImGui::InputScalar("m_FlowType", ImGuiDataType_S32, &hrCat->m_FlowType);
                         for (int i = 0; i < 7; ++i) {
-                            if (ImGui::TreeNode(("m_Trv_Motion[" + std::to_string(i) + "]").c_str())) {
+                            if (ImGui::TreeNodeEx(("m_Trv_Motion[" + std::to_string(i) + "]").c_str(), ImGuiTreeNodeFlags_DrawLinesFull)) {
                                 ImGui::Checkbox(("m_Trv_Motion[" + std::to_string(i) + "].Loop").c_str(), &hrCat->m_Trv_Motion[i].m_Loop_f);
                                 ImGui::InputFloat(("m_Trv_Motion[" + std::to_string(i) + "].Start Motion Frame").c_str(), &hrCat->m_Trv_Motion[i].m_StartMotionframe);
                                 ImGui::TreePop();
@@ -2106,7 +2106,7 @@ void DrawPlayerStats() {
     }
 
 
-    if (ImGui::TreeNodeEx("HrScreenFilter")) {
+    if (ImGui::TreeNodeEx("HrScreenFilter", ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (HrScreenFilter* filter = nmh_sdk::get_HrScreenFilter()) {
 
             auto& u = filter->uni;
@@ -2178,7 +2178,7 @@ void DrawPlayerStats() {
 
             ImGui::Separator();
 
-            if (ImGui::TreeNode("NoiseZure[0..480]")) {
+            if (ImGui::TreeNodeEx("NoiseZure[0..480]", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 for (int i = 0; i < 480; ++i) {
                     ImGui::PushID(i);
                     ImGui::InputFloat(("##NoiseZure" + std::to_string(i)).c_str(), &u.NoiseZure[i], 0.01f, 0.1f, "%.3f");

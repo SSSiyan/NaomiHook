@@ -568,15 +568,15 @@ static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImCol
     ImGui::TableSetColumnIndex(0);
 
     ImVec2 pos = ImGui::GetCursorPos();
-
+    auto& io = ImGui::GetIO();
     // similar size for all textures so grab whatever
-    ImGui::Image(g_sword_texture_atlas->GetTexture(), 
-        blade.size, blade.uv0, blade.uv1, rgba);
+    ImGui::ImageWithBg((ImTextureID)g_sword_texture_atlas->GetTexture(), 
+        (ImVec2(blade.size.x * (io.DisplaySize.y / 1080.0f), blade.size.y * (io.DisplaySize.y / 1080.0f))), blade.uv0, blade.uv1, ImColor(0.0f, 0.0f, 0.0f, 0.0f), rgba);
 
     ImGui::SetCursorPos(pos);
 
-    ImGui::Image(g_sword_texture_atlas->GetTexture(), 
-        hilt.size, hilt.uv0, hilt.uv1);
+    ImGui::ImageWithBg((ImTextureID)g_sword_texture_atlas->GetTexture(), 
+        (ImVec2(hilt.size.x * (io.DisplaySize.y / 1080.0f), hilt.size.y * (io.DisplaySize.y / 1080.0f))), hilt.uv0, hilt.uv1, ImColor(0.0f, 0.0f, 0.0f, 0.0f));
 
     // Add second row
     ImGui::TableSetColumnIndex(1);

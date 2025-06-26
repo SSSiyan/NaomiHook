@@ -41,7 +41,7 @@ void imview_draw() {
     static ImVec2 pan_offset(0.0f, 0.0f);
     static bool opt_enable_context_menu = true;
 
-    ImTextureID my_tex_id = g_test_image->GetTexture();
+    ImTextureID my_tex_id = (ImTextureID)g_test_image->GetTexture();
     ImVec2 image_size(2550, 3258);
 
     if (!g_init) {

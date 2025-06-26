@@ -598,7 +598,7 @@ void StanceControl::on_frame() {
                 ImVec2(kanae_glow.f[pose].uv1),
             };
 
-            dl->AddImage(tex, points[0], points[1], kanae_uvs[0], kanae_uvs[1]);
+            dl->AddImage((ImTextureID)tex, points[0], points[1], kanae_uvs[0], kanae_uvs[1]);
             //dl->AddImageQuad(tex, points[0], points[1], points[2], points[3], kanae_uvs[0], kanae_uvs[1], kanae_uvs[2], kanae_uvs[3]);
             
 #if 1
@@ -610,7 +610,7 @@ void StanceControl::on_frame() {
             float glow = (((float)v4->m_GearRandCounter[1] / (float)v4->m_GearRandCounter[0]) * 255.0);
 #endif
             ImU32 oppacity = IM_COL32(255, 255, 255, (char)glow);
-            dl->AddImage(tex, points[0], points[1], glow_uvs[0], glow_uvs[1], oppacity);
+            dl->AddImage((ImTextureID)tex, points[0], points[1], glow_uvs[0], glow_uvs[1], oppacity);
             //dl->AddImageQuad(tex, points[0], points[1], points[2], points[3], glow_uvs[0], glow_uvs[1], glow_uvs[2], glow_uvs[3], oppacity);
             //dl->AddRectFilled(p0, p1, -1, 2.0f);
 

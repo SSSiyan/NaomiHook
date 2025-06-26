@@ -456,10 +456,10 @@ void WeaponSwitcher::Display_UI() {
         // or just let it float
         // ImGui::SetCursorPos(ImVec2(centerPos.x - weaponSize.x * 0.5f + weaponOffset.x, centerPos.y - weaponSize.y * 0.5f + weaponOffset.y));
 
-        if (directionPressed == 0) {ImGui::Image(g_sword_switch_texture_atlas->GetTexture(), weaponSize, Blood_Berry.uv0, Blood_Berry.uv1, ImVec4(1,1,1,alphaValue));}
-        if (directionPressed == 1) {ImGui::Image(g_sword_switch_texture_atlas->GetTexture(), weaponSize, Mk_3.uv0, Mk_3.uv1, ImVec4(1,1,1,alphaValue));}
-        if (directionPressed == 2) {ImGui::Image(g_sword_switch_texture_atlas->GetTexture(), weaponSize, Mk_1.uv0, Mk_1.uv1, ImVec4(1,1,1,alphaValue));}
-        if (directionPressed == 3) {ImGui::Image(g_sword_switch_texture_atlas->GetTexture(), weaponSize, Mk_2.uv0, Mk_2.uv1, ImVec4(1,1,1,alphaValue));}
+        if (directionPressed == 0) {ImGui::ImageWithBg((ImTextureID)g_sword_switch_texture_atlas->GetTexture(), weaponSize, Blood_Berry.uv0, Blood_Berry.uv1, ImVec4(1,1,1,alphaValue));}
+        if (directionPressed == 1) {ImGui::ImageWithBg((ImTextureID)g_sword_switch_texture_atlas->GetTexture(), weaponSize, Mk_3.uv0, Mk_3.uv1, ImVec4(1,1,1,alphaValue));}
+        if (directionPressed == 2) {ImGui::ImageWithBg((ImTextureID)g_sword_switch_texture_atlas->GetTexture(), weaponSize, Mk_1.uv0, Mk_1.uv1, ImVec4(1,1,1,alphaValue));}
+        if (directionPressed == 3) {ImGui::ImageWithBg((ImTextureID)g_sword_switch_texture_atlas->GetTexture(), weaponSize, Mk_2.uv0, Mk_2.uv1, ImVec4(1,1,1,alphaValue));}
     }
     ImGui::End();
 }

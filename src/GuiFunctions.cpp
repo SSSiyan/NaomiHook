@@ -51,7 +51,8 @@ namespace gui {
             style.ScrollbarSize = 15.0f;
             style.GrabMinSize = 10.0f;
             style.TabBorderSize = 1.0f;
-            style.TabMinWidthForCloseButton = 0.0f;
+            style.TabCloseButtonMinWidthSelected = 0.0f;
+            style.TabCloseButtonMinWidthUnselected = 0.0f;  
             style.ColorButtonPosition = ImGuiDir_Right;
             style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
             style.SelectableTextAlign = ImVec2(0.0f, 0.0f);
@@ -102,7 +103,7 @@ namespace gui {
             style.Colors[ImGuiCol_TableRowBgAlt] = ImVec4(1.0f, 1.0f, 1.0f, 0.05999999865889549f);
             style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.2000000029802322f, 0.2196078449487686f, 0.2274509817361832f, 1.0f);
             style.Colors[ImGuiCol_DragDropTarget] = ImVec4(0.3294117748737335f, 0.6666666865348816f, 0.8588235378265381f, 1.0f);
-            style.Colors[ImGuiCol_NavHighlight] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+            style.Colors[ImGuiCol_NavCursor] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
             style.Colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.0f, 0.0f, 0.0f, 0.699999988079071f);
             style.Colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.0f, 0.0f, 0.0f, 0.2000000029802322f);
             style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.0f, 0.0f, 0.0f, 0.3499999940395355f);
@@ -237,9 +238,9 @@ namespace gui {
         ImGui::SetNextWindowSize(size);
 
         bool window_open = ctx->selected_mod != nullptr;
+        ImGui::PushFont(ctx->infobox_font, 28.0f * io.DisplaySize.y / 1080.0f);
         ImGui::Begin("Info window", &window_open, ImGuiWindowFlags_NoDecoration);
         {
-            ImGui::PushFont(ctx->infobox_font);
             ImGui::PushStyleColor(ImGuiCol_Text, IMGUI_WINDOW_IN_COLOR);
 
             if (ctx->selected_mod) {
@@ -248,8 +249,8 @@ namespace gui {
             }
 
             ImGui::PopStyleColor();
-            ImGui::PopFont();
         }
+        ImGui::PopFont();
         ImGui::End();
     }
 
@@ -269,25 +270,23 @@ namespace gui {
 
         ImGui::SetNextWindowPos(offset);
         ImGui::SetNextWindowSize(size);
-
+        auto& io = ImGui::GetIO();
+        ImGuiRaiiFont font{ctx->modname_font, 38.0f * io.DisplaySize.y / 1080.0f};
         ImGui::Begin("Settings window", &window_open, ImGuiWindowFlags_NoDecoration);
         {
-
             if (ctx->selected_mod) {
                 // mod name in diff font
                 {
-                    ImGuiRaiiFont font{ctx->modname_font};
                     ImGui::PushStyleColor(ImGuiCol_Text, IMGUI_WINDOW_ST_MODNAME_COLOR);
                     ImGui::Text("%s", ctx->selected_mod->get_human_readable_name().c_str());
                     ImGui::PopStyleColor();
                 }
-                ImGuiRaiiFont font{ctx->main_font};
+                ImGuiRaiiFont font{ctx->main_font, 24.0f * io.DisplaySize.y / 1080.0f};
                 ctx->selected_mod->on_draw_ui();
             }
 
         }
         ImGui::End();
-
     }
 
     static void draw_category(OurImGuiContext* ctx, const char* category_name, ModCategory category_enum) {
@@ -335,7 +334,8 @@ namespace gui {
         }
         if (ImGui::TreeNodeEx(category_name, flags)) {
             ctx->selected_category = category_enum;
-            ImGui::PushFont(ctx->main_font);
+            auto& io = ImGui::GetIO();
+            ImGui::PushFont(ctx->main_font, 24.0f * io.DisplaySize.y / 1080.0f);
 
             for (auto& mod : g_framework->get_mods()->m_mods) {
                 if (mod->get_category() != category_enum) {
@@ -363,14 +363,16 @@ namespace gui {
             ImGui::SetNextWindowPos(offset);
             ImGui::SetNextWindowSize(size);
 
+            ImGui::PushFont(ctx->main_font, 24.0f * io.DisplaySize.y / 1080.0f);
             ImGui::Begin(PROJECT_NAME " " GUI_VERSION, window_open, ImGuiWindowFlags_NoCollapse);
             {
-                ImVec2 sz = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetFontSize()*1.2f);
+
+                ImVec2 sz = ImVec2(ImGui::GetContentRegionAvail().x, 1.2f);
                 if (ImGui::Button("Save Config", sz)) {
                     pmods->on_config_save();
                 }
 
-                ImGui::PushFont(ctx->fancy_font);
+                ImGui::PushFont(ctx->fancy_font, 48.0f * io.DisplaySize.y / 1080.0f);
 
                 draw_category(ctx, "GAMEPLAY",  ModCategory::GAMEPLAY);
                 draw_category(ctx, "COSMETICS", ModCategory::COSMETICS);
@@ -388,6 +390,7 @@ namespace gui {
                 ImGui::ShowDemoWindow();
             }*/
             ImGui::End();
+            ImGui::PopFont();
             
             auto wew = dynamic_cast<KbmControls*>(g_framework->get_mods()->m_mods.back().get());
             if (wew) {

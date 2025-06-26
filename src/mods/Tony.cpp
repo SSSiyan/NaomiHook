@@ -250,7 +250,7 @@ static void DisplayGroups(const ImVec2& screenSize, float fontSize, float startY
     ImGui::Begin(windowName, nullptr, 
                 ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | 
                 ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoScrollbar);
-    ImGui::PushFont(g_framework->get_our_imgui_ctx()->tony_font);
+    ImGui::PushFont(g_framework->get_our_imgui_ctx()->tony_font, 14.0f * ImGui::GetStyle().FontSizeBase);
     
     float lineHeight = fontSize * LINE_HEIGHT_MULTIPLIER;
     for (size_t groupIndex = 0; groupIndex < activeGroups.size(); ++groupIndex) {
