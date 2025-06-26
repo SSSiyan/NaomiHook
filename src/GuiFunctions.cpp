@@ -366,8 +366,7 @@ namespace gui {
             ImGui::PushFont(ctx->main_font, 24.0f * io.DisplaySize.y / 1080.0f);
             ImGui::Begin(PROJECT_NAME " " GUI_VERSION, window_open, ImGuiWindowFlags_NoCollapse);
             {
-
-                ImVec2 sz = ImVec2(ImGui::GetContentRegionAvail().x, 1.2f);
+                ImVec2 sz = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetFontSize() * 1.2f);
                 if (ImGui::Button("Save Config", sz)) {
                     pmods->on_config_save();
                 }
