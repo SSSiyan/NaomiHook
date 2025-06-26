@@ -24,7 +24,7 @@ void setBit(T& flags, int bit, bool value) {
 }
 
 void DrawPlayerStats() {
-    if (ImGui::CollapsingHeader("Useful", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::TreeNodeEx("Useful", ImGuiTreeNodeFlags_DefaultOpen)) {
         if (mHRPc* player = nmh_sdk::get_mHRPc()) {
             ImGui::Text("Player");
             ImGui::SliderFloat("Player HP ##Useful", &player->mCharaStatus.hp, 0.0f, player->mCharaStatus.maxHp);
@@ -59,10 +59,11 @@ void DrawPlayerStats() {
                 nmh_sdk::SetEquip(equipID, false);
             }
         }
+        ImGui::TreePop();
     }
 
-    if (mHRPc* player = nmh_sdk::get_mHRPc()) {
-        if (ImGui::CollapsingHeader("Cancel timings")) {
+    /*if (mHRPc* player = nmh_sdk::get_mHRPc()) {
+        if (ImGui::TreeNodeEx("Cancel timings")) {
             // MEMORY_BASIC_INFORMATION mbi;
             // VirtualQuery((uintptr_t*)gPcCommonTable, &mbi, sizeof(mbi));
             // int protectionFlag = 0;
@@ -103,9 +104,9 @@ void DrawPlayerStats() {
             // VirtualProtect(RoundhouseKickAddr, sizeof(float), oldProtect5, &oldProtect5);
             // VirtualProtect(HighChargeAddr, sizeof(float), oldProtect6, &oldProtect6);
         }
-    }
+    }*/
 
-    if (ImGui::CollapsingHeader("HrGameTask")) {
+    if (ImGui::TreeNodeEx("HrGameTask")) {
         if (HrGameTask* hrGameTask = nmh_sdk::get_HrGameTask()) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrGameTask->Padding_972);
             // ImGui::Text("Base Address: 0x%08X", baseAddress);
@@ -152,7 +153,7 @@ void DrawPlayerStats() {
             ImGui::InputScalar("m_Process_id", ImGuiDataType_S32, &hrGameTask->m_Process_id);
             ImGui::InputScalar("m_Pro_Sts", ImGuiDataType_S32, &hrGameTask->m_Pro_Sts);
             ImGui::Text("mp_SaveData: %p", hrGameTask->mp_SaveData);
-            if (ImGui::CollapsingHeader("mp_SaveData")) { // @Siy
+            if (ImGui::TreeNodeEx("mp_SaveData")) { // @Siy
                 if (hrGameTask->mp_SaveData) {
                     ImGui::InputInt("mp_SaveData->t_MainScenarioID", &hrGameTask->mp_SaveData->t_MainScenarioID);
                 }
@@ -165,6 +166,7 @@ void DrawPlayerStats() {
                     ImGui::InputInt("mp_HikitugiSaveData->t_MainScenarioID", &hrGameTask->mp_HikitugiSaveData->t_MainScenarioID);
                 }
                 else ImGui::Text("mp_HikitugiSaveData is nullptr");
+                ImGui::TreePop();
             }
             ImGui::Text("mp_CheckPoint: %p", hrGameTask->mp_CheckPoint);
             ImGui::Text("mp_HikitugiSaveData: %p", hrGameTask->mp_HikitugiSaveData);
@@ -208,8 +210,9 @@ void DrawPlayerStats() {
             ImGui::Checkbox("m_STG_Feed_f", &hrGameTask->m_STG_Feed_f);
             ImGui::Text("m_pSubTask: %p", hrGameTask->m_pSubTask);
         }
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("m_pHrMenuTask")) {
+    if (ImGui::TreeNodeEx("m_pHrMenuTask")) {
         if (HrMenuTask* HrMenuTask = nmh_sdk::get_HrMenuTask()) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&HrMenuTask->m_pHrMenuTask);
             // ImGui::Text("Base Address: 0x%08X", baseAddress);
@@ -226,8 +229,9 @@ void DrawPlayerStats() {
             ImGui::InputInt("m_Dag_Counter", &HrMenuTask->m_Dag_Counter);
             ImGui::Checkbox("m_Dag_LockFlag", &HrMenuTask->m_Dag_LockFlag);
         }
+        ImGui::TreePop();
     }   
-    if (ImGui::CollapsingHeader("HrMenuTask->hsSourceBase")) {
+    if (ImGui::TreeNodeEx("HrMenuTask->hsSourceBase")) {
         if (hsSourceBase* hsMenu = nmh_sdk::get_HrMenuTask()->m_pHsMenu) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&HrMenuTask->m_pHsMenu->Padding_1229[0]);
             // ImGui::Text("Base Address: 0x%08X", baseAddress);
@@ -327,9 +331,10 @@ void DrawPlayerStats() {
             }
             ImGui::Text("mouseDeltaTracker: %p", &hsMenu->mouseDeltaTracker);
         }
+        ImGui::TreePop();
     }
     if (CBgCtrl* CBgCtrl = nmh_sdk::get_CBgCtrl()) {
-        if (ImGui::CollapsingHeader("CBgCtrl")) {
+        if (ImGui::TreeNodeEx("CBgCtrl")) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&CBgCtrl->Padding_1372);
             // ImGui::Text("Base Address: 0x%08X", baseAddress);
             // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&CBgCtrl->mReleaseWaitCount);
@@ -428,10 +433,11 @@ void DrawPlayerStats() {
             ImGui::Checkbox("m_DisEnableLoadingEffect", &CBgCtrl->m_DisEnableLoadingEffect);
             ImGui::Checkbox("m_BgRenderOK", &CBgCtrl->m_BgRenderOK);
             ImGui::InputInt("mReleaseWaitCount", &CBgCtrl->mReleaseWaitCount);
+            ImGui::TreePop();
         }
     }
     if (mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle()) {
-        if (ImGui::CollapsingHeader("mHRBattle")) {
+        if (ImGui::TreeNodeEx("mHRBattle")) {
             ImGui::InputInt("mBtlInitProc", (int*)&mHRBattle->mBtlInitProc);
             ImGui::InputInt("mBtlFrameProc", (int*)&mHRBattle->mBtlFrameProc);
             ImGui::Text("struct mCamStatus Address: 0x%08X", ((uintptr_t)(&mHRBattle->mCamStatus)));
@@ -447,14 +453,16 @@ void DrawPlayerStats() {
             if (ImGui::Checkbox("dispStatusDisEnable", &dispStatusDisEnable)) setBit(mHRBattle->mFlag, 2, dispStatusDisEnable);
             bool chargeDamage = getBit(mHRBattle->chargeDamage, 3);
             if (ImGui::Checkbox("chargeDamage", &chargeDamage)) setBit(mHRBattle->mFlag, 3, chargeDamage);
+            ImGui::TreePop();
         }
-        if (ImGui::CollapsingHeader("mHRBattle stBtEffect")) {
+        if (ImGui::TreeNodeEx("mHRBattle stBtEffect")) {
             ImGui::InputInt("slowMotTotalTick", &mHRBattle->mBtEffect.slowMotTotalTick);
             ImGui::InputInt("slowMotTick", &mHRBattle->mBtEffect.slowMotTick);
             ImGui::InputInt("bulletSlowTick", &mHRBattle->mBtEffect.bulletSlowTick);
             ImGui::InputInt("bossBreakSlowTick", &mHRBattle->mBtEffect.bossBreakSlowTick);
+            ImGui::TreePop();
         }
-        if (ImGui::CollapsingHeader("mHRBattle HrScreenStatus")) {
+        if (ImGui::TreeNodeEx("mHRBattle HrScreenStatus")) {
             if (mHRBattle->mBtEffect.pScreenStatus) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mHRBattle->mBtEffect.pScreenStatus->Padding_0[0]);
                 // ImGui::Text("Base Address: 0x%08X", baseAddress);
@@ -613,8 +621,9 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("m_fPC_BatteryCharge[0]", &mHRBattle->mBtEffect.pScreenStatus->m_fPC_BatteryCharge[0]);
                 ImGui::Checkbox("m_fPC_BatteryCharge[1]", &mHRBattle->mBtEffect.pScreenStatus->m_fPC_BatteryCharge[1]);
             }
+            ImGui::TreePop();
         }
-        if (ImGui::CollapsingHeader("mHRBattle HrScreenStatus HrInGameMenu")) {
+        if (ImGui::TreeNodeEx("mHRBattle HrScreenStatus HrInGameMenu")) {
             if (mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->Padding_1054[0]);
                 // ImGui::Text("Base Address: 0x%08X", baseAddress);
@@ -741,9 +750,10 @@ void DrawPlayerStats() {
                 bool m_CamAxisYFlagTMP = getBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 7);
                 if (ImGui::Checkbox("Cam Axis Y Flag TMP", &m_CamAxisYFlagTMP)) setBit(mHRBattle->mBtEffect.pScreenStatus->m_pInGameMenu->m_Mainflag, 7, m_CamAxisYFlagTMP);
             }
+            ImGui::TreePop();
         }
         if (mHRPc* player = nmh_sdk::get_mHRPc()) {
-            if (ImGui::CollapsingHeader("mHRPc")) {
+            if (ImGui::TreeNodeEx("mHRPc")) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->pad_00);
                 // ImGui::Text("Base Address: 0x%08X", baseAddress);
                 // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&player->mOperate);
@@ -774,8 +784,9 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("mStageChangeTermEnd", &player->mStageChangeTermEnd);
                 ImGui::Checkbox("mStageChangeMuteki", &player->mStageChangeMuteki);
                 ImGui::Checkbox("mBanStatusScreen", &player->mBanStatusScreen);
+                ImGui::TreePop();
             }
-            if (ImGui::CollapsingHeader("mHRPC tagMAIN")) {
+            if (ImGui::TreeNodeEx("mHRPC tagMAIN")) {
                 if (player->tagMain) {
                     // ImGui::Text("pGlobalListPrev: %p", player->tagMain->pGlobalListPrev);
                     // ImGui::Text("pGlobalListNext: %p", player->tagMain->pGlobalListNext);
@@ -1002,11 +1013,12 @@ void DrawPlayerStats() {
                     // ImGui::Text("pLinkTexShadowTarget: %p", player->tagMain->pLinkTexShadowTarget);
                     ImGui::InputFloat4("LinkTexShadowGmfDrawArea", player->tagMain->LinkTexShadowGmfDrawArea);
                 }
+                ImGui::TreePop();
             }
-            if (ImGui::CollapsingHeader("mHRPc tagMAIN tagMOTION")) {
+            if (ImGui::TreeNodeEx("mHRPc tagMAIN tagMOTION")) {
                 for (int i = 0; i < 4; ++i) {
                     if (&player->tagMain->Motion[i]) {
-                        if (ImGui::CollapsingHeader(("Motion " + std::to_string(i)).c_str())) {
+                        if (ImGui::TreeNodeEx(("Motion " + std::to_string(i)).c_str())) {
                             ImGui::Checkbox(("Valid 1 [" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Valid[0]);
                             ImGui::Checkbox(("Valid 2 [" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].Valid[1]);
                             ImGui::InputFloat(("BlendWeight[" + std::to_string(i) + "]").c_str(), &player->tagMain->Motion[i].BlendWeight);
@@ -1037,13 +1049,13 @@ void DrawPlayerStats() {
                                     ImGui::TreePop();
                                 }
                             }
-                            ImGui::Separator();
+                            ImGui::TreePop();
                         }
                     }
                 }
-                ImGui::Separator();
+                ImGui::TreePop();
             }
-            if (ImGui::CollapsingHeader("mHRPc mCharaStatus")) {
+            if (ImGui::TreeNodeEx("mHRPc mCharaStatus")) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->mCharaStatus.resNo);
                 // ImGui::Text("Base Address: 0x%08X", baseAddress);
                 // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&player->mCharaStatus.flag2);
@@ -1167,8 +1179,9 @@ void DrawPlayerStats() {
                 if (ImGui::Checkbox("normalClip", &normalClip)) setBit(player->mCharaStatus.flag2, 0, normalClip);
                 bool jpnDead = getBit(player->mCharaStatus.flag2, 1);
                 if (ImGui::Checkbox("jpnDead", &jpnDead)) setBit(player->mCharaStatus.flag2, 1, jpnDead);
+                ImGui::TreePop();
             }
-            if (ImGui::CollapsingHeader("mHRPc mCharaStatus.dmgInfo")) {
+            if (ImGui::TreeNodeEx("mHRPc mCharaStatus.dmgInfo")) {
                 ImGui::SliderFloat("Damage", &player->mCharaStatus.dmgInfo.dmg, 0.0f, 100.0f);
                 ImGui::InputInt("Damage Motion", &player->mCharaStatus.dmgInfo.dmgMot);
                 help_marker("Displays MotionID for current damage animation");
@@ -1197,15 +1210,16 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Restore Damage Tick", &player->mCharaStatus.dmgInfo.restoreDamegeTick);
                 ImGui::InputInt("Restore Damage Basic Tick", &player->mCharaStatus.dmgInfo.restoreDamegeBasicTick);
                 ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &player->mCharaStatus.dmgInfo.m_BikeDeadRequest);
+                ImGui::TreePop();
             }
-            if (ImGui::CollapsingHeader("mHRPc stPcStatus")) {
+            if (ImGui::TreeNodeEx("mHRPc stPcStatus")) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&player->mPcStatus.atkMot);
                 // ImGui::Text("Base Address: 0x%08X", baseAddress);
                 // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&player->mPcStatus.skillCatch);
                 // ImGui::Text("Target Address: 0x%08X", targetAddress);
                 // uintptr_t offsetDifference = targetAddress - baseAddress;
                 // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
-                if (ImGui::CollapsingHeader("Weapon Info")) {
+                if (ImGui::TreeNodeEx("Weapon Info")) {
                     for (int i = 0; i < 16; i++) {
                         ImGui::Text("Weapon Info %d", i);
                         ImGui::InputInt(("ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.wepInfo[i].id);
@@ -1216,32 +1230,32 @@ void DrawPlayerStats() {
                         ImGui::Checkbox(("Combo Extend ##" + std::to_string(i)).c_str(), &player->mPcStatus.wepInfo[i].cmbExtend);
                         help_marker("Ticks when the Beam Katana has had its Slash Combos extended through the Gym dumbell exercise.");
                     }
-                    ImGui::Separator();
+                    ImGui::TreePop();
                 }
-                if (ImGui::CollapsingHeader("Equipped Items")) {
+                if (ImGui::TreeNodeEx("Equipped Items")) {
                     for (int i = 0; i < 7; i++) {
                         ImGui::Text("Item %d", i);
                         ImGui::InputInt(("readProc ##" + std::to_string(i)).c_str(), (int*)&player->mPcStatus.equip[i].readProc);
                         ImGui::InputInt(("ID ##" + std::to_string(i)).c_str(), (int*)&player->mPcStatus.equip[i].id);
                         ImGui::Checkbox(("reverseDisp ##" + std::to_string(i)).c_str(), &player->mPcStatus.equip[i].reverseDisp);
                     }
-                    ImGui::Separator();
+                    ImGui::TreePop();
                 }
-                if (ImGui::CollapsingHeader("Locker Items")) {
+                if (ImGui::TreeNodeEx("Locker Items")) {
                     for (int i = 0; i < 200; i++) {
                         ImGui::Text("Item %d", i);
                         ImGui::InputInt(("ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.locker[i].id);
                     }
-                    ImGui::Separator();
+                    ImGui::TreePop();
                 }
-                if (ImGui::CollapsingHeader("Inventory Items")) {
+                if (ImGui::TreeNodeEx("Inventory Items")) {
                     for (int i = 0; i < 300; i++) {
                         ImGui::Text("Item %d", i);
                         ImGui::InputInt(("ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.item[i].id);
                         ImGui::InputScalar(("Quantity ##" + std::to_string(i)).c_str(), ImGuiDataType_S8, &player->mPcStatus.item[i].num);
                         ImGui::Checkbox(("Use ##" + std::to_string(i)).c_str(), &player->mPcStatus.item[i].use);
                     }
-                    ImGui::Separator();
+                    ImGui::TreePop();
                 }
                 ImGui::SliderFloat("Strength", &player->mPcStatus.strength, 0.0f, 100.0f);
                 ImGui::SliderFloat("Stamina", &player->mPcStatus.stammina, 0.0f, 1.0f);
@@ -1529,8 +1543,9 @@ void DrawPlayerStats() {
                 help_marker("Disables the Right Stick Darkstep");
                 ImGui::InputInt("Ikasama Slot", &player->mPcStatus.ikasamaSlot);
                 ImGui::InputInt("Fire Man Tick", &player->mPcStatus.fireManTick);
+                ImGui::TreePop();
             }
-            if (ImGui::CollapsingHeader("mHRPc mPcSaveData")) {
+            if (ImGui::TreeNodeEx("mHRPc mPcSaveData")) {
                 ImGui::SliderFloat("Max HP", &player->mPcSaveData.maxHp, 0.0f, 1000.0f);
                 ImGui::SliderFloat("HP", &player->mPcSaveData.hp, 0.0f, player->mPcSaveData.maxHp, "%.1f");
                 ImGui::SliderFloat("Strength", &player->mPcSaveData.strength, 0.0f, 100.0f);
@@ -1560,10 +1575,11 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Display Map", &player->mPcSaveData.dispMap);
                 ImGui::InputScalar("Bike Sight", ImGuiDataType_S8, &player->mPcSaveData.bikeSight);
                 ImGui::InputInt("Clear Count", (int*)&player->mPcSaveData.clearNum);
+                ImGui::TreePop();
             }
-            if (ImGui::CollapsingHeader("mHRBike")) {
+            if (ImGui::TreeNodeEx("mHRBike")) {
                 if (player->mpBike) {
-                    if (ImGui::CollapsingHeader("mBike")) {
+                    if (ImGui::TreeNodeEx("mBike")) {
                         ImGui::Text("pGmf: %p", player->mpBike->mBike.pGmf);
                         ImGui::Text("pGan: %p", player->mpBike->mBike.pGan);
                         ImGui::Combo("process", (int*)&player->mpBike->mBike.process, "Process 0\0Process 1\0Process 2\0Process 3\0");
@@ -1664,40 +1680,41 @@ void DrawPlayerStats() {
                         ImGui::InputInt("damageCount", &player->mpBike->mBike.damageCount);
                         ImGui::Text("prj: %p", player->mpBike->mBike.prj);
                         ImGui::Text("modelAlpha: %p", player->mpBike->mBike.modelAlpha);
+                        ImGui::TreePop();
                     }
-                    if (ImGui::CollapsingHeader("mBikeEffect")) {
+                    /*if (ImGui::TreeNodeEx("mBikeEffect")) {
                         ImGui::Text("Contents of stBikeEffect struct");
-                    }
+                        ImGui::TreePop();
+                    }*/
                     ImGui::Checkbox("mhitStage", &player->mpBike->mhitStage);
                     ImGui::InputFloat("mWryRate", &player->mpBike->mWryRate);
                     help_marker("Value that determines the height of a Wheelie Jump.");
                     ImGui::InputFloat("mBankRate", &player->mpBike->mBankRate);
-                    if (ImGui::CollapsingHeader("mDamegeDir")) {
-                        ImGui::InputFloat3("mDamegeDir", &player->mpBike->mDamegeDir.x);
-                    }
+                    ImGui::InputFloat3("mDamegeDir", &player->mpBike->mDamegeDir.x);
                     ImGui::InputFloat("mDamegeRotY", &player->mpBike->mDamegeRotY);
                     ImGui::InputFloat("mAccel", &player->mpBike->mAccel);
-                    if (ImGui::CollapsingHeader("mPassRot")) {
-                        ImGui::InputFloat3("mPassRot", &player->mpBike->mPassRot.x);
-                    }
+                    ImGui::InputFloat3("mPassRot", &player->mpBike->mPassRot.x);
                     ImGui::InputInt("mFireSEID", &player->mpBike->mFireSEID);
                     ImGui::InputFloat("mHitWait", &player->mpBike->mHitWait);
                     ImGui::Checkbox("mRotLock", &player->mpBike->mRotLock);
                     ImGui::Checkbox("mBkAtkOk", &player->mpBike->mBkAtkOk);
-                    if (ImGui::CollapsingHeader("mBkPathWalk")) {
+                    /*if (ImGui::TreeNodeEx("mBkPathWalk")) {
                         ImGui::Text("Contents of hPathWalk class");
+                        ImGui::TreePop();
                     }
-                    if (ImGui::CollapsingHeader("mVirtualBkPath")) {
+                    if (ImGui::TreeNodeEx("mVirtualBkPath")) {
                         ImGui::Text("Contents of hPath class");
-                    }
+                        ImGui::TreePop();
+                    }*/
                 }
+                ImGui::TreePop();
             }
 
-            if (ImGui::CollapsingHeader("hHRPc mPcEffect")) {
+            if (ImGui::TreeNodeEx("hHRPc mPcEffect")) {
                 ImGui::Checkbox("Laser Track Fade", &player->mPcEffect.laserTrackFade);
                 ImGui::InputFloat("Laser Depth", &player->mPcEffect.laserDepth);
                 ImGui::InputInt("Laser Wait Tick", &player->mPcEffect.laserWaitTick);
-                if (ImGui::CollapsingHeader("EffectCloseContest")) {
+                if (ImGui::TreeNodeEx("EffectCloseContest")) {
                     if (player->mPcEffect.pCloseContest) {
                         bool state = getBit(player->mPcEffect.pCloseContest->m_Flag, 0);
                         if (ImGui::Checkbox("State", &state)) setBit(player->mPcEffect.pCloseContest->m_Flag, 0, state);
@@ -1709,9 +1726,10 @@ void DrawPlayerStats() {
                         if (ImGui::Checkbox("Visible", &visible)) setBit(player->mPcEffect.pCloseContest->m_Flag, 5, visible);
                         bool pause = getBit(player->mPcEffect.pCloseContest->m_Flag, 6);
                         if (ImGui::Checkbox("Paused", &pause)) setBit(player->mPcEffect.pCloseContest->m_Flag, 6, pause);
-                        if (ImGui::CollapsingHeader("Common")) {
+                        if (ImGui::TreeNodeEx("Common")) {
                             ImGui::InputInt("Load State", (int*)(&player->mPcEffect.pCloseContest->Uni.LoadState));
                             ImGui::Text("Texture: SoonTM");
+                            ImGui::TreePop();
                         }
                         ImGui::Checkbox("Quad Scale", &player->mPcEffect.pCloseContest->m_QuadScale);
                         ImGui::InputFloat("Set Count", &player->mPcEffect.pCloseContest->m_SetCount);
@@ -1722,14 +1740,14 @@ void DrawPlayerStats() {
                         ImGui::Text("Quad Unified Class: SoonTM");
                         ImGui::Text("Quad Class: SoonTM");
                     }
+                    ImGui::TreePop();
                 }
                 ImGui::Text("Speed Blur Effect: SoonTM");
                 ImGui::InputInt("Speed Blur Tick", &player->mPcEffect.speedBlurTick);
                 ImGui::InputFloat("Speed Blur Alpha", &player->mPcEffect.speedBlurAlpha);
                 ImGui::InputFloat("Speed Blur Scale", &player->mPcEffect.speedBlurScale);
                 ImGui::InputInt("Speed Blur Repeat", &player->mPcEffect.speedBlurRepeat);
-                if (ImGui::CollapsingHeader("Speed Blur Repeat Number")) {
-                    ImGui::Indent();
+                if (ImGui::TreeNodeEx("Speed Blur Repeat Number")) {
                     ImGui::InputFloat("Current Value ## Speed Blur Repeat Number", &player->mPcEffect.speedBlurRepeatNum.mCurValue);
                     ImGui::InputFloat("Destination Value ## Speed Blur Repeat Number", &player->mPcEffect.speedBlurRepeatNum.mDstValue);
                     ImGui::InputFloat("Source Value ## Speed Blur Repeat Number", &player->mPcEffect.speedBlurRepeatNum.mSrcValue);
@@ -1737,15 +1755,14 @@ void DrawPlayerStats() {
                     ImGui::InputInt("Time ## Speed Blur Repeat Number", (int*)(&player->mPcEffect.speedBlurRepeatNum.mTime));
                     ImGui::InputInt("Interpolation Type ## Speed Blur Repeat Number", &player->mPcEffect.speedBlurRepeatNum.mIpType);
                     ImGui::InputFloat("Motion Rate ## Speed Blur Repeat Number", &player->mPcEffect.speedBlurRepeatNum.mMotionRate);
-                    ImGui::Unindent();
+                    ImGui::TreePop();
                 }
                 ImGui::InputFloat3("Position Hit Slash", (float*)(&player->mPcEffect.posHitSlash));
                 ImGui::InputFloat3("Position Hit Slash Old", (float*)(&player->mPcEffect.posHitSlashOld));
                 ImGui::Text("Throw Sabel Effect: SoonTM");
                 ImGui::InputInt("Light Reflect Tick", &player->mPcEffect.lightReflecteTick);
                 ImGui::Text("Concentration Line Effect: SoonTM");
-                if (ImGui::CollapsingHeader("Dark Value")) {
-                    ImGui::Indent();
+                if (ImGui::TreeNodeEx("Dark Value")) {
                     ImGui::InputFloat("Current ## Dark Value", &player->mPcEffect.darkValue.mCurValue);
                     ImGui::InputFloat("Destination ## Dark Value", &player->mPcEffect.darkValue.mDstValue);
                     ImGui::InputFloat("Source ## Dark Value", &player->mPcEffect.darkValue.mSrcValue);
@@ -1753,7 +1770,7 @@ void DrawPlayerStats() {
                     ImGui::InputInt("Time ## Dark Value", (int*)(&player->mPcEffect.darkValue.mTime));
                     ImGui::InputInt("Interpolation Type ## Dark Value", &player->mPcEffect.darkValue.mIpType);
                     ImGui::InputFloat("Motion Rate ## Dark Value", &player->mPcEffect.darkValue.mMotionRate);
-                    ImGui::Unindent();
+                    ImGui::TreePop();
                 }
                 for (int i = 0; i < 3; i++) {
                     ImGui::Text("Shinku Wave Effect %d: SoonTM", i);
@@ -1762,8 +1779,7 @@ void DrawPlayerStats() {
                     ImGui::Text("Shinku Wave Task Check %d: SoonTM", i);
                 }
                 ImGui::Text("Model Fire Effect: SoonTM");
-                if (ImGui::CollapsingHeader("Model Fire Value")) {
-                    ImGui::Indent();
+                if (ImGui::TreeNodeEx("Model Fire Value")) {
                     ImGui::InputFloat("Current ## Model Fire", &player->mPcEffect.modelFireValue.mCurValue);
                     ImGui::InputFloat("Destination ## Model Fire", &player->mPcEffect.modelFireValue.mDstValue);
                     ImGui::InputFloat("Source ## Model Fire", &player->mPcEffect.modelFireValue.mSrcValue);
@@ -1771,7 +1787,7 @@ void DrawPlayerStats() {
                     ImGui::InputInt("Time ## Model Fire", (int*)(&player->mPcEffect.modelFireValue.mTime));
                     ImGui::InputInt("Interpolation Type ## Model Fire", &player->mPcEffect.modelFireValue.mIpType);
                     ImGui::InputFloat("Motion Rate ## Model Fire", &player->mPcEffect.modelFireValue.mMotionRate);
-                    ImGui::Unindent();
+                    ImGui::TreePop();
                 }
                 ImGui::InputInt("Bomb Tick", &player->mPcEffect.bombTick);
                 ImGui::Text("Bomb Effect: SoonTM");
@@ -1788,8 +1804,7 @@ void DrawPlayerStats() {
                 ImGui::Text("Warp Locus Effect: SoonTM");
                 ImGui::Text("Shinku Cursor Texture: SoonTM");
 
-                if (ImGui::CollapsingHeader("Hit Attack Projection")) {
-                    ImGui::Indent();
+                if (ImGui::TreeNodeEx("Hit Attack Projection")) {
                     ImGui::InputFloat("Current Value ## Hit Attack Projection", &player->mPcEffect.hitAttackProjection.mCurValue);
                     ImGui::InputFloat("Destination Value ## Hit Attack Projection", &player->mPcEffect.hitAttackProjection.mDstValue);
                     ImGui::InputFloat("Source Value ## Hit Attack Projection", &player->mPcEffect.hitAttackProjection.mSrcValue);
@@ -1797,12 +1812,11 @@ void DrawPlayerStats() {
                     ImGui::InputInt("Time ## Hit Attack Projection", (int*)(&player->mPcEffect.hitAttackProjection.mTime));
                     ImGui::InputInt("Interpolation Type ## Hit Attack Projection", &player->mPcEffect.hitAttackProjection.mIpType);
                     ImGui::InputFloat("Motion Rate ## Hit Attack Projection", &player->mPcEffect.hitAttackProjection.mMotionRate);
-                    ImGui::Unindent();
+                    ImGui::TreePop();
                 }
                 ImGui::Text("Monokuro Effect: SoonTM");
                 ImGui::Text("Slot Noise Effect: SoonTM");
-                if (ImGui::CollapsingHeader("Fast Action Blur")) {
-                    ImGui::Indent();
+                if (ImGui::TreeNodeEx("Fast Action Blur")) {
                     ImGui::InputFloat("Current ## Fast Action Blur", &player->mPcEffect.fastActionBlur.mCurValue);
                     ImGui::InputFloat("Destination ## Fast Action Blur", &player->mPcEffect.fastActionBlur.mDstValue);
                     ImGui::InputFloat("Source ## Fast Action Blur", &player->mPcEffect.fastActionBlur.mSrcValue);
@@ -1810,13 +1824,14 @@ void DrawPlayerStats() {
                     ImGui::InputInt("Time ## Fast Action Blur", (int*)(&player->mPcEffect.fastActionBlur.mTime));
                     ImGui::InputInt("Interpolation Type ## Fast Action Blur", &player->mPcEffect.fastActionBlur.mIpType);
                     ImGui::InputFloat("Motion Rate ## Fast Action Blur", &player->mPcEffect.fastActionBlur.mMotionRate);
-                    ImGui::Unindent();
+                    ImGui::TreePop();
                 }
                 ImGui::Text("Lock On Effect 2: SoonTM");
+                ImGui::TreePop();
             }
         }
     }
-    if (ImGui::CollapsingHeader("HrCamera")) {
+    if (ImGui::TreeNodeEx("HrCamera")) {
         uintptr_t baseAddress = g_framework->get_module().as<uintptr_t>();
         HrCamera* hrCamera = reinterpret_cast<HrCamera*>(baseAddress + 0x82A4A0);
         if (ImGui::TreeNode("MOVE2")) {
@@ -1901,8 +1916,9 @@ void DrawPlayerStats() {
         ImGui::InputInt("Frame Counter", &hrCamera->MAIN.FrameCounter);
         ImGui::Checkbox("Always", &hrCamera->MAIN.Always);
         ImGui::Checkbox("Change", &hrCamera->MAIN.Change);
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("HrMotel")) {
+    if (ImGui::TreeNodeEx("HrMotel")) {
         if (nmh_sdk::get_HrMenuTask()) {
             if (HrMotel* hrMotel = (HrMotel*)nmh_sdk::get_HrMenuTask()->m_pHsMenu) {
                 ImGui::InputInt("m_HrMotelState", (int*)&hrMotel->m_HrMotelState);
@@ -1970,8 +1986,9 @@ void DrawPlayerStats() {
                 }
             }
         }
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("HrMotel HrTV")) {
+    if (ImGui::TreeNodeEx("HrMotel HrTV")) {
         if (nmh_sdk::get_HrMenuTask()) {
             if (HrMotel* hrMotel = (HrMotel*)nmh_sdk::get_HrMenuTask()->m_pHsMenu) {
                 // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrMotel->Padding_1345);
@@ -2047,12 +2064,13 @@ void DrawPlayerStats() {
                 }
             }
         }
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("HrMotel HrCat")) {
+    if (ImGui::TreeNodeEx("HrMotel HrCat")) {
         if (nmh_sdk::get_HrMenuTask()) {
             if (HrMotel* hrMotel = (HrMotel*)nmh_sdk::get_HrMenuTask()->m_pHsMenu) {
                 if (HrCat* hrCat = hrMotel->m_pCat) {
-                    if (ImGui::CollapsingHeader("HrCat")) {
+                    if (ImGui::TreeNodeEx("HrCat")) {
                         ImGui::InputScalar("m_HsCatState", ImGuiDataType_S32, &hrCat->m_HsCatState);
                         ImGui::InputScalar("m_HsCatState", ImGuiDataType_S32, &hrCat->m_HsCatState);
                         ImGui::Text("m_Cat_Res: %p", hrCat->m_Cat_Res);  // Pointer
@@ -2079,14 +2097,16 @@ void DrawPlayerStats() {
 
                         ImGui::Checkbox("m_Cat_Neck_Start_f", &hrCat->m_Cat_Neck_Start_f);
                         ImGui::Checkbox("m_Cat_Jara_Swing_f", &hrCat->m_Cat_Jara_Swing_f);
+                        ImGui::TreePop();
                     }
                 }
             }
         }
+        ImGui::TreePop();
     }
 
 
-    if (ImGui::CollapsingHeader("HrScreenFilter")) {
+    if (ImGui::TreeNodeEx("HrScreenFilter")) {
         if (HrScreenFilter* filter = nmh_sdk::get_HrScreenFilter()) {
 
             auto& u = filter->uni;
@@ -2167,6 +2187,7 @@ void DrawPlayerStats() {
                 ImGui::TreePop();
             }
         }
+        ImGui::TreePop();
     }
 }
 
