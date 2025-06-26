@@ -238,7 +238,7 @@ namespace gui {
         ImGui::SetNextWindowSize(size);
 
         bool window_open = ctx->selected_mod != nullptr;
-        ImGui::PushFont(ctx->infobox_font, 28.0f * io.DisplaySize.y / 1080.0f);
+        ImGui::PushFont(ctx->infobox_font, 28.0f * (io.DisplaySize.y / 1080.0f));
         ImGui::Begin("Info window", &window_open, ImGuiWindowFlags_NoDecoration);
         {
             ImGui::PushStyleColor(ImGuiCol_Text, IMGUI_WINDOW_IN_COLOR);
@@ -271,7 +271,7 @@ namespace gui {
         ImGui::SetNextWindowPos(offset);
         ImGui::SetNextWindowSize(size);
         auto& io = ImGui::GetIO();
-        ImGuiRaiiFont font{ctx->modname_font, 38.0f * io.DisplaySize.y / 1080.0f};
+        ImGuiRaiiFont font{ctx->modname_font, 38.0f * (io.DisplaySize.y / 1080.0f)};
         ImGui::Begin("Settings window", &window_open, ImGuiWindowFlags_NoDecoration);
         {
             if (ctx->selected_mod) {
@@ -281,7 +281,7 @@ namespace gui {
                     ImGui::Text("%s", ctx->selected_mod->get_human_readable_name().c_str());
                     ImGui::PopStyleColor();
                 }
-                ImGuiRaiiFont font{ctx->main_font, 24.0f * io.DisplaySize.y / 1080.0f};
+                ImGuiRaiiFont font{ctx->main_font, 24.0f * (io.DisplaySize.y / 1080.0f)};
                 ctx->selected_mod->on_draw_ui();
             }
 
@@ -335,7 +335,7 @@ namespace gui {
         if (ImGui::TreeNodeEx(category_name, flags)) {
             ctx->selected_category = category_enum;
             auto& io = ImGui::GetIO();
-            ImGui::PushFont(ctx->main_font, 24.0f * io.DisplaySize.y / 1080.0f);
+            ImGui::PushFont(ctx->main_font, 24.0f * (io.DisplaySize.y / 1080.0f));
 
             for (auto& mod : g_framework->get_mods()->m_mods) {
                 if (mod->get_category() != category_enum) {
@@ -363,7 +363,7 @@ namespace gui {
             ImGui::SetNextWindowPos(offset);
             ImGui::SetNextWindowSize(size);
 
-            ImGui::PushFont(ctx->main_font, 24.0f * io.DisplaySize.y / 1080.0f);
+            ImGui::PushFont(ctx->main_font, 24.0f * (io.DisplaySize.y / 1080.0f));
             ImGui::Begin(PROJECT_NAME " " GUI_VERSION, window_open, ImGuiWindowFlags_NoCollapse);
             {
                 ImVec2 sz = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetFontSize() * 1.2f);
@@ -371,7 +371,7 @@ namespace gui {
                     pmods->on_config_save();
                 }
 
-                ImGui::PushFont(ctx->fancy_font, 48.0f * io.DisplaySize.y / 1080.0f);
+                ImGui::PushFont(ctx->fancy_font, 48.0f * (io.DisplaySize.y / 1080.0f));
 
                 draw_category(ctx, "GAMEPLAY",  ModCategory::GAMEPLAY);
                 draw_category(ctx, "COSMETICS", ModCategory::COSMETICS);

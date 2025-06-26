@@ -12,7 +12,7 @@ static constexpr float REWARD_START_Y_RATIO = 0.25f;
 static constexpr float TRICK_START_Y_RATIO = 0.35f;
 static constexpr float TEXT_SPACING_RATIO = 0.5f;
 static constexpr float SCREEN_MARGIN_RATIO = 0.01f;
-static constexpr float LINE_HEIGHT_MULTIPLIER = 1.8f;
+static constexpr float LINE_HEIGHT_MULTIPLIER = 2.0f;
 
 bool Tony::mod_enabled = false;
 uintptr_t Tony::jmp_ret1 = NULL;
@@ -250,7 +250,7 @@ static void DisplayGroups(const ImVec2& screenSize, float fontSize, float startY
     ImGui::Begin(windowName, nullptr, 
                 ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | 
                 ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoScrollbar);
-    ImGui::PushFont(g_framework->get_our_imgui_ctx()->tony_font, 14.0f * ImGui::GetStyle().FontSizeBase);
+    ImGui::PushFont(g_framework->get_our_imgui_ctx()->tony_font, fontSize);
     
     float lineHeight = fontSize * LINE_HEIGHT_MULTIPLIER;
     for (size_t groupIndex = 0; groupIndex < activeGroups.size(); ++groupIndex) {
@@ -373,7 +373,7 @@ void Tony::on_frame() {
     }
     
     ImVec2 screenSize = ImGui::GetIO().DisplaySize;
-    float fontSize = ImGui::GetFontSize();
+    float fontSize = 14.0f * (ImGui::GetIO().DisplaySize.y / 1080.0f);
     float rewardStartY = screenSize.y * REWARD_START_Y_RATIO;
     float trickStartY = screenSize.y * TRICK_START_Y_RATIO;
     
