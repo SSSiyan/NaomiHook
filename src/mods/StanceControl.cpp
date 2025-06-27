@@ -241,7 +241,7 @@ naked void detour1() { // originalcode writes stance blend to 0, we write actual
         jb writeLow
         jmp writeMid
 
-    GearSystemCode: // set stance blend depending on stance
+    GearSystemCode: // set stance blend depending on stance. Actual pcPose is set by void StanceControl::GearControls(mHRPc* player)
         cmp dword ptr [esi+0x18C], ePcMtGrdDfltLp // 48, guarding
         je GearSystemGuarding
     // GearSystemNotGuarding:
@@ -344,7 +344,7 @@ naked void detour4() { // faster nu lows if combo extend
         //
             cmp byte ptr [StanceControl::mod_enabled], 1
             je checkCheat
-        check2:
+        // check2:
             cmp byte ptr [StanceControl::mod_enabled_gear_system], 0
             je originalcode
         checkCheat:
@@ -756,11 +756,11 @@ std::optional<std::string> StanceControl::on_initialize() {
 // during load
 void StanceControl::on_config_load(const utility::Config& cfg) {
     mod_enabled = cfg.get<bool>("stance_control").value_or(false);
-    toggle(mod_enabled);
+    if (mod_enabled) toggle(mod_enabled);
     invert_input = cfg.get<bool>("stance_control_invert").value_or(false);
     show_new_ui = cfg.get<bool>("stance_control_ui").value_or(true);
     edit_old_ui = cfg.get<bool>("stance_control_edit_old_ui").value_or(false);
-    toggle_display_edit(edit_old_ui);
+    if (edit_old_ui) toggle_display_edit(edit_old_ui);
     invert_mid = cfg.get<bool>("stance_control_invert_mid").value_or(true);
     highBound = cfg.get<float>("stance_control_high_bound").value_or(0.9f);
     lowBound = cfg.get<float>("stance_control_low_bound").value_or(-0.9f);
@@ -768,10 +768,10 @@ void StanceControl::on_config_load(const utility::Config& cfg) {
     lowBoundGuard = (lowBound + 1.0f) / 2.0f;
 
     swapIdleStances = cfg.get<bool>("swap_idle_stances").value_or(false);
-    toggleSwapIdleStances(swapIdleStances);
+    if (swapIdleStances) toggleSwapIdleStances(swapIdleStances);
 
     mod_enabled_disable_combo_extend_speedup = cfg.get<bool>("disable_combo_extend_speedup").value_or(false);
-    toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
+    if (mod_enabled_disable_combo_extend_speedup) toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
 
     mod_enabled_faster_nu_lows = cfg.get<bool>("faster_nu_lows").value_or(false);
 

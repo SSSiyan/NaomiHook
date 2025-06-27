@@ -409,7 +409,7 @@ void DodgeSettings::on_config_load(const utility::Config &cfg) {
     roll_forward_mod_enabled = cfg.get<bool>("roll_forward").value_or(false);
 
     disable_darkstep_slowmo_mod_enabled = cfg.get<bool>("disable_darkstep_slowmo").value_or(false);
-    toggle_disable_slowmo_darkstep(disable_darkstep_slowmo_mod_enabled);
+    if (disable_darkstep_slowmo_mod_enabled) toggle_disable_slowmo_darkstep(disable_darkstep_slowmo_mod_enabled);
 
     roll_rotation_mod_enabled = cfg.get<bool>("roll_rotation").value_or(false);
 

@@ -164,14 +164,14 @@ void CameraSettings::on_config_load(const utility::Config &cfg) {
     customBasicScreenshakeAmount = cfg.get<int>("customBasicScreenshakeAmount").value_or(6);
 
     mod_enabled_first_person_x = cfg.get<bool>("invert_x_first_person").value_or(false);
-    toggle_first_person_x(mod_enabled_first_person_x);
+    if (mod_enabled_first_person_x) toggle_first_person_x(mod_enabled_first_person_x);
     mod_enabled_darkside_x = cfg.get<bool>("invert_x_darkside").value_or(false);
-    toggle_darkside_x(mod_enabled_darkside_x);
+    if (mod_enabled_darkside_x) toggle_darkside_x(mod_enabled_darkside_x);
 
     force_fov = cfg.get<bool>("force_fov").value_or(false);
     custom_fov = cfg.get<float>("custom_fov_value").value_or(55.0f);
     disable_attack_zoom = cfg.get<bool>("disable_attack_zoom").value_or(false);
-    fov_toggle(disable_attack_zoom);
+    if (disable_attack_zoom) fov_toggle(disable_attack_zoom);
 } 
 // during save
 void CameraSettings::on_config_save(utility::Config &cfg) {

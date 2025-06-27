@@ -118,16 +118,16 @@ void Cheats::on_draw_ui() {
 // during load
 void Cheats::on_config_load(const utility::Config &cfg) {
     take_no_damage = cfg.get<bool>("take_no_damage").value_or(false);
-    toggleTakeNoDamage(take_no_damage);
+    if (take_no_damage) toggleTakeNoDamage(take_no_damage);
 
     deal_no_damage = cfg.get<bool>("deal_no_damage").value_or(false);
-    toggleDealNoDamage(deal_no_damage);
+    if (deal_no_damage) toggleDealNoDamage(deal_no_damage);
 
     spend_no_battery = cfg.get<bool>("spend_no_battery").value_or(false);
-    toggleSpendNoBattery(spend_no_battery);
+    if (spend_no_battery) toggleSpendNoBattery(spend_no_battery);
 
     enemies_dont_attack = cfg.get<bool>("enemies_dont_attack").value_or(false);
-    toggleEnemiesDontAttack(enemies_dont_attack);
+    if (enemies_dont_attack) toggleEnemiesDontAttack(enemies_dont_attack);
 
     invincible = cfg.get<bool>("invincible").value_or(false);
 }

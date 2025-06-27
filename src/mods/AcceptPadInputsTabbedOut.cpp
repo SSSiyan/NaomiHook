@@ -33,7 +33,7 @@ void AcceptPadInputsTabbedOut::on_draw_ui() {
 // during load
 void AcceptPadInputsTabbedOut::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("accept_pad_inputs_tabbed_out").value_or(true);
-    toggle(mod_enabled);
+    if (mod_enabled) toggle(mod_enabled);
 }
 // during save
 void AcceptPadInputsTabbedOut::on_config_save(utility::Config &cfg) {

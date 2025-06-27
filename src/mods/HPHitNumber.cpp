@@ -94,7 +94,7 @@ void HPHitNumber::on_draw_ui() {
 // during load
 void HPHitNumber::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("hpHitNumber").value_or(false);
-    toggle(mod_enabled);
+    if (mod_enabled) toggle(mod_enabled);
     //verticalOffset = cfg.get<float>("hpHitNumberVerticalOffset").value_or(285.0f);
 }
 // during save

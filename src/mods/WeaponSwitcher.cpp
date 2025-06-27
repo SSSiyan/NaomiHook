@@ -607,7 +607,7 @@ void WeaponSwitcher::on_frame() {
 // during load
 void WeaponSwitcher::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("weapon_switcher").value_or(false);
-    toggleForceMap(mod_enabled);
+    if (mod_enabled) toggleForceMap(mod_enabled);
     // weapon_switcher_ui = cfg.get<bool>("weapon_switcher_ui").value_or(false);
 }
 
