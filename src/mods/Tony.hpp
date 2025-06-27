@@ -15,8 +15,8 @@ public:
 
   // mod name string for config
   std::string get_mod_name() const override { return "Tony"; }
-  std::string get_human_readable_name() const { return "Tony"; }
-  const char* get_description() const override { return R"(Tony.)"; };
+  std::string get_human_readable_name() const { return "Arcade Scoring"; }
+  const char* get_description() const override { return R"(Enable NaomiHook's custom scoring feed and keep track of how much your attacks are earning you! Each attack you land is displayed on the left-hand side of the screen with its name and LB$ value. The money earned from your kill is also shown as a Kill Reward.)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

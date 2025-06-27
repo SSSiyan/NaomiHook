@@ -16,7 +16,7 @@
 #define GUI_VERSION "0.0.0"
 #define IMGUI_WINDOW_PADDING 10.0f
 
-#define IMGUI_WINDOW_BG_COLOR IM_COL32(48, 48, 48, 222) // background
+#define IMGUI_WINDOW_BG_COLOR IM_COL32(22, 22, 22, 170)    // background
 #define IMGUI_WINDOW_CT_COLOR IM_COL32(255, 201, 115, 255) // header
 #define IMGUI_WINDOW_IN_COLOR IM_COL32(189, 95, 88, 255) // description
 
@@ -48,7 +48,7 @@ namespace gui {
             style.CellPadding = ImVec2(6.0f, 6.0f);
             style.IndentSpacing = 25.0f;
             style.ColumnsMinSpacing = 6.0f;
-            style.ScrollbarSize = 15.0f;
+            style.ScrollbarSize = 18.0f;
             style.GrabMinSize = 10.0f;
             style.TabBorderSize = 1.0f;
             style.TabCloseButtonMinWidthSelected = 0.0f;
@@ -111,17 +111,25 @@ namespace gui {
 
         ImVec4* colors = ImGui::GetStyle().Colors;
 
-        colors[ImGuiCol_WindowBg]            = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
-        colors[ImGuiCol_ChildBg]             = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
-        colors[ImGuiCol_PopupBg]             = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
-        colors[ImGuiCol_CheckMark]           = ImVec4(0.129f, 0.184f, 0.859f, 1.00f);
-        colors[ImGuiCol_TabSelected]         = ImVec4(0.51f, 0.40f, 0.24f, 1.00f);
-        colors[ImGuiCol_TabSelectedOverline] = ImVec4(1.00f, 0.79f, 0.45f, 1.00f);
-        colors[ImGuiCol_TabDimmedSelected]   = ImVec4(0.42f, 0.31f, 0.14f, 1.00f);
-        colors[ImGuiCol_TextLink]            = ImVec4(0.98f, 0.72f, 0.26f, 1.00f);
-        colors[ImGuiCol_DragDropTarget]      = ImVec4(0.86f, 0.65f, 0.33f, 1.00f);
-        colors[ImGuiCol_Header]              = ImVec4(0.31f, 0.70f, 0.15f, 1.00f);
-        colors[ImGuiCol_HeaderHovered]       = ImVec4(0.31f, 0.70f, 0.15f, 1.00f);
+        colors[ImGuiCol_WindowBg]             = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
+        colors[ImGuiCol_ChildBg]              = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
+        colors[ImGuiCol_PopupBg]              = ImColor::ImColor(IMGUI_WINDOW_BG_COLOR);
+        colors[ImGuiCol_CheckMark]            = ImVec4(0.129f, 0.184f, 0.859f, 1.00f);
+        colors[ImGuiCol_TabSelected]          = ImVec4(0.51f, 0.40f, 0.24f, 1.00f);
+        colors[ImGuiCol_TabSelectedOverline]  = ImVec4(1.00f, 0.79f, 0.45f, 1.00f);
+        colors[ImGuiCol_TabDimmedSelected]    = ImVec4(0.42f, 0.31f, 0.14f, 1.00f);
+        colors[ImGuiCol_TextLink]             = ImVec4(0.98f, 0.72f, 0.26f, 1.00f);
+        colors[ImGuiCol_DragDropTarget]       = ImVec4(0.86f, 0.65f, 0.33f, 1.00f);
+        colors[ImGuiCol_Header]               = ImVec4(0.31f, 0.70f, 0.15f, 1.00f);
+        colors[ImGuiCol_HeaderHovered]        = ImVec4(1.000f, 0.525f, 0.132f, 1.000f);
+        colors[ImGuiCol_HeaderActive]         = ImVec4(0.155f, 1.000f, 0.128f, 1.000f);
+        colors[ImGuiCol_BorderShadow]         = ImVec4(1.000f, 1.000f, 1.000f, 0.051f);
+        colors[ImGuiCol_Border]               = ImVec4(0.000f, 0.000f, 0.000f, 0.153f);
+        colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.129f, 0.184f, 0.859f, 1.000f);
+        colors[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.084f, 0.117f, 0.528f, 1.000f);
+        colors[ImGuiCol_ButtonHovered]        = ImVec4(0.129f, 0.184f, 0.859f, 1.000f);
+        colors[ImGuiCol_ButtonActive]         = ImVec4(0.084f, 0.117f, 0.528f, 1.000f);
+        colors[ImGuiCol_SliderGrabActive]     = ImVec4(0.082f, 0.118f, 0.529f, 1.000f);
     }
 
     void fps_drawing() {
@@ -381,13 +389,13 @@ namespace gui {
 
                 ImGui::PopFont();
             }
-            /*static bool showImGuiDemoWindow = false;
+            static bool showImGuiDemoWindow = false;
             ImGui::Checkbox("Show ImGui Demo Window", &showImGuiDemoWindow);
             help_marker("Check out tools>style editor to play with changes to appearance.\n"
                 "Check out widgets to see if there's anything else you wanna use somewhere");
             if (showImGuiDemoWindow) {
                 ImGui::ShowDemoWindow();
-            }*/
+            }
             ImGui::End();
             ImGui::PopFont();
             
