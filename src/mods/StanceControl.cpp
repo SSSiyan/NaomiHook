@@ -170,6 +170,10 @@ void StanceControl::disable_cam_reset(bool enable) {
 }
 
 static constexpr float midStanceBlend = 0.0f;
+static constexpr float lowGuardBlend = 0.0f;
+static constexpr float midGuardBlend = 0.5f;
+static constexpr float highGuardBlend = 1.0f;
+
 // clang-format off
 naked void detour1() { // originalcode writes stance blend to 0, we write actual values and set stance using it
     __asm {
@@ -238,9 +242,27 @@ naked void detour1() { // originalcode writes stance blend to 0, we write actual
         jmp writeMid
 
     GearSystemCode: // set stance blend depending on stance
+        cmp dword ptr [esi+0x18C], ePcMtGrdDfltLp // 48, guarding
+        je GearSystemGuarding
+    // GearSystemNotGuarding:
         cmp dword ptr [esi+0x1350], 2 // mid stance
         jne originalcode
         movss xmm0, [midStanceBlend]
+        jmp originalcode
+
+    GearSystemGuarding:
+        cmp byte ptr [esi+0x1350], ePcPoseUpper // 0
+        je GearHigh
+        cmp byte ptr [esi+0x1350], ePcPoseMiddle // 1
+        je GearMid
+    // GearLow:
+        movss xmm0,[midGuardBlend]
+        jmp originalcode
+    GearHigh:
+        movss xmm0,[highGuardBlend]
+        jmp originalcode
+    GearMid:
+        movss xmm0, [lowGuardBlend]
         jmp originalcode
     }
 }
@@ -292,9 +314,13 @@ naked void detour2() { // remap lock on cycle
 naked void detour3() { // enable guard stance blend unless clashing
     __asm {
     //
-        cmp byte ptr [StanceControl::mod_enabled], 0
-        je originalcode
-    //
+        cmp byte ptr [StanceControl::mod_enabled], 1
+        je cheat
+        cmp byte ptr [StanceControl::mod_enabled_gear_system], 1
+        je cheat
+        jmp originalcode
+
+    cheat:
         push eax
         push ecx
         push edx
