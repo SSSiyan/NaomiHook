@@ -238,9 +238,11 @@ naked void detour1() { // originalcode writes stance blend to 0, we write actual
         divss xmm0, [StanceControl::r2MultGuard] // Gamepad reads 0-255
         cmp byte ptr [StanceControl::invert_input], 0
         je skipInvert2
-        movss xmm3, [StanceControl::invertGuard]
+        movss [gearSysXmm3backup], xmm3
+        movss xmm3, [StanceControl::invertGuard] // backup xmm3 just in case
         subss xmm3, xmm0
-        movss xmm0, xmm3 // @siy potentially unsafe, I haven't checked xmm3's use
+        movss xmm0, xmm3
+        movss xmm3, [gearSysXmm3backup]
     skipInvert2:
         comiss xmm0, [StanceControl::highBoundGuard]
         ja writeHigh
@@ -574,14 +576,19 @@ void StanceControl::GearControls(mHRPc* player) {
     if (!gear_system_holds) {
         static bool r1WasPressed = false;
         static bool r2WasPressed = false;
+        static int previousStance = *stance;
         
         bool r1JustPressed = (*r1Press && !r1WasPressed);
         bool r2JustPressed = (*r2Press > r2PressThreshold && !r2WasPressed);
         
         if (r1JustPressed) {
-            *stance = (*stance == 2) ? 0 : (*stance == 1) ? 2 : *stance;
+            previousStance = (previousStance == 2) ? 0 : (previousStance == 1) ? 2 : previousStance;
+            *stance = previousStance;
         } else if (r2JustPressed) {
-            *stance = (*stance == 0) ? 2 : (*stance == 2) ? 1 : *stance;
+            previousStance = (previousStance == 0) ? 2 : (previousStance == 2) ? 1 : previousStance;
+            *stance = previousStance;
+        } else {
+            *stance = previousStance;
         }
         
         r1WasPressed = *r1Press;
