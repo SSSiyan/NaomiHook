@@ -174,6 +174,13 @@ static constexpr float lowGuardBlend = 0.0f;
 static constexpr float midGuardBlend = 0.5f;
 static constexpr float highGuardBlend = 1.0f;
 
+static float gearSysXmm0backup = 0.0f;
+static float gearSysXmm1backup = 0.0f;
+static float gearSysXmm2backup = 0.0f;
+static float gearSysXmm3backup = 0.0f;
+static float gearSysXmm4backup = 0.0f;
+static float gearSysXmm5backup = 0.0f;
+
 // clang-format off
 naked void detour1() { // originalcode writes stance blend to 0, we write actual values and set stance using it
     __asm {
@@ -242,6 +249,22 @@ naked void detour1() { // originalcode writes stance blend to 0, we write actual
         jmp writeMid
 
     GearSystemCode: // set stance blend depending on stance. Actual pcPose is set by void StanceControl::GearControls(mHRPc* player)
+        movss [gearSysXmm0backup], xmm0
+        movss [gearSysXmm1backup], xmm1
+        movss [gearSysXmm2backup], xmm2
+        movss [gearSysXmm3backup], xmm3
+        movss [gearSysXmm4backup], xmm4
+        movss [gearSysXmm5backup], xmm5
+        pushad
+        push esi // player arg
+        call dword ptr [StanceControl::GearControls] // set actual pos
+        popad
+        movss xmm0, [gearSysXmm0backup] 
+        movss xmm1, [gearSysXmm1backup] 
+        movss xmm2, [gearSysXmm2backup] 
+        movss xmm3, [gearSysXmm3backup] 
+        movss xmm4, [gearSysXmm4backup] 
+        movss xmm5, [gearSysXmm5backup] 
         cmp dword ptr [esi+0x18C], ePcMtGrdDfltLp // 48, guarding
         je GearSystemGuarding
     // GearSystemNotGuarding:
@@ -581,7 +604,7 @@ void StanceControl::GearControls(mHRPc* player) {
 static uint32_t g_frame_counter = 0;
 void StanceControl::on_frame() {
     if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
-        if (mod_enabled_gear_system) GearControls(mHRPc);
+        // if (mod_enabled_gear_system) GearControls(mHRPc);
         auto mode = mHRPc->mInputMode;
         uintptr_t baseAddress = g_framework->get_module().as<uintptr_t>();
         HrCamera* hrCamera = reinterpret_cast<HrCamera*>(baseAddress + 0x82A4A0);
