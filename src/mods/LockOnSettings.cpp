@@ -152,8 +152,8 @@ void LockOnSettings::replaceHitNumToggle(bool enable) { // hide "HIT" text
     }
 }
 
-static float replaceHitNumTensionXmm0backup = 0.0f;
-static float replaceHitNumTensionMultiplier = 1000.0f;
+static float replaceHitNumXmm0backup = 0.0f;
+static float replaceHitNumMultiplier = 1000.0f;
 
 // clang-format off
 naked void replaceHitNumDetour1() { // show hp instead of hit number
@@ -192,17 +192,29 @@ naked void replaceHitNumDetour1() { // show hp instead of hit number
             cvttss2si eax, [eax+0x24]
             jmp retcode
         DisplayTension:
-            movss [replaceHitNumTensionXmm0backup], xmm0
+            movss [replaceHitNumXmm0backup], xmm0
             movss xmm0, [eax+0x2C]
-            mulss xmm0, dword ptr [replaceHitNumTensionMultiplier]
+            mulss xmm0, dword ptr [replaceHitNumMultiplier] // mul by 1k so we can see decimal places
             cvttss2si eax, xmm0
-            movss xmm0, [replaceHitNumTensionXmm0backup] // restore xmm0
+            movss xmm0, [replaceHitNumXmm0backup] // restore xmm0
             jmp retcode
         DisplayMoney:
             movsx eax, word ptr [eax+0x28]
             jmp retcode
         DisplayStoreDamage:
-            cvttss2si eax, [eax+0x1d4+0x68] // stDamageInfo dmgInfo.storeDamage
+            movss [replaceHitNumXmm0backup], xmm0
+            cmp byte ptr [eax+0x418+0x4C], 1 // ZakoAi.endurance
+            je EnduranceStoreDamage
+            movss xmm0, [eax+0x4C0] // mPiyoriStoreDamage
+            mulss xmm0, dword ptr [replaceHitNumMultiplier] // mul by 1k so we can see decimal places
+            cvttss2si eax, xmm0
+            movss xmm0, [replaceHitNumXmm0backup] // restore xmm0
+            jmp retcode
+        EnduranceStoreDamage:
+            movss xmm0, [eax+0x1d4+0x68] // stDamageInfo dmgInfo.storeDamage
+            mulss xmm0, dword ptr [replaceHitNumMultiplier] // mul by 1k so we can see decimal places
+            cvttss2si eax, xmm0
+            movss xmm0, [replaceHitNumXmm0backup] // restore xmm0
             jmp retcode
 
         popcode:
