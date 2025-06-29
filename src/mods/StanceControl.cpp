@@ -550,7 +550,6 @@ void StanceControl::on_draw_ui() {
     if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";
 }
 
-
 void TextCentered(std::string text) {
     auto windowWidth = ImGui::GetWindowSize().x;
     auto textWidth   = ImGui::CalcTextSize(text.c_str()).x;
@@ -582,10 +581,18 @@ void StanceControl::GearControls(mHRPc* player) {
         bool r2JustPressed = (*r2Press > r2PressThreshold && !r2WasPressed);
         
         if (r1JustPressed) {
-            previousStance = (previousStance == 2) ? 0 : (previousStance == 1) ? 2 : previousStance;
+            if (previousStance == 2) {
+                previousStance = 0;
+            } else if (previousStance == 1) {
+                previousStance = 2;
+            }
             *stance = previousStance;
         } else if (r2JustPressed) {
-            previousStance = (previousStance == 0) ? 2 : (previousStance == 2) ? 1 : previousStance;
+            if (previousStance == 0) {
+                previousStance = 2;
+            } else if (previousStance == 2) {
+                previousStance = 1;
+            }
             *stance = previousStance;
         } else {
             *stance = previousStance;

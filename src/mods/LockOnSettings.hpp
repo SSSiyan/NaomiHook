@@ -32,7 +32,15 @@ public:
   static uintptr_t disable_throws_jmp_jne2;
   static float     disable_throws_comiss2;
   //////////////////////////////////////////////////
-
+  static bool replaceHitNumMod_enabled;
+  static uintptr_t replaceHitNumJmp_ret1;
+  static uintptr_t replaceHitNumJmp_ret2;
+  static uintptr_t replaceHitNumGpBattle;
+  static float replaceHitNumVerticalOffset;
+  static int replaceHitNumDisplayMode;
+  void replaceHitNumToggle(bool enable);
+  //////////////////////////////////////////////////
+  
   // mod name string for config
   std::string get_mod_name() const override { return "LockOnSettings"; }
   std::string get_human_readable_name() const { return "Lock On Settings"; }
@@ -59,4 +67,7 @@ private:
 	std::unique_ptr<FunctionHook> lockon_horizontal_limit_hook, lockon_during_more_actions_hook;
 	std::unique_ptr<Patch> patch_toggle_deathblow_during, patch_toggle_deathblow_start, patch_parry_qte_lockon;
 	std::unique_ptr<FunctionHook> disable_throws_hook1, disable_throws_hook2;
+
+	std::unique_ptr<FunctionHook> replaceHitNum_hook1, replaceHitNum_hook2;
+	std::unique_ptr<Patch> replaceHitNum_patch1;
 };

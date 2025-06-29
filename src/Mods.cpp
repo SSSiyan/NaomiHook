@@ -22,7 +22,6 @@
 #include "mods/SprintSettings.hpp"
 #include "mods/SwordColours.hpp"
 #include "mods/ThrowBattery.hpp"
-#include "mods/HPHitNumber.hpp"
 #include "mods/ChargeSubsBattery.hpp"
 #include "mods/DebugText.hpp"
 #include "mods/ReprisalSwap.hpp"
@@ -68,7 +67,6 @@ Mods::Mods()
     ADD_MOD(SprintSettings);
     ADD_MOD(SwordColours);
     ADD_MOD(ThrowBattery);
-    ADD_MOD(HPHitNumber);
     ADD_MOD(ChargeSubsBattery);
     ADD_MOD(DebugText);
     ADD_MOD(ReprisalSwap);

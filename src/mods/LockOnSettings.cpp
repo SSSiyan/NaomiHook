@@ -26,6 +26,19 @@ uintptr_t LockOnSettings::disable_throws_jmp_ret2 = NULL;
 uintptr_t LockOnSettings::disable_throws_jmp_jne2 = NULL;
 float     LockOnSettings::disable_throws_comiss2 = 0.0f;
 //////////////////////////////////////////////////
+bool LockOnSettings::replaceHitNumMod_enabled = false;
+uintptr_t LockOnSettings::replaceHitNumJmp_ret1 = NULL;
+uintptr_t LockOnSettings::replaceHitNumJmp_ret2 = NULL;
+uintptr_t LockOnSettings::replaceHitNumGpBattle = NULL;
+float LockOnSettings::replaceHitNumVerticalOffset = 285.0f;
+enum HP_DISPLAY_MODE {
+    DISPLAY_HP = 0,
+    DISPLAY_TENSION = 1,
+    DISPLAY_MONEY = 2,
+    DISPLAY_STORE_DAMAGE = 3
+};
+int LockOnSettings::replaceHitNumDisplayMode = DISPLAY_HP;
+//////////////////////////////////////////////////
 void LockOnSettings::toggle_deathblow_lockon(bool enable) {
     if (enable) {
         install_patch_offset(0x3C4429, patch_toggle_deathblow_during, "\xEB\x58", 2); // jmp nmh.exe+3C4483
@@ -129,6 +142,85 @@ naked void disable_throws_detour2() { // player in ebx
             jmp dword ptr [LockOnSettings::disable_throws_jmp_jne2]
     }
 }
+////////////////////////////////////////////////// HP HIT NUMBER
+void LockOnSettings::replaceHitNumToggle(bool enable) { // hide "HIT" text
+    if (enable) {
+        install_patch_offset(0x428612, replaceHitNum_patch1, "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90", 10); // nop A
+    }
+    else {
+        install_patch_offset(0x428612, replaceHitNum_patch1, "\x6A\x01\x6A\x01\x50\xE8\x44\xA1\x1D\x00", 10); // push 01, push 01, push eax, call nmh.exe+602760
+    }
+}
+
+// clang-format off
+naked void replaceHitNumDetour1() { // show hp instead of hit number
+    __asm {
+        // 
+            cmp byte ptr [LockOnSettings::replaceHitNumMod_enabled], 0
+            je originalcode
+        // 
+            mov eax, [LockOnSettings::replaceHitNumGpBattle]
+            mov eax, [eax]
+            mov eax, [eax+0x164] // player
+            test eax, eax
+            je originalcode
+            mov eax, [eax+0x2b60] // enemy
+            test eax, eax
+            je originalcode
+            push ecx
+            mov ecx, [eax+0x360] // lock on HUD
+            test ecx, ecx
+            je popcode
+            mov word ptr [ecx+0x8E], 3 // which lockon to show
+            mov word ptr [ecx+0x95], 1 // display HIT
+            pop ecx
+
+            cmp byte ptr [LockOnSettings::replaceHitNumDisplayMode], DISPLAY_HP
+            je DisplayHP
+            cmp byte ptr [LockOnSettings::replaceHitNumDisplayMode], DISPLAY_TENSION
+            je DisplayTension
+            cmp byte ptr [LockOnSettings::replaceHitNumDisplayMode], DISPLAY_MONEY
+            je DisplayMoney
+            cmp byte ptr [LockOnSettings::replaceHitNumDisplayMode], DISPLAY_STORE_DAMAGE
+            je DisplayStoreDamage
+            jmp originalcode
+
+        DisplayHP:
+            cvttss2si eax, [eax+0x24]
+            jmp retcode
+        DisplayTension:
+            cvttss2si eax, [eax+0x2C]
+            jmp retcode
+        DisplayMoney:
+            movsx eax, word ptr [eax+0x28]
+            jmp retcode
+        DisplayStoreDamage:
+            cvttss2si eax, [eax+0x1d4+0x68] // stDamageInfo dmgInfo.storeDamage
+            jmp retcode
+
+        popcode:
+            pop ecx
+        originalcode:
+            movsx eax, word ptr [ebx+0x00000154]
+        retcode:
+            jmp dword ptr [LockOnSettings::replaceHitNumJmp_ret1]
+    }
+}
+
+naked void replaceHitNumDetour2() { // Move number to centre of lockon circle
+    __asm {
+        // 
+            cmp byte ptr [LockOnSettings::replaceHitNumMod_enabled], 0
+            je originalcode
+        // 
+            movss xmm2, [LockOnSettings::replaceHitNumVerticalOffset]
+            jmp retcode
+        originalcode:
+            movss xmm2, [esp+0x10]
+        retcode:
+            jmp dword ptr [LockOnSettings::replaceHitNumJmp_ret2]
+    }
+}
  // clang-format on
 
 std::optional<std::string> LockOnSettings::on_initialize() {
@@ -152,6 +244,18 @@ std::optional<std::string> LockOnSettings::on_initialize() {
     if (!install_hook_offset(0x3C54EF, disable_throws_hook2, &disable_throws_detour2, &LockOnSettings::disable_throws_jmp_ret2, 7)) {
         spdlog::error("Failed to init LockOnDisablesThrows mod\n");
         return "Failed to init LockOnDisablesThrows mod";
+    }
+
+    LockOnSettings::replaceHitNumGpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
+
+    if (!install_hook_offset(0x42851A, replaceHitNum_hook1, &replaceHitNumDetour1, &LockOnSettings::replaceHitNumJmp_ret1, 7)) {
+        spdlog::error("Failed to init replaceHitNumber mod 1\n");
+        return "Failed to init replaceHitNumber mod 1";
+    }
+
+    if (!install_hook_offset(0x4285A5, replaceHitNum_hook2, &replaceHitNumDetour2, &LockOnSettings::replaceHitNumJmp_ret2, 6)) {
+        spdlog::error("Failed to init replaceHitNumber mod 2\n");
+        return "Failed to init replaceHitNumber mod 2";
     }
 
     return Mod::on_initialize();
@@ -209,6 +313,16 @@ void LockOnSettings::on_draw_ui() {
         toggle_kick_cancel(disable_throws_mod_enabled);
     }
     if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "Disables wrestling moves when holding lock on. This allows you to squeeze more out of the Beat Attack movelist by incorporating punches and kicks into your combos.";
+
+    if (ImGui::Checkbox("replace HIT Number", &replaceHitNumMod_enabled)) {
+        replaceHitNumToggle(replaceHitNumMod_enabled);
+    }
+    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "NMH1 displays a hit counter when locked on to an enemy. This setting repurposes that display to show enemy HP as a number instead.";
+    
+    if (replaceHitNumMod_enabled) {
+        ImGui::Combo("HP Display Mode", &replaceHitNumDisplayMode, "HP\0TENSION\0MONEY\0STORE_DAMAGE\0", 4);
+    }
+    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "@DHMalice";
 }
 
 // during load
@@ -226,6 +340,10 @@ void LockOnSettings::on_config_load(const utility::Config &cfg) {
 
     disable_throws_mod_enabled = cfg.get<bool>("lockon_disables_throws").value_or(false);
     if (disable_throws_mod_enabled) toggle_kick_cancel(disable_throws_mod_enabled);
+
+    replaceHitNumMod_enabled = cfg.get<bool>("replaceHitNumber").value_or(false);
+    if (replaceHitNumMod_enabled) replaceHitNumToggle(replaceHitNumMod_enabled);
+    replaceHitNumDisplayMode = cfg.get<int>("replaceHitNumberType").value_or(0);
 }
 
 // during save
@@ -239,6 +357,9 @@ void LockOnSettings::on_config_save(utility::Config &cfg) {
     cfg.set<float>("custom_search_degrees", horizontal_limit_custom_search_degrees);
 
     cfg.set<bool>("lockon_disables_throws", disable_throws_mod_enabled);
+
+    cfg.set<bool>("replaceHitNumber", replaceHitNumMod_enabled);
+    cfg.set<int>("replaceHitNumberType", replaceHitNumDisplayMode);
 }
 
 // do something every frame
