@@ -246,7 +246,7 @@ namespace gui {
         ImGui::SetNextWindowSize(size);
 
         bool window_open = ctx->selected_mod != nullptr;
-        ImGui::PushFont(ctx->infobox_font, 28.0f * (io.DisplaySize.y / 1080.0f));
+        ImGui::PushFont(ctx->fancy_font, 18.0f * (io.DisplaySize.y / 1080.0f));
         ImGui::Begin("Info window", &window_open, ImGuiWindowFlags_NoDecoration);
         {
             ImGui::PushStyleColor(ImGuiCol_Text, IMGUI_WINDOW_IN_COLOR);
@@ -343,7 +343,7 @@ namespace gui {
         if (ImGui::TreeNodeEx(category_name, flags)) {
             ctx->selected_category = category_enum;
             auto& io = ImGui::GetIO();
-            ImGui::PushFont(ctx->main_font, 24.0f * (io.DisplaySize.y / 1080.0f));
+            ImGui::PushFont(ctx->fancy_font, 18.0f * (io.DisplaySize.y / 1080.0f));
 
             for (auto& mod : g_framework->get_mods()->m_mods) {
                 if (mod->get_category() != category_enum) {
