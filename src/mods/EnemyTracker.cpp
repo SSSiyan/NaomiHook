@@ -1076,8 +1076,6 @@ void DrawEnemyStats() {
 }
 
 void EnemyTracker::on_draw_ui() {
-    ImGui::Separator();
-    ImGui::Text("Enemy");
     ImGui::Checkbox("Enemy Stats Popout", &imguiPopout);
     if (!imguiPopout)
         DrawEnemyStats();

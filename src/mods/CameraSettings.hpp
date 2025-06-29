@@ -40,7 +40,7 @@ public:
   void on_config_save(utility::Config& cfg) override;
 
   // on_frame() is called every frame regardless whether the gui shows up.
-  //void on_frame() override;
+  void on_frame() override;
   // on_draw_ui() is called only when the gui shows up
   // you are in the imgui window here.
   void on_draw_ui() override;

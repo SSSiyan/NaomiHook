@@ -337,7 +337,9 @@ void LockOnSettings::on_draw_ui() {
     if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "NMH1 displays a hit counter when locked on to an enemy. This setting repurposes that display to show enemy HP as a number instead.";
     
     if (replaceHitNumMod_enabled) {
+        ImGui::Indent();
         ImGui::Combo("HP Display Mode", &replaceHitNumDisplayMode, "HP\0TENSION\0MONEY\0STORE_DAMAGE\0", 4);
+        ImGui::Unindent();
     }
     if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "@DHMalice";
 }
