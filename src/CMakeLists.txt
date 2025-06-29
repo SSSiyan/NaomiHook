@@ -35,8 +35,6 @@ set(MODS_SRC
     mods/SwordColours.cpp 
     mods/ThrowBattery.hpp 
     mods/ThrowBattery.cpp 
-    mods/HPHitNumber.hpp 
-    mods/HPHitNumber.cpp 
     mods/ChargeSubsBattery.hpp 
     mods/ChargeSubsBattery.cpp 
     mods/DebugText.hpp 
