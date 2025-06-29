@@ -152,6 +152,9 @@ void LockOnSettings::replaceHitNumToggle(bool enable) { // hide "HIT" text
     }
 }
 
+static float replaceHitNumTensionXmm0backup = 0.0f;
+static float replaceHitNumTensionMultiplier = 1000.0f;
+
 // clang-format off
 naked void replaceHitNumDetour1() { // show hp instead of hit number
     __asm {
@@ -189,7 +192,11 @@ naked void replaceHitNumDetour1() { // show hp instead of hit number
             cvttss2si eax, [eax+0x24]
             jmp retcode
         DisplayTension:
-            cvttss2si eax, [eax+0x2C]
+            movss [replaceHitNumTensionXmm0backup], xmm0
+            movss xmm0, [eax+0x2C]
+            mulss xmm0, dword ptr [replaceHitNumTensionMultiplier]
+            cvttss2si eax, xmm0
+            movss xmm0, [replaceHitNumTensionXmm0backup] // restore xmm0
             jmp retcode
         DisplayMoney:
             movsx eax, word ptr [eax+0x28]
@@ -247,12 +254,10 @@ std::optional<std::string> LockOnSettings::on_initialize() {
     }
 
     LockOnSettings::replaceHitNumGpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
-
     if (!install_hook_offset(0x42851A, replaceHitNum_hook1, &replaceHitNumDetour1, &LockOnSettings::replaceHitNumJmp_ret1, 7)) {
         spdlog::error("Failed to init replaceHitNumber mod 1\n");
         return "Failed to init replaceHitNumber mod 1";
     }
-
     if (!install_hook_offset(0x4285A5, replaceHitNum_hook2, &replaceHitNumDetour2, &LockOnSettings::replaceHitNumJmp_ret2, 6)) {
         spdlog::error("Failed to init replaceHitNumber mod 2\n");
         return "Failed to init replaceHitNumber mod 2";
