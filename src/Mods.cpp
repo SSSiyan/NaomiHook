@@ -82,9 +82,7 @@ Mods::Mods()
     ADD_MOD(Cheats);
     ADD_MOD(KillObscuringTreasureChests);
     ADD_MOD(Tony);
-#ifdef MOUSE_CONTROLS
     ADD_MOD(KbmControls);
-#endif
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER
@@ -179,6 +177,18 @@ void Mods::on_draw_ui() const {
     }
 }
 #else
+
+Mod* Mods::get_mod_by_hash(uint32_t hash)
+{
+    auto itr = std::find(m_hash.begin(), m_hash.end(), hash);
+    if (itr != m_hash.cend()) {
+        return m_mods[std::distance(m_hash.begin(), itr)].get();
+    }
+    else {
+        spdlog::error("Mods::onDrawUI not found in hashindex!");
+        __debugbreak();
+    }
+}
 
 void Mods::on_draw_ui(uint32_t hash) {
     auto itr = std::find(m_hash.begin(), m_hash.end(), hash);

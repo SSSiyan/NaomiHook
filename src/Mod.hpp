@@ -223,9 +223,11 @@ public:
         }
 
         ImGui::PushID(this);
-        ImGui::Button(name.data());
+        if (ImGui::Button(name.data())) {
+            m_set_mode = true;
+        }
 
-        if (ImGui::IsItemHovered()) {
+        if (m_set_mode/*ImGui::IsItemHovered()*/) {
 #if 0
             auto& keys = g_framework->get_keyboard_state();
 
@@ -240,19 +242,20 @@ public:
                 const ImGuiKey key = (ImGuiKey)k;
                 if (ImGui::IsKeyPressed(key)) {
                     m_value = is_erase_key(key) ? UNBOUND_KEY : key;
+                    m_set_mode = false;
                     break;
                 }
             }
 
             ImGui::SameLine();
             ImGui::Text("Press any key...");
-            ImGui::Text("ESCAPE or BACKSPACE to cancel");
+            ImGui::Text("F10 to erase");
         }
         else {
             ImGui::SameLine();
 
             if (m_value >= ImGuiKey_NamedKey_BEGIN && m_value <= ImGuiKey_NamedKey_END) {
-                ImGui::Text("%i", m_value);
+                ImGui::Text("(%i)", m_value);
             }
             else {
                 ImGui::Text("Not bound");
@@ -265,17 +268,23 @@ public:
     }
 
     bool is_key_down() const {
+        if (is_erase_key((ImGuiKey)m_value) || !m_value) {
+            return false;
+        }
         return ImGui::IsKeyDown((ImGuiKey)m_value);
     }
 
     bool is_key_down_once() {
+        if (is_erase_key((ImGuiKey)m_value) || !m_value) {
+            return false;
+        }
         return ImGui::IsKeyPressed((ImGuiKey)m_value);
     }
 
     bool is_erase_key(ImGuiKey k) const {
         switch (k) {
-        case ImGuiKey_Backspace:
-        case ImGuiKey_Escape:
+        //case ImGuiKey_Backspace:
+        case ImGuiKey_F10:
             return true;
 
         default:
@@ -284,6 +293,7 @@ public:
     }
 
     static constexpr ImGuiKey UNBOUND_KEY = ImGuiKey_None;
+    bool m_set_mode{ false };
 
 };
 

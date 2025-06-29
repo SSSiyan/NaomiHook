@@ -6,11 +6,6 @@ class Mods;
 struct OurImGuiContext;
 struct ID3D11Device;
 
-struct MouseRaw {
-    int x = 0;
-    int y = 0;
-    int wheel = 0;
-};
 
 #include "D3D11Hook.hpp"
 #include "WindowsMessageHook.hpp"
@@ -60,9 +55,6 @@ public:
     void reset_mouse();
   
 public:
-    MouseRaw mouser;
-    bool m_capture_mouse { false };
-    bool m_capture_mouse_old { false };
     
     float window_size_x{};
     float window_size_y{};

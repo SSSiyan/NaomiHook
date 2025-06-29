@@ -398,11 +398,6 @@ namespace gui {
             }
             ImGui::End();
             ImGui::PopFont();
-            
-            auto wew = dynamic_cast<KbmControls*>(g_framework->get_mods()->m_mods.back().get());
-            if (wew) {
-                wew->on_draw_ui();
-            }
         }
     }
 } // namespace gui

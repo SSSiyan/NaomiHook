@@ -1,8 +1,20 @@
 #include "KbmControls.hpp"
 #include "utility/Patch.hpp"
 #include <map>
+#include "imgui_internal.h"
 
 static KbmControls* g_kbm { nullptr };
+
+typedef void(__fastcall *PADSetHideMouseCursor_ptr)(bool s, bool lock);
+static PADSetHideMouseCursor_ptr PADSetHideMouseCursor_ee { nullptr };
+
+struct MouseRaw {
+    int x = 0;
+    int y = 0;
+    int wheel = 0;
+};
+
+static MouseRaw g_mouser{};
 
 constexpr auto KEY_DPAD_UP    = 1 << 0;
 constexpr auto KEY_DPAD_LEFT  = 1 << 1;
@@ -23,6 +35,65 @@ constexpr auto KEY_DPAD_RIGHT = 1 << 15;
 constexpr auto KEY_L3         = 1 << 16;
 constexpr auto KEY_R3         = 1 << 17;
 
+#if 0
+inline void mouse_set_visible(BOOL visible)
+{
+
+
+    ShowCursor(FALSE);
+
+    CURSORINFO info = { sizeof(CURSORINFO), 0, nullptr, {} };
+    if (!GetCursorInfo(&info))
+    {
+        throw std::system_error(std::error_code(static_cast<int>(GetLastError()), std::system_category()), "GetCursorInfo");
+    }
+
+    const bool isvisible = (info.flags & CURSOR_SHOWING) != 0;
+
+    if (isvisible != visible)
+    {
+        ShowCursor(FALSE);
+        auto& io = ImGui::GetIO();
+        io.MouseDrawCursor = visible;
+    }
+    else {
+        ShowCursor(TRUE);
+    }
+}
+
+inline void mouse_center(HWND window) {
+    RECT window_rect;
+    GetWindowRect(window, &window_rect);
+
+    int centerX = (window_rect.left + window_rect.right)  / 2;
+    int centerY = (window_rect.top  + window_rect.bottom) / 2;
+
+    SetCursorPos(centerX, centerY);
+}
+#endif
+inline void mouse_capture(HWND window) {
+    RECT window_rect;
+
+    GetClientRect(window, &window_rect);
+    ClientToScreen(window, (POINT*)&window_rect.left);
+    ClientToScreen(window, (POINT*)&window_rect.right);
+    ClipCursor(&window_rect);
+}
+
+inline void mouse_release() {
+    ClipCursor(NULL);
+}
+
+static void toggle_mouse(HWND window, bool capturing) {
+    if (capturing) {
+        mouse_capture(window);
+    }
+    else {
+        mouse_release();
+    }
+}
+
+#pragma region GHM_RECLASS
 struct Vec2 {
     float x,y;
 };
@@ -123,6 +194,7 @@ public:
     int32_t N000008AB; //0x0000
     class KPADStatus WiiStatusBuffer[32][1]; //0x0004
 }; //Size: 0x0C84
+#pragma endregion
 
 #if 0
 static void m_camera_rot_lr(float a1) noexcept {
@@ -169,7 +241,12 @@ struct Action {
 };
 
 struct InputMap {
-    std::map<ModKey::Ptr, Action> actions;
+    struct ActionPair {
+        ModKey::Ptr first;
+        Action second;
+    };
+    //std::map<ModKey::Ptr, Action> actions;
+    std::vector<ActionPair> actions;
 
     std::string cfg_name(const char* name) {
         std::string cfg_entry { name };
@@ -186,10 +263,10 @@ struct InputMap {
     }
 
     void input_map(const char* name, ImGuiKey default_value, Action::AFptr act) {
-        actions.emplace(ModKey::create(cfg_name(name), default_value), Action{.name = name, .act = act});
+        actions.emplace_back(ModKey::create(cfg_name(name), default_value), Action{.name = name, .act = act});
     }
     void input_map(const char* name, ImGuiKey default_value, uint32_t code) {
-        actions.emplace(ModKey::create(cfg_name(name), default_value), Action{.name = name, .code = code});
+        actions.emplace_back(ModKey::create(cfg_name(name), default_value), Action{.name = name, .code = code});
     }
 };
 
@@ -203,7 +280,6 @@ static float linear_map(float edge0, float edge1, float x) {
     return glm::clamp(x, 0.0f, 1.0f); // Simply return x instead of applying the cubic polynomial
 }
 
-static std::unique_ptr<FunctionHook> g_hook_ghm_pad_pr_wii_pad_sampling_callback;
 
 static glm::vec2 g_mouse_delta {};
 static PAD_UNI* g_ppad {nullptr};
@@ -211,25 +287,23 @@ static PAD_UNI* g_ppad {nullptr};
 void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
 
     uintptr_t base = (uintptr_t)GetModuleHandleA(NULL);
-    g_hook_ghm_pad_pr_wii_pad_sampling_callback->get_original<decltype(ghm_pad_prWiiPadSamplingCallback_)>()(status, context);
+    if(!g_kbm->m_hooks) {return;}
+    g_kbm->m_hooks->g_hook_ghm_pad_pr_wii_pad_sampling_callback->get_original<decltype(ghm_pad_prWiiPadSamplingCallback_)>()(status, context);
 
     auto ppad = g_ppad;
     KPADEXStatus* exstatus = &ppad->WiiStatusBuffer[0][0].ex_status;
 
-#if 0
-    if(ImGui::IsKeyDown(ImGuiKey_W)) {
-        exstatus->cl.lstick.y = 1.0f;
-    }
-    if(ImGui::IsKeyDown(ImGuiKey_S)) {
-        exstatus->cl.lstick.y = -1.0f;
-    }
-    if(ImGui::IsKeyDown(ImGuiKey_A)) {
-        exstatus->cl.lstick.x = -1.0f;
-    }
-    if(ImGui::IsKeyDown(ImGuiKey_D)) {
-        exstatus->cl.lstick.x = 1.0f;
-    }
-#endif
+    glm::vec2 mouse { (float)g_mouser.x, (float)g_mouser.y };
+    mouse *= g_kbm->m_base_mouse_sens->value();
+
+    g_mouse_delta.x = mouse.x;
+    g_mouse_delta.y = mouse.y;
+
+    const float range = g_kbm->m_mouse_range->value();
+    exstatus->cl.rstick.x = (linear_map(-range, range, mouse.x) - 0.5f) * 2.0f;
+    exstatus->cl.rstick.y = (linear_map(-range, range, mouse.y) - 0.5f) * 2.0f;
+    exstatus->fs.stick = exstatus->cl.rstick;
+
     for (auto& action : g_input_map.actions) {
         if (action.first->is_key_down()) {
             auto act = action.second.act;
@@ -241,35 +315,11 @@ void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
             }
         }
     }
-
-#if 0
-    ImVec2 mouse = ImGui::GetIO().MouseDelta;
-#else
-    auto mouser = g_framework->mouser;
-    glm::vec2 mouse { mouser.x, mouser.y };
-    mouse *= g_kbm->m_base_mouse_sens->value();
-#endif
-    g_mouse_delta.x = (float)mouse.x;
-    g_mouse_delta.y = (float)mouse.y;
-
-    const float range = g_kbm->m_mouse_range->value();
-    exstatus->cl.rstick.x = (linear_map(-range, range, mouse.x) - 0.5f) * 2.0f;
-    exstatus->cl.rstick.y = (linear_map(-range, range, mouse.y) - 0.5f) * 2.0f;
-
-#if 0
-    if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
-        exstatus->cl.hold |= 32;
-    }
-    if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
-        exstatus->cl.hold |= 8;
-    }
-#endif
 }
-
-
 
 static void MOVE2_SetCameraYAngleRate(float a1) noexcept {
 
+    if(!g_kbm->m_hooks) {return;}
     HrCamera* camera = nmh_sdk::get_HrCamera();
     mHRPc* pc = nmh_sdk::get_mHRPc();
     assert(camera != NULL);
@@ -311,9 +361,12 @@ static void MOVE2_SetCameraYAngleRate(float a1) noexcept {
 #endif
 
 
+    // TODO(deep): fix negative accel
     camera->MAIN.mov2.CamAngle      += angle;//glm::clamp(camera->m.mov2.CamAngle + angle, -glm::pi<float>(), glm::pi<float>());
     camera->MAIN.mov2.CamYAngleRate = glm::clamp(camera->MAIN.mov2.CamYAngleRate + angle_y, -0.09f, glm::pi<float>() * 0.6f);
-    g_framework->reset_mouse();
+
+    g_mouser.x = 0;
+    g_mouser.y = 0;
 }
 
 // clang-format off
@@ -369,8 +422,69 @@ naked void detour_camera_rot_ud() {
 
 // clang-format on
 
-static Patch::Ptr g_hr_cam_angle_horizontal_patch {};
-static std::unique_ptr<FunctionHook> m_stage{};
+RAIIHooks::RAIIHooks() {
+    uintptr_t base = g_framework->get_module().as<uintptr_t>();
+
+    static constexpr ptrdiff_t pad_sampling_cb_offset = 0x5F7CD0;
+
+    g_hook_ghm_pad_pr_wii_pad_sampling_callback =
+        std::make_unique<FunctionHook>(base + pad_sampling_cb_offset, &ghm_pad_prWiiPadSamplingCallback_); // TODO: offset
+    if (!g_hook_ghm_pad_pr_wii_pad_sampling_callback->create()) {
+        throw "Failed to hook ghm_pad_pr_wii_pad_sampling_callback()";
+    }
+
+    static constexpr ptrdiff_t hr_cam_angle_hor_offset = 0x3B4D34;
+    g_hr_cam_angle_horizontal_patch                    = Patch::create_nop(base + hr_cam_angle_hor_offset, 8);
+
+    static constexpr ptrdiff_t set_camera_y_angle_offset = 0x3EA110;
+    m_camera_rot_lr = std::make_unique<FunctionHook>(base + set_camera_y_angle_offset, &detour_MOVE2_SetCameraYAngleRate);
+    if (!m_camera_rot_lr->create()) {
+        throw "Failed to hook camera rotate lr";
+    }
+}
+
+void KbmControls::register_raw_input_mouse(HWND handle) {
+    if (!m_mod_enabled->value() || m_ri_registered) {
+        return;
+    }
+    // Registering raw input devices
+#ifndef HID_USAGE_PAGE_GENERIC
+#define HID_USAGE_PAGE_GENERIC ((unsigned short)0x01)
+#endif
+#ifndef HID_USAGE_GENERIC_MOUSE
+#define HID_USAGE_GENERIC_MOUSE ((unsigned short)0x02)
+#endif
+
+    // We're configuring just one RAWINPUTDEVICE, the mouse,
+    // so it's a single-element array (a pointer).
+    RAWINPUTDEVICE rid[1];
+    rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
+    rid[0].usUsage     = HID_USAGE_GENERIC_MOUSE;
+    rid[0].dwFlags     = RIDEV_INPUTSINK;
+    rid[0].hwndTarget  = handle;
+    RegisterRawInputDevices(rid, 1, sizeof(rid[0]));
+// End of resgistering.
+    m_ri_registered = true;
+}
+
+bool KbmControls::window_proc_handler(HWND wnd, UINT message, WPARAM w_param, LPARAM l_param)
+{
+    if (message == WM_INPUT) {
+        size_t size = sizeof(RAWINPUT);
+        static RAWINPUT raw[sizeof(RAWINPUT)];
+        GetRawInputData((HRAWINPUT)l_param, RID_INPUT, raw, &size, sizeof(RAWINPUTHEADER));
+
+        if (raw->header.dwType == RIM_TYPEMOUSE) {
+            g_mouser.x = raw->data.mouse.lLastX;
+            g_mouser.y = raw->data.mouse.lLastY;
+
+            if (raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL)
+                g_mouser.wheel = (*(short*)&raw->data.mouse.usButtonData) / WHEEL_DELTA;
+        }
+        return true;
+    }
+    return false;
+}
 
 void KbmControls::custom_imgui_window()
 {
@@ -395,49 +509,25 @@ void KbmControls::custom_imgui_window()
 }
 
 std::optional<std::string> KbmControls::on_initialize() {
-#if 0
-    g_framework->m_mouse->SetMode(DirectX::Mouse::MODE_RELATIVE);
-#endif
     g_kbm = this;
     uintptr_t base = g_framework->get_module().as<uintptr_t>();
+
+    uintptr_t offset = (uintptr_t)(base + (ptrdiff_t)0x1BECC0);
+    PADSetHideMouseCursor_ee = (PADSetHideMouseCursor_ptr)offset;
+
     auto ptr = (base+0x849D10);
     g_ppad = (PAD_UNI*)ptr;
 
-    static constexpr ptrdiff_t pad_sampling_cb_offset = 0x5F7CD0; 
 
-    g_hook_ghm_pad_pr_wii_pad_sampling_callback = std::make_unique<FunctionHook>(base + pad_sampling_cb_offset, &ghm_pad_prWiiPadSamplingCallback_); // TODO: offset
-    if(!g_hook_ghm_pad_pr_wii_pad_sampling_callback->create()) {
-        return "Failed to hook ghm_pad_pr_wii_pad_sampling_callback()";
-    }
-
-    static constexpr ptrdiff_t hr_cam_angle_hor_offset = 0x3B4D34;
-    g_hr_cam_angle_horizontal_patch = Patch::create_nop(base + hr_cam_angle_hor_offset, 8);
-
-#if 0
-    m_camera_rot_lr = std::make_unique<FunctionHook>(0x007B47C0, &detour_camera_rot_lr);
-    if (!m_camera_rot_lr->create()) {
-        return "Failed to hook camera rotate lr";
-    }
-
-    m_camera_rot_ud = std::make_unique<FunctionHook>(0x007B4750, &detour_camera_rot_ud);
-    if (!m_camera_rot_ud->create()) {
-        return "Failed to hook camera rotate ud";
-    }
-#endif
-    static constexpr ptrdiff_t set_camera_y_angle_offset = 0x3EA110;
-    m_camera_rot_lr = std::make_unique<FunctionHook>(base + set_camera_y_angle_offset, &detour_MOVE2_SetCameraYAngleRate);
-    if (!m_camera_rot_lr->create()) {
-        return "Failed to hook camera rotate lr";
-    }
-
+    // NOTE(deep): order matters unfortunately
     g_input_map.input_map("Forward", ImGuiKey_W, 
-        [](KPADEXStatus* ext) { ext->cl.lstick.y = 1.0f;  ext->cl.hold = KEY_DPAD_UP; } );
+        [](KPADEXStatus* ext) { ext->cl.lstick.y = 1.0f;  /* ext->cl.hold = KEY_DPAD_UP; */ });
     g_input_map.input_map("Back", ImGuiKey_S, 
-        [](KPADEXStatus* ext) { ext->cl.lstick.y = -1.0f; ext->cl.hold = KEY_DPAD_DOWN; } );
+        [](KPADEXStatus* ext) { ext->cl.lstick.y = -1.0f; /* ext->cl.hold = KEY_DPAD_DOWN; */});
     g_input_map.input_map("Left", ImGuiKey_A, 
-        [](KPADEXStatus* ext) { ext->cl.lstick.x = -1.0f; ext->cl.hold = KEY_DPAD_LEFT; } );
+        [](KPADEXStatus* ext) { ext->cl.lstick.x = -1.0f; /* ext->cl.hold = KEY_DPAD_LEFT; */});
     g_input_map.input_map("Right", ImGuiKey_D, 
-        [](KPADEXStatus* ext) { ext->cl.lstick.x = 1.0f;  ext->cl.hold = KEY_DPAD_RIGHT; } );
+        [](KPADEXStatus* ext) { ext->cl.lstick.x = 1.0f;  /* ext->cl.hold = KEY_DPAD_RIGHT; */});
 
     g_input_map.input_map("Accept", ImGuiKey_Enter,     KEY_START);
     g_input_map.input_map("Cancel", ImGuiKey_Backspace, KEY_SELECT);
@@ -445,17 +535,30 @@ std::optional<std::string> KbmControls::on_initialize() {
     g_input_map.input_map("Skip Scene", ImGuiKey_Backspace, KEY_SELECT);
     g_input_map.input_map("Open Menu",  ImGuiKey_Tab,       KEY_START);
 
-    g_input_map.input_map("Target Lock On", ImGuiKey_LeftShift, [](KPADEXStatus* ext) { ext->cl.hold = KEY_LT; ext->cl.ltrigger = 128.1f; } );
+    g_input_map.input_map("Target Lock On", ImGuiKey_LeftShift, [](KPADEXStatus* ext) { 
+        ext->cl.hold |= KEY_LT; ext->cl.ltrigger = 255.0f; 
+        if (!nmh_sdk::CheckTsubazering(-1) /* clashing */ ) {
+            ext->cl.rstick.x = 0;
+            ext->cl.rstick.y = 0;
+        }
+        static unsigned int* ass = (unsigned int*)(g_framework->get_module().as<uintptr_t>() + (ptrdiff_t)0x8761D0);
+        *ass |= 128;
+        static float* ass1 = (float*)(g_framework->get_module().as<uintptr_t>() + (ptrdiff_t)0x8761EC);
+        *ass1 = 255.0f;
+        static uint32_t* ass3 = (uint32_t*)(g_framework->get_module().as<uintptr_t>() + (ptrdiff_t)0x849D14);//(uint32_t*)(0x00C49D14);
+        *ass3 |= 0x2000;
+    } );
 
-    g_input_map.input_map("Low Slash Mouse", ImGuiKey_MouseLeft,   [](KPADEXStatus* ext) { ext->cl.hold = KEY_SQUARE; });
-    g_input_map.input_map("High Slash Mouse", ImGuiKey_MouseRight, [](KPADEXStatus* ext) { ext->cl.hold = KEY_TRIANGLE; });
+    g_input_map.input_map("Low Slash Mouse", ImGuiKey_MouseLeft,   [](KPADEXStatus* ext) { ext->cl.hold |= KEY_SQUARE; });
+    g_input_map.input_map("High Slash Mouse", ImGuiKey_MouseRight, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_TRIANGLE; });
 
-    g_input_map.input_map("Low Slash Keyboard", ImGuiKey_E, [](KPADEXStatus* ext) { ext->cl.hold = KEY_SQUARE; });
-    g_input_map.input_map("High Slash Mouse",   ImGuiKey_Q, [](KPADEXStatus* ext) { ext->cl.hold = KEY_TRIANGLE; });
+    g_input_map.input_map("Low Slash Keyboard",    ImGuiKey_C, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_SQUARE; });
+    g_input_map.input_map("High Slash Keyboard",   ImGuiKey_V, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_TRIANGLE; });
 
-    g_input_map.input_map("High Melee Attack", ImGuiKey_V, [](KPADEXStatus* ext) { ext->cl.hold = KEY_CIRCLE; });
-    g_input_map.input_map("Low Melee Attack",  ImGuiKey_C, [](KPADEXStatus* ext) { ext->cl.hold = KEY_CROSS; });
+    g_input_map.input_map("High Melee Attack", ImGuiKey_Q, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_CIRCLE; });
+    g_input_map.input_map("Low Melee Attack",  ImGuiKey_E, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_CROSS; });
 
+    // WARNING(deep): must be after lock on bind
     g_input_map.input_map("Emergency Evade", ImGuiKey_Space, [](KPADEXStatus* ext) { 
         if (ext->cl.hold & KEY_LT) { // is lockon down?
             ext->cl.rstick = ext->cl.lstick;
@@ -465,15 +568,70 @@ std::optional<std::string> KbmControls::on_initialize() {
     g_input_map.input_map("Battery Charge Start", ImGuiKey_LeftCtrl, KEY_LB);
     g_input_map.input_map("Camera Reset", ImGuiKey_LeftAlt, KEY_RB);
 
+    g_input_map.input_map("Up Arrow",    ImGuiKey_UpArrow,    KEY_DPAD_UP);
+    g_input_map.input_map("Down Arrow",  ImGuiKey_DownArrow,  KEY_DPAD_DOWN);
+    g_input_map.input_map("Left Arrow",  ImGuiKey_LeftArrow,  KEY_DPAD_LEFT);
+    g_input_map.input_map("Right Arrow", ImGuiKey_RightArrow, KEY_DPAD_RIGHT);
+
+    // TODO(deep): idk which is correct bind to write
+    g_input_map.input_map("Switch to Blood Berry", ImGuiKey_1,   [](KPADEXStatus* ext){ 
+        uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
+        if (dPadInputsAddr) {
+            int8_t* dPadInput = (int8_t*)dPadInputsAddr;
+            *dPadInput = 8;
+        }
+    });
+    g_input_map.input_map("Switch to Tsubaki MK1", ImGuiKey_2, [](KPADEXStatus* ext){ 
+        uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
+        if (dPadInputsAddr) {
+            int8_t* dPadInput = (int8_t*)dPadInputsAddr;
+            *dPadInput = 2;
+        }
+        });
+    g_input_map.input_map("Switch to Tsubaki MK2",  ImGuiKey_3, [](KPADEXStatus* ext){ 
+        uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
+        if (dPadInputsAddr) {
+            int8_t* dPadInput = (int8_t*)dPadInputsAddr;
+            *dPadInput = 4;
+        }
+    });
+    g_input_map.input_map("Switch to Tsubaki MK3",  ImGuiKey_4, [](KPADEXStatus* ext){ 
+        uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
+        if (dPadInputsAddr) {
+            int8_t* dPadInput = (int8_t*)dPadInputsAddr;
+            *dPadInput = 1;
+        }
+        });
+
 
     return Mod::on_initialize();
 }
 
 void KbmControls::on_frame() {
+
+    // toggle mouse capture
+    if (ImGui::IsKeyPressed(ImGuiKey_LeftAlt)) {
+        m_capture_mouse = !m_capture_mouse;
+    }
+
+    if (m_capture_mouse != m_capture_mouse_old) {
+        PADSetHideMouseCursor_ee(m_capture_mouse, m_capture_mouse);
+        toggle_mouse(m_wnd, m_capture_mouse);
+
+        m_capture_mouse_old = m_capture_mouse;
+    }
 }
 
 void KbmControls::on_draw_ui() {
-    m_mod_enabled->draw("Enable Keyboard and Mouse Support?");
+    if (m_mod_enabled->draw("Enable Keyboard and Mouse Support?")) {
+        if (m_mod_enabled->value() && !m_hooks) {
+            m_hooks = std::make_unique<RAIIHooks>();
+            register_raw_input_mouse(m_wnd);
+        }
+        else {
+            m_hooks.reset();
+        }
+    }
 
     m_base_mouse_sens->draw("Base mouse sensitivity");
     m_cams_mouse_sens->draw("Camera mouse senisitivity");
@@ -483,7 +641,17 @@ void KbmControls::on_draw_ui() {
     if (ImGui::CollapsingHeader("Bindings")) {
 
         for (auto& keys : g_input_map.actions) {
-            keys.first->draw(keys.second.name);
+            ImGuiKey value = (ImGuiKey)keys.first->value();
+            keys.first->draw(keys.second.name); ImGui::SameLine();
+            if (ImGui::IsNamedKeyOrMod(value) && value) {
+                //auto col = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
+                //ImGui::PushStyleColor(ImGuiCol_Text, col);
+                ImGui::Text(": %s", ImGui::GetKeyName(value));
+                //ImGui::PopStyleColor();
+            }
+            else {
+                ImGui::Text(": UNBOUND");
+            }
         }
     }
 
@@ -522,6 +690,9 @@ void KbmControls::on_config_load(const utility::Config &cfg) {
     }
     for (auto& bind : g_input_map.actions) {
         bind.first->config_load(cfg);
+    }
+    if (m_mod_enabled->value()) {
+        m_hooks = std::make_unique<RAIIHooks>();
     }
 }
 

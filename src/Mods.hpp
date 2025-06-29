@@ -1,4 +1,3 @@
-//#define MOUSE_CONTROLS
 #pragma once
 
 #include "Mod.hpp"
@@ -16,6 +15,7 @@ public:
     void on_draw_debug_ui() const;
     void on_config_save();
     void on_d3d11_reset();
+    Mod* get_mod_by_hash(uint32_t hash);
 
     std::vector<std::unique_ptr<Mod>> m_mods;
 
