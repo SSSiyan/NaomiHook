@@ -1,4 +1,5 @@
 #include "EnemyTracker.hpp"
+#include "GuiFunctions.hpp" // for g_framework
 #if 1
 static bool imguiPopout = false;
 
@@ -77,13 +78,14 @@ void DrawEnemyStats() {
         ImGui::SetWindowPos(ImVec2(scaledPos.x, scaledPos.y));
     }*/
 
-    if (ImGui::CollapsingHeader("mpLockOnNpc")) {
+    if (ImGui::TreeNodeEx("mpLockOnNpc", ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (mpLockOnNpc) {
             ImGui::InputFloat("mDistFromPc", &mpLockOnNpc->mDistFromPc);
             ImGui::InputFloat("mDirecYFromPc", &mpLockOnNpc->mDirecYFromPc);
         }
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("mpLockOnNpc mStatus")) {
+    if (ImGui::TreeNodeEx("mpLockOnNpc mStatus", ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (mpLockOnNpc) {
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mpLockOnNpc->mZakoWepMotionNumMax[0]);
             // uintptr_t statusAddress = reinterpret_cast<uintptr_t>(&mpLockOnNpc->mDirecYFromPc);
@@ -207,9 +209,10 @@ void DrawEnemyStats() {
             bool jpnDead = getBit(mpLockOnNpc->mStatus.flag2, 1);
             if (ImGui::Checkbox("jpnDead", &jpnDead)) setBit(mpLockOnNpc->mStatus.flag2, 1, jpnDead);
         }
+        ImGui::TreePop();
     }
     static const char* HRZAKOWarningText = "if locked on enemy isn't a zako, you're on your own";
-    if (ImGui::CollapsingHeader("mpLockOnNpc HRZAKO")) {
+    if (ImGui::TreeNodeEx("mpLockOnNpc HRZAKO", ImGuiTreeNodeFlags_DrawLinesFull)) {
         help_marker(HRZAKOWarningText);
         HRZAKO* hrZako = (HRZAKO*)mpLockOnNpc;
         if (hrZako) {
@@ -230,7 +233,7 @@ void DrawEnemyStats() {
             help_marker("Maximum ammo capacity of enemy gun clip/magazine.");
             ImGui::InputInt("Ball Number", &hrZako->mBallNum);
             ImGui::InputInt("Ball Number Max", &hrZako->mBallNumMax);
-            if (ImGui::CollapsingHeader("ZakoAi")) {
+            if (ImGui::TreeNodeEx("ZakoAi", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 ImGui::Combo("Mode", (int*)&hrZako->mAi.mMode, "Init\0Wait\0DarkSide\0");
                 ImGui::InputInt("Recast Count", &hrZako->mAi.mRecastCnt);
                 ImGui::InputInt("Attack Cast Count", &hrZako->mAi.mAtkCastCnt);
@@ -254,7 +257,7 @@ void DrawEnemyStats() {
                 help_marker("Endurance is the mechanic that gives enemies extra resistance to attacks and immunity to Death Blow insta-kills. While only applied to specific enemies by default, this can be ticked on any Zako type.");
                 ImGui::InputFloat("Mawarikomi Direction", &hrZako->mAi.mMawarikomiDirec);
                 ImGui::Checkbox("Back Step Check", &hrZako->mAi.mBackStepChk);
-                ImGui::Separator();
+                ImGui::TreePop();
             }
             ImGui::InputFloat3("Boid Position", &hrZako->mBoidPos.x);
             ImGui::InputFloat("Walk Speed", &hrZako->mWalkSpeed);
@@ -273,7 +276,7 @@ void DrawEnemyStats() {
             ImGui::InputFloat("Piyori Store Damage", &hrZako->mPiyoriStoreDamage);
             ImGui::InputInt("Piyori Store Tick", &hrZako->mPiyoriStoreTick);
             ImGui::Checkbox("Already Hit Down Attack", &hrZako->mAlreadyHitDownAttack);
-            if (ImGui::TreeNode("Union Fields")) {
+            if (ImGui::TreeNodeEx("Union Fields", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 ImGui::InputInt("En Count Voice Tick", &hrZako->mEnCountVoiceTick);
                 ImGui::Checkbox("AI Kyousei Up Guard", &hrZako->mAiKyouseiUpGuard);
                 ImGui::Checkbox("AI Kyousei Down Guard", &hrZako->mAiKyouseiDownGuard);
@@ -283,17 +286,17 @@ void DrawEnemyStats() {
                 ImGui::Checkbox("AI Ikasama Throw Down", &hrZako->mAiIkasamaThrowDown);
                 ImGui::Checkbox("AI Kyousei Guard Only", &hrZako->mAiKyouseiGuardOnly);
                 ImGui::Checkbox("Money Far Too Little", &hrZako->mMoneyFarTooLittle);
-                ImGui::Separator();
                 ImGui::TreePop();
             }
         }
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("mpLockOnNpc mEffect.pBattleIcon")) {
+    if (ImGui::TreeNodeEx("mpLockOnNpc mEffect.pBattleIcon", ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (mpLockOnNpc && mpLockOnNpc->mEffect.pBattleIcon) {
-            uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mpLockOnNpc->mEffect.pBattleIcon->Padding_175);
-            uintptr_t statusAddress = reinterpret_cast<uintptr_t>(&mpLockOnNpc->mEffect.pBattleIcon->m_DrawHitCmbFlag);
-            uintptr_t offsetDifference = statusAddress - baseAddress;
-            ImGui::Text("Offset: 0x%08X", offsetDifference);
+            // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&mpLockOnNpc->mEffect.pBattleIcon->Padding_175);
+            // uintptr_t statusAddress = reinterpret_cast<uintptr_t>(&mpLockOnNpc->mEffect.pBattleIcon->m_DrawHitCmbFlag);
+            // uintptr_t offsetDifference = statusAddress - baseAddress;
+            // ImGui::Text("Offset: 0x%08X", offsetDifference);
 
             ImGui::InputScalar("Icon Stat", ImGuiDataType_S32, &mpLockOnNpc->mEffect.pBattleIcon->D_BICON_STAT);
             ImGui::InputScalar("Yoyaku Icon", ImGuiDataType_S32, &mpLockOnNpc->mEffect.pBattleIcon->m_YoyakuIcon);
@@ -359,8 +362,9 @@ void DrawEnemyStats() {
             bool fhptype = getBit(mpLockOnNpc->mEffect.pBattleIcon->flag, 10);
             if (ImGui::Checkbox("HP Type", &fhptype)) setBit(mpLockOnNpc->mEffect.pBattleIcon->flag, 10, fhptype);
         }
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("mpLockOnNpc mStatus.dmgInfo")) {
+    if (ImGui::TreeNodeEx("mpLockOnNpc mStatus.dmgInfo", ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (mpLockOnNpc) {
             ImGui::SliderFloat("Damage", &mpLockOnNpc->mStatus.dmgInfo.dmg, 0.0f, 100.0f);
             ImGui::InputInt("Damage Motion", &mpLockOnNpc->mStatus.dmgInfo.dmgMot);
@@ -386,9 +390,10 @@ void DrawEnemyStats() {
             ImGui::InputInt("Restore Damage Basic Tick", &mpLockOnNpc->mStatus.dmgInfo.restoreDamegeBasicTick);
             ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &mpLockOnNpc->mStatus.dmgInfo.m_BikeDeadRequest);
         }
+        ImGui::TreePop();
     }
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeMAM) {
-        if (ImGui::CollapsingHeader("mpLockOnNpc HRMAM (Death Metal)")) {
+        if (ImGui::TreeNodeEx("mpLockOnNpc HRMAM (Death Metal)", ImGuiTreeNodeFlags_DrawLinesFull)) {
             HRMAM* hrMam = (HRMAM*)mpLockOnNpc;
             if (hrMam) {
                 ImGui::InputInt("Action Mode", &hrMam->m_ActionMode);
@@ -484,10 +489,11 @@ void DrawEnemyStats() {
                 }
                 ImGui::InputInt("Camera Mode", &hrMam->m_CameraMode);
             }
+            ImGui::TreePop();
         }
     }
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeMAM_Jr) {
-        if (ImGui::CollapsingHeader("mpLockOnNpc HRMAMJr (Death Metal Clone)")) {
+        if (ImGui::TreeNodeEx("mpLockOnNpc HRMAMJr (Death Metal Clone)", ImGuiTreeNodeFlags_DrawLinesFull)) {
             HRMAMJR* hrMamJr = (HRMAMJR*)mpLockOnNpc;
             if (hrMamJr) {
                 ImGui::InputInt("m_ActionMode", &hrMamJr->m_ActionMode);
@@ -526,10 +532,11 @@ void DrawEnemyStats() {
                 ImGui::InputInt("mTraceTex Image Size Enum", (int*)&hrMamJr->mTraceTex.ImageSize);
                 ImGui::InputInt("mTraceTex Aspect Enum", (int*)&hrMamJr->mTraceTex.Aspect);
             }
+            ImGui::TreePop();
         }
     }
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeMGE) {
-        if (ImGui::CollapsingHeader("mpLockOnNpc HRMGE (Dr. Peace)")) {
+        if (ImGui::TreeNodeEx("mpLockOnNpc HRMGE (Dr. Peace)", ImGuiTreeNodeFlags_DrawLinesFull)) {
             HRMGE* hrMge = (HRMGE*)mpLockOnNpc;
             if (hrMge) {
                 ImGui::InputInt("m_ActionMode", &hrMge->m_ActionMode);
@@ -587,10 +594,11 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_PrimUni Ptr", (int*)&hrMge->m_PrimUni);
                 ImGui::InputInt("m_Quad Ptr", (int*)&hrMge->m_Quad);
             }
+            ImGui::TreePop();
         }
     }
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeTGR) {
-        if (ImGui::CollapsingHeader("mpLockOnNpc HRTGR (Shinobu)")) {
+        if (ImGui::TreeNodeEx("mpLockOnNpc HRTGR (Shinobu)", ImGuiTreeNodeFlags_DrawLinesFull)) {
             HRTGR* hrTgr = (HRTGR*)mpLockOnNpc;
             if (hrTgr) {
                 ImGui::Checkbox("mStartAttack", &hrTgr->mStartAttack);
@@ -627,10 +635,11 @@ void DrawEnemyStats() {
                     ImGui::InputInt(("mTaskCheckWaveBlow Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTgr->mTaskCheckWaveBlow[i]);
                 }
             }
+            ImGui::TreePop();
         }
     }
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeJST) {
-        if (ImGui::CollapsingHeader("mpLockOnNpc HRJST (Destroyman)")) {
+        if (ImGui::TreeNodeEx("mpLockOnNpc HRJST (Destroyman)", ImGuiTreeNodeFlags_DrawLinesFull)) {
             HRJST* hrJst = (HRJST*)mpLockOnNpc;
             if (hrJst) {
                 ImGui::InputInt("Action Mode", &hrJst->m_ActionMode);
@@ -706,11 +715,12 @@ void DrawEnemyStats() {
                 ImGui::Text("Light Loop", ImGuiDataType_U32, &hrJst->m_LightLoop);
                 ImGui::Text("Light Down", ImGuiDataType_U32, &hrJst->m_LightDown);
             }
+            ImGui::TreePop();
         }
     }
     
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeSFF) {
-        if (ImGui::CollapsingHeader("mpLockOnNpc HRSFF (Holly Summers)")) {
+        if (ImGui::TreeNodeEx("mpLockOnNpc HRSFF (Holly Summers)", ImGuiTreeNodeFlags_DrawLinesFull)) {
             HRSFF* hrSff = (HRSFF*)mpLockOnNpc;
             if (hrSff) {
                 const char* holeStateNames[] = { "Lid", "Open", "Bury" };
@@ -779,10 +789,11 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_pMineGmf Ptr", (int*)&hrSff->m_pMineGmf);
                 ImGui::Checkbox("m_MineVisible", &hrSff->m_MineVisible);
             }
+            ImGui::TreePop();
         }
     }
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeTET) {
-        if (ImGui::CollapsingHeader("mpLockOnNpc HRTET (Harvey)")) {
+        if (ImGui::TreeNodeEx("mpLockOnNpc HRTET (Harvey)", ImGuiTreeNodeFlags_DrawLinesFull)) {
             HRTET* hrTet = (HRTET*)mpLockOnNpc;
             if (hrTet) {
                 ImGui::Combo("m_SetDemoNum", (int*)&hrTet->m_SetDemoNum, "DemoInit\0ShowIn\0ShortShowIn\0ShowTrue\0ShowFalse\0");
@@ -871,10 +882,11 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_pTopSpin Ptr", (int*)&hrTet->m_pTopSpin);
                 ImGui::InputInt("m_pSmoke Ptr", (int*)&hrTet->m_pSmoke);
             }
+            ImGui::TreePop();
         }
     }
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeEFL) {
-        if (ImGui::CollapsingHeader("mpLockOnNpc HREFL (Speedbuster)")) {
+        if (ImGui::TreeNodeEx("mpLockOnNpc HREFL (Speedbuster)", ImGuiTreeNodeFlags_DrawLinesFull)) {
             HREFL* hrEfl = (HREFL*)mpLockOnNpc;
             if (hrEfl) {
                 ImGui::InputInt("m_ActionMode", &hrEfl->m_ActionMode);
@@ -906,10 +918,11 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_pBusterCheck Ptr", (int*)&hrEfl->m_pBusterCheck);
                 ImGui::InputInt("m_Close Ptr", (int*)&hrEfl->m_Close);
             }
+            ImGui::TreePop();
         }
     }
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeTYG) {
-        if (ImGui::CollapsingHeader("mpLockOnNpc HRTYG (Bad Girl)")) {
+        if (ImGui::TreeNodeEx("mpLockOnNpc HRTYG (Bad Girl)", ImGuiTreeNodeFlags_DrawLinesFull)) {
             HRTYG* hrTyg = (HRTYG*)mpLockOnNpc;
             if (hrTyg) {
                 ImGui::InputInt("m_ActionMode", &hrTyg->m_ActionMode);
@@ -963,10 +976,11 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_Close Ptr", (int*)&hrTyg->m_Close);
                 ImGui::InputInt("m_Belt Ptr", (int*)&hrTyg->m_Belt);
             }
+            ImGui::TreePop();
         }
     }
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeGEN) {
-        if (ImGui::CollapsingHeader("mpLockOnNpc HRGEN (Jeane)")) {
+        if (ImGui::TreeNodeEx("mpLockOnNpc HRGEN (Jeane)", ImGuiTreeNodeFlags_DrawLinesFull)) {
             HRGEN* hrGen = (HRGEN*)mpLockOnNpc;
             if (hrGen) {
                 ImGui::InputInt("m_ActionMode", &hrGen->m_ActionMode);
@@ -1003,10 +1017,11 @@ void DrawEnemyStats() {
                 ImGui::InputFloat3("m_RFootPos", &hrGen->m_RFootPos.x);
                 ImGui::InputFloat3("m_LFootPos", &hrGen->m_LFootPos.x);
             }
+            ImGui::TreePop();
         }
     }
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeTKL) {
-        if (ImGui::CollapsingHeader("mpLockOnNpc HRTKL (Henry)")) {
+        if (ImGui::TreeNodeEx("mpLockOnNpc HRTKL (Henry)", ImGuiTreeNodeFlags_DrawLinesFull)) {
             HRTKL* hrTkl = (HRTKL*)mpLockOnNpc;
             // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrTkl->Padding_1612[0]);
             // ImGui::Text("Base Address: 0x%08X", baseAddress);
@@ -1055,6 +1070,7 @@ void DrawEnemyStats() {
                     ImGui::InputInt(("m_pSwordEff Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTkl->m_pSwordEff[i]);
                 }
             }
+            ImGui::TreePop();
         }
     }
 }
@@ -1069,9 +1085,11 @@ void EnemyTracker::on_draw_ui() {
 
 void EnemyTracker::custom_imgui_window() {
     if (imguiPopout) {
+        ImGui::PushFont(g_framework->get_our_imgui_ctx()->main_font, 24.0f * (ImGui::GetIO().DisplaySize.y / 1080.0f));
         ImGui::Begin("Enemy Stats", &imguiPopout);
         DrawEnemyStats();
         ImGui::End();
+        ImGui::PopFont();
     }
 }
 

@@ -2194,8 +2194,6 @@ void DrawPlayerStats() {
 
 void PlayerTracker::on_draw_ui() {
     ImGui::PushFont(g_framework->get_our_imgui_ctx()->main_font, 24.0f * (ImGui::GetIO().DisplaySize.y / 1080.0f));
-    ImGui::Separator();
-    ImGui::Text("Player");
     ImGui::Checkbox("Player Stats Popout", &imguiPopout);
     if (!imguiPopout)
         DrawPlayerStats();

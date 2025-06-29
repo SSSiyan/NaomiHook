@@ -288,6 +288,7 @@ namespace gui {
                     ImGui::PushStyleColor(ImGuiCol_Text, IMGUI_WINDOW_ST_MODNAME_COLOR);
                     ImGui::Text("%s", ctx->selected_mod->get_human_readable_name().c_str());
                     ImGui::PopStyleColor();
+                    ImGui::Separator();
                 }
                 ImGuiRaiiFont font{ctx->main_font, 24.0f * (io.DisplaySize.y / 1080.0f)};
                 ctx->selected_mod->on_draw_ui();
