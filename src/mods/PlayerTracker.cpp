@@ -36,6 +36,8 @@ void DrawPlayerStats() {
             ImGui::Checkbox("mOperate ##Useful", &player->mOperate);
             ImGui::Checkbox("mCameraOperate ##Useful", &player->mCameraOperate);
             ImGui::Checkbox("mDead ## Useful", &player->mDead);
+            ImGui::Checkbox("BaseAttach ## Useful", &player->tagMain->BaseAttach);
+            ImGui::InputInt("renderSkipCounter ## Useful", &player->mCharaStatus.renderSkipCounter);
             bool hitStageDisEnable = getBit(player->mCharaStatus.flag, 10);
             if (ImGui::Checkbox("hitStageDisEnable ##Useful", &hitStageDisEnable)) setBit(player->mCharaStatus.flag, 10, hitStageDisEnable);
             if (mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle()) {
@@ -1286,6 +1288,7 @@ void DrawPlayerStats() {
                 ImGui::InputInt("Shinku Tick", &player->mPcStatus.shinkuTick);
                 help_marker("Tick for Blueberry Cheese Brownie");
                 ImGui::InputInt("Bullet Tick", &player->mPcStatus.bulletTick);
+                help_marker("Tick for Cherries");
                 ImGui::InputInt("Money", &player->mPcStatus.money);
                 help_marker("The money you currently have in your wallet.");
                 ImGui::InputInt("Money Max", &player->mPcStatus.moneyMax);
@@ -1305,7 +1308,6 @@ void DrawPlayerStats() {
                 ImGui::InputScalar("cmb", ImGuiDataType_U8, &player->mPcStatus.cmb);
                 help_marker("Displays how far you are into the current Beam Katana combo");
                 ImGui::InputScalar("cmbKind", ImGuiDataType_S32, &player->mPcStatus.cmbKind);
-                help_marker("Displays attack type. 1 = Beam Katana, 2 = Beat Attack");
                 ImGui::InputScalar("cmbKindOld", ImGuiDataType_S32, &player->mPcStatus.cmbKindOld);
                 ImGui::InputScalar("pose", ImGuiDataType_S32, &player->mPcStatus.pose);
                 help_marker("Displays High / Mid / Low stance");
@@ -1346,9 +1348,11 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("Range Flag", &player->mPcStatus.rngFlag);
                 help_marker("Jumping Slash buffer");
                 ImGui::Checkbox("Battou Demo", &player->mPcStatus.battouDemo);
+                help_marker("Ticks when the pre battle demo plays for unsheathing Beam Katana");
                 ImGui::InputInt("Battou Demo Proc", &player->mPcStatus.battouDemoProc);
                 ImGui::Checkbox("Battou Demo Pause Mode", &player->mPcStatus.battouDemoPauseMode);
                 ImGui::Checkbox("Noutou Demo", &player->mPcStatus.noutouDemo);
+                help_marker("Unused tick for when Travis is sheathing a Beam Katana");
                 ImGui::Checkbox("Equip Weapon", &player->mPcStatus.eqWep);
                 ImGui::Checkbox("Equip Weapon Laser", &player->mPcStatus.eqWepLaser);
                 ImGui::Checkbox("Left Input", &player->mPcStatus.lInput);

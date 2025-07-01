@@ -175,24 +175,24 @@ static const char* MoveNames[] = {
   "ePcMtDdUtsbs", // 130,
   "ePcMtLSFly", // 131,
   "ePcMtLSRtn", // 132,
-  "BEAT Combo",						// 133, ePcMtBtAtkFghtCmbA
-  "BEAT Combo",						// 134, ePcMtBtAtkFghtCmbB
-  "BEAT Combo",						// 135, ePcMtBtAtkFghtCmbC
-  "BEAT Combo",						// 136, ePcMtBtAtkFghtCmbD
-  "BEAT Combo",						// 137, ePcMtBtAtkFghtCmbE
-  "BEAT Combo",						// 138, ePcMtBtAtkFghtCmbF
+  "BEAT Combo",						    // 133, ePcMtBtAtkFghtCmbA
+  "BEAT Combo",						    // 134, ePcMtBtAtkFghtCmbB
+  "BEAT Combo",						    // 135, ePcMtBtAtkFghtCmbC
+  "BEAT Combo",						    // 136, ePcMtBtAtkFghtCmbD
+  "BEAT Combo",						    // 137, ePcMtBtAtkFghtCmbE
+  "BEAT Combo",						    // 138, ePcMtBtAtkFghtCmbF
   "While-Running Left Hook",			// 139, ePcMtBtAtkFghtDsh
-  "Spinning Hook Kick",				// 140, ePcMtBtAtkFghtRrgSbt
+  "Spinning Hook Kick",				    // 140, ePcMtBtAtkFghtRrgSbt
   "Roundhouse Kick",					// 141, ePcMtBtAtkFghtRHKck
-  "Ankle Kick",						// 142, ePcMtBtAtkFghtRLKck
+  "Ankle Kick",						    // 142, ePcMtBtAtkFghtRLKck
   "Hiza Geri Knee Kick",				// 143, ePcMtBtAtkFghtTbgr
-  "ePcMtBtAtkFghtRlt",				// 144, ePcMtBtAtkFghtRlt Unused Black Screen Punch
+  "ePcMtBtAtkFghtRlt",				    // 144, ePcMtBtAtkFghtRlt Unused Black Screen Punch
   "Overhead Kick",						// 145, ePcMtBtAtkFghtNlKck
   "Right Elbow",						// 146, ePcMtBtAtkFghtRrgElbw
-  "Spinning Back Kick",				// 147, ePcMtBtAtkFghtTrKick
+  "Spinning Back Kick",				    // 147, ePcMtBtAtkFghtTrKick
   "Left Hook",							// 148, ePcMtBtAtkFghtLHk
   "Left Uppercut",						// 149, ePcMtBtAtkFghtLUpr
-  "Spinning Hook Kick Quick",			// 150, ePcMtBtAtkFghtRrgSbt2
+  "Jumping Spinning Back Kick",			// 150, ePcMtBtAtkFghtRrgSbt2
   "Dragon Suplex",						// 151, ePcMtBtAtkFghtDsprx
   "Brain Buster",						// 152, ePcMtBtAtkFghtBbstr
   "DDT ",								// 153, ePcMtBtAtkFghtDdt
@@ -203,7 +203,7 @@ static const char* MoveNames[] = {
   "Quebradora Con Giro",				// 158, ePcMtBtAtkFghtKbrd
   "German Suplex",						// 159, ePcMtBtAtkFghtJmsprx
   "Tiger Suplex",						// 160, ePcMtBtAtkFghtTgsprx
-  "Belly to Belly",					// 161, ePcMtBtAtkFghtSldr
+  "Belly to Belly",					    // 161, ePcMtBtAtkFghtSldr
   "Front Neck Chancery Drop",			// 162, ePcMtBtAtkFghtFnck
   "Captured",							// 163, ePcMtBtAtkFghtCpchd
   "Reverse Armsault",					// 164, ePcMtBtAtkFghtRvsams
@@ -211,8 +211,8 @@ static const char* MoveNames[] = {
   "Double Wrist Suplex",				// 166, ePcMtBtAtkFghtWwrst
   "ePcMtBtChgStrt", // 167,
   "ePcMtBtChgLp", // 168,
-  "Mid Charged Slash",				// 169, ePcMtBtAtkChg
-  "High Charged Slash",				// 170, ePcMtBtAtkChgUp
+  "Mid Charged Slash",				    // 169, ePcMtBtAtkChg
+  "High Charged Slash",				    // 170, ePcMtBtAtkChgUp
   "Running Slash",						// 171, ePcMtBtAtkNrmlDsh
   "Throw Bonus!",						// 172, ePcMtBtCtch Wrestling Start
   "ePcMtBtCtchMss", // 173,

@@ -25,8 +25,8 @@ public:
 
   // mod name string for config
   std::string get_mod_name() const override { return "SprintSettings"; }
-  std::string get_human_readable_name() const { return "Sprint Settings"; }
-  const char* get_description() const override { return R"(Enable sprinting in combat that consumes no Stamina, similar to NMH3. Requires Memory of Child. Click in the Left Stick to initiate.)"; };
+  std::string get_human_readable_name() const { return "Combat Sprint"; }
+  const char* get_description() const override { return R"(Enable sprinting in combat that consumes no Stamina, similar to NMH3. Click in the Left Stick to initiate.)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

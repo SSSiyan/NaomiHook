@@ -130,6 +130,8 @@ namespace gui {
         colors[ImGuiCol_ButtonHovered]        = ImVec4(0.129f, 0.184f, 0.859f, 1.000f);
         colors[ImGuiCol_ButtonActive]         = ImVec4(0.084f, 0.117f, 0.528f, 1.000f);
         colors[ImGuiCol_SliderGrabActive]     = ImVec4(0.082f, 0.118f, 0.529f, 1.000f);
+        colors[ImGuiCol_Separator]            = ImVec4(0.04f, 1.00f, 0.12f, 0.83f);
+        colors[ImGuiCol_TreeLines]            = ImVec4(0.04f, 1.00f, 0.12f, 0.65f);
     }
 
     void fps_drawing() {

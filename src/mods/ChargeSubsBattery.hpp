@@ -22,9 +22,9 @@ public:
 
   // mod name string for config
   std::string get_mod_name() const override { return "ChargeSubsBattery"; }
-  std::string get_human_readable_name() const { return "Charging Uses Battery"; }
-  const char* get_description() const override { return R"(Applies a nerf to charge attacks on beam katanas that causes the battery to drain as the charge is held.
-This was implemented to promote the usage of other tools. The MK3's battery upgrade works like Heroes Paradise and only drains with charge attacks.)"; };
+  std::string get_human_readable_name() const { return "Reworked Charged Slashes"; }
+  const char* get_description() const override { return R"(Shuffles around the rules on charged slash cost and their rewards. Frame-perfect releases of Charged Slashes consume no battery, but the act of charging a slash will constantly drain the battery.
+MK-III battery upgrade also has had its Heroes Paradise nerf applied, meaning ordinary slashes are free but charged slashes follow standard drain rules.)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
