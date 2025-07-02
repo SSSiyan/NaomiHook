@@ -672,8 +672,10 @@ void StanceControl::on_frame() {
             HrScreenStatus* v4 = nmh_sdk::get_mHRBattle()->mBtEffect.pScreenStatus;
             float glow = (((float)v4->m_GearRandCounter[1] / (float)v4->m_GearRandCounter[0]) * 255.0);
 #endif
-            ImU32 oppacity = IM_COL32(255, 255, 255, (char)glow);
-            dl->AddImage((ImTextureID)tex, points[0], points[1], glow_uvs[0], glow_uvs[1], oppacity);
+            for (int i = 0; i < 16; i++) {
+                ImU32 oppacity = IM_COL32(255, 255, 255, (char)(glow * (i * 0.05f)));
+                dl->AddImage((ImTextureID)tex, points[0], points[1], glow_uvs[0], glow_uvs[1], oppacity);
+            }
             //dl->AddImageQuad(tex, points[0], points[1], points[2], points[3], glow_uvs[0], glow_uvs[1], glow_uvs[2], glow_uvs[3], oppacity);
             //dl->AddRectFilled(p0, p1, -1, 2.0f);
 
