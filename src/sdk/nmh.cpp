@@ -227,6 +227,28 @@ namespace nmh_sdk {
         return true; // player ptr invalid
     }
 
+    uint32_t GetLaserColor() {
+        uintptr_t getLaserColorAddress = (g_framework->get_module().as<uintptr_t>() + 0x3BF5E0);
+        mGetLaserColorFunc getLaserColor = (mGetLaserColorFunc)getLaserColorAddress;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            return getLaserColor(mHRPc);
+        }
+        return 0; // player ptr invalid
+    }
+
+    void SetLightReflect(mHRPc* mHRPc, float strength, Vec* inPos, int inCol, int unkn) {
+        uintptr_t mSetLightReflectAddress = (g_framework->get_module().as<uintptr_t>() + 0x3C52C0);
+        // mSetLightReflecteFunc setLightReflect = (mSetLightReflecteFunc)mSetLightReflectAddress;
+        __asm {
+            mov ecx, mHRPc
+            movss xmm2, strength
+            push unkn
+            push inCol
+            push inPos
+            call mSetLightReflectAddress
+        }
+    }
+
     // Spawn enemies
     int setInitNpcDat(int inResNo, enCharaType inChType, int inRepop, const Vec* inPos, const Vec* inRot, enPopReqType inPopType, bool inDisEnableCollision) {
         uintptr_t mSetInitNpcDatAddress = (g_framework->get_module().as<uintptr_t>() + 0x3B6B30);

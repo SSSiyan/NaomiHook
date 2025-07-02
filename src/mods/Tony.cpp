@@ -373,7 +373,10 @@ void Tony::on_frame() {
     }
     
     ImVec2 screenSize = ImGui::GetIO().DisplaySize;
-    float fontSize = 14.0f * (ImGui::GetIO().DisplaySize.y / 1080.0f);
+    float fontSize = 14.0f * (screenSize.y / 1080.0f);
+    if (fontSize <= 0.0f) {
+        fontSize = 14.0f;
+    }
     float rewardStartY = screenSize.y * REWARD_START_Y_RATIO;
     float trickStartY = screenSize.y * TRICK_START_Y_RATIO;
     
