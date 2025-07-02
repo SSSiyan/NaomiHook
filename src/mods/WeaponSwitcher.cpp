@@ -79,6 +79,10 @@ enum WEAPON_SWITCH_DIRECTION {
 };
 static WEAPON_SWITCH_DIRECTION directionPressed = WS_LEFT;
 
+//                                   <   v   >   ^
+static int selectedSword[WS_COUNT]{ -1, -1, -1, -1 }; // pcItem
+static int savedSword[WS_COUNT]{ -1, -1, -1, -1 }; // pcItem
+
 // bool WeaponSwitcher::weapon_switcher_ui = false;
 
 // Disable toggling the map while Weapon Switcher is active
@@ -117,8 +121,6 @@ bool WeaponSwitcher::CanWeaponSwitch(pcItem desiredWeapon) {
     }
     return false;
 }
-//                                   <   v   >   ^
-static int selectedSword[WS_COUNT]{ -1, -1, -1, -1 }; // pcItem
 
 const char* pcItemToString(pcItem item) {
     switch (item) {
@@ -512,6 +514,17 @@ void WeaponSwitcher::on_frame() {
     if (mod_enabled) {
         mHRPc* player = nmh_sdk::get_mHRPc();
         if (player) {
+            if (player->mPcStatus.equip[0].readProc == eEqWait1Frame) {
+                for (int i = 0; i < 4; i++) {
+                    std::vector<pcItem> matchingItems = FindMatchingItemsForSlot((WEAPON_SWITCH_DIRECTION)i);
+                    for (auto item : matchingItems) {
+                        if (item == savedSword[i]) {
+                            selectedSword[i] = savedSword[i];
+                            break;
+                        }
+                    }
+                }
+            }
             if (weaponSwitchCooldown > weaponSwitchLockedFrames) {
                 uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
                 if (dPadInputsAddr) {
@@ -619,13 +632,17 @@ void WeaponSwitcher::on_frame() {
 void WeaponSwitcher::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("weapon_switcher").value_or(false);
     if (mod_enabled) toggleForceMap(mod_enabled);
-    // weapon_switcher_ui = cfg.get<bool>("weapon_switcher_ui").value_or(false);
+    for (int i = 0; i < 4; i++) {
+        savedSword[i] = cfg.get<int>("savedSword[" + std::to_string(i) + "]").value_or(-1);
+    }
 }
 
 // during save
 void WeaponSwitcher::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("weapon_switcher", mod_enabled);
-    // cfg.set<bool>("weapon_switcher_ui", weapon_switcher_ui);
+    for (int i = 0; i < 4; i++) {
+        cfg.set<int>(("savedSword[" + std::to_string(i) + "]"), selectedSword[i]);
+    }
 }
 
 #endif
