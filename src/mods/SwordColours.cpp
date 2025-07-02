@@ -26,7 +26,7 @@ struct IntColor {
     int a;
 };
 
-ImColor SwordColours::colours_picked_rgba[5];
+static ImColor colours_picked_rgba[5];
 static IntColor colours_picked_rgbaInt[5];
 
 // directx stuff

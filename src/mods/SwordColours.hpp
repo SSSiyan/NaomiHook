@@ -18,8 +18,6 @@ public:
   static int deathblowTimer;
   static int setDeathblowTimer;
 
-  static ImColor colours_picked_rgba[];
-
   // mod name string for config
   std::string get_mod_name() const override { return "SwordColours"; }
   std::string get_human_readable_name() const { return "Sword Colours"; }
