@@ -4,6 +4,7 @@
 #include "imgui_internal.h"
 
 static KbmControls* g_kbm { nullptr };
+static bool g_block_inputs { false };
 
 typedef void(__fastcall *PADSetHideMouseCursor_ptr)(bool s, bool lock);
 static PADSetHideMouseCursor_ptr PADSetHideMouseCursor_ee { nullptr };
@@ -287,8 +288,9 @@ static PAD_UNI* g_ppad {nullptr};
 void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
 
     uintptr_t base = (uintptr_t)GetModuleHandleA(NULL);
-    if(!g_kbm->m_hooks) {return;}
+    if(!g_kbm->m_hooks) { return; }
     g_kbm->m_hooks->g_hook_ghm_pad_pr_wii_pad_sampling_callback->get_original<decltype(ghm_pad_prWiiPadSamplingCallback_)>()(status, context);
+    if(g_block_inputs) { return; }
 
     auto ppad = g_ppad;
     KPADEXStatus* exstatus = &ppad->WiiStatusBuffer[0][0].ex_status;
@@ -469,7 +471,28 @@ void KbmControls::register_raw_input_mouse(HWND handle) {
 
 bool KbmControls::window_proc_handler(HWND wnd, UINT message, WPARAM w_param, LPARAM l_param)
 {
+    static bool& draw_ui = g_framework->m_draw_ui;
+    if (draw_ui || this == nullptr) {
+        return false;
+    }
+    // TODO(): can sometimes land here without being fully initialized yet
+    if (!m_mod_enabled->value()) {
+        return false;
+    }
+    if (message == WM_KILLFOCUS) {
+        m_capture_mouse = false;
+        m_capture_mouse_old = true;
+        g_block_inputs = true;
+        PADSetHideMouseCursor_ee(m_capture_mouse, m_capture_mouse);
+        toggle_mouse(m_wnd, m_capture_mouse);
+    }
+    if (message == WM_SETFOCUS) {
+        m_capture_mouse = true;
+        m_capture_mouse_old = false;
+        g_block_inputs = false;
+    }
     if (message == WM_INPUT) {
+        if(g_block_inputs) { return false; }
         size_t size = sizeof(RAWINPUT);
         static RAWINPUT raw[sizeof(RAWINPUT)];
         GetRawInputData((HRAWINPUT)l_param, RID_INPUT, raw, &size, sizeof(RAWINPUTHEADER));
@@ -609,9 +632,25 @@ std::optional<std::string> KbmControls::on_initialize() {
 
 void KbmControls::on_frame() {
 
-    // toggle mouse capture
-    if (ImGui::IsKeyPressed(ImGuiKey_LeftAlt)) {
-        m_capture_mouse = !m_capture_mouse;
+    if (!m_mod_enabled->value()) {
+        return;
+    }
+
+    static bool& draw_ui = g_framework->m_draw_ui;
+
+    if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
+        static uintptr_t baseAddress = g_framework->get_module().as<uintptr_t>();
+        static HrCamera* hrCamera    = reinterpret_cast<HrCamera*>(baseAddress + 0x82A4A0);
+        auto mode                    = mHRPc->mInputMode;
+        int camMode                  = hrCamera->MAIN.Mode;
+        if (mode == ePcInputMenu) {
+            m_capture_mouse = false;
+        }
+        if (mHRPc->mOperate && camMode != HRCAMERA_MODE_MOTION) {
+            m_capture_mouse = true;
+        }
+
+        m_capture_mouse &= !draw_ui;
     }
 
     if (m_capture_mouse != m_capture_mouse_old) {
@@ -619,6 +658,16 @@ void KbmControls::on_frame() {
         toggle_mouse(m_wnd, m_capture_mouse);
 
         m_capture_mouse_old = m_capture_mouse;
+        g_block_inputs      = !m_capture_mouse;
+        // NOTE(): try to stop imgui from screwing with mouse cursor
+        if(m_capture_mouse) {
+            // if we capture set this config flag bit
+            ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+        }
+        else {
+            // if we dont want to capture mouse let it screw with it i dont care
+            ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+        }
     }
 }
 
@@ -706,8 +755,6 @@ void KbmControls::on_config_save(utility::Config &cfg) {
     }
 }
 
-// do something every frame
-//void KbmControls::on_frame() {}
 // will show up in debug window, dump ImGui widgets you want here
 //void KbmControls::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here
