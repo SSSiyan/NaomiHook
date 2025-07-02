@@ -52,12 +52,12 @@ public:
     bool on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_param);
 
     void save_config();
-    void reset_mouse();
   
 public:
     
     float window_size_x{};
     float window_size_y{};
+    bool m_draw_ui { false };
 
     HWND m_wnd{0};
 
@@ -72,7 +72,6 @@ private:
     bool m_first_frame{ true };
     bool m_valid{ false };
     bool m_initialized{ false };
-    bool m_draw_ui{ false };
     std::atomic<bool> m_game_data_initialized{ false };
 
     HMODULE m_game_module{ 0 };

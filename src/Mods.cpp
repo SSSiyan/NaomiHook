@@ -134,7 +134,7 @@ void Mods::on_config_save() {
     utility::Config cfg{};
 
     for (auto& mod : m_mods) {
-        spdlog::info("%s::onConfigSave()\n", mod->get_mod_name().data());
+        spdlog::info("{}::onConfigSave()\n", mod->get_mod_name().data());
         mod->on_config_save(cfg);
 
 #if 0
