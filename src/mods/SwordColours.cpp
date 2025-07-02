@@ -5,6 +5,7 @@
 #include "fw-imgui/SwordsTextureAtlas.cpp"
 
 bool SwordColours::mod_enabled = false;
+bool SwordColours::sword_glow_enabled = false;
 
 uintptr_t SwordColours::jmp_ret1 = NULL;
 uintptr_t SwordColours::gpBattle = NULL;
@@ -15,6 +16,9 @@ uintptr_t SwordColours::jmp_ret3 = NULL;
 int SwordColours::deathblowTimer = 0;
 int SwordColours::setDeathblowTimer = 0;
 
+const char* SwordColours::defaultDescription = "Customize your beam katana colors. You can also set a unique color specifically for Death Blows.";
+const char* SwordColours::hoveredDescription = defaultDescription;
+
 struct IntColor {
     int r;
     int g;
@@ -22,7 +26,7 @@ struct IntColor {
     int a;
 };
 
-static ImColor colours_picked_rgba[5];
+ImColor SwordColours::colours_picked_rgba[5];
 static IntColor colours_picked_rgbaInt[5];
 
 // directx stuff
@@ -637,8 +641,16 @@ static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImCol
 
 }
 
+void SwordColours::render_description() const {
+    ImGui::TextWrapped(SwordColours::hoveredDescription);
+}
+
 void SwordColours::on_draw_ui() {
+    if (!ImGui::IsAnyItemHovered()) SwordColours::hoveredDescription = defaultDescription;
+    ImGui::Checkbox("Glow", &sword_glow_enabled);
+    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "@DHMalice";
     ImGui::Checkbox("Custom Colours", &mod_enabled);
+    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = defaultDescription;
     if (mod_enabled) {
         ImGui::Indent();
 
@@ -656,8 +668,8 @@ void SwordColours::on_draw_ui() {
         draw_sword_behavior("Deathblow", swords[i].blade, swords[i].hilt, colours_picked_rgba[4], colours_picked_rgbaInt[4], cfg_defaults[4]);
         ImGui::Text("Deathblow Timer");
         ImGui::InputInt("##DeathblowTimerInputInt", &setDeathblowTimer);
-        help_marker("Turn the Beam Katana the color of your choice during a Death Blow."
-            "A feature inspired by NMH3, this timer controls how long the colour will stay applied when initiating a Deathblow");
+        if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Turn the Beam Katana the color of your choice during a Death Blow."
+            "A feature inspired by NMH3, this timer controls how long the colour will stay applied when initiating a Deathblow";
         ImGui::Unindent();
 
         // draw_sword_behavior("Just Charge", swords[1].blade, swords[1].hilt, colours_picked_rgba[5], colours_picked_rgbaInt[5], cfg_defaults[4]);
@@ -673,6 +685,7 @@ void SwordColours::on_d3d_reset() {
 
 // during load
 void SwordColours::on_config_load(const utility::Config &cfg) {
+    sword_glow_enabled = cfg.get<bool>("sword_glow_enabled").value_or(false);
     mod_enabled = cfg.get<bool>("custom_colours").value_or(false);
     {
         size_t i = 0;
@@ -690,6 +703,7 @@ void SwordColours::on_config_load(const utility::Config &cfg) {
 
 // during save
 void SwordColours::on_config_save(utility::Config &cfg) {
+    cfg.set<bool>("sword_glow_enabled", sword_glow_enabled);
     cfg.set<bool>("custom_colours", mod_enabled);
     for (const auto& RgbaDefault : cfg_defaults) {
         cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".r", RgbaDefault.color->r);
@@ -700,7 +714,18 @@ void SwordColours::on_config_save(utility::Config &cfg) {
     cfg.set<int>("setDeathblowTimer", setDeathblowTimer);
 }
 
-//void SwordColours::on_frame() {}
+void SwordColours::on_frame() {
+    if (sword_glow_enabled) {
+        mHRPc* player = nmh_sdk::get_mHRPc();
+        if (player) {
+            if (player->mCharaStatus.visibleWepEffect) {
+                int currentSword = player->mPcStatus.equip[0].id;
+                uint32_t currentCol = nmh_sdk::GetLaserColor();
+                nmh_sdk::SetLightReflect(player, 4.0f, &player->mPcEffect.posHitSlash, currentCol, 0);
+            }
+        }
+    }
+}
 // will show up in debug window, dump ImGui widgets you want here
 //void SwordColours::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here
