@@ -1837,8 +1837,7 @@ void DrawPlayerStats() {
         }
     }
     if (ImGui::TreeNodeEx("HrCamera", ImGuiTreeNodeFlags_DrawLinesFull)) {
-        uintptr_t baseAddress = g_framework->get_module().as<uintptr_t>();
-        HrCamera* hrCamera = reinterpret_cast<HrCamera*>(baseAddress + 0x82A4A0);
+        HrCamera* hrCamera = nmh_sdk::get_HrCamera();
         if (ImGui::TreeNodeEx("MOVE2", ImGuiTreeNodeFlags_DrawLinesFull)) {
             ImGui::InputFloat3("Pc Pos", &hrCamera->MAIN.mov2.PcPos.x);
             ImGui::InputFloat("Pc Angle", &hrCamera->MAIN.mov2.PcAngle);
@@ -1915,6 +1914,8 @@ void DrawPlayerStats() {
             ImGui::TreePop();
         }
         ImGui::Combo("Mode", (int*)&hrCamera->MAIN.Mode, "HRCAMERA_MODE_HOMING\0HRCAMERA_MODE_MOTION\0HRCAMERA_MODE_FREE\0HRCAMERA_MODE_MOVE\0HRCAMERA_MODE_BATTLE\0HRCAMERA_MODE_IDLE\0HRCAMERA_MODE_NORMAL\0HRCAMERA_MODE_BATTLE2\0HRCAMERA_MODE_MOVE2\0");
+        // uint32_t cameraPosAddr = (uint32_t)(uintptr_t)&hrCamera->MAIN.Pos.x;
+        // ImGui::InputScalar("Camera Position Addr", ImGuiDataType_U64, &cameraPosAddr, nullptr, nullptr, "%8X", ImGuiInputTextFlags_ReadOnly);
         ImGui::InputFloat3("Position", &hrCamera->MAIN.Pos.x);
         ImGui::InputFloat3("Target", &hrCamera->MAIN.Targ.x);
         ImGui::InputFloat("Twist Angle", &hrCamera->MAIN.TwistAngle);

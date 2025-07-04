@@ -173,6 +173,8 @@ static constexpr float midStanceBlend = 0.0f;
 static constexpr float lowGuardBlend = 0.0f;
 static constexpr float midGuardBlend = 0.5f;
 static constexpr float highGuardBlend = 1.0f;
+static constexpr float blendTick = 0.1f;
+
 
 static float gearSysXmm0backup = 0.0f;
 static float gearSysXmm1backup = 0.0f;
@@ -180,6 +182,35 @@ static float gearSysXmm2backup = 0.0f;
 static float gearSysXmm3backup = 0.0f;
 static float gearSysXmm4backup = 0.0f;
 static float gearSysXmm5backup = 0.0f;
+static float newTilt = 0.0f;
+static bool verySmooth = false;
+
+// 2 is mid, 0 is high, 1 is low
+float StanceControl::SetSmoothStance(mHRPc* player) {
+    auto currentPose = player->mPcStatus.pose;
+    
+    float targets[] = {1.0f, -1.0f, 0.0f}; // high, low, mid
+    
+    if (verySmooth) {
+        if (currentPose >= 0 && currentPose <= 2) {
+            float target = targets[currentPose];
+            newTilt = glm::mix(newTilt, target, blendTick);
+        }
+    }
+    else {
+        if (currentPose >= 0 && currentPose <= 2) {
+            float target = targets[currentPose];
+            if (newTilt < target) {
+                newTilt += blendTick;
+            }
+            else if (newTilt > target) {
+                newTilt -= blendTick;
+            }
+        }
+    }
+
+    return newTilt;
+}
 
 // clang-format off
 naked void detour1() { // originalcode writes stance blend to 0, we write actual values and set stance using it
@@ -261,12 +292,22 @@ naked void detour1() { // originalcode writes stance blend to 0, we write actual
         push esi // player arg
         call dword ptr [StanceControl::GearControls] // set actual pos
         popad
-        movss xmm0, [gearSysXmm0backup] 
+        pushad
+        push esi // player arg
+        call dword ptr [StanceControl::SetSmoothStance]
+        sub esp, 4
+        fstp dword ptr [esp]
+        movss xmm0, [esp]
+        add esp, 4
+        popad
+        //movss xmm0, [gearSysXmm0backup] 
         movss xmm1, [gearSysXmm1backup] 
         movss xmm2, [gearSysXmm2backup] 
         movss xmm3, [gearSysXmm3backup] 
         movss xmm4, [gearSysXmm4backup] 
         movss xmm5, [gearSysXmm5backup] 
+        jmp originalcode
+
         cmp dword ptr [esi+0x18C], ePcMtGrdDfltLp // 48, guarding
         je GearSystemGuarding
     // GearSystemNotGuarding:
@@ -527,6 +568,9 @@ void StanceControl::on_draw_ui() {
 
         ImGui::Checkbox("Combo Extend Speedup On Low Attacks", &mod_enabled_faster_nu_lows);
         if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks";
+
+        ImGui::Checkbox("Very Smooth", &verySmooth);
+        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "DEV ONLY. How smooth do you want going between stances to look? Untick for linear. Imo it's cool but too dmc5 for this game";
 
         ImGui::Unindent();
     }

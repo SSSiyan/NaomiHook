@@ -46,6 +46,7 @@ public:
   static bool gear_system_holds;
   void disable_cam_reset(bool enable);
   void GearControls(mHRPc* player);
+  float SetSmoothStance(mHRPc* player);
 
   static bool mod_enabled_faster_nu_lows;
   static uintptr_t jmp_ret4;

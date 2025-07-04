@@ -511,6 +511,7 @@ void WeaponSwitcher::Display_UI() {
 void WeaponSwitcher::on_frame() {
     //static int previousSwordEquipRead = 0;
     //static int checkmotReadProc = 0;
+    // Check unlocked weapons when eEqWait1Frame is seen
     if (mod_enabled) {
         mHRPc* player = nmh_sdk::get_mHRPc();
         if (player) {
@@ -524,7 +525,12 @@ void WeaponSwitcher::on_frame() {
                         }
                     }
                 }
+                if (selectedSword[WS_UP] == -1) {
+                    selectedSword[WS_UP] = BLOOD_BERRY; // default to Blood Berry
+                }
             }
+
+            // Weapon switching
             if (weaponSwitchCooldown > weaponSwitchLockedFrames) {
                 uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
                 if (dPadInputsAddr) {
@@ -533,42 +539,30 @@ void WeaponSwitcher::on_frame() {
                     if (selectedSword[dPadInput] == -1) break;
                     case DPAD_LEFT:
                         if (CanWeaponSwitch((pcItem)selectedSword[WS_LEFT])) {
-                            //pcItem weapon = FindBestWeapon(TSUBAKI_MK1);
-                            //if (weapon != -1) {
                                 nmh_sdk::SetEquip((pcItem)selectedSword[WS_LEFT], false);
                                 weaponSwitchCooldown = 0;
                                 directionPressed = WS_LEFT; // TSUBAKI_MK1
-                            //}
                         }
                         break;
                     case DPAD_RIGHT:
                         if (CanWeaponSwitch((pcItem)selectedSword[WS_RIGHT])) {
-                            //pcItem weapon = FindBestWeapon(TSUBAKI_MK3);
-                            //if (weapon != -1) {
                                 nmh_sdk::SetEquip((pcItem)selectedSword[WS_RIGHT], false);
                                 weaponSwitchCooldown = 0;
                                 directionPressed = WS_RIGHT; // TSUBAKI_MK3
-                            //}
                         }
                         break;
                     case DPAD_DOWN:
                         if (CanWeaponSwitch((pcItem)selectedSword[WS_DOWN])) {
-                            //pcItem weapon = FindBestWeapon(TSUBAKI_MK2);
-                            //if (weapon != -1) {
                                 nmh_sdk::SetEquip((pcItem)selectedSword[WS_DOWN], false);
                                 weaponSwitchCooldown = 0;
                                 directionPressed = WS_DOWN; // TSUBAKI_MK2
-                            //}
                         }
                         break;
                     case DPAD_UP:
                         if (CanWeaponSwitch((pcItem)selectedSword[WS_UP])) {
-                            //pcItem weapon = FindBestWeapon(BLOOD_BERRY);
-                            //if (weapon != -1) {
                                 nmh_sdk::SetEquip((pcItem)selectedSword[WS_UP], false);
                                 weaponSwitchCooldown = 0;
                                 directionPressed = WS_UP; // BLOOD_BERRY
-                            //}
                         }
                         break;
                     default:
