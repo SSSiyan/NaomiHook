@@ -113,9 +113,60 @@ std::optional<std::string> EnemySpawn::on_initialize() {
     return Mod::on_initialize();
 }
 
+struct StageInResNo {
+    const char* stageName;
+    int inResNo;
+};
+
+int GetNumOfInResNoAvailableInThisStage(const char* currentStage) {
+    static const StageInResNo stageData[] = {
+        {"STG083", 9},
+        {"STG080", 9},
+        {"STG081", 4},
+        {"STG041", 9},
+        {"STG0412", 9},
+        {"STG0411", 9},
+        {"STG042", 3},
+        {"STG010", 9},
+        {"STG011", 9},
+        {"STG012", 9},
+        {"STG013", 4},
+        {"STG170", 9},
+        {"STG030", 9},
+        {"STG031", 4},
+        {"STG0002", 11},
+        {"STG0001", 4},
+        {"STG051", 7},
+        {"STG1708", 9},
+        {"STG090", 4},
+        {"STG00014", 3},
+        {"STG060", 6},
+        {"STG021", 9},
+        {"STG022", 1},
+        {"STG010", 4},
+        {"STG100", 0},
+        {"STG101", 3},
+        {"STG103", 3},
+    };
+    
+    for (int i = 0; i < sizeof(stageData) / sizeof(stageData[0]); i++) {
+        if (strcmp(currentStage, stageData[i].stageName) == 0) {
+            return stageData[i].inResNo;
+        }
+    }
+    return 0;
+}
+
 void EnemySpawn::on_draw_ui() {
+    static int numOfInResNoAvailableInThisStage = 0;
+    char* currentStage = nmh_sdk::get_CBgCtrl()->m_NowStageName;
+    if (currentStage && (strlen(currentStage) < 20)) {
+        nmh_sdk::get_CBgCtrl()->m_NowStageName;
+        numOfInResNoAvailableInThisStage = GetNumOfInResNoAvailableInThisStage(currentStage);
+    }
+    if (inResNo > numOfInResNoAvailableInThisStage) { inResNo = numOfInResNoAvailableInThisStage; }
     ImGui::Text("inResNo");
-    ImGui::InputInt("## inResNo Input Int", &inResNo);
+    ImGui::SliderInt("## inResNo Input Int", &inResNo, 0, numOfInResNoAvailableInThisStage);
     ImGui::Text("inRepop");
     ImGui::InputInt("## inRepop Input Int", &inRepop);
     ImGui::Checkbox("Spawn At Player Pos", &spawnAtPlayerPos);
