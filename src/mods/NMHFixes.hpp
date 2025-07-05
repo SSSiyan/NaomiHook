@@ -11,7 +11,7 @@ public:
   static uintptr_t rank_up_crash_fix_jmp_ret;
   static uintptr_t rank_up_crash_fix_jmp_je;
 
-  void disableCrashDumpstoggle(bool enabled);
+  void disableCrashDumpsToggle(bool enabled);
 
   // mod name string for config
   std::string get_mod_name() const override { return "NMHFixes"; }

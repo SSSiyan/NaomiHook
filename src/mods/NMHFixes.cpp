@@ -27,7 +27,7 @@ naked void rank_up_crash_fix_detour() {
 
  // clang-format on
 
-void NMHFixes::disableCrashDumpstoggle(bool enable) {
+void NMHFixes::disableCrashDumpsToggle(bool enable) {
     if (enable) {
         install_patch_offset(0x1F4A38, disable_crash_dumps_patch, "\x59\xED\x02\x00\x00\x90", 6); // jmp nmh.exe+1F4C9A
     }
@@ -47,7 +47,7 @@ std::optional<std::string> NMHFixes::on_initialize() {
 
 void NMHFixes::on_draw_ui() {
     if (ImGui::Checkbox("Disable Crash Dumps", &disableCrashDumps)) {
-        disableCrashDumpstoggle(disableCrashDumps);
+        disableCrashDumpsToggle(disableCrashDumps);
     }
     ImGui::Checkbox("Enable Rank Up Crash Fix", &rankUpCrashFix);
 }
@@ -55,7 +55,7 @@ void NMHFixes::on_draw_ui() {
 // during load
 void NMHFixes::on_config_load(const utility::Config &cfg) {
     disableCrashDumps = cfg.get<bool>("disable_crash_dumps").value_or(true);
-    if (disableCrashDumps) disableCrashDumpstoggle(disableCrashDumps);
+    if (disableCrashDumps) disableCrashDumpsToggle(disableCrashDumps);
 
     rankUpCrashFix = cfg.get<bool>("rankUpCrashFix").value_or(true);
 }

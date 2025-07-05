@@ -1,4 +1,6 @@
 set(MODS_SRC
+    mods/HudSettings.hpp
+    mods/HudSettings.cpp
     mods/KbmControls.hpp 
     mods/KbmControls.cpp 
     mods/Tony.hpp

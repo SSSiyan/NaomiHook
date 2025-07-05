@@ -116,84 +116,6 @@ std::optional<std::string> CameraSettings::on_initialize() {
     return Mod::on_initialize();
 }
 
-static bool hide_drawbpber = false;
-static bool hide_drawhber = false;
-static bool hide_drawbattery = false;
-static bool hide_drawmoney = false;
-static bool hide_drawtension = false;
-static bool hide_drawkamae = false;
-static bool hide_drawspeedmeter = false;
-static bool hide_drawmap = false;
-static bool hide_drawsilvia = false;
-static bool hide_drawlmode = false;
-static bool hide_drawkeyguide = false;
-static bool hide_drawcheckpo = false;
-
-static void DisplayHUDCheckboxes() {
-    mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle();
-    if (!mHRBattle) { return; }
-    HrScreenStatus* hrScreenStatus = mHRBattle->mBtEffect.pScreenStatus;
-    if (!hrScreenStatus) { return; }
-
-    ImGui::SeparatorText("HUD Toggles");
-
-    if (ImGui::BeginTable("UIControlTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit)) {
-        ImGui::TableSetupColumn("Force Override", ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableSetupColumn("Game State", ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableHeadersRow();
-
-        const char* ui_names[] = {
-            "drawbpber", "drawhber", "drawbattery", "drawmoney",
-            "drawtension", "drawkamae", "drawspeedmeter", "drawmap",
-            "drawsilvia", "drawlmode", "drawkeyguide", "drawcheckpo"
-        };
-        
-        bool* force_flags[] = {
-            &hide_drawbpber, &hide_drawhber, &hide_drawbattery, &hide_drawmoney,
-            &hide_drawtension, &hide_drawkamae, &hide_drawspeedmeter, &hide_drawmap,
-            &hide_drawsilvia, &hide_drawlmode, &hide_drawkeyguide, &hide_drawcheckpo
-        };
-        
-        for (int i = 0; i < 12; i++) {
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::Checkbox(("Hide " + std::string(ui_names[i])).c_str(), force_flags[i]);
-            ImGui::TableSetColumnIndex(1);
-            if (hrScreenStatus) {
-                bool current_state = (hrScreenStatus->flag & (1 << i)) != 0;
-                if (ImGui::Checkbox(("Show " + std::string(ui_names[i])).c_str(), &current_state)) {
-                    if (current_state) {
-                        hrScreenStatus->flag |= (1 << i);
-                    } else {
-                        hrScreenStatus->flag &= ~(1 << i);
-                    }
-                }
-            }
-        }
-        ImGui::EndTable();
-    }
-}
-
-static void SetHUDFlagsOnFrame() {
-    mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle();
-    if (!mHRBattle) { return; }
-    HrScreenStatus* hrScreenStatus = mHRBattle->mBtEffect.pScreenStatus;
-    if (!hrScreenStatus) { return; }
-    
-    if (hide_drawbpber) hrScreenStatus->flag &= ~(1 << 0);
-    if (hide_drawhber)  hrScreenStatus->flag &= ~(1 << 1);
-    if (hide_drawbattery) hrScreenStatus->flag &= ~(1 << 2);
-    if (hide_drawmoney) hrScreenStatus->flag &= ~(1 << 3);
-    if (hide_drawtension) hrScreenStatus->flag &= ~(1 << 4);
-    if (hide_drawkamae) hrScreenStatus->flag &= ~(1 << 5);
-    if (hide_drawspeedmeter) hrScreenStatus->flag &= ~(1 << 6);
-    if (hide_drawmap) hrScreenStatus->flag &= ~(1 << 7);
-    if (hide_drawsilvia) hrScreenStatus->flag &= ~(1 << 8);
-    if (hide_drawlmode) hrScreenStatus->flag &= ~(1 << 9);
-    if (hide_drawkeyguide) hrScreenStatus->flag &= ~(1 << 10);
-    if (hide_drawcheckpo) hrScreenStatus->flag &= ~(1 << 11);
-}
-
 void CameraSettings::render_description() const {
     ImGui::TextWrapped(CameraSettings::hoveredDescription);
 }
@@ -234,8 +156,6 @@ void CameraSettings::on_draw_ui() {
         fov_toggle(disable_attack_zoom);
     }
     if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = "Disable the zoom when attacking enemies while not locked on.";
-
-    DisplayHUDCheckboxes();
 }
 
 // during load
@@ -267,9 +187,7 @@ void CameraSettings::on_config_save(utility::Config &cfg) {
 }
 
 // do something every frame
-void CameraSettings::on_frame() {
-    SetHUDFlagsOnFrame();
-}
+//void CameraSettings::on_frame() {}
 // will show up in debug window, dump ImGui widgets you want here
 //void CameraSettings::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here
