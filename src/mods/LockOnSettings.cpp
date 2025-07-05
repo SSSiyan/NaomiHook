@@ -281,15 +281,25 @@ std::optional<std::string> LockOnSettings::on_initialize() {
 static void toggle_kick_cancel(bool enable) {
     static uintptr_t gPcCommonTable = g_framework->get_module().as<uintptr_t>() + 0x7421E0;
     static float* OverheadKickAddr = (float*)(gPcCommonTable + 0x13F0);
-    static DWORD oldProtect;
-    VirtualProtect(OverheadKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect);
+    static float* RoundhouseKickAddr = (float*)(gPcCommonTable + 0x1340);
+    static float* SpinningHookKick   = (float*)(gPcCommonTable + 0x1314);
+    static DWORD oldProtect1, oldProtect2, oldProtect3;
+    VirtualProtect(OverheadKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect1);
+    VirtualProtect(RoundhouseKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect2);
+    VirtualProtect(SpinningHookKick, sizeof(float), PAGE_READWRITE, &oldProtect3);
     if (enable) {
         *OverheadKickAddr = 42.0f;
+        *RoundhouseKickAddr = 30.0f;
+        *SpinningHookKick = 50.0f;
     }
     else {
         *OverheadKickAddr = 999.0f;
+        *RoundhouseKickAddr = 999.0f;
+        *SpinningHookKick = 999.0f;
     }
-    VirtualProtect(OverheadKickAddr, sizeof(float), oldProtect, &oldProtect);
+    VirtualProtect(OverheadKickAddr, sizeof(float), oldProtect1, &oldProtect1);
+    VirtualProtect(RoundhouseKickAddr, sizeof(float), oldProtect2, &oldProtect2);
+    VirtualProtect(SpinningHookKick, sizeof(float), oldProtect3, &oldProtect3);
 }
 
 void LockOnSettings::render_description() const {
