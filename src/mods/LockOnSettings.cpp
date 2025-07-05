@@ -282,7 +282,7 @@ static void toggle_kick_cancel(bool enable) {
     static uintptr_t gPcCommonTable = g_framework->get_module().as<uintptr_t>() + 0x7421E0;
     static float* OverheadKickAddr = (float*)(gPcCommonTable + 0x13F0);
     static float* RoundhouseKickAddr = (float*)(gPcCommonTable + 0x1340);
-    static float* SpinningHookKickAddr = (float*)(gPcCommonTable + 0x1314);
+    static float* SpinningHookKickAddr = (float*)(gPcCommonTable + 0x14CC);
     static DWORD oldProtect1, oldProtect2, oldProtect3;
     VirtualProtect(OverheadKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect1);
     VirtualProtect(RoundhouseKickAddr, sizeof(float), PAGE_READWRITE, &oldProtect2);
