@@ -21,7 +21,7 @@ void setBit(T& flags, int bit, bool value) {
 
 void SoundTracker::on_draw_ui() {
     if (mHRPc* player = nmh_sdk::get_mHRPc()) {
-        // if (ImGui::TreeNodeEx("Player -> mSnd", ImGuiTreeNodeFlags_DefaultOpen)) {
+        // if (ImGui::TreeNodeEx("Player -> mSnd", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
             ImGui::Text("Player -> mSnd:"); // we'll add the tree back in when there's more than 1 tree
             ImGui::InputInt("SE Handle Lightsavor Ready", &player->mSnd.seHdlLightsavorReady);
             ImGui::InputFloat("SE Volume Lightsavor Ready", &player->mSnd.seVolLightsavorReady);
@@ -32,7 +32,7 @@ void SoundTracker::on_draw_ui() {
             ImGui::InputInt("Now BGM Handle", &player->mSnd.nowBgmHdl);
             ImGui::InputInt("SE Read Process", (int*)(&player->mSnd.seReadProc));
 
-            if (ImGui::TreeNodeEx("Pitch BGM")) {
+            if (ImGui::TreeNodeEx("Pitch BGM", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 ImGui::InputFloat("Current Value ## Pitch BGM", &player->mSnd.pitchBgm.mCurValue);
                 ImGui::InputFloat("Destination Value ## Pitch BGM", &player->mSnd.pitchBgm.mDstValue);
                 ImGui::InputFloat("Source Value ## Pitch BGM", &player->mSnd.pitchBgm.mSrcValue);
@@ -47,7 +47,7 @@ void SoundTracker::on_draw_ui() {
             ImGui::InputInt("Old Finish SE Volume", (int*)(&player->mSnd.oldFinishSeVol));
             ImGui::InputInt("SE Handle Charge", &player->mSnd.seHdlCharge);
 
-            if (ImGui::TreeNodeEx("Pitch Charge")) {
+            if (ImGui::TreeNodeEx("Pitch Charge", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 ImGui::InputFloat("Current Value ## Pitch Charge", &player->mSnd.pitchCharge.mCurValue, 0.0f, 0.0f, "%.6f");
                 ImGui::InputFloat("Destination Value ## Pitch Charge", &player->mSnd.pitchCharge.mDstValue);
                 ImGui::InputFloat("Source Value ## Pitch Charge", &player->mSnd.pitchCharge.mSrcValue);
@@ -60,7 +60,7 @@ void SoundTracker::on_draw_ui() {
 
             ImGui::InputInt("SE Handle Charge Max", &player->mSnd.seHdlChargeMax);
 
-            if (ImGui::TreeNodeEx("Pitch Charge Max")) {
+            if (ImGui::TreeNodeEx("Pitch Charge Max", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 ImGui::InputFloat("Current Value ## Pitch Charge Max", &player->mSnd.pitchChargeMax.mCurValue);
                 ImGui::InputFloat("Destination Value ## Pitch Charge Max", &player->mSnd.pitchChargeMax.mDstValue);
                 ImGui::InputFloat("Source Value ## Pitch Charge Max", &player->mSnd.pitchChargeMax.mSrcValue);

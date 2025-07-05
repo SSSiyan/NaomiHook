@@ -16,7 +16,10 @@ public:
   // mod name string for config
   std::string get_mod_name() const override { return "NMHFixes"; }
   std::string get_human_readable_name() const { return "System Fixes"; }
-  const char* get_description() const override { return R"(System Fixes)"; };
+  //const char* get_description() const override { return R"(System Fixes)"; };
+  void render_description() const override;
+  static const char* defaultDescription;
+  static const char* hoveredDescription;
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
