@@ -1,29 +1,35 @@
 #pragma once
 #include "Mod.hpp"
 #include "sdk/ReClass.hpp"
-class SwordColours : public Mod {
+class HudSettings : public Mod {
 public:
-  SwordColours() = default;
+  HudSettings() = default;
+
+  static bool hide_drawbpber;
+  static bool hide_drawhber;
+  static bool hide_drawbattery;
+  static bool hide_drawmoney;
+  static bool hide_drawtension;
+  static bool hide_drawkamae;
+  static bool hide_drawspeedmeter;
+  static bool hide_drawmap;
+  static bool hide_drawsilvia;
+  static bool hide_drawlmode;
+  static bool hide_drawkeyguide;
+  static bool hide_drawcheckpo;
+  static void DisplayHUDCheckboxes();
+  static void SetHUDFlagsOnFrame();
+
+  static bool custom_lock_on_colour_toggle;
+  static uint8_t lockOnColour[3];
+  static void SetLockOnColourOnFrame();
   
   ModCategory get_category() { return ModCategory::COSMETICS; };
-  static bool mod_enabled;
-  static bool sword_glow_enabled;
-
-  static uintptr_t jmp_ret1;
-  static uintptr_t gpBattle;
-
-  static uintptr_t jmp_ret2;
-
-  static uintptr_t jmp_ret3;
-  static int deathblowTimer;
-  static int setDeathblowTimer;
-
-  static float swordGlowAmount;
 
   // mod name string for config
-  std::string get_mod_name() const override { return "SwordColours"; }
-  std::string get_human_readable_name() const { return "Sword Colours"; }
-  //const char* get_description() const override { return R"(Customize your beam katana colors. You can also set a unique color specifically for Death Blows. )"; };
+  std::string get_mod_name() const override { return "HudSettings"; }
+  std::string get_human_readable_name() const { return "HUD Settings"; }
+  // const char* get_description() const override { return R"(HudSettings Description)"; };
   void render_description() const override;
   static const char* defaultDescription;
   static const char* hoveredDescription;
@@ -42,9 +48,6 @@ public:
   void on_draw_ui() override;
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
-
-  void on_d3d_reset() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3;
-	// std::unique_ptr<Patch> m_patch;
+  // std::unique_ptr<FunctionHook> m_hook;
 };

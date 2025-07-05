@@ -9,6 +9,13 @@ Vec EnemySpawn::inRot{ 0.0f, 0.0f, 0.0f };
 int EnemySpawn::inPopType = 0;
 bool EnemySpawn::inDisEnableCollision = false;
 
+const char* EnemySpawn::defaultDescription = "Spawn in any enemy that exists in the level you're currently playing. This is a very fragile feature, so expect crashes as you experiment.";
+const char* EnemySpawn::hoveredDescription = defaultDescription;
+
+void EnemySpawn::render_description() const {
+    ImGui::TextWrapped(EnemySpawn::hoveredDescription);
+}
+
 static const char* charaTypeStrings[91] {
   "eCharaTypeNone",                  // 0,
   "eCharaTypePC PlayerCharacter",    // 1,
@@ -113,25 +120,84 @@ std::optional<std::string> EnemySpawn::on_initialize() {
     return Mod::on_initialize();
 }
 
+struct StageInResNo {
+    const char* stageName;
+    int inResNo;
+};
+
+int GetNumOfInResNoAvailableInThisStage(const char* currentStage) {
+    static const StageInResNo stageData[] = {
+        {"STG083", 9},
+        {"STG080", 9},
+        {"STG081", 4},
+        {"STG041", 9},
+        {"STG0412", 9},
+        {"STG0411", 9},
+        {"STG042", 3},
+        {"STG010", 9},
+        {"STG011", 9},
+        {"STG012", 9},
+        {"STG013", 4},
+        {"STG170", 9},
+        {"STG030", 9},
+        {"STG031", 4},
+        {"STG0002", 11},
+        {"STG0001", 4},
+        {"STG051", 7},
+        {"STG1708", 9},
+        {"STG090", 4},
+        {"STG00014", 3},
+        {"STG060", 6},
+        {"STG021", 9},
+        {"STG022", 1},
+        {"STG010", 4},
+        {"STG100", 0},
+        {"STG101", 3},
+        {"STG103", 3},
+    };
+    
+    for (int i = 0; i < sizeof(stageData) / sizeof(stageData[0]); i++) {
+        if (strcmp(currentStage, stageData[i].stageName) == 0) {
+            return stageData[i].inResNo;
+        }
+    }
+    return 0;
+}
+
 void EnemySpawn::on_draw_ui() {
+    if (!ImGui::IsAnyItemHovered()) EnemySpawn::hoveredDescription = defaultDescription;
+    static int numOfInResNoAvailableInThisStage = 0;
+    char* currentStage = nmh_sdk::get_CBgCtrl()->m_NowStageName;
+    if (currentStage && (strlen(currentStage) < 20)) {
+        nmh_sdk::get_CBgCtrl()->m_NowStageName;
+        numOfInResNoAvailableInThisStage = GetNumOfInResNoAvailableInThisStage(currentStage);
+    }
+    if (inResNo > numOfInResNoAvailableInThisStage) { inResNo = numOfInResNoAvailableInThisStage; }
     ImGui::Text("inResNo");
-    ImGui::InputInt("## inResNo Input Int", &inResNo);
+    ImGui::SliderInt("## inResNo Input Int", &inResNo, 0, numOfInResNoAvailableInThisStage);
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "@DHMalice, explain inResNo here";
     ImGui::Text("inRepop");
     ImGui::InputInt("## inRepop Input Int", &inRepop);
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "@DHMalice, explain inRepop here";
     ImGui::Checkbox("Spawn At Player Pos", &spawnAtPlayerPos);
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "The spawned enemy will spawn at your coords";
     if (!spawnAtPlayerPos){
         ImGui::InputFloat3("Custom Position", &inPos.x);
+        if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "The spawned enemy will spawn at custom coords";
     }
     else {
         if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
             ImGui::Text("Player Position");
             ImGui::InputFloat3("## Player Position Input Float", &mHRPc->mCharaStatus.pos.x);
+            if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Your current coords";
             inPos = mHRPc->mCharaStatus.pos;
         }
     }
     ImGui::Text("Rotation");
     ImGui::InputFloat3("## Rotation Input Float", &inRot.x);
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Which way the spawned enemy will face";
     ImGui::Checkbox("inDisEnableCollision", &inDisEnableCollision);
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "The spawned enemy will ignore collisions";
     ImGui::Text("enPopReqType");
     if (ImGui::BeginCombo("## enPopReqType Combo", enPopReqTypeStrings[inPopType])) {
         for (int i = 0; i < IM_ARRAYSIZE(enPopReqTypeStrings); i++) {
@@ -145,6 +211,7 @@ void EnemySpawn::on_draw_ui() {
         }
         ImGui::EndCombo();
     }
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "@DHMalice, explain enPopReqType here";
     ImGui::Text("inChType");
     if (ImGui::BeginCombo("## inChType Combo", charaTypeStrings[inChType])) {
         for (int i = 0; i < IM_ARRAYSIZE(charaTypeStrings); i++) {
@@ -158,6 +225,7 @@ void EnemySpawn::on_draw_ui() {
         }
         ImGui::EndCombo();
     }
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "@DHMalice, explain inChType here";
     float combo_width = ImGui::CalcItemWidth();
     if (ImGui::Button("Spawn Enemy", ImVec2(combo_width, NULL))) {
         if (inChType > 65)
@@ -165,6 +233,7 @@ void EnemySpawn::on_draw_ui() {
         else
             nmh_sdk::setInitNpcDat(inResNo, (enCharaType)inChType, inRepop, &inPos, &inRot, (enPopReqType)inPopType, inDisEnableCollision);
     }
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Spawn an enemy with the above parameters";
 }
 
 // during load

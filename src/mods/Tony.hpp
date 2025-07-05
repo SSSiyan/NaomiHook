@@ -5,7 +5,7 @@ class Tony : public Mod {
 public:
   Tony() = default;
   
-  ModCategory get_category() { return ModCategory::GAMEPLAY; };
+  ModCategory get_category() { return ModCategory::COSMETICS; };
   static bool mod_enabled;
   static uintptr_t jmp_ret1;
   static uintptr_t jmp_ret2;

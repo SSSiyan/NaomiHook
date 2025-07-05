@@ -366,9 +366,10 @@ bool ModFramework::initialize() {
             }
 
             g_kbm_controls = (KbmControls*)m_mods->get_mod_by_hash("KbmControls"_hash);
-            g_kbm_controls->m_wnd = m_wnd;
-            g_kbm_controls->register_raw_input_mouse(m_wnd);
-
+            if (g_kbm_controls) { // in case add mod is commented out for debugging
+                g_kbm_controls->m_wnd = m_wnd;
+                g_kbm_controls->register_raw_input_mouse(m_wnd);
+            }
             m_game_data_initialized = true;
         });
 

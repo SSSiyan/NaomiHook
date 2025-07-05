@@ -1,6 +1,7 @@
 #if 1
 #include "ArcadeMode.hpp"
 #include "QuickBoot.hpp" // Quick boot uses this detour
+#include <shlobj.h> // for ShellExecuteA
 
 const char* ArcadeMode::defaultDescription = "Play through the entire game in one sitting while skipping all the stuff in between. Nothing but gameplay in this mode.";
 const char* ArcadeMode::hoveredDescription = defaultDescription;
@@ -133,6 +134,19 @@ void ArcadeMode::on_draw_ui() {
     if (ImGui::IsItemHovered()) ArcadeMode::hoveredDescription = "Enable this option in the Motel then exit through the door to begin.\n"
         "To function flawlessly this feature currently requires a savegame with no story progress or you will get stuck. We're working on it!\n"
         "For now if you get stuck you can teleport to a new area in Stage Warp while this is ticked to jump to the next part.";
+    ImGui::Indent();
+    if (ImGui::Button("Open Saved Games Folder")) {
+        char savedGamesPath[MAX_PATH];
+        if (SHGetFolderPathA(NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, savedGamesPath) == S_OK) {
+            std::string folderPath = std::string(savedGamesPath) + "\\Saved Games\\NMH\\SAVES";
+            ShellExecuteA(NULL, "explore", folderPath.c_str(), NULL, NULL, SW_SHOWNORMAL);
+        }
+    }
+    if (ImGui::IsItemHovered()) ArcadeMode::hoveredDescription = "If you want to temporarily reset your save:\n"
+        "  - Rename the save found in this folder OR make a backup copy of it and delete the original\n"
+        "  - Restart the game\n"
+        "Once you're done, close the game and restore your save. The original name was hrSave.dat";
+    ImGui::Unindent();
 }
 
 // during load

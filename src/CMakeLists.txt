@@ -1,4 +1,6 @@
 set(MODS_SRC
+    mods/HudSettings.hpp
+    mods/HudSettings.cpp
     mods/KbmControls.hpp 
     mods/KbmControls.cpp 
     mods/Tony.hpp
@@ -9,8 +11,8 @@ set(MODS_SRC
     mods/BeamColor.cpp
     mods/SimpleMod.hpp
     mods/SimpleMod.cpp
-    mods/DisableCrashDumps.hpp
-    mods/DisableCrashDumps.cpp
+    mods/NMHFixes.hpp
+    mods/NMHFixes.cpp
     mods/AcceptPadInputsTabbedOut.hpp
     mods/AcceptPadInputsTabbedOut.cpp
     mods/StageWarp.hpp
@@ -55,8 +57,8 @@ set(MODS_SRC
     mods/StanceControl.cpp 
     mods/EnemySpawn.hpp 
     mods/EnemySpawn.cpp 
-    mods/MoneyOnKillFix.hpp 
-    mods/MoneyOnKillFix.cpp 
+    mods/GameplayFixes.hpp 
+    mods/GameplayFixes.cpp 
     mods/Cheats.hpp 
     mods/Cheats.cpp 
     mods/KillObscuringTreasureChests.hpp

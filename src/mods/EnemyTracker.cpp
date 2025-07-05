@@ -39,9 +39,9 @@ void DrawEnemyStats() {
 
     static int currentSelectedEnemy = 0;
     static bool useCurrentSelectedEnemySlider = false;
-    ImGui::Checkbox("useCurrentSelectedEnemySlider", &useCurrentSelectedEnemySlider);
+    ImGui::Checkbox("Select Enemy With Slider", &useCurrentSelectedEnemySlider);
     if (useCurrentSelectedEnemySlider) {
-        ImGui::SliderInt("currentSelectedEnemy", &currentSelectedEnemy, 0, 30);
+        ImGui::SliderInt("Current Enemy", &currentSelectedEnemy, 0, 30);
         mpLockOnNpc = nmh_sdk::get_mHRBattle()->mpNpc[currentSelectedEnemy];
         float combo_width = ImGui::CalcItemWidth();
         if (ImGui::Button("Find Locked On Enemy In List", ImVec2(combo_width, NULL))) {

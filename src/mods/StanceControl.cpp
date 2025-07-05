@@ -175,7 +175,7 @@ static constexpr float midGuardBlend = 0.5f;
 static constexpr float highGuardBlend = 1.0f;
 static constexpr float blendTick = 0.1f;
 static float newTilt = 0.0f;
-static bool verySmooth = true;
+// static bool verySmooth = true;
 
 static float gearSysXmm0backup = 0.0f;
 static float gearSysXmm1backup = 0.0f;
@@ -198,17 +198,17 @@ float StanceControl::SetSmoothStance(mHRPc* player) {
             target = guardTargets[currentPose];
         else
             target = targets[currentPose];
-        if (verySmooth) {
+        //if (verySmooth) {
             newTilt = glm::mix(newTilt, target, blendTick);
-        }
-        else {
+        //}
+        /*else {
             if (newTilt < target) {
                 newTilt += blendTick;
             }
             else if (newTilt > target) {
                 newTilt -= blendTick;
             }
-        }
+        }*/
     }
 
     return newTilt;
@@ -571,8 +571,8 @@ void StanceControl::on_draw_ui() {
         ImGui::Checkbox("Combo Extend Speedup On Low Attacks", &mod_enabled_faster_nu_lows);
         if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks";
 
-        ImGui::Checkbox("Very Smooth", &verySmooth);
-        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "DEV ONLY. How smooth do you want going between stances to look? Untick for linear. Imo it's cool but too dmc5 for this game";
+        // ImGui::Checkbox("Very Smooth", &verySmooth);
+        // if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "DEV ONLY. How smooth do you want going between stances to look? Untick for linear. Imo it's cool but too dmc5 for this game";
 
         ImGui::Unindent();
     }

@@ -71,7 +71,6 @@ Frame stageImage;
 
 void StageWarp::render_description() const {
     ImVec2 availableSpace = ImGui::GetContentRegionAvail();
-    //ImGui::Button(buttonIcon, ImVec2(availableSpace.y, availableSpace.y));
     ImGui::ImageWithBg((ImTextureID)g_stage_warp_texture_atlas->GetTexture(), ImVec2(availableSpace.y, availableSpace.y), stageImage.uv0, stageImage.uv1, ImVec4(1,1,1,1));
     ImGui::SameLine();
     ImGui::BeginGroup();
@@ -152,7 +151,7 @@ std::array<StageWarp::Stage, 78> StageWarp::stage_items = {
     Stage {"STG1702",  62, "Train", ""},                                  // 62
     Stage {"STG1703",  63, "Train Station (Boarding)", ""},               // 63
     Stage {"STG1707",  64, "Train Station Exit", ""},                     // 64
-    Stage {"STG1708",  65, "Harvey Zako", ""},        // 65
+    Stage {"STG1708",  65, "Harvey Zako", ""},                            // 65
     Stage {"STG1709",  66, "Train Station Harvey (Exit)", ""},            // 66
     Stage {"STG9000",  67, "DeathMetal Toilet", ""},                      // 67
     Stage {"STG9001",  68, "Darkstar Toilet", ""},                        // 68

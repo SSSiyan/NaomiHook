@@ -430,7 +430,7 @@ void WeaponSwitcher::Display_UI() {
 
     if (weaponSwitchCooldown > 0 && weaponSwitchCooldown <= animationDuration) {
         float progress = weaponSwitchCooldown / (float)animationDuration;
-        float moveDistance = 20.0f * progress;
+        float moveDistance = 40.0f * progress;
         
         // Fade
         if (weaponSwitchCooldown <= (animationDuration / 2)) {
