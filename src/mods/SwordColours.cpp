@@ -15,6 +15,7 @@ uintptr_t SwordColours::jmp_ret2 = NULL;
 uintptr_t SwordColours::jmp_ret3 = NULL;
 int SwordColours::deathblowTimer = 0;
 int SwordColours::setDeathblowTimer = 0;
+float SwordColours::swordGlowAmount = 0.0f;
 
 const char* SwordColours::defaultDescription = "Customize your beam katana colors. You can also set a unique color specifically for Death Blows.";
 const char* SwordColours::hoveredDescription = defaultDescription;
@@ -649,6 +650,12 @@ void SwordColours::on_draw_ui() {
     if (!ImGui::IsAnyItemHovered()) SwordColours::hoveredDescription = defaultDescription;
     ImGui::Checkbox("Glow", &sword_glow_enabled);
     if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "@DHMalice";
+    if (sword_glow_enabled) {
+        ImGui::Indent();
+        ImGui::SliderFloat("Glow Amount", &swordGlowAmount, 1.0f, 5.0f, "%.0f");
+            if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set how bright the glow from your sword is";
+        ImGui::Unindent();
+    }
     ImGui::Checkbox("Custom Colours", &mod_enabled);
     if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = defaultDescription;
     if (mod_enabled) {
@@ -699,6 +706,8 @@ void SwordColours::on_config_load(const utility::Config &cfg) {
         }
     }
     setDeathblowTimer = cfg.get<int>("setDeathblowTimer").value_or(50);
+
+    swordGlowAmount = cfg.get<float>("swordGlowAmount").value_or(4.0f);
 }
 
 // during save
@@ -712,6 +721,7 @@ void SwordColours::on_config_save(utility::Config &cfg) {
         cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".a", RgbaDefault.color->a);
     }
     cfg.set<int>("setDeathblowTimer", setDeathblowTimer);
+    cfg.set<float>("swordGlowAmount", swordGlowAmount);
 }
 
 void SwordColours::on_frame() {
@@ -721,7 +731,7 @@ void SwordColours::on_frame() {
             if (player->mCharaStatus.visibleWepEffect) {
                 int currentSword = player->mPcStatus.equip[0].id;
                 uint32_t currentCol = nmh_sdk::GetLaserColor();
-                nmh_sdk::SetLightReflect(player, 4.0f, &player->mPcEffect.posHitSlash, currentCol, 0);
+                nmh_sdk::SetLightReflect(player, swordGlowAmount, &player->mPcEffect.posHitSlash, currentCol, 0);
             }
         }
     }
