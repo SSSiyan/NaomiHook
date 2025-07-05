@@ -18,6 +18,8 @@ float CameraSettings::default_fov = 0.0f;
 uintptr_t CameraSettings::fov_jmp_ret1 = NULL;
 uintptr_t CameraSettings::fov_jmp_ret2 = NULL;
 
+bool CameraSettings::deathblow_blur_enable = false;
+
 // clang-format off
 naked void detour1() { // basic attacks // player in edi
     __asm {
@@ -61,7 +63,25 @@ void CameraSettings::fov_toggle(bool enable) {
     }
     else {
         install_patch_offset(0x3C6BF2, m_fov_patch, "\xF3\x0F\x5C\xC8", 4); // subss xmm1,xmm0
-    }          
+    }
+}
+
+
+void CameraSettings::deathblow_blur_toggle(bool enable) {
+    if (enable) {
+        install_patch_offset(0x3C7521, deathblow_blur_patch, "\xC7\x87\xC8\x29\x00\x00\xC4\x09\x00\x00\xC7\x87\xCC\x29\x00\x00\x00\x00\xC0\x40\xC7\x87\xD0\x29\x00\x00\x00\x00\x20\x41\xC7\x87\xD4\x29\x00\x00\x02\x00\x00\x00", 40);
+        // mov [edi+000029C8],#2500
+        // mov [edi+000029CC],(float)6
+        // mov [edi+000029D0],(float)10
+        // mov [edi+000029D4],00000002
+    }
+    else {
+        install_patch_offset(0x3C7521, deathblow_blur_patch, "\xC7\x87\xC8\x29\x00\x00\xC4\x09\x00\x00\xC7\x87\xCC\x29\x00\x00\x00\x00\x40\x40\xC7\x87\xD0\x29\x00\x00\x00\x00\x00\xC1\xC7\x87\xD4\x29\x00\x00\x01\x00\x00\x00", 40);
+        // mov [edi+000029C8],#2500
+        // mov [edi+000029CC],(float)3.0
+        // mov [edi+000029D0],(float)-8.0
+        // mov [edi+000029D4],00000001
+    }
 }
 
 // clang-format off
@@ -156,6 +176,11 @@ void CameraSettings::on_draw_ui() {
         fov_toggle(disable_attack_zoom);
     }
     if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = "Disable the zoom when attacking enemies while not locked on.";
+
+    if (ImGui::Checkbox("Deathblow Blur but its more like wii @DHMalice", &deathblow_blur_enable)) {
+        deathblow_blur_toggle(deathblow_blur_enable);
+    }
+    if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = "@DHMalice";
 }
 
 // during load
@@ -172,6 +197,9 @@ void CameraSettings::on_config_load(const utility::Config &cfg) {
     custom_fov = cfg.get<float>("custom_fov_value").value_or(55.0f);
     disable_attack_zoom = cfg.get<bool>("disable_attack_zoom").value_or(false);
     if (disable_attack_zoom) fov_toggle(disable_attack_zoom);
+
+    deathblow_blur_enable = cfg.get<bool>("deathblow_blur_enable").value_or(false);
+    if (deathblow_blur_enable) deathblow_blur_toggle(deathblow_blur_enable);
 } 
 // during save
 void CameraSettings::on_config_save(utility::Config &cfg) {
@@ -184,6 +212,8 @@ void CameraSettings::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("force_fov", force_fov);
     cfg.set<float>("custom_fov_value", custom_fov);
     cfg.set<bool>("disable_attack_zoom", disable_attack_zoom);
+
+    cfg.set<bool>("deathblow_blur_enable", deathblow_blur_enable);
 }
 
 // do something every frame

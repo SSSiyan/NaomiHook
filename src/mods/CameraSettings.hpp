@@ -24,6 +24,9 @@ public:
   static uintptr_t fov_jmp_ret2;
   void fov_toggle(bool enable);
 
+  static bool deathblow_blur_enable;
+  void deathblow_blur_toggle(bool enable);
+
   // mod name string for config
   std::string get_mod_name() const override { return "CameraSettings"; }
   std::string get_human_readable_name() const { return "Camera Settings"; }
@@ -52,4 +55,6 @@ private:
 
 	std::unique_ptr<FunctionHook> m_fov_hook1, m_fov_hook2;
 	std::unique_ptr<Patch> m_fov_patch;
+
+	std::unique_ptr<Patch> deathblow_blur_patch;
 };
