@@ -15,6 +15,7 @@
 #include "mods/AcceptPadInputsTabbedOut.hpp"
 #include "mods/WeaponSwitcher.hpp"
 #include "mods/StageWarp.hpp"
+#include "mods/Tony.hpp"
 #include "mods/ClothesSwitcher.hpp"
 #include "mods/LockOnSettings.hpp"
 #include "mods/HitstopSettings.hpp"
@@ -35,7 +36,6 @@
 #include "mods/StanceControl.hpp"
 #include "mods/Cheats.hpp"
 #include "mods/KillObscuringTreasureChests.hpp"
-#include "mods/Tony.hpp"
 #include "mods/HudSettings.hpp"
 
 #define ADD_MOD(name)                                  \
@@ -61,6 +61,7 @@ Mods::Mods()
     ADD_MOD(AcceptPadInputsTabbedOut);
     ADD_MOD(WeaponSwitcher);
     ADD_MOD(StageWarp);
+    ADD_MOD(Tony);
     ADD_MOD(ClothesSwitcher);
     ADD_MOD(LockOnSettings);
     ADD_MOD(HitstopSettings);
@@ -80,7 +81,6 @@ Mods::Mods()
     ADD_MOD(StanceControl);
     ADD_MOD(Cheats);
     ADD_MOD(KillObscuringTreasureChests);
-    ADD_MOD(Tony);
     ADD_MOD(KbmControls);
     ADD_MOD(HudSettings);
     //m_mods.emplace_back(std::make_unique<YourMod>());

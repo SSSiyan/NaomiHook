@@ -133,6 +133,11 @@ void HudSettings::on_draw_ui() {
             lockOnColour[1] = (uint8_t)(colourFloat[1] * 255.0f);
             lockOnColour[2] = (uint8_t)(colourFloat[2] * 255.0f);
         }
+        if (ImGui::Button("Default")) {
+            lockOnColour[0] = 219;
+            lockOnColour[1] = 170;
+            lockOnColour[2] = 230;
+        }
     }
 }
 
