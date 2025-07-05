@@ -862,16 +862,18 @@ void ClothesSwitcher::on_draw_ui() {
     if (mHRPc* player = nmh_sdk::get_mHRPc()) {
         // Unrolled for loop because we want to print in a different order
         std::vector<int> selected_indices(combo_boxes.size(), 0);
+        if (ImGui::BeginTabBar("##clothes switcher")) {
+
         // Combo 0: Sword
+        if (ImGui::BeginTabItem("Sword"))
         {
             const auto& combo = combo_boxes[0];
             int playerItem = find_room_index_by_id(player->mPcStatus.equip[0].id);
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[0] = playerItem - combo.start_idx;
             }
-            ImGui::Text("Sword");
             size_t selected_item_index = combo.start_idx + selected_indices[0];
-            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
+            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginListBox(combo.label, ImVec2(-FLT_MIN, -FLT_MIN)/*, clothing_items[playerItem].name */)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
                     const bool is_selected = (selected_indices[0] == n - combo.start_idx);
                     if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
@@ -882,20 +884,20 @@ void ClothesSwitcher::on_draw_ui() {
                         ImGui::SetItemDefaultFocus();
                     }
                 }
-                ImGui::EndCombo();
+                ImGui::EndListBox();
             }
+            ImGui::EndTabItem();
         }
 
         // Combo 1: Glasses
-        {
+        if (ImGui::BeginTabItem("Glasses")) {
             const auto& combo = combo_boxes[1];
             int playerItem = find_room_index_by_id(player->mPcStatus.equip[1].id);
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[1] = playerItem - combo.start_idx;
             }
-            ImGui::Text("Glasses");
             size_t selected_item_index = combo.start_idx + selected_indices[1];
-            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
+            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginListBox(combo.label, ImVec2(-FLT_MIN, -FLT_MIN)/*, clothing_items[playerItem].name)*/)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
                     const bool is_selected = (selected_indices[1] == n - combo.start_idx);
                     if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
@@ -906,20 +908,20 @@ void ClothesSwitcher::on_draw_ui() {
                         ImGui::SetItemDefaultFocus();
                     }
                 }
-                ImGui::EndCombo();
+                ImGui::EndListBox();
             }
+            ImGui::EndTabItem();
         }
 
         // Combo 2: Jacket
-        {
+        if (ImGui::BeginTabItem("Jacket")) {
             const auto& combo = combo_boxes[2];
             int playerItem = find_room_index_by_id(player->mPcStatus.equip[2].id);
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[2] = playerItem - combo.start_idx;
             }
-            ImGui::Text("Jacket");
             size_t selected_item_index = combo.start_idx + selected_indices[2];
-            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
+            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginListBox(combo.label, ImVec2(-FLT_MIN, -FLT_MIN) /*, clothing_items[playerItem].name*/)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
                     const bool is_selected = (selected_indices[2] == n - combo.start_idx);
                     if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
@@ -930,20 +932,20 @@ void ClothesSwitcher::on_draw_ui() {
                         ImGui::SetItemDefaultFocus();
                     }
                 }
-                ImGui::EndCombo();
+                ImGui::EndListBox();
             }
+            ImGui::EndTabItem();
         }
 
         // Combo 6: Shirt
-        {
+        if (ImGui::BeginTabItem("Shirt")) {
             const auto& combo = combo_boxes[6];
             int playerItem = find_room_index_by_id(player->mPcStatus.equip[6].id);
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[6] = playerItem - combo.start_idx;
             }
-            ImGui::Text("Shirt");
             size_t selected_item_index = combo.start_idx + selected_indices[6];
-            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
+            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginListBox(combo.label, ImVec2(-FLT_MIN, -FLT_MIN) /*, clothing_items[playerItem].name*/)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
                     const bool is_selected = (selected_indices[6] == n - combo.start_idx);
                     if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
@@ -954,20 +956,20 @@ void ClothesSwitcher::on_draw_ui() {
                         ImGui::SetItemDefaultFocus();
                     }
                 }
-                ImGui::EndCombo();
+                ImGui::EndListBox();
             }
+            ImGui::EndTabItem();
         }
 
         // Combo 5: Belt
-        {
+        if (ImGui::BeginTabItem("Belt")) {
             const auto& combo = combo_boxes[5];
             int playerItem = find_room_index_by_id(player->mPcStatus.equip[5].id);
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[5] = playerItem - combo.start_idx;
             }
-            ImGui::Text("Belt");
             size_t selected_item_index = combo.start_idx + selected_indices[5];
-            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
+            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginListBox(combo.label, ImVec2(-FLT_MIN, -FLT_MIN)/*, clothing_items[playerItem].name*/)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
                     const bool is_selected = (selected_indices[5] == n - combo.start_idx);
                     if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
@@ -978,20 +980,20 @@ void ClothesSwitcher::on_draw_ui() {
                         ImGui::SetItemDefaultFocus();
                     }
                 }
-                ImGui::EndCombo();
+                ImGui::EndListBox();
             }
+            ImGui::EndTabItem();
         }
         
         // Combo 4: Jeans
-        {
+        if (ImGui::BeginTabItem("Jeans")) {
             const auto& combo = combo_boxes[4];
             int playerItem = find_room_index_by_id(player->mPcStatus.equip[4].id);
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[4] = playerItem - combo.start_idx;
             }
-            ImGui::Text("Jeans");
             size_t selected_item_index = combo.start_idx + selected_indices[4];
-            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
+            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginListBox(combo.label, ImVec2(-FLT_MIN, -FLT_MIN) /*, clothing_items[playerItem].name*/)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
                     const bool is_selected = (selected_indices[4] == n - combo.start_idx);
                     if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
@@ -1002,20 +1004,20 @@ void ClothesSwitcher::on_draw_ui() {
                         ImGui::SetItemDefaultFocus();
                     }
                 }
-                ImGui::EndCombo();
+                ImGui::EndListBox();
             }
+            ImGui::EndTabItem();
         }
 
         // Combo 3: Shoes
-        {
+        if (ImGui::BeginTabItem("Shoes")) {
             const auto& combo = combo_boxes[3];
             int playerItem = find_room_index_by_id(player->mPcStatus.equip[3].id);
             if (playerItem >= 0 && playerItem < clothing_items.size()) {
                 selected_indices[3] = playerItem - combo.start_idx;
             }
-            ImGui::Text("Shoes");
             size_t selected_item_index = combo.start_idx + selected_indices[3];
-            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginCombo(combo.label, clothing_items[playerItem].name)) {
+            if (playerItem >= 0 && playerItem < clothing_items.size() && ImGui::BeginListBox(combo.label, ImVec2(-FLT_MIN, -FLT_MIN) /*, clothing_items[playerItem].name*/)) {
                 for (size_t n = combo.start_idx; n < combo.end_idx && n < clothing_items.size(); n++) {
                     const bool is_selected = (selected_indices[3] == n - combo.start_idx);
                     if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
@@ -1026,8 +1028,11 @@ void ClothesSwitcher::on_draw_ui() {
                         ImGui::SetItemDefaultFocus();
                     }
                 }
-                ImGui::EndCombo();
+                ImGui::EndListBox();
             }
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
         }
 
     }
