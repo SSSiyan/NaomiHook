@@ -36,6 +36,7 @@ protected:
     OnResizeBuffersFn m_on_resize_buffers{ nullptr };
     OnResizeBuffersFn m_after_resize_buffers{ nullptr };
 
+public:
     static HRESULT WINAPI present(IDXGISwapChain* swap_chain, UINT sync_interval, UINT flags);
     static HRESULT WINAPI resize_buffers(IDXGISwapChain* swap_chain, UINT buffer_count, UINT width, UINT height, DXGI_FORMAT new_format, UINT swap_chain_flags);
 };

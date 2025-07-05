@@ -11,11 +11,38 @@ D3D11Hook::~D3D11Hook() {
     unhook();
 }
 
+static uintptr_t present_wrapper_jmp_ret { NULL };
+__declspec(naked) void present_wrapper(void) {
+    __asm {
+        call D3D11Hook::present
+        cmp BYTE PTR [esi+0Ch], 00
+        jmp DWORD PTR [present_wrapper_jmp_ret]
+    }
+
+}
+
+static uintptr_t resize_buffers_jmp_ret { NULL };
+__declspec(naked) void resize_buffers_wrapper(void) {
+    __asm {
+        call D3D11Hook::resize_buffers
+        mov ecx, edi
+        jmp DWORD PTR [resize_buffers_jmp_ret]
+    }
+}
 bool D3D11Hook::hook() {
     spdlog::info("Hooking D3D11");
 
     g_d3d11_hook = this;
 
+    uintptr_t base = (uintptr_t)GetModuleHandle(NULL);
+    uintptr_t present_fn = base + 0x20ABF5;
+    present_wrapper_jmp_ret = present_fn + 0x7;
+    uintptr_t resize_buffers_fn = base + 0x20ADBC;
+    resize_buffers_jmp_ret = resize_buffers_fn + 0x5;
+
+    m_present_hook = std::make_unique<FunctionHook>(present_fn, (uintptr_t)&present_wrapper);
+    m_resize_buffers_hook = std::make_unique<FunctionHook>(resize_buffers_fn, (uintptr_t)&resize_buffers_wrapper);
+#if 0
     HWND h_wnd = GetDesktopWindow();
     IDXGISwapChain* swap_chain = nullptr;
     ID3D11Device* device = nullptr;
@@ -49,6 +76,7 @@ bool D3D11Hook::hook() {
     device->Release();
     context->Release();
     swap_chain->Release();
+#endif
 
     m_hooked = m_present_hook->create() && m_resize_buffers_hook->create();
 
@@ -69,9 +97,13 @@ HRESULT WINAPI D3D11Hook::present(IDXGISwapChain* swap_chain, UINT sync_interval
         d3d11->m_on_present(*d3d11);
     }
 
+#if 0
     auto present_fn = d3d11->m_present_hook->get_original<decltype(D3D11Hook::present)>();
 
     return present_fn(swap_chain, sync_interval, flags);
+#else
+    return swap_chain->Present(sync_interval, flags);
+#endif
 }
 
 HRESULT WINAPI D3D11Hook::resize_buffers(IDXGISwapChain* swap_chain, UINT buffer_count, UINT width, UINT height, DXGI_FORMAT new_format, UINT swap_chain_flags) {
@@ -81,12 +113,18 @@ HRESULT WINAPI D3D11Hook::resize_buffers(IDXGISwapChain* swap_chain, UINT buffer
         d3d11->m_on_resize_buffers(*d3d11);
     }
 
+#if 0
     auto resize_buffers_fn = d3d11->m_resize_buffers_hook->get_original<decltype(D3D11Hook::resize_buffers)>();
     auto result = resize_buffers_fn(swap_chain, buffer_count, width, height, new_format, swap_chain_flags);
+#endif
 
     if (d3d11->m_after_resize_buffers) {
         d3d11->m_after_resize_buffers(*d3d11);
     }
 
+#if 0
     return result;
+#else
+    return swap_chain->ResizeBuffers(buffer_count, width, height, new_format, swap_chain_flags);
+#endif
 }
