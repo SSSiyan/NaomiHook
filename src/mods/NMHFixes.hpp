@@ -1,23 +1,22 @@
 #pragma once
 #include "Mod.hpp"
 #include "sdk/ReClass.hpp"
-class MoneyOnKillFix : public Mod {
+class NMHFixes : public Mod {
 public:
-  MoneyOnKillFix() = default;
+  NMHFixes() = default;
   
   ModCategory get_category() { return ModCategory::SYSTEM; };
+  static bool disableCrashDumps;
+  static bool rankUpCrashFix;
+  static uintptr_t rank_up_crash_fix_jmp_ret;
+  static uintptr_t rank_up_crash_fix_jmp_je;
 
-  static bool mod_enabled;
-
-  static uintptr_t jmp_ret1;
-  static uintptr_t jmp_ret2;
-  static uintptr_t jmp_ret3;
+  void disableCrashDumpstoggle(bool enabled);
 
   // mod name string for config
-  std::string get_mod_name() const override { return "MoneyOnKillFix"; }
-  std::string get_human_readable_name() const { return "Money On Kill Fix"; }
-  const char* get_description() const override { return R"(This setting fixes an overflow issue affecting the cash reward for killing enemies.
-Our changes fix this issue the same way Heroes Paradise does by limiting the maximum reward to 30,000.)"; };
+  std::string get_mod_name() const override { return "NMHFixes"; }
+  std::string get_human_readable_name() const { return "System Fixes"; }
+  const char* get_description() const override { return R"(System Fixes)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
@@ -34,6 +33,7 @@ Our changes fix this issue the same way Heroes Paradise does by limiting the max
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3;
-	// std::unique_ptr<Patch> patch0;
+	// std::unique_ptr<FunctionHook> m_hook;
+	std::unique_ptr<Patch> disable_crash_dumps_patch;
+	std::unique_ptr<FunctionHook> rank_up_crash_fix_hook1;
 };

@@ -10,7 +10,8 @@
 #include "mods/PlayerTracker.hpp"
 #include "mods/EnemyTracker.hpp"
 #include "mods/EnemySpawn.hpp"
-#include "mods/DisableCrashDumps.hpp"
+#include "mods/NMHFixes.hpp"
+#include "mods/GameplayFixes.hpp"
 #include "mods/AcceptPadInputsTabbedOut.hpp"
 #include "mods/WeaponSwitcher.hpp"
 #include "mods/StageWarp.hpp"
@@ -32,7 +33,6 @@
 #include "mods/ArcadeMode.hpp"
 #include "mods/KbmControls.hpp"
 #include "mods/StanceControl.hpp"
-#include "mods/MoneyOnKillFix.hpp"
 #include "mods/Cheats.hpp"
 #include "mods/KillObscuringTreasureChests.hpp"
 #include "mods/Tony.hpp"
@@ -55,7 +55,8 @@ Mods::Mods()
     ADD_MOD(PlayerTracker); // keep first
     ADD_MOD(EnemyTracker); // keep second
     ADD_MOD(EnemySpawn);
-    ADD_MOD(DisableCrashDumps);
+    ADD_MOD(NMHFixes);
+    ADD_MOD(GameplayFixes);
     ADD_MOD(AcceptPadInputsTabbedOut);
     ADD_MOD(WeaponSwitcher);
     ADD_MOD(StageWarp);
@@ -76,7 +77,6 @@ Mods::Mods()
     ADD_MOD(ArcadeMode);
     ADD_MOD(QuickBoot); // requires ArcadeMode
     ADD_MOD(StanceControl);
-    ADD_MOD(MoneyOnKillFix);
     ADD_MOD(Cheats);
     ADD_MOD(KillObscuringTreasureChests);
     ADD_MOD(Tony);
