@@ -29,19 +29,32 @@ __declspec(naked) void resize_buffers_wrapper(void) {
         jmp DWORD PTR [resize_buffers_jmp_ret]
     }
 }
+
+static uintptr_t resize_buffers_jmp_ret1 { NULL };
+__declspec(naked) void resize_buffers_wrapper1(void) {
+    __asm {
+        call D3D11Hook::resize_buffers
+        mov eax, [edi + 7Ch]
+        jmp DWORD PTR [resize_buffers_jmp_ret1]
+    }
+}
+
 bool D3D11Hook::hook() {
     spdlog::info("Hooking D3D11");
 
     g_d3d11_hook = this;
 
-    uintptr_t base = (uintptr_t)GetModuleHandle(NULL);
-    uintptr_t present_fn = base + 0x20ABF5;
-    present_wrapper_jmp_ret = present_fn + 0x7;
-    uintptr_t resize_buffers_fn = base + 0x20ADBC;
-    resize_buffers_jmp_ret = resize_buffers_fn + 0x5;
+    uintptr_t base               = (uintptr_t)GetModuleHandle(NULL);
+    uintptr_t present_fn         = base + 0x20ABF5;
+    present_wrapper_jmp_ret      = present_fn + 0x7;
+    uintptr_t resize_buffers_fn  = base + 0x20ADBC;
+    resize_buffers_jmp_ret       = resize_buffers_fn + 0x5;
+    uintptr_t resize_buffers_fn1 = base + 0x20ADA3;
+    resize_buffers_jmp_ret1      = resize_buffers_fn1 + 0x6;
 
     m_present_hook = std::make_unique<FunctionHook>(present_fn, (uintptr_t)&present_wrapper);
     m_resize_buffers_hook = std::make_unique<FunctionHook>(resize_buffers_fn, (uintptr_t)&resize_buffers_wrapper);
+    m_resize_buffers_hook1 = std::make_unique<FunctionHook>(resize_buffers_fn1, (uintptr_t)&resize_buffers_wrapper1);
 #if 0
     HWND h_wnd = GetDesktopWindow();
     IDXGISwapChain* swap_chain = nullptr;
@@ -78,7 +91,7 @@ bool D3D11Hook::hook() {
     swap_chain->Release();
 #endif
 
-    m_hooked = m_present_hook->create() && m_resize_buffers_hook->create();
+    m_hooked = m_present_hook->create() && m_resize_buffers_hook->create() && m_resize_buffers_hook1->create();
 
     return m_hooked;
 }

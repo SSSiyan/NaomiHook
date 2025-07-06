@@ -32,6 +32,7 @@ protected:
 
     std::unique_ptr<FunctionHook> m_present_hook{};
     std::unique_ptr<FunctionHook> m_resize_buffers_hook{};
+    std::unique_ptr<FunctionHook> m_resize_buffers_hook1{};
     OnPresentFn m_on_present{ nullptr };
     OnResizeBuffersFn m_on_resize_buffers{ nullptr };
     OnResizeBuffersFn m_after_resize_buffers{ nullptr };
