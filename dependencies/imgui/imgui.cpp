@@ -1759,9 +1759,7 @@ static ImGuiInputEvent* FindLatestInputEvent(ImGuiContext* ctx, ImGuiInputEventT
     ImGuiContext& g = *ctx;
     for (int n = g.InputEventsQueue.Size - 1; n >= 0; n--)
     {
-        if (n == 0) {
-            return NULL;
-        }
+        if(g.InputEventsQueue.Size < 1) { return NULL; }
         ImGuiInputEvent* e = &g.InputEventsQueue[n];
         if (e->Type != type)
             continue;

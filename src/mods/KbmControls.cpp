@@ -609,6 +609,13 @@ std::optional<std::string> KbmControls::on_initialize() {
         if (ext->cl.hold & KEY_LT) { // is lockon down?
             ext->cl.rstick = ext->cl.lstick;
         }
+            if (mHRPc* pc = nmh_sdk::get_mHRPc()) {
+                if (pc->mInputMode == 5) {
+                    ext->cl.hold |= KEY_RT;
+                    ext->cl.rtrigger = 255.0f;
+
+                }
+            }
     });
 
     g_input_map.input_map("Battery Charge Start", ImGuiKey_LeftCtrl, KEY_LB);
@@ -649,6 +656,7 @@ std::optional<std::string> KbmControls::on_initialize() {
         }
         });
 
+    g_input_map.input_map("Call Bike",    ImGuiKey_B, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_SQUARE; });
 
     return Mod::on_initialize();
 }
