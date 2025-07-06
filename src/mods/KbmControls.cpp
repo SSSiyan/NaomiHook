@@ -496,13 +496,15 @@ bool KbmControls::window_proc_handler(HWND wnd, UINT message, WPARAM w_param, LP
         size_t size = sizeof(RAWINPUT);
         static RAWINPUT raw[sizeof(RAWINPUT)];
         GetRawInputData((HRAWINPUT)l_param, RID_INPUT, raw, &size, sizeof(RAWINPUTHEADER));
+        if (raw->data.mouse.usFlags == MOUSE_MOVE_RELATIVE) {
 
-        if (raw->header.dwType == RIM_TYPEMOUSE) {
-            g_mouser.x = raw->data.mouse.lLastX;
-            g_mouser.y = raw->data.mouse.lLastY;
+            if (raw->header.dwType == RIM_TYPEMOUSE) {
+                g_mouser.x = raw->data.mouse.lLastX;
+                g_mouser.y = raw->data.mouse.lLastY;
 
-            if (raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL)
-                g_mouser.wheel = (*(short*)&raw->data.mouse.usButtonData) / WHEEL_DELTA;
+                if (raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL)
+                    g_mouser.wheel = (*(short*)&raw->data.mouse.usButtonData) / WHEEL_DELTA;
+            }
         }
         return true;
     }
@@ -544,9 +546,24 @@ std::optional<std::string> KbmControls::on_initialize() {
 
     // NOTE(deep): order matters unfortunately
     g_input_map.input_map("Forward", ImGuiKey_W, 
-        [](KPADEXStatus* ext) { ext->cl.lstick.y = 1.0f;  /* ext->cl.hold = KEY_DPAD_UP; */ });
+        [](KPADEXStatus* ext) { 
+            ext->cl.lstick.y = 1.0f;  /* ext->cl.hold = KEY_DPAD_UP; */ 
+            
+            if (mHRPc* pc = nmh_sdk::get_mHRPc()) {
+                if (pc->mInputMode == 5) {
+                    ext->cl.hold |= KEY_CROSS;
+                }
+            }
+        });
     g_input_map.input_map("Back", ImGuiKey_S, 
-        [](KPADEXStatus* ext) { ext->cl.lstick.y = -1.0f; /* ext->cl.hold = KEY_DPAD_DOWN; */});
+        [](KPADEXStatus* ext) { 
+            ext->cl.lstick.y = -1.0f; /* ext->cl.hold = KEY_DPAD_DOWN; */
+            if (mHRPc* pc = nmh_sdk::get_mHRPc()) {
+                if (pc->mInputMode == 5) {
+                    ext->cl.hold |= KEY_CIRCLE;
+                }
+            }
+        });
     g_input_map.input_map("Left", ImGuiKey_A, 
         [](KPADEXStatus* ext) { ext->cl.lstick.x = -1.0f; /* ext->cl.hold = KEY_DPAD_LEFT; */});
     g_input_map.input_map("Right", ImGuiKey_D, 
@@ -560,7 +577,13 @@ std::optional<std::string> KbmControls::on_initialize() {
 
     g_input_map.input_map("Target Lock On", ImGuiKey_LeftShift, [](KPADEXStatus* ext) { 
         ext->cl.hold |= KEY_LT; ext->cl.ltrigger = 255.0f; 
-        if (!nmh_sdk::CheckTsubazering(-1) /* clashing */ ) {
+
+        mHRPc* pc = nmh_sdk::get_mHRPc();
+        // TODO(): dont want to bother cheking each ugly case, seems to fix deathblows and tsubazerings
+        bool null_rstick = nmh_sdk::CheckCanAttack();//!nmh_sdk::CheckTsubazering(-1);
+
+        //if (!nmh_sdk::CheckTsubazering(-1) /* clashing */ ) {
+        if (null_rstick && (!nmh_sdk::CheckTsubazering(-1))) {
             ext->cl.rstick.x = 0;
             ext->cl.rstick.y = 0;
         }

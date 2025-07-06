@@ -113,8 +113,8 @@ namespace nmh_sdk {
 
     // Check if player is attacking
     bool CheckCanAttack() {
-        uintptr_t checkCanAttackAddress = (g_framework->get_module().as<uintptr_t>() + 0x3D47B0);
-        mCheckCanAttackFunc checkCanAttack = (mCheckCanAttackFunc)checkCanAttackAddress;
+        static uintptr_t checkCanAttackAddress = (g_framework->get_module().as<uintptr_t>() + 0x3D47B0);
+        static mCheckCanAttackFunc checkCanAttack = (mCheckCanAttackFunc)checkCanAttackAddress;
         if (mHRPc* mHRPc = get_mHRPc()) {
             return checkCanAttack(mHRPc);
         }
