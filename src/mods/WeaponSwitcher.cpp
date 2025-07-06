@@ -418,6 +418,7 @@ void WeaponSwitcher::on_d3d_reset() {
 }
 
 void WeaponSwitcher::Display_UI() {
+    if (weaponSwitchCooldown > animationDuration) { return; } // don't make a window if no image is displaying
     ImVec2 screenSize = ImGui::GetIO().DisplaySize;
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::SetNextWindowSize(screenSize);

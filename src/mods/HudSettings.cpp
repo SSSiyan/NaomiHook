@@ -99,6 +99,7 @@ void HudSettings::SetHUDFlagsOnFrame() {
 void HudSettings::SetLockOnColourOnFrame() {
     if (!custom_lock_on_colour_toggle) { return; }
     mHRPc* player = nmh_sdk::get_mHRPc();
+    if (!player) { return; }
     auto lockOnNpc = player->mpLockOnNpc;
     if (!lockOnNpc) { return; }
     auto battleIcon = lockOnNpc->mEffect.pBattleIcon;

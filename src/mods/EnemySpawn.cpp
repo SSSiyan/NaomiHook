@@ -182,7 +182,8 @@ void EnemySpawn::on_draw_ui() {
     ImGui::Checkbox("Spawn At Player Pos", &spawnAtPlayerPos);
     if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "The spawned enemy will spawn at your coords";
     if (!spawnAtPlayerPos){
-        ImGui::InputFloat3("Custom Position", &inPos.x);
+        ImGui::Text("Custom Position");
+        ImGui::InputFloat3("## Custom Position Input Float", &inPos.x);
         if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "The spawned enemy will spawn at custom coords";
     }
     else {

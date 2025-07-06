@@ -59,7 +59,7 @@ void NMHFixes::on_draw_ui() {
         disableCrashDumpsToggle(disableCrashDumps);
     }
     if (ImGui::IsItemHovered()) NMHFixes::hoveredDescription = "Without this fix, every time you crash a sizeable file is made on your C drive";
-    ImGui::SameLine();
+    ImGui::Indent();
     if (ImGui::Button("Open Crash Dump Folder")) {
         char savedGamesPath[MAX_PATH];
         if (SHGetFolderPathA(NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, savedGamesPath) == S_OK) {
@@ -67,6 +67,7 @@ void NMHFixes::on_draw_ui() {
             ShellExecuteA(NULL, "explore", folderPath.c_str(), NULL, NULL, SW_SHOWNORMAL);
         }
     }
+    ImGui::Unindent();
     if (ImGui::IsItemHovered()) NMHFixes::hoveredDescription = "If the game fails to launch before NaomiHook attaches to the game, dumps might still be made. "
         "Click this button to open \"User\\Saved Games\\EE_Application\" in File Explorer. If this button does nothing, the folder doesn't exist (and no crash dumps have been made). "
         "If it opens and it's not empty, feel free to delete any .dmp files you see inside";

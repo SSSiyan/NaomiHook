@@ -35,7 +35,7 @@ void QuickBoot::on_draw_ui() {
 
 // during load
 void QuickBoot::on_config_load(const utility::Config &cfg) {
-    mod_enabled = cfg.get<bool>("quick_boot").value_or(true);
+    mod_enabled = cfg.get<bool>("quick_boot").value_or(false);
     newBootStageIndex = cfg.get<int>("quick_boot_stage").value_or(40);
 }
 // during save
