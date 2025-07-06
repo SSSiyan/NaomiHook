@@ -129,15 +129,13 @@ HRESULT WINAPI D3D11Hook::resize_buffers(IDXGISwapChain* swap_chain, UINT buffer
 #if 0
     auto resize_buffers_fn = d3d11->m_resize_buffers_hook->get_original<decltype(D3D11Hook::resize_buffers)>();
     auto result = resize_buffers_fn(swap_chain, buffer_count, width, height, new_format, swap_chain_flags);
+#else
+    auto result = swap_chain->ResizeBuffers(buffer_count, width, height, new_format, swap_chain_flags);
 #endif
 
     if (d3d11->m_after_resize_buffers) {
         d3d11->m_after_resize_buffers(*d3d11);
     }
 
-#if 0
     return result;
-#else
-    return swap_chain->ResizeBuffers(buffer_count, width, height, new_format, swap_chain_flags);
-#endif
 }
