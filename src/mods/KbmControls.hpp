@@ -46,6 +46,7 @@ public:
   //void on_draw_debug_ui() override;
   
   const ModToggle::Ptr m_mod_enabled            { ModToggle::create(generate_name("mode_enable")) };
+  const ModToggle::Ptr m_block_lockon           { ModToggle::create(generate_name("block_right_stick_lockon")) };
   const ModFloat::Ptr  m_mouse_range            { ModFloat::create(generate_name("mouse_range"), 200.0f) };
   const ModFloat::Ptr  m_base_mouse_sens        { ModFloat::create(generate_name("mouse_base_sensitivity"), 3.0f) };
   const ModFloat::Ptr  m_cams_mouse_sens        { ModFloat::create(generate_name("mouse_cams_sensitivity"), 0.04f) };

@@ -583,9 +583,12 @@ std::optional<std::string> KbmControls::on_initialize() {
         bool null_rstick = nmh_sdk::CheckCanAttack();//!nmh_sdk::CheckTsubazering(-1);
 
         //if (!nmh_sdk::CheckTsubazering(-1) /* clashing */ ) {
-        if (null_rstick && (!nmh_sdk::CheckTsubazering(-1))) {
-            ext->cl.rstick.x = 0;
-            ext->cl.rstick.y = 0;
+        if(!g_kbm) {return;}
+        if (g_kbm->m_block_lockon->value() == true) {
+            if (null_rstick && (!nmh_sdk::CheckTsubazering(-1))) {
+                ext->cl.rstick.x = 0;
+                ext->cl.rstick.y = 0;
+            }
         }
         static unsigned int* ass = (unsigned int*)(g_framework->get_module().as<uintptr_t>() + (ptrdiff_t)0x8761D0);
         *ass |= 128;
@@ -712,6 +715,7 @@ void KbmControls::on_draw_ui() {
             m_hooks.reset();
         }
     }
+    m_block_lockon->draw("Block mouse inputs when locked on?");
 
     m_base_mouse_sens->draw("Base mouse sensitivity");
     m_cams_mouse_sens->draw("Camera mouse senisitivity");
