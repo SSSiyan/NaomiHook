@@ -3,6 +3,8 @@
 
 #include "D3D11Hook.hpp"
 
+#define VTABLE_HOOK 1
+
 using namespace std;
 
 static D3D11Hook* g_d3d11_hook = nullptr;
@@ -44,18 +46,7 @@ bool D3D11Hook::hook() {
 
     g_d3d11_hook = this;
 
-    uintptr_t base               = (uintptr_t)GetModuleHandle(NULL);
-    uintptr_t present_fn         = base + 0x20ABF5;
-    present_wrapper_jmp_ret      = present_fn + 0x7;
-    uintptr_t resize_buffers_fn  = base + 0x20ADBC;
-    resize_buffers_jmp_ret       = resize_buffers_fn + 0x5;
-    uintptr_t resize_buffers_fn1 = base + 0x20ADA3;
-    resize_buffers_jmp_ret1      = resize_buffers_fn1 + 0x6;
-
-    m_present_hook = std::make_unique<FunctionHook>(present_fn, (uintptr_t)&present_wrapper);
-    m_resize_buffers_hook = std::make_unique<FunctionHook>(resize_buffers_fn, (uintptr_t)&resize_buffers_wrapper);
-    m_resize_buffers_hook1 = std::make_unique<FunctionHook>(resize_buffers_fn1, (uintptr_t)&resize_buffers_wrapper1);
-#if 0
+#if VTABLE_HOOK
     HWND h_wnd = GetDesktopWindow();
     IDXGISwapChain* swap_chain = nullptr;
     ID3D11Device* device = nullptr;
@@ -89,9 +80,23 @@ bool D3D11Hook::hook() {
     device->Release();
     context->Release();
     swap_chain->Release();
-#endif
+    m_hooked = m_present_hook->create() && m_resize_buffers_hook->create();
+#else
+    uintptr_t base               = (uintptr_t)GetModuleHandle(NULL);
+    uintptr_t present_fn         = base + 0x20ABF5;
+    present_wrapper_jmp_ret      = present_fn + 0x7;
+    uintptr_t resize_buffers_fn  = base + 0x20ADBC;
+    resize_buffers_jmp_ret       = resize_buffers_fn + 0x5;
+    uintptr_t resize_buffers_fn1 = base + 0x20ADA3;
+    resize_buffers_jmp_ret1      = resize_buffers_fn1 + 0x6;
+
+    m_present_hook = std::make_unique<FunctionHook>(present_fn, (uintptr_t)&present_wrapper);
+    m_resize_buffers_hook = std::make_unique<FunctionHook>(resize_buffers_fn, (uintptr_t)&resize_buffers_wrapper);
+    m_resize_buffers_hook1 = std::make_unique<FunctionHook>(resize_buffers_fn1, (uintptr_t)&resize_buffers_wrapper1);
 
     m_hooked = m_present_hook->create() && m_resize_buffers_hook->create() && m_resize_buffers_hook1->create();
+#endif
+
 
     return m_hooked;
 }
@@ -110,7 +115,7 @@ HRESULT WINAPI D3D11Hook::present(IDXGISwapChain* swap_chain, UINT sync_interval
         d3d11->m_on_present(*d3d11);
     }
 
-#if 0
+#if VTABLE_HOOK
     auto present_fn = d3d11->m_present_hook->get_original<decltype(D3D11Hook::present)>();
 
     return present_fn(swap_chain, sync_interval, flags);
@@ -126,7 +131,7 @@ HRESULT WINAPI D3D11Hook::resize_buffers(IDXGISwapChain* swap_chain, UINT buffer
         d3d11->m_on_resize_buffers(*d3d11);
     }
 
-#if 0
+#if VTABLE_HOOK
     auto resize_buffers_fn = d3d11->m_resize_buffers_hook->get_original<decltype(D3D11Hook::resize_buffers)>();
     auto result = resize_buffers_fn(swap_chain, buffer_count, width, height, new_format, swap_chain_flags);
 #else
