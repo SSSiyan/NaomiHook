@@ -3,7 +3,7 @@
 
 #include "D3D11Hook.hpp"
 
-#define VTABLE_HOOK 1
+//#define VTABLE_HOOK 1
 
 using namespace std;
 
