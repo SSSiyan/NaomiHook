@@ -23,6 +23,10 @@ public:
   static bool custom_lock_on_colour_toggle;
   static uint8_t lockOnColour[3];
   static void SetLockOnColourOnFrame();
+
+  static bool custom_lock_on_block_size_toggle;
+  static float lockOnBlockSize;
+  static void SetLockOnBlockSizeOnFrame();
   
   ModCategory get_category() { return ModCategory::COSMETICS; };
 

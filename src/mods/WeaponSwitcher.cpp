@@ -627,9 +627,10 @@ void WeaponSwitcher::on_frame() {
 void WeaponSwitcher::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("weapon_switcher").value_or(false);
     if (mod_enabled) toggleForceMap(mod_enabled);
-    for (int i = 0; i < 4; i++) {
-        savedSword[i] = cfg.get<int>("savedSword[" + std::to_string(i) + "]").value_or(-1);
-    }
+    savedSword[WS_LEFT] = cfg.get<int>("savedSword[0]").value_or(TSUBAKI_MK1);
+    savedSword[WS_DOWN] = cfg.get<int>("savedSword[1]").value_or(TSUBAKI_MK2);
+    savedSword[WS_RIGHT] = cfg.get<int>("savedSword[2]").value_or(TSUBAKI_MK3);
+    savedSword[WS_UP] = cfg.get<int>("savedSword[3]").value_or(BLOOD_BERRY);
 }
 
 // during save

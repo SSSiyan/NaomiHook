@@ -16,6 +16,9 @@ bool HudSettings::hide_drawcheckpo = false;
 bool HudSettings::custom_lock_on_colour_toggle = false;
 uint8_t HudSettings::lockOnColour[3] = {0, 0, 0};
 
+bool HudSettings::custom_lock_on_block_size_toggle = false;
+float HudSettings::lockOnBlockSize = 1.0f;
+
 const char* HudSettings::defaultDescription = "@DHMalice";
 const char* HudSettings::hoveredDescription = defaultDescription;
 
@@ -109,10 +112,22 @@ void HudSettings::SetLockOnColourOnFrame() {
     }
 }
 
+void HudSettings::SetLockOnBlockSizeOnFrame() {
+    if (!custom_lock_on_block_size_toggle) { return; }
+    mHRPc* player = nmh_sdk::get_mHRPc();
+    if (!player) { return; }
+    auto lockOnNpc = player->mpLockOnNpc;
+    if (!lockOnNpc) { return; }
+    auto battleIcon = lockOnNpc->mEffect.pBattleIcon;
+    if (!battleIcon) { return; }
+    battleIcon->m_BIcon_Block_Size = lockOnBlockSize;
+}
+
 // do something every frame
 void HudSettings::on_frame() {
     HudSettings::SetHUDFlagsOnFrame();
     HudSettings::SetLockOnColourOnFrame();
+    HudSettings::SetLockOnBlockSizeOnFrame();
 }
 
 void HudSettings::on_draw_ui() {
@@ -140,6 +155,10 @@ void HudSettings::on_draw_ui() {
             lockOnColour[2] = 230;
         }
     }
+    ImGui::Checkbox("Custom Lock On Block Size", &custom_lock_on_block_size_toggle);
+    if (custom_lock_on_block_size_toggle) {
+        ImGui::SliderFloat("Lock On Block Size", &lockOnBlockSize, 1.0f, 8.0f, "%.0f");
+    }
 }
 
 void HudSettings::render_description() const {
@@ -155,6 +174,9 @@ void HudSettings::on_config_load(const utility::Config &cfg) {
     lockOnColour[0] = cfg.get<uint8_t>("lockOnColour[0]").value_or(219);
     lockOnColour[1] = cfg.get<uint8_t>("lockOnColour[1]").value_or(170);
     lockOnColour[2] = cfg.get<uint8_t>("lockOnColour[2]").value_or(230);
+
+    custom_lock_on_block_size_toggle = cfg.get<bool>("custom_lock_on_block_size_toggle").value_or(false);
+    lockOnBlockSize = cfg.get<float>("lockOnBlockSize").value_or(8.0f);
 }
 // during save
 void HudSettings::on_config_save(utility::Config &cfg) {
@@ -162,4 +184,7 @@ void HudSettings::on_config_save(utility::Config &cfg) {
     cfg.set<uint8_t>("lockOnColour[0]", lockOnColour[0]);
     cfg.set<uint8_t>("lockOnColour[1]", lockOnColour[1]);
     cfg.set<uint8_t>("lockOnColour[2]", lockOnColour[2]);
+
+    cfg.set<bool>("custom_lock_on_block_size_toggle", custom_lock_on_block_size_toggle);
+    cfg.set<float>("lockOnBlockSize", lockOnBlockSize);
 }
