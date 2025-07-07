@@ -175,16 +175,16 @@ void EnemySpawn::on_draw_ui() {
     if (inResNo > numOfInResNoAvailableInThisStage) { inResNo = numOfInResNoAvailableInThisStage; }
     ImGui::Text("inResNo");
     ImGui::SliderInt("## inResNo Input Int", &inResNo, 0, numOfInResNoAvailableInThisStage);
-    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "@DHMalice, explain inResNo here";
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Every stage has different models and textures for the enemies you encounter. 'inResNo' selects which variant you will spawn in.";
     ImGui::Text("inRepop");
     ImGui::InputInt("## inRepop Input Int", &inRepop);
-    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "@DHMalice, explain inRepop here";
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "'inRepop' is the number of times the enemy will respawn after death.";
     ImGui::Checkbox("Spawn At Player Pos", &spawnAtPlayerPos);
-    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "The spawned enemy will spawn at your coords";
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Spawn the enemy at Travis's current coordinates";
     if (!spawnAtPlayerPos){
         ImGui::Text("Custom Position");
         ImGui::InputFloat3("## Custom Position Input Float", &inPos.x);
-        if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "The spawned enemy will spawn at custom coords";
+        if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Manually assign coordinates for the enemy to spawn at.";
     }
     else {
         if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
@@ -212,7 +212,7 @@ void EnemySpawn::on_draw_ui() {
         }
         ImGui::EndCombo();
     }
-    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "@DHMalice, explain enPopReqType here";
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "'enPopReqType' determines the type of spawn the enemy will use.";
     ImGui::Text("inChType");
     if (ImGui::BeginCombo("## inChType Combo", charaTypeStrings[inChType])) {
         for (int i = 0; i < IM_ARRAYSIZE(charaTypeStrings); i++) {
@@ -226,7 +226,7 @@ void EnemySpawn::on_draw_ui() {
         }
         ImGui::EndCombo();
     }
-    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "@DHMalice, explain inChType here";
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "'inChType' is the enemy type assigned to the enemy you're spawning. For example: You can spawn a regular Zako enemy with the data from a landmine object, or, with data from a boss such as Dr.Peace.";
     float combo_width = ImGui::CalcItemWidth();
     if (ImGui::Button("Spawn Enemy", ImVec2(combo_width, NULL))) {
         if (inChType > 65)

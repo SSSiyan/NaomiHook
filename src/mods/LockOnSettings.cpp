@@ -339,7 +339,7 @@ void LockOnSettings::on_draw_ui() {
     if (ImGui::Checkbox("Wrestling and Beat Attacks", &disable_throws_mod_enabled)) {
         toggle_kick_cancel(disable_throws_mod_enabled);
     }
-    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "Disables wrestling moves when holding lock on. This allows you to squeeze more out of the Beat Attack movelist by incorporating punches and kicks into your combos.";
+    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "Disables wrestling moves when holding lock on. This allows you to squeeze more out of the Beat Attack movelist by incorporating punches and kicks into your combos. Roundhouse Kick, Jumping Spinning Back Kick, and Overhead Kick have had their cancel windows changed and will not reset your combo string.";
 
     if (ImGui::Checkbox("replace HIT Number", &replaceHitNumMod_enabled)) {
         replaceHitNumToggle(replaceHitNumMod_enabled);
@@ -351,7 +351,7 @@ void LockOnSettings::on_draw_ui() {
         ImGui::Combo("HP Display Mode", &replaceHitNumDisplayMode, "HP\0TENSION\0MONEY\0STORE_DAMAGE\0", 4);
         ImGui::Unindent();
     }
-    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "@DHMalice";
+    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "DHMalice please add details";
 }
 
 // during load

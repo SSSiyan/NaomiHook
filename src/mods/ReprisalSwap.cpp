@@ -89,7 +89,7 @@ void ReprisalSwap::render_description() const {
     ImGui::TextWrapped(ReprisalSwap::hoveredDescription);
 }
 
-const char* ReprisalSwap::defaultDescription = "Reworks parry reprisals by assigning a new attack to each stance.";
+const char* ReprisalSwap::defaultDescription = "Reworks parry reprisals by assigning a new attack to each stance. Restores the original Low charge attack and repurposes it as the Mid charge.";
 const char* ReprisalSwap::hoveredDescription = defaultDescription;
 
 void ReprisalSwap::on_draw_ui() {

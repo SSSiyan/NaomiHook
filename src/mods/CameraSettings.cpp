@@ -180,7 +180,7 @@ void CameraSettings::on_draw_ui() {
     if (ImGui::Checkbox("Deathblow Blur but its more like wii @DHMalice", &deathblow_blur_enable)) {
         deathblow_blur_toggle(deathblow_blur_enable);
     }
-    if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = "@DHMalice";
+    if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = "Increases the intensity of the radial blur effect during Deathblows to more closely resemble the effect on Wii";
 }
 
 // during load

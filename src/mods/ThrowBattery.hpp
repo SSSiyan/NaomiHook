@@ -17,7 +17,7 @@ public:
 
   // mod name string for config
   std::string get_mod_name() const override { return "ThrowBattery"; }
-  std::string get_human_readable_name() const { return "Gain Battery From Throws"; }
+  std::string get_human_readable_name() const { return "Wrestling"; }
   const char* get_description() const override { return R"(A feature that's heavily inspired by NMH3. Successful throws restore a portion of your beam katana's battery.)"; };
 
   // called by m_mods->init() you'd want to override this

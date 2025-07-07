@@ -24,7 +24,7 @@ public:
 
   // mod name string for config
   std::string get_mod_name() const override { return "KbmControls"; }
-  std::string get_human_readable_name() const { return "KbmControls"; }
+  std::string get_human_readable_name() const { return "Keyboard and Mouse Controls"; }
   const char* get_description() const override { return R"(KbmControls Description)"; };
 
 

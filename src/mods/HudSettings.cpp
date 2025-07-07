@@ -19,7 +19,7 @@ uint8_t HudSettings::lockOnColour[3] = {0, 0, 0};
 bool HudSettings::custom_lock_on_block_size_toggle = false;
 float HudSettings::lockOnBlockSize = 1.0f;
 
-const char* HudSettings::defaultDescription = "@DHMalice";
+const char* HudSettings::defaultDescription = "Customize various aspects of the heads up display with toggles for each HUD element, custom lock on reticle colors and block size.";
 const char* HudSettings::hoveredDescription = defaultDescription;
 
 // clang-format off
@@ -42,9 +42,9 @@ void HudSettings::DisplayHUDCheckboxes() {
 
     if (ImGui::BeginTable("UIControlTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit)) {
         ImGui::TableSetupColumn("Force Override", ImGuiTableColumnFlags_WidthStretch);
-        if (ImGui::IsItemHovered()) HudSettings::hoveredDescription = "@DHMalice";
+        if (ImGui::IsItemHovered()) HudSettings::hoveredDescription = "Forces this HUD element off when ticked";
         ImGui::TableSetupColumn("Game State", ImGuiTableColumnFlags_WidthStretch);
-        if (ImGui::IsItemHovered()) HudSettings::hoveredDescription = "@DHMalice";
+        if (ImGui::IsItemHovered()) HudSettings::hoveredDescription = "Temporarily toggles this HUD element on or off when ticked until actions that require them are performed such as pressing lock on or entering first person.";
         ImGui::TableHeadersRow();
 
         const char* ui_names[] = {

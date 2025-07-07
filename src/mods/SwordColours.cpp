@@ -649,7 +649,7 @@ void SwordColours::render_description() const {
 void SwordColours::on_draw_ui() {
     if (!ImGui::IsAnyItemHovered()) SwordColours::hoveredDescription = defaultDescription;
     ImGui::Checkbox("Glow", &sword_glow_enabled);
-    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "@DHMalice";
+    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Restores the beam reflections seen in early gameplay footage. This is the same glow that would later be used in NMH2 and Heroes Paradise";
     if (sword_glow_enabled) {
         ImGui::Indent();
         ImGui::SliderFloat("Glow Amount", &swordGlowAmount, 1.0f, 5.0f, "%.0f");
