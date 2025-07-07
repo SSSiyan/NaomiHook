@@ -42,9 +42,7 @@ void HudSettings::DisplayHUDCheckboxes() {
 
     if (ImGui::BeginTable("UIControlTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit)) {
         ImGui::TableSetupColumn("Force Override", ImGuiTableColumnFlags_WidthStretch);
-        if (ImGui::IsItemHovered()) HudSettings::hoveredDescription = "Forces this HUD element off when ticked";
         ImGui::TableSetupColumn("Game State", ImGuiTableColumnFlags_WidthStretch);
-        if (ImGui::IsItemHovered()) HudSettings::hoveredDescription = "Temporarily toggles this HUD element on or off when ticked until actions that require them are performed such as pressing lock on or entering first person.";
         ImGui::TableHeadersRow();
 
         const char* ui_names[] = {
@@ -76,6 +74,8 @@ void HudSettings::DisplayHUDCheckboxes() {
             }
         }
         ImGui::EndTable();
+        if (ImGui::IsItemHovered()) HudSettings::hoveredDescription = "Force override: Temporarily toggles this HUD element on or off when ticked"
+            "until actions that require them are performed such as pressing lock on or entering first person\n\nGame State: Forces this HUD element off when ticked";
     }
 }
 

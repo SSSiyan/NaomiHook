@@ -37,6 +37,7 @@
 #include "mods/Cheats.hpp"
 #include "mods/KillObscuringTreasureChests.hpp"
 #include "mods/HudSettings.hpp"
+#include "mods/FreeCam.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -83,6 +84,7 @@ Mods::Mods()
     ADD_MOD(KillObscuringTreasureChests);
     ADD_MOD(KbmControls);
     ADD_MOD(HudSettings);
+    ADD_MOD(FreeCam);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

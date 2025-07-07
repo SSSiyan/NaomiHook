@@ -1,4 +1,6 @@
 set(MODS_SRC
+    mods/FreeCam.hpp
+    mods/FreeCam.cpp
     mods/HudSettings.hpp
     mods/HudSettings.cpp
     mods/KbmControls.hpp 
