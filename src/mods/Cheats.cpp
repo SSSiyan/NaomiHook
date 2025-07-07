@@ -1,4 +1,6 @@
 #include "Cheats.hpp"
+#include <unordered_set>
+#include "../Config.hpp" // for CONFIG_FILENAME
 #if 1
 bool Cheats::take_no_damage = false;
 bool Cheats::deal_no_damage = false;
@@ -8,6 +10,52 @@ bool Cheats::invincible = false; // DodgeSettings handles this
 
 const char* Cheats::defaultDescription = "Cheats";
 const char* Cheats::hoveredDescription = defaultDescription;
+
+static char password_input[64] = "";
+std::unordered_set<std::string> unlocked_cheats;
+std::unordered_map<std::string, std::string> cheat_passwords = {
+    {"invincible", "SUNDOWNER"},
+    {"take_no_damage", "HESOYAM"},
+    {"deal_no_damage", "JUSTAPRANK"},
+    {"spend_no_battery", "BANDANA"},
+    {"enemies_dont_attack", "LEAVEMEALONE"},
+    {"start_777", "JACKPOT"},
+    {"start_bar", "WINDOWS"},
+    {"start_bell", "BELLEND"},
+    {"start_hopper", "GYARU"},
+    {"start_cherry", "MRWHOOPEE"}
+};
+
+void save_unlocked_cheats() {
+    utility::Config cfg;
+    cfg.load(CONFIG_FILENAME);
+        
+    for (const auto& pair : cheat_passwords) {
+        bool is_unlocked = unlocked_cheats.find(pair.first) != unlocked_cheats.end();
+        cfg.set<bool>("unlocked_" + pair.first, is_unlocked);
+    }
+    
+    cfg.save(CONFIG_FILENAME);
+}
+
+void check_password() {
+    std::string upper_input = std::string(password_input);
+    std::transform(upper_input.begin(), upper_input.end(), upper_input.begin(), ::toupper);
+        
+    for (const auto& pair : cheat_passwords) {
+        if (pair.second == upper_input) {
+            unlocked_cheats.insert(pair.first);
+            memset(password_input, 0, sizeof(password_input));
+                
+            save_unlocked_cheats();
+            return;
+        }
+    }
+}
+
+bool is_cheat_unlocked(const std::string& cheat_name) {
+    return unlocked_cheats.find(cheat_name) != unlocked_cheats.end();
+}
 
 void Cheats::toggleTakeNoDamage(bool enable) {
     if (enable) {
@@ -55,93 +103,124 @@ void Cheats::render_description() const {
 
 void Cheats::on_draw_ui() {
     if (!ImGui::IsAnyItemHovered()) Cheats::hoveredDescription = defaultDescription;
-
-    ImGui::Checkbox("Invincible", &invincible);
-    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Disable the player taking damage and animating when hit";
-
-    if (ImGui::Checkbox("Take No Damage", &take_no_damage)) {
-        toggleTakeNoDamage(take_no_damage);
+    
+    ImGui::Text("Enter cheat password:");
+    ImGui::SetNextItemWidth(200);
+    if (ImGui::InputText("##password", password_input, sizeof(password_input), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsUppercase)) {
+        check_password();
     }
-    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Take no damage, but still receive hit effects";
-
-    if (ImGui::Checkbox("Deal No Damage", &deal_no_damage)) {
-        toggleDealNoDamage(deal_no_damage);
+    ImGui::SameLine();
+    if (ImGui::Button("Submit")) {
+        check_password();
     }
-    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Lethal Throws, Deathblows, and Charged Slashes can still kill enemies who don't have Endurance.";
-
-    if (ImGui::Checkbox("Spend No Battery", &spend_no_battery)) {
-        toggleSpendNoBattery(spend_no_battery);
+    /*if (ImGui::Button("Clear all unlocked cheats")) {
+        unlocked_cheats.clear();
+        save_unlocked_cheats();
+    }*/
+    ImGui::Separator();
+    
+    if (is_cheat_unlocked("invincible")) {
+        ImGui::Checkbox("Invincible", &invincible);
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Disable the player taking damage and animating when hit";
     }
-    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
-
-    if (ImGui::Checkbox("Enemies Don't Attack", &enemies_dont_attack)) {
-        toggleEnemiesDontAttack(enemies_dont_attack);
+    
+    if (is_cheat_unlocked("take_no_damage")) {
+        if (ImGui::Checkbox("Take No Damage", &take_no_damage)) {
+            toggleTakeNoDamage(take_no_damage);
+        }
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Take no damage, but still receive hit effects";
     }
-    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
-
+    
+    if (is_cheat_unlocked("deal_no_damage")) {
+        if (ImGui::Checkbox("Deal No Damage", &deal_no_damage)) {
+            toggleDealNoDamage(deal_no_damage);
+        }
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Lethal Throws, Deathblows, and Charged Slashes can still kill enemies who don't have Endurance.";
+    }
+    
+    if (is_cheat_unlocked("spend_no_battery")) {
+        if (ImGui::Checkbox("Spend No Battery", &spend_no_battery)) {
+            toggleSpendNoBattery(spend_no_battery);
+        }
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
+    }
+    
+    if (is_cheat_unlocked("enemies_dont_attack")) {
+        if (ImGui::Checkbox("Enemies Don't Attack", &enemies_dont_attack)) {
+            toggleEnemiesDontAttack(enemies_dont_attack);
+        }
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
+    }
+    
     float combo_width = ImGui::CalcItemWidth();
-    if (ImGui::Button("Start 777", ImVec2(combo_width, NULL))) {
-        nmh_sdk::Start777();
+    
+    if (is_cheat_unlocked("start_777")) {
+        if (ImGui::Button("Start 777", ImVec2(combo_width, NULL))) {
+            nmh_sdk::Start777();
+        }
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
     }
-    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
-
-    //static bool dont_call_stencil = false;
-    //static int inTick = 0;
-    if (ImGui::Button("Start Bar", ImVec2(combo_width, NULL))) {
-        //nmh_sdk::StartBar(dont_call_stencil, inTick);
-        nmh_sdk::StartBar(false, 0);
+    
+    if (is_cheat_unlocked("start_bar")) {
+        if (ImGui::Button("Start Bar", ImVec2(combo_width, NULL))) {
+            nmh_sdk::StartBar(false, 0);
+        }
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
     }
-    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
-
-    //ImGui::SameLine();
-    //ImGui::Checkbox("Dont Stencil", &dont_call_stencil);
-    //ImGui::SameLine();
-    //ImGui::PushItemWidth(120);
-    //ImGui::InputInt("inTick", &inTick);
-    //ImGui::PopItemWidth();
-    if (ImGui::Button("Start Bell", ImVec2(combo_width, NULL))) {
-        nmh_sdk::StartBell();
+    
+    if (is_cheat_unlocked("start_bell")) {
+        if (ImGui::Button("Start Bell", ImVec2(combo_width, NULL))) {
+            nmh_sdk::StartBell();
+        }
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
     }
-    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
-
-    if (ImGui::Button("Start Hopper", ImVec2(combo_width, NULL))) {
-        nmh_sdk::StartHopper();
+    
+    if (is_cheat_unlocked("start_hopper")) {
+        if (ImGui::Button("Start Hopper", ImVec2(combo_width, NULL))) {
+            nmh_sdk::StartHopper();
+        }
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
     }
-    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
-
-    if (ImGui::Button("Start Cherry", ImVec2(combo_width, NULL))) {
-        nmh_sdk::StartCherry();
+    
+    if (is_cheat_unlocked("start_cherry")) {
+        if (ImGui::Button("Start Cherry", ImVec2(combo_width, NULL))) {
+            nmh_sdk::StartCherry();
+        }
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
     }
-    if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
 }
 
-// during load
 void Cheats::on_config_load(const utility::Config &cfg) {
     take_no_damage = cfg.get<bool>("take_no_damage").value_or(false);
     if (take_no_damage) toggleTakeNoDamage(take_no_damage);
-
     deal_no_damage = cfg.get<bool>("deal_no_damage").value_or(false);
     if (deal_no_damage) toggleDealNoDamage(deal_no_damage);
-
     spend_no_battery = cfg.get<bool>("spend_no_battery").value_or(false);
     if (spend_no_battery) toggleSpendNoBattery(spend_no_battery);
-
     enemies_dont_attack = cfg.get<bool>("enemies_dont_attack").value_or(false);
     if (enemies_dont_attack) toggleEnemiesDontAttack(enemies_dont_attack);
-
     invincible = cfg.get<bool>("invincible").value_or(false);
+    
+    unlocked_cheats.clear();
+    for (const auto& pair : cheat_passwords) {
+        bool is_unlocked = cfg.get<bool>("unlocked_" + pair.first).value_or(false);
+        if (is_unlocked) {
+            unlocked_cheats.insert(pair.first);
+        }
+    }
 }
-// during save
+
 void Cheats::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("take_no_damage", take_no_damage);
-
     cfg.set<bool>("deal_no_damage", deal_no_damage);
-
     cfg.set<bool>("spend_no_battery", spend_no_battery);
-
     cfg.set<bool>("enemies_dont_attack", enemies_dont_attack);
-
     cfg.set<bool>("invincible", invincible);
+    
+    for (const auto& pair : cheat_passwords) {
+        bool is_unlocked = unlocked_cheats.find(pair.first) != unlocked_cheats.end();
+        cfg.set<bool>("unlocked_" + pair.first, is_unlocked);
+    }
 }
 
 // do something every frame
