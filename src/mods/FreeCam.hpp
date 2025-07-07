@@ -36,5 +36,5 @@ public:
   //void on_draw_debug_ui() override;
 private:
 	// std::unique_ptr<FunctionHook> m_hook1;
-	std::unique_ptr<Patch> battle_freecam_patch;
+	std::unique_ptr<Patch> battle_freecam_patch, bike_freecam_patch;
 };

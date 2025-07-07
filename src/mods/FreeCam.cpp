@@ -19,9 +19,13 @@ void FreeCam::render_description() const {
 void FreeCam::toggle(bool enable) {
     if (enable) {
         install_patch_offset(0x3B635F, battle_freecam_patch, "\xEB\x07", 2); // jmp nmh.mHRBattle::mFrameProc+208
+        install_patch_offset(0x3B55BA, bike_freecam_patch, "\xEB\x35", 2); // jmp nmh.mHRBattle::mCameraFrameProc+D81
+
+
     }
     else {
         install_patch_offset(0x3B635F, battle_freecam_patch, "\x74\x07", 2); // je nmh.mHRBattle::mFrameProc+208
+        install_patch_offset(0x3B55BA, bike_freecam_patch, "\x74\x35", 2); // je nmh.mHRBattle::mCameraFrameProc+D81
     }
 }
 
