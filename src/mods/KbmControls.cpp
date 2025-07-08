@@ -161,6 +161,7 @@ static float linear_map(float edge0, float edge1, float x) {
 
 
 static glm::vec2 g_mouse_delta {};
+static glm::vec2 g_mouse_delta_cam {};
 static PAD_UNI* g_ppad {nullptr};
 
 void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
@@ -179,9 +180,14 @@ void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
     g_mouse_delta.x = mouse.x;
     g_mouse_delta.y = mouse.y;
 
+    g_mouse_delta_cam = g_mouse_delta;
+
+    //append_ui_log(fmt::format("g_mouse_delta=({},{})", g_mouse_delta.x, g_mouse_delta.y));
+
     const float range = g_kbm->m_mouse_range->value();
     exstatus->cl.rstick.x = (linear_map(-range, range, mouse.x) - 0.5f) * 2.0f;
-    exstatus->cl.rstick.y = (linear_map(-range, range, mouse.y) - 0.5f) * 2.0f;
+    exstatus->cl.rstick.y = (linear_map(-range, range, mouse.y) - 0.5f) * -2.0f;
+    //append_ui_log(fmt::format("cl_rstick=({},{})", exstatus->cl.rstick.x, exstatus->cl.rstick.y));
     exstatus->fs.stick = exstatus->cl.rstick;
 
     for (auto& action : g_input_map.actions) {
@@ -195,6 +201,9 @@ void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
             }
         }
     }
+    g_mouse_delta = glm::vec2(0.0);
+    g_mouser.x = 0;
+    g_mouser.y = 0;
 }
 
 static void MOVE2_SetCameraYAngleRate(float a1) noexcept {
@@ -224,8 +233,8 @@ static void MOVE2_SetCameraYAngleRate(float a1) noexcept {
     //ImVec2 mouse = ImGui::GetIO().MouseDelta;
 
     const float sensitivity = g_kbm->m_cams_mouse_sens->value();
-    float angle = - g_mouse_delta.x * sensitivity * 0.04f;
-    float angle_y = g_mouse_delta.y * sensitivity * 0.05f;
+    float angle = - g_mouse_delta_cam.x * sensitivity * 0.04f;
+    float angle_y = g_mouse_delta_cam.y * sensitivity * 0.05f;
 
 #if 0
     glm::vec2 mouse { (float)g_mouse_delta.x, (float)g_mouse_delta.y };
@@ -245,8 +254,11 @@ static void MOVE2_SetCameraYAngleRate(float a1) noexcept {
     camera->MAIN.mov2.CamAngle      += angle;//glm::clamp(camera->m.mov2.CamAngle + angle, -glm::pi<float>(), glm::pi<float>());
     camera->MAIN.mov2.CamYAngleRate = glm::clamp(camera->MAIN.mov2.CamYAngleRate + angle_y, -0.09f, glm::pi<float>() * 0.6f);
 
+
     g_mouser.x = 0;
     g_mouser.y = 0;
+    g_mouse_delta_cam.x = 0;
+    g_mouse_delta_cam.y = 0;
 }
 
 // clang-format off
