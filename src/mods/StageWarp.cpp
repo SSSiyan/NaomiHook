@@ -412,6 +412,8 @@ void StageWarp::on_draw_ui() {
         // float available_width = ImGui::GetContentRegionAvail().x;
         // float combo_width = ImGui::CalcItemWidth();
         // ImGui::SetCursorPosX((available_width - combo_width) * 0.5f);
+        ImGui::Text("Fade Type: ");
+        ImGui::SameLine();
         ImGui::Combo("##inFadeType", &setStageArgs[4], "Punk\0Fade\0Grey\0Stamps\0Instant (Soft Lock)\0");
         if (ImGui::IsItemHovered()) {
             update_description("Fade Type", "Set the transition that plays when you teleport", TextureAtlas::getCoordinates(78));

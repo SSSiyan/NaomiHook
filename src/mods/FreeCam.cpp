@@ -15,13 +15,12 @@ void FreeCam::render_description() const {
     ImGui::TextWrapped(FreeCam::hoveredDescription);
 }
 
-// stops cam being set back to 8 mid battle
 void FreeCam::toggle(bool enable) {
     if (enable) {
+        // stops cam being set back to 8 mid battle
         install_patch_offset(0x3B635F, battle_freecam_patch, "\xEB\x07", 2); // jmp nmh.mHRBattle::mFrameProc+208
+        // stops cam being set back to 8 mid bike cam
         install_patch_offset(0x3B55BA, bike_freecam_patch, "\xEB\x35", 2); // jmp nmh.mHRBattle::mCameraFrameProc+D81
-
-
     }
     else {
         install_patch_offset(0x3B635F, battle_freecam_patch, "\x74\x07", 2); // je nmh.mHRBattle::mFrameProc+208
@@ -37,13 +36,11 @@ std::optional<std::string> FreeCam::on_initialize() {
 
 void FreeCam::on_frame() {
     if (!mod_enabled) { return; }
-    mHRPc* player = nmh_sdk::get_mHRPc();
-    if (!player) { return; }
     
     HrCamera* cam = nmh_sdk::get_HrCamera();
     if (!cam) { return; }
     
-    if (cam->MAIN.Mode != 2) { 
+    if (cam->MAIN.Mode != HRCAMERA_MODE_FREE) { 
         cam->MAIN.Mode = HRCAMERA_MODE_FREE; 
     }
     
@@ -108,9 +105,12 @@ void FreeCam::on_frame() {
     
     // reset cam
     if (buttons & KEY_R3) {
-        cam->MAIN.free.C_T_Pos.x = player->mCharaStatus.pos.x;
-        cam->MAIN.free.C_T_Pos.y = player->mCharaStatus.pos.y + 20.0f;
-        cam->MAIN.free.C_T_Pos.z = player->mCharaStatus.pos.z;
+        mHRPc* player = nmh_sdk::get_mHRPc();
+        if (player) {
+            cam->MAIN.free.C_T_Pos.x = player->mCharaStatus.pos.x;
+            cam->MAIN.free.C_T_Pos.y = player->mCharaStatus.pos.y + 20.0f;
+            cam->MAIN.free.C_T_Pos.z = player->mCharaStatus.pos.z;
+        }
     }
 }
 
