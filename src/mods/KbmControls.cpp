@@ -184,7 +184,7 @@ void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
 
     g_mouse_delta_cam = g_mouse_delta;
 
-    append_ui_log(fmt::format("g_mouse_delta=({},{})", g_mouse_delta.x, g_mouse_delta.y));
+    //append_ui_log(fmt::format("g_mouse_delta=({},{})", g_mouse_delta.x, g_mouse_delta.y));
 
     const float range = g_kbm->m_mouse_range->value();
     exstatus->cl.rstick.x += (linear_map(-range, range, mouse.x) - 0.5f) * 2.0f;
@@ -202,7 +202,7 @@ void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
             }
         }
     }
-    append_ui_log(fmt::format("cl_rstick=({},{})", exstatus->cl.rstick.x, exstatus->cl.rstick.y));
+    //append_ui_log(fmt::format("cl_rstick=({},{})", exstatus->cl.rstick.x, exstatus->cl.rstick.y));
     g_mouse_delta = glm::vec2(0.0);
     g_mouser.x = 0;
     g_mouser.y = 0;
