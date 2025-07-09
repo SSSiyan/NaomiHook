@@ -104,10 +104,12 @@ bool WeaponSwitcher::CanWeaponSwitch(pcItem desiredWeapon) {
         pcItem currentWeapon = playerPtr->mPcStatus.equip[0].id;
         pcMotion currentMoveID = playerPtr->mCharaStatus.motionNo;
         enCharaCondition condition = playerPtr->mCharaStatus.condition;
+        bool barActive = playerPtr->mPcStatus.heroesMeterTick > 0;
         if (desiredWeapon != currentWeapon && 
             desiredWeapon != -1 &&
             currentMode == ePcInputBattleIdle &&
             condition == eGood &&
+            barActive == false &&
             nmh_sdk::CheckCanAttack() &&
             !nmh_sdk::CheckGuardMotion(false) && 
             //!nmh_sdk::CheckHajikare() && // eating a hit @siy this is bad

@@ -23,7 +23,7 @@ naked void rank_up_crash_fix_detour() {
         je retcode
 
     // newcode
-        test ecx, ecx
+        // test ecx, ecx
         jmp je_code // je
     retcode:
         jmp dword ptr [NMHFixes::rank_up_crash_fix_jmp_ret]

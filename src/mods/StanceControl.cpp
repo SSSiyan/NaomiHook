@@ -672,7 +672,7 @@ void StanceControl::on_frame() {
         HrScreenStatus* hrScreenStatus = mHRBattle->mBtEffect.pScreenStatus;
         if (!mHRBattle || !hrCamera || !hrScreenStatus) { return; }
         bool showStanceUIThisFrame = false;
-        showStanceUIThisFrame = (hrScreenStatus->flag & (1 << 2)) != 0;
+        showStanceUIThisFrame = (hrScreenStatus->flag & (1 << 2)) != 0; // drawbattery bit
         int camMode = hrCamera->MAIN.Mode;
         if (mode == ePcInputMenu) { return; }
         if (/*mHRPc->mOperate && */showStanceUIThisFrame && ((StanceControl::mod_enabled && show_new_ui) || mod_enabled_gear_system)) {
