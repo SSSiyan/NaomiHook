@@ -5,7 +5,8 @@
 class ArcadeMode : public Mod {
 public:
   ArcadeMode() = default;
-  static bool mod_enabled;
+  static bool arcade_enabled;
+  static bool boss_rush_enabled;
   static uintptr_t jmp_ret1;
   static uintptr_t gpBattle;
   static uintptr_t mSetVisible;
