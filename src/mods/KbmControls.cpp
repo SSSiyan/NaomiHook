@@ -163,6 +163,7 @@ static float linear_map(float edge0, float edge1, float x) {
 static glm::vec2 g_mouse_delta {};
 static glm::vec2 g_mouse_delta_cam {};
 static PAD_UNI* g_ppad {nullptr};
+KPADEXStatus* g_exstatus {nullptr};
 
 void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
 
@@ -173,6 +174,7 @@ void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
 
     auto ppad = g_ppad;
     KPADEXStatus* exstatus = &ppad->WiiStatusBuffer[0][0].ex_status;
+    g_exstatus = exstatus;
 
     glm::vec2 mouse { (float)g_mouser.x, (float)g_mouser.y };
     mouse *= g_kbm->m_base_mouse_sens->value();
@@ -182,12 +184,11 @@ void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
 
     g_mouse_delta_cam = g_mouse_delta;
 
-    //append_ui_log(fmt::format("g_mouse_delta=({},{})", g_mouse_delta.x, g_mouse_delta.y));
+    append_ui_log(fmt::format("g_mouse_delta=({},{})", g_mouse_delta.x, g_mouse_delta.y));
 
     const float range = g_kbm->m_mouse_range->value();
-    exstatus->cl.rstick.x = (linear_map(-range, range, mouse.x) - 0.5f) * 2.0f;
-    exstatus->cl.rstick.y = (linear_map(-range, range, mouse.y) - 0.5f) * -2.0f;
-    //append_ui_log(fmt::format("cl_rstick=({},{})", exstatus->cl.rstick.x, exstatus->cl.rstick.y));
+    exstatus->cl.rstick.x += (linear_map(-range, range, mouse.x) - 0.5f) * 2.0f;
+    exstatus->cl.rstick.y += (linear_map(-range, range, mouse.y) - 0.5f) * -2.0f;
     exstatus->fs.stick = exstatus->cl.rstick;
 
     for (auto& action : g_input_map.actions) {
@@ -201,6 +202,7 @@ void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
             }
         }
     }
+    append_ui_log(fmt::format("cl_rstick=({},{})", exstatus->cl.rstick.x, exstatus->cl.rstick.y));
     g_mouse_delta = glm::vec2(0.0);
     g_mouser.x = 0;
     g_mouser.y = 0;
@@ -235,6 +237,11 @@ static void MOVE2_SetCameraYAngleRate(float a1) noexcept {
     const float sensitivity = g_kbm->m_cams_mouse_sens->value();
     float angle = - g_mouse_delta_cam.x * sensitivity * 0.04f;
     float angle_y = g_mouse_delta_cam.y * sensitivity * 0.05f;
+
+    if (glm::length(g_mouse_delta_cam) <= 0.001f) {
+        angle = g_exstatus->cl.rstick.x * sensitivity;
+        angle_y = g_exstatus->cl.rstick.y * sensitivity;
+    }
 
 #if 0
     glm::vec2 mouse { (float)g_mouse_delta.x, (float)g_mouse_delta.y };
@@ -514,10 +521,28 @@ std::optional<std::string> KbmControls::on_initialize() {
     g_input_map.input_map("Battery Charge Start", ImGuiKey_LeftCtrl, KEY_LB);
     g_input_map.input_map("Camera Reset", ImGuiKey_LeftAlt, KEY_RB);
 
+#if 0
     g_input_map.input_map("Up Arrow",    ImGuiKey_UpArrow,    KEY_DPAD_UP);
     g_input_map.input_map("Down Arrow",  ImGuiKey_DownArrow,  KEY_DPAD_DOWN);
     g_input_map.input_map("Left Arrow",  ImGuiKey_LeftArrow,  KEY_DPAD_LEFT);
     g_input_map.input_map("Right Arrow", ImGuiKey_RightArrow, KEY_DPAD_RIGHT);
+#endif
+
+
+    // resident evil 4 pc 2007 reference
+    g_input_map.input_map("Camera Up", ImGuiKey_Keypad8, [](KPADEXStatus* ext) {
+        ext->cl.rstick.y = 1.0f;
+    });
+    g_input_map.input_map("Camera Down", ImGuiKey_Keypad5, [](KPADEXStatus* ext) {
+        ext->cl.rstick.y = -1.0f;
+    });
+    g_input_map.input_map("Camera Left", ImGuiKey_Keypad4, [](KPADEXStatus* ext) {
+        ext->cl.rstick.x = -1.0f;
+    });
+    g_input_map.input_map("Camera Right", ImGuiKey_Keypad6, [](KPADEXStatus* ext) {
+        ext->cl.rstick.x = 1.0f;
+        //ext->cl.rstick.x = -1.0f;
+    });
 
     // TODO(deep): idk which is correct bind to write
     g_input_map.input_map("Switch to Blood Berry", ImGuiKey_1,   [](KPADEXStatus* ext){ 
@@ -608,9 +633,10 @@ void KbmControls::on_draw_ui() {
     m_block_lockon->draw("Block mouse inputs when locked on?");
 
     m_base_mouse_sens->draw("Base mouse sensitivity");
-    m_cams_mouse_sens->draw("Camera mouse senisitivity");
+    m_cams_mouse_sens->draw("Camera senisitivity");
 
-    m_mouse_range->draw("QTE mouse range");
+    m_mouse_range->draw("QTE mouse range"); ImGui::SameLine();
+    help_marker("Adjust if sword clashes or deathblows dont register well when waggling the mouse\nWe cannot account for all possible mouse configs/sensitivity/poll rates ;_;");
 
     if (ImGui::CollapsingHeader("Bindings")) {
 

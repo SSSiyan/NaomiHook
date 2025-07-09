@@ -236,6 +236,14 @@ namespace nmh_sdk {
         return 0; // player ptr invalid
     }
 
+    void PlayCamMotFromCharMot(int inMotNo, int inNum, bool inHitColl, bool inPcBasePos, bool inPcBasePosa) {
+        uintptr_t playCamMotFromCharMotAddr = (g_framework->get_module().as<uintptr_t>() + 0x402340);
+        mPlayCamMotFromCharMotFunc playCamMotFromCharMot = (mPlayCamMotFromCharMotFunc)playCamMotFromCharMotAddr;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            playCamMotFromCharMot(mHRPc, inMotNo, inNum, inHitColl, inPcBasePos, inPcBasePosa);
+        }
+    }
+
     void SetLightReflect(mHRPc* mHRPc, float strength, Vec* inPos, int inCol, int unkn) {
         uintptr_t mSetLightReflectAddress = (g_framework->get_module().as<uintptr_t>() + 0x3C52C0);
         // mSetLightReflecteFunc setLightReflect = (mSetLightReflecteFunc)mSetLightReflectAddress;
