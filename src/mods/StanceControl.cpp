@@ -668,9 +668,14 @@ void StanceControl::on_frame() {
         auto mode = mHRPc->mInputMode;
         uintptr_t baseAddress = g_framework->get_module().as<uintptr_t>();
         HrCamera* hrCamera = reinterpret_cast<HrCamera*>(baseAddress + 0x82A4A0);
+        mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle();
+        HrScreenStatus* hrScreenStatus = mHRBattle->mBtEffect.pScreenStatus;
+        if (!mHRBattle || !hrCamera || !hrScreenStatus) { return; }
+        bool showStanceUIThisFrame = false;
+        showStanceUIThisFrame = (hrScreenStatus->flag & (1 << 2)) != 0;
         int camMode = hrCamera->MAIN.Mode;
         if (mode == ePcInputMenu) { return; }
-        if (/*mHRPc->mOperate && */camMode == HRCAMERA_MODE_MOVE2 || camMode == HRCAMERA_MODE_BATTLE2 && ((StanceControl::mod_enabled && show_new_ui) || mod_enabled_gear_system)) {
+        if (/*mHRPc->mOperate && */showStanceUIThisFrame && ((StanceControl::mod_enabled && show_new_ui) || mod_enabled_gear_system)) {
 
             static constexpr TextureAtlas atlas{};
             struct KanaeDisp {
