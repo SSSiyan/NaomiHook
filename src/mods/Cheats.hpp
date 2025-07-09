@@ -19,6 +19,9 @@ public:
   static bool enemies_dont_attack;
   void toggleEnemiesDontAttack(bool enabled);
 
+  static bool one_hit_kill;
+  static uintptr_t damage_modifier_jmp_ret;
+
   static bool invincible; // DodgeSettings handles this
 
   // mod name string for config
@@ -44,7 +47,7 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	// std::unique_ptr<FunctionHook> m_hook;
+	std::unique_ptr<FunctionHook> damage_modifier_hook;
 	std::unique_ptr<Patch>
 		patchTakeNoDamage,
 		patchDealNoDamage,

@@ -670,7 +670,7 @@ void StanceControl::on_frame() {
         HrCamera* hrCamera = reinterpret_cast<HrCamera*>(baseAddress + 0x82A4A0);
         int camMode = hrCamera->MAIN.Mode;
         if (mode == ePcInputMenu) { return; }
-        if (mHRPc->mOperate && camMode != HRCAMERA_MODE_MOTION && ((StanceControl::mod_enabled && show_new_ui) || mod_enabled_gear_system)) {
+        if (/*mHRPc->mOperate && */camMode == HRCAMERA_MODE_MOVE2 || camMode == HRCAMERA_MODE_BATTLE2 && ((StanceControl::mod_enabled && show_new_ui) || mod_enabled_gear_system)) {
 
             static constexpr TextureAtlas atlas{};
             struct KanaeDisp {
