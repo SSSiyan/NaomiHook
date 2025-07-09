@@ -74,7 +74,7 @@ void HudSettings::DisplayHUDCheckboxes() {
             }
         }
         ImGui::EndTable();
-        if (ImGui::IsItemHovered()) HudSettings::hoveredDescription = "Force override: Temporarily toggles this HUD element on or off when ticked"
+        if (ImGui::IsItemHovered()) HudSettings::hoveredDescription = "Force override: Temporarily toggles this HUD element on or off when ticked "
             "until actions that require them are performed such as pressing lock on or entering first person\n\nGame State: Forces this HUD element off when ticked";
     }
 }

@@ -130,8 +130,8 @@ void GameplayFixes::on_draw_ui() {
     if (!ImGui::IsAnyItemHovered()) GameplayFixes::hoveredDescription = defaultDescription;
 
     ImGui::Checkbox("Limit Money On Kill Reward", &money_on_kill_fix_enabled);
-    if (ImGui::IsItemHovered()) GameplayFixes::hoveredDescription = "This setting fixes an overflow issue affecting the cash reward for killing enemies."
-    "Our changes fix this issue the same way Heroes Paradise does by limiting the maximum reward to 30,000.";
+    if (ImGui::IsItemHovered()) GameplayFixes::hoveredDescription = "Fixes an overflow issue affecting the cash reward for killing enemies. "
+    "Our change fixes this issue the same way Heroes Paradise does by limiting the maximum reward to 30,000.";
 
     ImGui::Checkbox("Baseball Power Fix", &baseball_power_fix_enabled);
     if (ImGui::IsItemHovered()) GameplayFixes::hoveredDescription = "Changes the strength of your swing during baseball sequences, making the mini-game based entirely on timing.";

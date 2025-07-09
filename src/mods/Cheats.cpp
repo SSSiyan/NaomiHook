@@ -4,6 +4,8 @@
 #if 1
 bool Cheats::take_no_damage = false;
 bool Cheats::deal_no_damage = false;
+bool Cheats::one_hit_kill = false;
+uintptr_t Cheats::damage_modifier_jmp_ret = NULL;
 bool Cheats::spend_no_battery = false;
 bool Cheats::enemies_dont_attack = false;
 bool Cheats::invincible = false; // DodgeSettings handles this
@@ -17,6 +19,7 @@ std::unordered_map<std::string, std::string> cheat_passwords = {
     {"invincible", "SUNDOWNER"},
     {"take_no_damage", "HESOYAM"},
     {"deal_no_damage", "JUSTAPRANK"},
+    {"one_hit_kill", "FUCKHEAD"},
     {"spend_no_battery", "BANDANA"},
     {"enemies_dont_attack", "LEAVEMEALONE"},
     {"start_777", "JACKPOT"},
@@ -75,6 +78,21 @@ void Cheats::toggleDealNoDamage(bool enable) {
     }
 }
 
+naked void detour_damage_modifier() { 
+    __asm {
+        cmp byte ptr [Cheats::one_hit_kill], 0
+        je originalcode
+
+        mov dword ptr [esp], 0x461c3c00 // 9999.0f
+        jmp retcode
+
+    originalcode:
+        movss [esp],xmm0
+    retcode:
+        jmp dword ptr [Cheats::damage_modifier_jmp_ret]
+    }
+}
+
 void Cheats::toggleSpendNoBattery(bool enable) {
     if (enable) {
         install_patch_offset(0x3C2AAF, patchSpendNoBattery, "\x90\x90\x90\x90\x90\x90\x90", 7); // nop 7
@@ -94,6 +112,11 @@ void Cheats::toggleEnemiesDontAttack(bool enable) {
 }
 
 std::optional<std::string> Cheats::on_initialize() {
+    if (!install_hook_offset(0x3CB82F, damage_modifier_hook, &detour_damage_modifier, &Cheats::damage_modifier_jmp_ret, 5)) {
+        spdlog::error("Failed to init DamageModifier mod\n");
+        return "Failed to init DamageModifier mod";
+    }
+
     return Mod::on_initialize();
 }
 
@@ -136,6 +159,11 @@ void Cheats::on_draw_ui() {
             toggleDealNoDamage(deal_no_damage);
         }
         if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Lethal Throws, Deathblows, and Charged Slashes can still kill enemies who don't have Endurance.";
+    }
+
+    if (is_cheat_unlocked("one_hit_kill")) {
+        ImGui::Checkbox("One Hit Kill", &one_hit_kill);
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "One hit kill all enemies";
     }
     
     if (is_cheat_unlocked("spend_no_battery")) {
@@ -195,6 +223,7 @@ void Cheats::on_config_load(const utility::Config &cfg) {
     if (take_no_damage) toggleTakeNoDamage(take_no_damage);
     deal_no_damage = cfg.get<bool>("deal_no_damage").value_or(false);
     if (deal_no_damage) toggleDealNoDamage(deal_no_damage);
+    one_hit_kill = cfg.get<bool>("one_hit_kill").value_or(false);
     spend_no_battery = cfg.get<bool>("spend_no_battery").value_or(false);
     if (spend_no_battery) toggleSpendNoBattery(spend_no_battery);
     enemies_dont_attack = cfg.get<bool>("enemies_dont_attack").value_or(false);
@@ -213,6 +242,7 @@ void Cheats::on_config_load(const utility::Config &cfg) {
 void Cheats::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("take_no_damage", take_no_damage);
     cfg.set<bool>("deal_no_damage", deal_no_damage);
+    cfg.set<bool>("one_hit_kill", one_hit_kill);
     cfg.set<bool>("spend_no_battery", spend_no_battery);
     cfg.set<bool>("enemies_dont_attack", enemies_dont_attack);
     cfg.set<bool>("invincible", invincible);
