@@ -92,3 +92,4 @@ private:
 };
 
 extern std::unique_ptr<ModFramework> g_framework;
+void append_ui_log(std::string&& str);

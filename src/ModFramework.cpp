@@ -24,6 +24,7 @@
 #include "ImageViewer.hpp"
 #include "mods/KbmControls.hpp"
 #include "utility/Hash.hpp"
+#include <deque>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -34,6 +35,21 @@ static UINT g_bb_height{};
 
 static KbmControls* g_kbm_controls {nullptr};
 
+std::vector<std::string> g_ui_log;
+
+struct WMEvent {
+    HWND handle;
+    UINT message;
+    WPARAM wparam;
+    LPARAM lparam;
+};
+
+std::mutex g_input_queue_mt;
+std::deque<WMEvent> g_input_queue;
+
+void append_ui_log(std::string&& str) {
+    g_ui_log.emplace_back(str);
+}
 
 ModFramework::ModFramework()
     : m_game_module{ GetModuleHandle(0) },
@@ -84,8 +100,22 @@ void ModFramework::on_frame() {
 
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-    ImGui::PushFont(g_framework->get_our_imgui_ctx()->main_font, 24.0f * (ImGui::GetIO().DisplaySize.y / 1080.0f)); // default font
+    // WARNING(deep): new frame is called on ee::render_thread
+    // while message pump is on the main one idk if this would fully fix that
+    {
+        std::deque<WMEvent> local_queue;
+        {
+            std::lock_guard<std::mutex> lock(g_input_queue_mt);
+            local_queue.swap(g_input_queue);
+        }
+
+        for (const auto& evt : local_queue) {
+            ImGui_ImplWin32_WndProcHandler(evt.handle, evt.message, evt.wparam, evt.lparam);
+        }
+
+        ImGui::NewFrame();
+        ImGui::PushFont(g_framework->get_our_imgui_ctx()->main_font, 24.0f * (ImGui::GetIO().DisplaySize.y / 1080.0f)); // default font
+    }
 
     if (m_error.empty() && m_game_data_initialized) {
         m_mods->on_frame();
@@ -99,6 +129,15 @@ void ModFramework::on_frame() {
     ImGui::GetForegroundDrawList()->AddText(m_our_imgui_ctx->fancy_font, 48.0f, ImVec2(20.0f, 20.0f), IM_COL32(255, 230, 230, 255), (const char*)buffer);
 #endif
 
+#if 1
+    ImVec2 screen_pos(20.0f, 20.0f);
+    for (auto& str : g_ui_log) {
+        ImGui::GetForegroundDrawList()->AddText(
+            m_our_imgui_ctx->fancy_font, 48.0f, screen_pos, IM_COL32(255, 230, 230, 255), (const char*)str.c_str());
+        screen_pos.y += 52.0f;
+    }
+#endif
+
     ImGui::PopFont();
     // ImGui::EndFrame(); // called by Render()
     ImGui::Render();
@@ -109,6 +148,7 @@ void ModFramework::on_frame() {
     context->OMSetRenderTargets(1, &m_main_render_target_view, NULL);
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    g_ui_log.clear();
 
 }
 
@@ -170,13 +210,28 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
         return false;
     }
 
-    if (ImGui_ImplWin32_WndProcHandler(wnd, message, w_param, l_param) != 0) { // if (m_draw_ui && didn't work and stops us interacting with debug windows
-        // If the user is interacting with the UI we block the message from going to the game.
-        auto& io = ImGui::GetIO();
+    {
+        WMEvent evt = {wnd, message, w_param, l_param};
+        {
+            std::lock_guard<std::mutex> lock(g_input_queue_mt);
+            g_input_queue.push_back(evt);
+        }
 
+        auto& io = ImGui::GetIO();
         if (io.WantCaptureMouse || io.WantCaptureKeyboard || io.WantTextInput) {
             return false;
         }
+#if 0
+        if (ImGui_ImplWin32_WndProcHandler(wnd, message, w_param, l_param) !=
+            0) { // if (m_draw_ui && didn't work and stops us interacting with debug windows
+            // If the user is interacting with the UI we block the message from going to the game.
+            auto& io = ImGui::GetIO();
+
+            if (io.WantCaptureMouse || io.WantCaptureKeyboard || io.WantTextInput) {
+                return false;
+            }
+        }
+#endif
     }
     return true;
 }

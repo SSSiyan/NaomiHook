@@ -10,6 +10,7 @@
 #include "StackTrace.hpp"
 
 #include "../Config.hpp"
+#include <TlHelp32.h>
 
 static const char* get_exception_code_info(UINT code) {
     switch (code) {
@@ -62,14 +63,37 @@ static const char* get_exception_code_info(UINT code) {
     }
 }
 
+static void get_modules(std::stringstream& ss) {
+    HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetCurrentProcessId());
+    if (snap == INVALID_HANDLE_VALUE) {
+        return;
+    }
+
+    MODULEENTRY32 mod;
+    mod.dwSize = sizeof(mod);
+    BOOL cont = Module32First(snap, &mod);
+    while (cont) {
+        auto nameA = mod.szModule;
+        auto pathA = mod.szExePath;
+        char buffer[512] = {0};
+        int i = sprintf(buffer, "Module: %p %06X %-16s %s\n", mod.modBaseAddr, mod.modBaseSize, nameA, pathA);
+        if (i == -1) {
+            continue;
+        }
+        ss << buffer;
+        cont = Module32Next(snap, &mod);
+    }
+    CloseHandle(snap);
+}
+
 LONG WINAPI reframework::global_exception_handler(struct _EXCEPTION_POINTERS* ei) {
     spdlog::flush_on(spdlog::level::err);
    
     std::stringstream err_msg_buf;
     err_msg_buf << fmt::format("Exception occurred: {:x}", ei->ExceptionRecord->ExceptionCode) << '\n';
-    err_msg_buf << "-= " << get_exception_code_info(ei->ExceptionRecord->ExceptionCode) << " =-" << '\n';
-    err_msg_buf << "Check for dmc4hook_crash.dmp in DMC4 installation directory" << '\n';
-    err_msg_buf << "Please describe what you were doing when DMC 4 crashed!\nand send it to the developers" << '\n';
+    err_msg_buf << get_exception_code_info(ei->ExceptionRecord->ExceptionCode) << '\n';
+    err_msg_buf << "Check for naomihook_crash.dmp in NMH1 installation directory" << '\n';
+    err_msg_buf << "Please describe what you were doing when NMH 1 crashed!and send it to the developers" << '\n';
     err_msg_buf << fmt::format("EIP: {:x}", ei->ContextRecord->Eip) << '\n';
     err_msg_buf << fmt::format("ESP: {:x}", ei->ContextRecord->Esp) << '\n';
     err_msg_buf << fmt::format("ECX: {:x}", ei->ContextRecord->Ecx) << '\n';
@@ -109,7 +133,7 @@ LONG WINAPI reframework::global_exception_handler(struct _EXCEPTION_POINTERS* ei
     if (dbghelp) {
         const auto mod_dir = utility::get_module_directory(GetModuleHandle(0));
         const auto real_mod_dir = mod_dir ? (*mod_dir + "\\") : "";
-        const auto final_path = real_mod_dir + "dmc4hook_crash.dmp";
+        const auto final_path = real_mod_dir + "naomihook_crash.dmp";
         const auto final_path_log = real_mod_dir + LOG_FILENAME;
         spdlog::error("Attempting to write dump to {}", final_path);
 
@@ -143,13 +167,12 @@ LONG WINAPI reframework::global_exception_handler(struct _EXCEPTION_POINTERS* ei
             nullptr, 
             nullptr
         );
-      // TODO : dump to file with spdlog or some shit
-#if 0 // DMC4HOOK copypaste: i dont want to port console to dx11
-        if (!console->dump_file(final_path_log)) {
-            spdlog::error("Could not dump log file");
-        }
-#endif
-        MessageBoxA(NULL, err_msg_buf.str().c_str(), "Caught exception", MB_ICONINFORMATION);
+        std::string log = err_msg_buf.str();
+        spdlog::error(err_msg_buf.str().c_str());
+        char error_message[256];
+        ::strncpy(error_message, log.c_str(), sizeof(error_message));
+        error_message[255] = '\0';
+        MessageBoxA(NULL, error_message, "Caught exception", MB_ICONINFORMATION);
         
         CloseHandle(f);
     } else {
