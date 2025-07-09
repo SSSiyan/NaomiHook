@@ -9,6 +9,7 @@ public:
   static bool mod_enabled;
   static uintptr_t jmp_ret1;
   static uintptr_t jmp_ret2;
+  static uintptr_t jmp_ret3;
   static int weaponSwitchCooldown;
   // static bool weapon_switcher_ui;
 
@@ -37,6 +38,6 @@ public:
   //void on_draw_debug_ui() override;
   void on_d3d_reset() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1, m_hook2;
+	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3;
 	std::unique_ptr<Patch> m_patch;
 };

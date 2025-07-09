@@ -49,6 +49,8 @@ namespace nmh_sdk {
 	bool CheckThrowAttack();
 	typedef uint32_t(__thiscall* mGetLaserColorFunc)(mHRPc* mHRPc);
 	uint32_t GetLaserColor();
+	typedef void(__thiscall* mPlayCamMotFromCharMotFunc)(mHRPc* mHRPc, /*float@<xmm4>,*/ int inMotNo, int inNum, bool inHitColl, bool inPcBasePos, bool inPcBasePosa); // userpurge but idk what xmm4 does so
+	void PlayCamMotFromCharMot(int inMotNo, int inNum, bool inHitColl, bool inPcBasePos, bool inPcBasePosa);
 	// typedef void(__userpurge* mSetLightReflecteFunc)(mHRPc* mHRPc, float strength, const Vec* inPos, unsigned int inCol, int a5);
 	void SetLightReflect(mHRPc* player, float strength, Vec* inPos, int inCol, int unkn);
 };
