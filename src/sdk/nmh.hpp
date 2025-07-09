@@ -15,7 +15,7 @@ namespace nmh_sdk {
 	void SetStage(const char* _StgName, int _StageAdd, int _Arg1, int _Arg2, bool inBossInfoDisp, int inFadeType, __int64 inSetVolRate, bool inPause, unsigned int a10);
 	typedef bool(__thiscall* mSetVisibleFunc)(mHRPc* mHRPc, bool inVisible); // 0x3D6D90
 	void SetVisible(bool inVisible);
-	typedef bool(__thiscall* mPlayMotionFunc)(mHRPc* mHRPc, pcMotion inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate); // 0x402CF0 // ida says __userpurge
+	typedef bool(__thiscall* mPlayMotionFunc)(mHRPc* mHRPc, pcMotion inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate); // 0x402CF0
 	bool PlayMotion(pcMotion inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate);
 	typedef char(__thiscall* mSetEquipFunc)(mHRPc* mHRPc, pcItem inID, bool inPowUp); // 0x3E2240
 	void SetEquip(pcItem inID, bool inPowUp);

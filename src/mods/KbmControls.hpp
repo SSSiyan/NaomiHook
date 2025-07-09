@@ -148,7 +148,7 @@ public:
   const char* get_description() const override { return R"(KbmControls Description)"; };
 
 
-  void custom_imgui_window();
+  // void custom_imgui_window();
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

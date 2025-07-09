@@ -500,28 +500,6 @@ bool load_texture() {
     return true;
 }
 
-std::optional<std::string> SwordColours::on_initialize() {
-    SwordColours::gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584; 
-    if (!install_hook_offset(0x3BF640, m_hook1, &detour1, &SwordColours::jmp_ret1, 5)) { // swords
-        spdlog::error("Failed to init SwordColours mod\n");
-        return "Failed to init SwordColours mod";
-    }
-
-    if (!install_hook_offset(0x4C7180, m_hook2, &detour2, &SwordColours::jmp_ret2, 6)) { // trails
-        spdlog::error("Failed to init SwordColours mod\n");
-        return "Failed to init SwordColours mod";
-    }
-
-    if (!install_hook_offset(0x3C6279, m_hook3, &detour3, &SwordColours::jmp_ret3, 6)) { // speedblur for deathblow timer
-        spdlog::error("Failed to init SwordColours mod\n");
-        return "Failed to init SwordColours mod";
-    }
-
-    load_texture();
-
-    return Mod::on_initialize();
-}
-
 struct SwordDef {
     const char* name;
     Frame blade,hilt;
@@ -642,6 +620,19 @@ static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImCol
 
 }
 
+void SwordColours::on_frame() {
+    if (sword_glow_enabled) {
+        mHRPc* player = nmh_sdk::get_mHRPc();
+        if (player) {
+            if (player->mCharaStatus.visibleWepEffect) {
+                int currentSword = player->mPcStatus.equip[0].id;
+                uint32_t currentCol = nmh_sdk::GetLaserColor();
+                nmh_sdk::SetLightReflect(player, swordGlowAmount, &player->mPcEffect.posHitSlash, currentCol, 0);
+            }
+        }
+    }
+}
+
 void SwordColours::render_description() const {
     ImGui::TextWrapped(SwordColours::hoveredDescription);
 }
@@ -690,6 +681,28 @@ void SwordColours::on_d3d_reset() {
     load_texture();
 }
 
+std::optional<std::string> SwordColours::on_initialize() {
+    SwordColours::gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584; 
+    if (!install_hook_offset(0x3BF640, m_hook1, &detour1, &SwordColours::jmp_ret1, 5)) { // swords
+        spdlog::error("Failed to init SwordColours mod\n");
+        return "Failed to init SwordColours mod";
+    }
+
+    if (!install_hook_offset(0x4C7180, m_hook2, &detour2, &SwordColours::jmp_ret2, 6)) { // trails
+        spdlog::error("Failed to init SwordColours mod\n");
+        return "Failed to init SwordColours mod";
+    }
+
+    if (!install_hook_offset(0x3C6279, m_hook3, &detour3, &SwordColours::jmp_ret3, 6)) { // speedblur for deathblow timer
+        spdlog::error("Failed to init SwordColours mod\n");
+        return "Failed to init SwordColours mod";
+    }
+
+    load_texture();
+
+    return Mod::on_initialize();
+}
+
 // during load
 void SwordColours::on_config_load(const utility::Config &cfg) {
     sword_glow_enabled = cfg.get<bool>("sword_glow_enabled").value_or(false);
@@ -724,18 +737,6 @@ void SwordColours::on_config_save(utility::Config &cfg) {
     cfg.set<float>("swordGlowAmount", swordGlowAmount);
 }
 
-void SwordColours::on_frame() {
-    if (sword_glow_enabled) {
-        mHRPc* player = nmh_sdk::get_mHRPc();
-        if (player) {
-            if (player->mCharaStatus.visibleWepEffect) {
-                int currentSword = player->mPcStatus.equip[0].id;
-                uint32_t currentCol = nmh_sdk::GetLaserColor();
-                nmh_sdk::SetLightReflect(player, swordGlowAmount, &player->mPcEffect.posHitSlash, currentCol, 0);
-            }
-        }
-    }
-}
 // will show up in debug window, dump ImGui widgets you want here
 //void SwordColours::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here

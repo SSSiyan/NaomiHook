@@ -43,7 +43,7 @@ static constexpr std::array<const char*, 28> arcadeMode = {
     "STG0003",  // Henry
 };
 
-static constexpr std::array<const char*, 28> bossRushMode = {
+static constexpr std::array<const char*, 11> bossRushMode = {
     "STG500",   // Motel
     "STG081",   // Deathmetal
     "STG042",   // Dr.Peace

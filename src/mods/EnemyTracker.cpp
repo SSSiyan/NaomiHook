@@ -1081,22 +1081,20 @@ void EnemyTracker::on_draw_ui() {
         DrawEnemyStats();
 }
 
-void EnemyTracker::custom_imgui_window() {
-    if (imguiPopout) {
-        ImGui::PushFont(g_framework->get_our_imgui_ctx()->main_font, 24.0f * (ImGui::GetIO().DisplaySize.y / 1080.0f));
-        ImGui::Begin("Enemy Stats", &imguiPopout);
-        DrawEnemyStats();
-        ImGui::End();
-        ImGui::PopFont();
-    }
-}
+//void EnemyTracker::custom_imgui_window() {}
 
 // during load
 //void EnemyTracker::on_config_load(const utility::Config &cfg) {}
 // during save
 //void EnemyTracker::on_config_save(utility::Config &cfg) {}
 // do something every frame
-//void EnemyTracker::on_frame() {}
+void EnemyTracker::on_frame() {
+    if (imguiPopout) {
+        ImGui::Begin("Enemy Stats", &imguiPopout);
+        DrawEnemyStats();
+        ImGui::End();
+    }
+}
 // will show up in debug window, dump ImGui widgets you want here
 //void EnemyTracker::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here

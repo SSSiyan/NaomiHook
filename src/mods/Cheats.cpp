@@ -78,6 +78,7 @@ void Cheats::toggleDealNoDamage(bool enable) {
     }
 }
 
+// clang-format off
 naked void detour_damage_modifier() { 
     __asm {
         cmp byte ptr [Cheats::one_hit_kill], 0
@@ -92,6 +93,7 @@ naked void detour_damage_modifier() {
         jmp dword ptr [Cheats::damage_modifier_jmp_ret]
     }
 }
+// clang-format on
 
 void Cheats::toggleSpendNoBattery(bool enable) {
     if (enable) {

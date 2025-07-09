@@ -12,6 +12,7 @@ public:
   static uintptr_t rank_up_crash_fix_jmp_je;
 
   void disableCrashDumpsToggle(bool enabled);
+  void deepRankUpCrashFixToggle(bool enabled);
 
   // mod name string for config
   std::string get_mod_name() const override { return "NMHFixes"; }
@@ -38,5 +39,6 @@ public:
 private:
 	// std::unique_ptr<FunctionHook> m_hook;
 	std::unique_ptr<Patch> disable_crash_dumps_patch;
+	// std::unique_ptr<Patch> deep_rank_up_crash_fix_patch1, deep_rank_up_crash_fix_patch2;
 	std::unique_ptr<FunctionHook> rank_up_crash_fix_hook1;
 };

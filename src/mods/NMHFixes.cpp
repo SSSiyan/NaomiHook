@@ -44,6 +44,18 @@ void NMHFixes::disableCrashDumpsToggle(bool enable) {
     }
 }
 
+// This crashed when trying to skip Speedbuster as first boss on dh's slot 4, July 2025. Swaps subs for movs
+/*void NMHFixes::deepRankUpCrashFixToggle(bool enable) {
+    if (enable) {
+        install_patch_offset(0x45852D, deep_rank_up_crash_fix_patch1, "\x8B\x86\x18\x15\x00\x00", 6); // 
+        install_patch_offset(0x458563, deep_rank_up_crash_fix_patch2, "\x8B\x86\x18\x15\x00\x00", 6); // 
+    }
+    else {
+        install_patch_offset(0x45852D, deep_rank_up_crash_fix_patch1, "\x2B\x86\x18\x15\x00\x00", 6); // 
+        install_patch_offset(0x458563, deep_rank_up_crash_fix_patch2, "\x2B\x86\x18\x15\x00\x00", 6); // 
+    }
+}*/
+
 std::optional<std::string> NMHFixes::on_initialize() {
     rank_up_crash_fix_jmp_je = g_framework->get_module().as<uintptr_t>() + 0x4585A9;
     if (!install_hook_offset(0x45853A, rank_up_crash_fix_hook1, &rank_up_crash_fix_detour, &NMHFixes::rank_up_crash_fix_jmp_ret, 7)) {
@@ -72,7 +84,9 @@ void NMHFixes::on_draw_ui() {
         "Click this button to open \"User\\Saved Games\\EE_Application\" in File Explorer. If this button does nothing, the folder doesn't exist (and no crash dumps have been made). "
         "If it opens and it's not empty, feel free to delete any .dmp files you see inside";
 
-    ImGui::Checkbox("Enable Rank Up Crash Fix", &rankUpCrashFix);
+    if (ImGui::Checkbox("Enable Rank Up Crash Fix", &rankUpCrashFix)) {
+        // deepRankUpCrashFixToggle(rankUpCrashFix);
+    }
     if (ImGui::IsItemHovered()) NMHFixes::hoveredDescription = "Without this fix, you can crash when attempting to skip rank up screens";
 }
 
@@ -88,6 +102,7 @@ void NMHFixes::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("disable_crash_dumps", disableCrashDumps);
 
     cfg.set<bool>("rankUpCrashFix", rankUpCrashFix);
+    // if (rankUpCrashFix) deepRankUpCrashFixToggle(rankUpCrashFix);
 }
 
 // do something every frame

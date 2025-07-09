@@ -85,6 +85,7 @@ void ModFramework::on_frame() {
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
+    ImGui::PushFont(g_framework->get_our_imgui_ctx()->main_font, 24.0f * (ImGui::GetIO().DisplaySize.y / 1080.0f)); // default font
 
     if (m_error.empty() && m_game_data_initialized) {
         m_mods->on_frame();
@@ -98,7 +99,8 @@ void ModFramework::on_frame() {
     ImGui::GetForegroundDrawList()->AddText(m_our_imgui_ctx->fancy_font, 48.0f, ImVec2(20.0f, 20.0f), IM_COL32(255, 230, 230, 255), (const char*)buffer);
 #endif
 
-    ImGui::EndFrame();
+    ImGui::PopFont();
+    // ImGui::EndFrame(); // called by Render()
     ImGui::Render();
 
     ID3D11DeviceContext* context = nullptr;

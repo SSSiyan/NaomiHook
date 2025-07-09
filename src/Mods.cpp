@@ -118,12 +118,7 @@ void Mods::on_frame() const {
     }
 }
 
-void Mods::on_draw_custom_imgui_window() {
-    PlayerTracker* pt = dynamic_cast<PlayerTracker*>(m_mods[0].get());
-    pt->custom_imgui_window();
-    EnemyTracker* et = dynamic_cast<EnemyTracker*>(m_mods[1].get());
-    et->custom_imgui_window();
-}
+void Mods::on_draw_custom_imgui_window() {}
 
 void Mods::on_draw_debug_ui() const {
 	for (auto& mod : m_mods) {

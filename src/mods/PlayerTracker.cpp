@@ -27,29 +27,39 @@ void setBit(T& flags, int bit, bool value) {
 void DrawPlayerStats() {
     if (ImGui::TreeNodeEx("Useful", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (mHRPc* player = nmh_sdk::get_mHRPc()) {
-            ImGui::Text("Player");
-            ImGui::SliderFloat("Player HP ##Useful", &player->mCharaStatus.hp, 0.0f, player->mCharaStatus.maxHp);
-            ImGui::InputInt("mInputMode ##Useful", (int*)&player->mInputMode, 1);
-            ImGui::InputInt("motionNo ##Useful", (int*)&player->mCharaStatus.motionNo, 1);
-            ImGui::InputScalar("Roulette Hit Rate", ImGuiDataType_S8, &player->mPcStatus.rouletteHitRate);
-            ImGui::InputInt("Ikasama Slot", &player->mPcStatus.ikasamaSlot);
-            ImGui::Checkbox("mOperate ##Useful", &player->mOperate);
-            ImGui::Checkbox("mCameraOperate ##Useful", &player->mCameraOperate);
-            ImGui::Checkbox("mDead ## Useful", &player->mDead);
-            ImGui::Checkbox("BaseAttach ## Useful", &player->tagMain->BaseAttach);
-            ImGui::InputInt("renderSkipCounter ## Useful", &player->mCharaStatus.renderSkipCounter);
-            bool hitStageDisEnable = getBit(player->mCharaStatus.flag, 10);
-            if (ImGui::Checkbox("hitStageDisEnable ##Useful", &hitStageDisEnable)) setBit(player->mCharaStatus.flag, 10, hitStageDisEnable);
+            if (ImGui::TreeNodeEx("Player##UsefulTreeNode", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
+                ImGui::SliderFloat("Player HP##Useful", &player->mCharaStatus.hp, 0.0f, player->mCharaStatus.maxHp);
+                ImGui::InputInt("mInputMode##Useful", (int*)&player->mInputMode, 1);
+                ImGui::InputInt("motionNo##Useful", (int*)&player->mCharaStatus.motionNo, 1);
+                ImGui::InputScalar("Roulette Hit Rate##Useful", ImGuiDataType_S8, &player->mPcStatus.rouletteHitRate);
+                ImGui::InputInt("Ikasama Slot##Useful", &player->mPcStatus.ikasamaSlot);
+                ImGui::Checkbox("mOperate##Useful", &player->mOperate);
+                ImGui::Checkbox("mCameraOperate##Useful", &player->mCameraOperate);
+                ImGui::Checkbox("mDead##Useful", &player->mDead);
+                ImGui::Checkbox("BaseAttach##Useful", &player->tagMain->BaseAttach);
+                ImGui::InputInt("renderSkipCounter##Useful", &player->mCharaStatus.renderSkipCounter);
+                bool hitStageDisEnable = getBit(player->mCharaStatus.flag, 10);
+                if (ImGui::Checkbox("hitStageDisEnable##Useful", &hitStageDisEnable)) setBit(player->mCharaStatus.flag, 10, hitStageDisEnable);
+                ImGui::InputFloat3("pos##Useful", &player->mCharaStatus.pos.x);
+                ImGui::TreePop();
+            }
             if (mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle()) {
-                ImGui::Text("Enemy");
-                ImGui::InputFloat("mNpcAttackRate ##Useful", &mHRBattle->mNpcAttackRate, 1.0f, 10.0f, "%.1f");
+                if (ImGui::TreeNodeEx("Enemy##UsefulTreeNode", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
+                    ImGui::InputFloat("AttackRate##Useful", &mHRBattle->mNpcAttackRate, 1.0f, 10.0f, "%.1f");
+                    if (player->mpLockOnNpc) {
+                        ImGui::SliderFloat("Target HP##Useful", &player->mpLockOnNpc->mStatus.hp, 0.0f, player->mpLockOnNpc->mStatus.maxHp);
+                    }
+                    else {
+                        ImGui::Text("No Lock On Target");
+                    }
+                    ImGui::TreePop();
+                }
             }
-            if (player->mpLockOnNpc) {
-                ImGui::SliderFloat("Lock On Target HP ##Useful", &player->mpLockOnNpc->mStatus.hp, 0.0f, player->mpLockOnNpc->mStatus.maxHp);
-            }
-            else {
-                ImGui::Text("No Lock On Target");
-            }
+        }
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNodeEx("Call Motion IDs / Equip IDs", ImGuiTreeNodeFlags_DrawLinesFull)) {
+        if (mHRPc* player = nmh_sdk::get_mHRPc()) {
             static pcMotion motionID = pcMotion::ePcMtBtLSSonic;
             ImGui::InputInt("Motion ID", (int*)&motionID);
             float itemWidth = ImGui::CalcItemWidth();
@@ -2205,23 +2215,20 @@ void PlayerTracker::on_draw_ui() {
     ImGui::PopFont();
 }
 
-void PlayerTracker::custom_imgui_window() {
-    static bool testbool = false;
-    if (imguiPopout) {
-        ImGui::PushFont(g_framework->get_our_imgui_ctx()->main_font, 24.0f * (ImGui::GetIO().DisplaySize.y / 1080.0f));
-        ImGui::Begin("Player Stats", &imguiPopout);
-        DrawPlayerStats();
-        ImGui::End();
-        ImGui::PopFont();
-    }
-}
+//void PlayerTracker::custom_imgui_window() {}
 
 // during load
 //void PlayerTracker::on_config_load(const utility::Config &cfg) {}
 // during save
 //void PlayerTracker::on_config_save(utility::Config &cfg) {}
 // do something every frame
-//void PlayerTracker::on_frame() {}
+void PlayerTracker::on_frame() {
+    if (imguiPopout) {
+        ImGui::Begin("Player Stats", &imguiPopout);
+        DrawPlayerStats();
+        ImGui::End();
+    }
+}
 // will show up in debug window, dump ImGui widgets you want here
 //void PlayerTracker::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here

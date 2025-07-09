@@ -408,27 +408,7 @@ bool KbmControls::window_proc_handler(HWND wnd, UINT message, WPARAM w_param, LP
     return false;
 }
 
-void KbmControls::custom_imgui_window()
-{
-    auto ppad = g_ppad;
-    KPADEXStatus* exstatus = &ppad->WiiStatusBuffer[0][0].ex_status;
-    ImGui::Begin("gamepad viewer");
-    {
-
-        ImGui::InputFloat2("lstick", (float*)&exstatus->cl.lstick);
-        ImGui::InputFloat2("rstick", (float*)&exstatus->cl.rstick);
-
-        ImGui::InputScalar("hold", ImGuiDataType_U32, &exstatus->cl.hold);
-        ImGui::InputScalar("trig", ImGuiDataType_U32, &exstatus->cl.trig);
-        ImGui::InputScalar("release", ImGuiDataType_U32, &exstatus->cl.release);
-
-        ImGui::InputFloat("ltrigger", &exstatus->cl.ltrigger);
-        ImGui::InputFloat("rtrigger", &exstatus->cl.rtrigger);
-
-    }
-    ImGui::End();
-
-}
+//void KbmControls::custom_imgui_window(){}
 
 std::optional<std::string> KbmControls::on_initialize() {
     g_kbm = this;
@@ -618,6 +598,23 @@ void KbmControls::on_frame() {
             ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
         }
     }
+
+    /*auto ppad = g_ppad;
+    KPADEXStatus* exstatus = &ppad->WiiStatusBuffer[0][0].ex_status;
+    ImGui::Begin("gamepad viewer", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+    {
+        ImGui::InputFloat2("lstick", (float*)&exstatus->cl.lstick);
+        ImGui::InputFloat2("rstick", (float*)&exstatus->cl.rstick);
+
+        ImGui::InputScalar("hold", ImGuiDataType_U32, &exstatus->cl.hold);
+        ImGui::InputScalar("trig", ImGuiDataType_U32, &exstatus->cl.trig);
+        ImGui::InputScalar("release", ImGuiDataType_U32, &exstatus->cl.release);
+
+        ImGui::InputFloat("ltrigger", &exstatus->cl.ltrigger);
+        ImGui::InputFloat("rtrigger", &exstatus->cl.rtrigger);
+
+    }
+    ImGui::End();*/
 }
 
 void KbmControls::on_draw_ui() {
