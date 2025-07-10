@@ -192,7 +192,7 @@ static const char* MoveNames[] = {
   "Spinning Back Kick",				    // 147, ePcMtBtAtkFghtTrKick
   "Left Hook",							// 148, ePcMtBtAtkFghtLHk
   "Left Uppercut",						// 149, ePcMtBtAtkFghtLUpr
-  "Jumping Spinning Back Kick",			// 150, ePcMtBtAtkFghtRrgSbt2
+  "Rolling Sobat",						// 150, ePcMtBtAtkFghtRrgSbt2
   "Dragon Suplex",						// 151, ePcMtBtAtkFghtDsprx
   "Brain Buster",						// 152, ePcMtBtAtkFghtBbstr
   "DDT ",								// 153, ePcMtBtAtkFghtDdt
