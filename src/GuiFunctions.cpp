@@ -18,7 +18,7 @@
 
 #define IMGUI_WINDOW_BG_COLOR IM_COL32(22, 22, 22, 170)    // background
 #define IMGUI_WINDOW_CT_COLOR IM_COL32(255, 201, 115, 255) // header
-#define IMGUI_WINDOW_IN_COLOR IM_COL32(189, 95, 88, 255) // description
+#define IMGUI_WINDOW_IN_COLOR IM_COL32(255, 255, 255, 255) // description
 
 #define IMGUI_WINDOW_ST_MODNAME_COLOR 0xffbfe6ff // mod title at top right
 

@@ -393,7 +393,7 @@ void DodgeSettings::on_draw_ui() {
     if (ImGui::Checkbox("NMH2 Darkstep", &disable_darkstep_slowmo_mod_enabled)) {
         toggle_disable_slowmo_darkstep(disable_darkstep_slowmo_mod_enabled);
     }
-    if (ImGui::IsItemHovered()) DodgeSettings::hoveredDescription = "Functionally alters Darksteps to function like it does in NMH2. When performing a Darkstep, Travis will retain his current speed instead of slowing down.";
+    if (ImGui::IsItemHovered()) DodgeSettings::hoveredDescription = "Functionally alters Darksteps to work like it does in NMH2. When performing a Darkstep, Travis will retain his current speed instead of slowing down.";
     
     ImGui::Checkbox("Roll Rotation", &roll_rotation_mod_enabled);
     if (ImGui::IsItemHovered()) DodgeSettings::hoveredDescription = "Allows rolls to orbit around enemies. This replicates how rolling functions in NMH2 and provides more control for staying on target. Rolls will cease to orbit when releasing lock on.";

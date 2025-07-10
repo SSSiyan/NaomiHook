@@ -177,10 +177,10 @@ void CameraSettings::on_draw_ui() {
     }
     if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = "Disable the zoom when attacking enemies while not locked on.";
 
-    if (ImGui::Checkbox("Deathblow Blur but its more like wii @DHMalice", &deathblow_blur_enable)) {
+    if (ImGui::Checkbox("Deathblow Blur Intensity", &deathblow_blur_enable)) {
         deathblow_blur_toggle(deathblow_blur_enable);
     }
-    if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = "Increases the intensity of the radial blur effect during Deathblows to more closely resemble the effect on Wii";
+    if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = "Increases the intensity of the radial blur effect during Deathblows to more closely resemble its Wii counterpart.";
 }
 
 // during load
