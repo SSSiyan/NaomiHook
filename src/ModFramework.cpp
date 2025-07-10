@@ -203,13 +203,13 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
 
     // TODO(): hotkey crap from dmc4hook?
     if (message == WM_KEYDOWN && w_param == VK_DELETE) {
-       m_draw_ui = !m_draw_ui;
-       if (m_draw_ui || PlayerTracker::imguiPopout || EnemyTracker::imguiPopout) {
-           DisableMouse::any_gui_open = true; // stops mouse clicks registering on menus and stops the cursor hiding when inputting something on the controller
-       } else {
-           DisableMouse::any_gui_open = false;
-       }
+        m_draw_ui = !m_draw_ui;
         m_our_imgui_ctx->an_accumulator = 0.0f;
+        if (m_draw_ui || PlayerTracker::imguiPopout || EnemyTracker::imguiPopout) {
+            DisableMouse::any_gui_open = true; // stops mouse clicks registering on menus and stops the cursor hiding when inputting something on the controller
+        } else {
+            DisableMouse::any_gui_open = false;
+        }
         if(g_kbm_controls) {
             g_kbm_controls->m_capture_mouse = !m_draw_ui;
         }
