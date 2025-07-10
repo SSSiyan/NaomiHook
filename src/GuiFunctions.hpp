@@ -6,29 +6,8 @@
 #include "Shellapi.h"
 #include "glm/glm.hpp"
 
-enum AnimationState {
-    NONE,
-    START,
-    WORK,
-    END,
-};
-
-struct AnimValue {
-    ImRect a, b;
-};
-
 struct Keyframe {
-
-    float tstore{};
     float time_start, time_end{};
-
-    float get_value(float time) { 
-        tstore += time;
-        return glm::lerp(0.0f, 1.0f, glm::smoothstep(time_start, time_end, tstore)); 
-    }
-    bool is_end() {
-        return tstore >= time_end;
-    }
 };
 
 struct ImGuiRaiiFont {
@@ -57,18 +36,20 @@ struct OurImGuiContext {
     ImFont* tony_font{};
 
     ModCategory selected_category{};
-    AnimationState an_settings_state{};
-    AnimationState an_info_state{};
+    float an_accumulator { 0.0f };
 
     Keyframe main_window_anim{
         .time_start = 0.0f,
-        .time_end   = 2.2f,
+        .time_end   = 0.28f,
     };
     Keyframe left_window_anim{
-        .time_start = 0.0,
-        .time_end   = 1.2f,
+        .time_start = 0.08f,
+        .time_end   = 0.34f,
     };
-    Keyframe bottom_window_anim{.time_start = 1.3f, .time_end = 3.2f};
+    Keyframe bottom_window_anim{
+        .time_start = 0.08f, 
+        .time_end = 0.34f,
+    };
 };
 
 namespace gui {

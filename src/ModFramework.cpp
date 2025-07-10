@@ -199,7 +199,8 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
 
     // TODO(): hotkey crap from dmc4hook?
     if (message == WM_KEYDOWN && w_param == VK_DELETE) {
-       m_draw_ui = !m_draw_ui;
+        m_draw_ui = !m_draw_ui;
+        m_our_imgui_ctx->an_accumulator = 0.0f;
         DisableMouse::gui_open = m_draw_ui; // stops mouse clicks registering on menus
         if(g_kbm_controls) {
             g_kbm_controls->m_capture_mouse = !m_draw_ui;
@@ -263,6 +264,7 @@ void ModFramework::draw_ui() {
         return;
     }
     m_our_imgui_ctx->wflags = m_draw_ui;
+    m_our_imgui_ctx->an_accumulator += io.DeltaTime;
 
 #if 0
     ImGui::SetNextWindowPos(ImVec2(50, 50), ImGuiCond_::ImGuiCond_Once);
