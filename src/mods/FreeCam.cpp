@@ -8,7 +8,7 @@ float FreeCam::sens = 0.0f;
 float FreeCam::modifierSens = 0.0f;
 float FreeCam::deadZone = 0.0f;
 
-const char* FreeCam::defaultDescription = "Controls:\n- Left Stick and Right Stick = Movement and Rotation\n- R1 & R2 = Move Up and Down\n- L3 = Use Modifier Speed\n- R3 = Reset Position";
+const char* FreeCam::defaultDescription = "Controls:\n- Left Stick and Right Stick = Movement and Rotation\n- L2 & R2 = Move Up and Down\n- L1 & R1 = Roll Left/Right\n- L3 = Use Modifier Speed\n- R3 = Reset";
 const char* FreeCam::hoveredDescription = defaultDescription;
 
 void FreeCam::render_description() const {
@@ -51,10 +51,12 @@ void FreeCam::on_frame() {
     
     float currentSens = sens;
     float rotSens = 0.1f;
+    float rollSens = 0.01f;
     
     // camera sprint
     if (buttons & KEY_L3) {
         currentSens = modifierSens;
+        rollSens = modifierSens * 0.02f;
     }
     
     // get forward and right camera facing
@@ -63,12 +65,12 @@ void FreeCam::on_frame() {
     float sinYaw = sin(yaw);
     Vec forward = {sinYaw, 0.0f, cosYaw};
     Vec right = {cosYaw, 0.0f, -sinYaw};
-
-    // trigger/bumper vertical
-    if (buttons & KEY_RT) {
+    
+    // triggers up/down
+    if (buttons & KEY_LT) {
         cam->MAIN.free.C_T_Pos.y -= currentSens;
     }
-    if (buttons & KEY_RB) {
+    if (buttons & KEY_RT) {
         cam->MAIN.free.C_T_Pos.y += currentSens;
     }
     
@@ -103,6 +105,14 @@ void FreeCam::on_frame() {
         cam->MAIN.free.VDir = cam->MAIN.free.T_VDir;
     }
     
+    // roll on l1/r1
+    if (buttons & KEY_LB) {
+        cam->MAIN.TwistAngle += rollSens;
+    }
+    if (buttons & KEY_RB) {
+        cam->MAIN.TwistAngle -= rollSens;
+    }
+    
     // reset cam
     if (buttons & KEY_R3) {
         mHRPc* player = nmh_sdk::get_mHRPc();
@@ -110,6 +120,7 @@ void FreeCam::on_frame() {
             cam->MAIN.free.C_T_Pos.x = player->mCharaStatus.pos.x;
             cam->MAIN.free.C_T_Pos.y = player->mCharaStatus.pos.y + 20.0f;
             cam->MAIN.free.C_T_Pos.z = player->mCharaStatus.pos.z;
+            cam->MAIN.TwistAngle = 0.0f;
         }
     }
 }
@@ -126,6 +137,11 @@ void FreeCam::on_draw_ui() {
     ImGui::Text("Modifier Sensitivity");
     ImGui::SliderFloat("##ModifierSensitivitySliderFloat", &modifierSens, 0.0f, 10.0f, "%.1f");
     if (ImGui::IsItemHovered()) FreeCam::hoveredDescription = "Camera movement sensitivity while holding L3";
+
+    ImGui::Text("Stick Deadzones");
+    ImGui::SliderFloat("##DeadzoneSliderFloat", &deadZone, 0.0f, 0.2f, "%.2f");
+    if (ImGui::IsItemHovered()) FreeCam::hoveredDescription = "How far the stick has to move from centre before your input is registered";
+
     mHRPc* player = nmh_sdk::get_mHRPc();
     if (player) {
         ImGui::Checkbox("Enable Inputs To Player", &player->mOperate);
