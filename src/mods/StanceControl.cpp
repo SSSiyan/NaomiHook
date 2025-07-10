@@ -6,6 +6,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/glm.hpp"
 #include "glm/gtc/noise.hpp"
+#include <filesystem>
 
 #if 1
 bool StanceControl::mod_enabled = false;
@@ -662,6 +663,27 @@ void StanceControl::GearControls(mHRPc* player) {
 
 // do something every frame
 static uint32_t g_frame_counter = 0;
+#ifndef NDEBUG
+struct DebugTexture {
+    const char* filename;
+    std::unique_ptr<Texture2DD3D11> texture;
+    std::filesystem::file_time_type filetime;
+    std::filesystem::path filepath;
+};
+
+std::array g_textures_debug = {
+    // backdrop
+    DebugTexture { "BACK_HIGH.png", nullptr },
+    DebugTexture { "BACK_LOW.png",  nullptr },
+    DebugTexture { "BACK_MID.png",  nullptr },
+    // glows
+    DebugTexture { "HIGH_GLOW.PNG", nullptr },
+    DebugTexture { "LOW_GLOW.PNG",  nullptr },
+    DebugTexture { "MID_GLOW.PNG",  nullptr },
+
+};
+
+#endif
 void StanceControl::on_frame() {
     if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
         // if (mod_enabled_gear_system) GearControls(mHRPc);
@@ -712,7 +734,16 @@ void StanceControl::on_frame() {
                 ImVec2(kanae_glow.f[pose].uv1),
             };
 
+#ifndef NDEBUG 
+            DebugTexture* textures[] = {
+                &g_textures_debug[0],
+                &g_textures_debug[1],
+                &g_textures_debug[2],
+            };
+            dl->AddImage((ImTextureID)textures[pose]->texture->GetTexture(), points[0], points[1]);
+#else
             dl->AddImage((ImTextureID)tex, points[0], points[1], kanae_uvs[0], kanae_uvs[1]);
+#endif
             //dl->AddImageQuad(tex, points[0], points[1], points[2], points[3], kanae_uvs[0], kanae_uvs[1], kanae_uvs[2], kanae_uvs[3]);
             
 #if 1
@@ -725,10 +756,37 @@ void StanceControl::on_frame() {
 #endif
             for (int i = 0; i < 16; i++) {
                 ImU32 oppacity = IM_COL32(255, 255, 255, (char)(glow * (i * 0.05f)));
+#ifndef NDEBUG
+            DebugTexture* glow_textures[] = {
+                &g_textures_debug[3],
+                &g_textures_debug[4],
+                &g_textures_debug[5],
+            };
+                dl->AddImage((ImTextureID)glow_textures[pose]->texture->GetTexture(), points[0], points[1], ImVec2(0.0f, 0.0f), ImVec2(1.0f,1.0f), oppacity);
+#else
                 dl->AddImage((ImTextureID)tex, points[0], points[1], glow_uvs[0], glow_uvs[1], oppacity);
+#endif // !NDEBUG
+
             }
             //dl->AddImageQuad(tex, points[0], points[1], points[2], points[3], glow_uvs[0], glow_uvs[1], glow_uvs[2], glow_uvs[3], oppacity);
             //dl->AddRectFilled(p0, p1, -1, 2.0f);
+
+#ifndef NDEBUG
+            // NOTE(): load balancing :kappa:
+            if ((g_frame_counter % 60) == 0) {
+                for (auto& tex : g_textures_debug) {
+                    auto cwt = std::filesystem::last_write_time(tex.filepath);
+                    if (cwt > tex.filetime) {
+                        tex.texture.reset();
+                        tex.texture = std::make_unique<Texture2DD3D11>(tex.filename, g_framework->d3d11()->get_device());
+                        tex.filetime = cwt;
+                    }
+                }
+                
+            }
+
+#endif // !NDEBUG
+
 
 #if 0
 
@@ -780,6 +838,19 @@ void StanceControl::on_frame() {
 }
 
 static bool load_kanae_texture() {
+#ifndef NDEBUG
+    for (auto& tex : g_textures_debug) {
+        tex.texture = std::make_unique<Texture2DD3D11>(tex.filename, g_framework->d3d11()->get_device());
+        tex.filepath = std::filesystem::path(std::filesystem::current_path().string() + fmt::format("\\{}", tex.filename));
+        try {
+            tex.filetime = std::filesystem::last_write_time(tex.filepath);
+        }
+        catch (std::exception& e) {
+            OutputDebugStringA(e.what());
+        }
+    }
+#endif // !NDEBUG
+
     auto [data, size] = utility::decompress_file_from_memory_with_size(kanae_ta_compressed_data, kanae_ta_compressed_size);
     if (!data) {
         return false;
@@ -796,6 +867,12 @@ static bool load_kanae_texture() {
 }
 
 void StanceControl::on_d3d_reset() {
+#ifndef NDEBUG
+    for (auto& tex : g_textures_debug) {
+        tex.texture.reset();
+    }
+#endif // !NDEBUG
+
     g_kanae_texture_atlas.reset();
     load_kanae_texture();
 }
