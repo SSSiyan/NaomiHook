@@ -53,4 +53,10 @@ namespace nmh_sdk {
 	void PlayCamMotFromCharMot(int inMotNo, int inNum, bool inHitColl, bool inPcBasePos, bool inPcBasePosa);
 	// typedef void(__userpurge* mSetLightReflecteFunc)(mHRPc* mHRPc, float strength, const Vec* inPos, unsigned int inCol, int a5);
 	void SetLightReflect(mHRPc* player, float strength, Vec* inPos, int inCol, int unkn);
+	typedef void(__thiscall* mSubPcMoneyFunc)(mHRPc* mHRPc, int inMoney);
+	void SubPcMoney(int inMoney);
+	typedef void(__thiscall* mAddLockerFunc)(mHRPc* mHRPc, pcItem pcItem);
+	void AddLocker(pcItem itemID);
+	typedef bool(__thiscall* mChkLockerFunc)(mHRPc* mHRPc, pcItem pcItem);
+	bool CheckLocker(pcItem itemID);
 };

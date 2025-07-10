@@ -257,6 +257,32 @@ namespace nmh_sdk {
         }
     }
 
+    void SubPcMoney(int inMoney) {
+        uintptr_t subPcMoneyAddr = (g_framework->get_module().as<uintptr_t>() + 0x9D0E0);
+        mSubPcMoneyFunc subPcMoney = (mSubPcMoneyFunc)subPcMoneyAddr;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            subPcMoney(mHRPc, inMoney);
+        }
+    }
+
+    void AddLocker(pcItem itemID) {
+        uintptr_t addLockerAddr = (g_framework->get_module().as<uintptr_t>() + 0x3E2780);
+        mAddLockerFunc addLocker = (mAddLockerFunc)addLockerAddr;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            addLocker(mHRPc, itemID);
+        }
+    }
+
+    // returns true if you own the item
+    bool CheckLocker(pcItem itemID) {
+        uintptr_t checkLockerAddr = (g_framework->get_module().as<uintptr_t>() + 0x3E2750);
+        mChkLockerFunc checkLocker = (mChkLockerFunc)checkLockerAddr;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            return checkLocker(mHRPc, itemID);
+        }
+        return true; // player ptr invalid
+    }
+
     // Spawn enemies
     int setInitNpcDat(int inResNo, enCharaType inChType, int inRepop, const Vec* inPos, const Vec* inRot, enPopReqType inPopType, bool inDisEnableCollision) {
         uintptr_t mSetInitNpcDatAddress = (g_framework->get_module().as<uintptr_t>() + 0x3B6B30);

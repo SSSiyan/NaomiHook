@@ -153,7 +153,7 @@ void FreeCam::on_draw_ui() {
 void FreeCam::on_config_load(const utility::Config &cfg) {
     sens = cfg.get<float>("freecam_sens").value_or(1.0f);
     modifierSens = cfg.get<float>("modifier_freecam_sens").value_or(2.0f);
-    deadZone = cfg.get<float>("freecam_deadzone").value_or(0.05f);
+    deadZone = cfg.get<float>("freecam_deadzone").value_or(0.0f);
 }
 // during save
 void FreeCam::on_config_save(utility::Config &cfg) {

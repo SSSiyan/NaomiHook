@@ -2,6 +2,7 @@
 #include "ArcadeMode.hpp"
 #include "QuickBoot.hpp" // Quick boot uses this detour
 #include <shlobj.h> // for ShellExecuteA
+#include "ClothesSwitcher.hpp" // for pcItem names
 
 const char* ArcadeMode::defaultDescription = "Play through the entire game in one sitting while skipping all the stuff in between. Nothing but gameplay in this mode.";
 const char* ArcadeMode::hoveredDescription = defaultDescription;
@@ -126,9 +127,9 @@ naked void detour1() {
         je noStageEdit
         cmp byte ptr [ecx+0x29a2], 1 // if mDeadPause, do not edit teleport
         je noStageEdit
-        push 1
         mov byte ptr [ecx+0x1704], 0 // reset rouletteHitRate
         mov dword ptr [ecx+0x1780], 0 // reset ikasamaSlot
+        push 1
         call dword ptr [ArcadeMode::mSetVisible] // set char visible after cutscenes
         call dword ptr GetNextStage // put nextStage* in eax
         test eax, eax
@@ -162,6 +163,94 @@ void ArcadeMode::render_description() const {
     ImGui::TextWrapped(ArcadeMode::hoveredDescription);
 }
 
+bool BuyThing(int price) {
+    mHRPc* player = nmh_sdk::get_mHRPc();
+    if (!player) { return false; }
+    if (player->mPcStatus.money < price) {
+        return false;
+    }
+    nmh_sdk::SubPcMoney(price);
+    return true;
+}
+
+// returns true if already owned
+bool CheckIfPlayerAlreadyOwns(pcItem itemID) {
+    mHRPc* player = nmh_sdk::get_mHRPc();
+    if (!player) { return false; }
+    // Check if player owns the item (either equipped or in locker)
+    if (player->mPcStatus.equip[0].id == itemID || nmh_sdk::CheckLocker(itemID)) {
+        return true;
+    }
+    return false;
+}
+
+// returns true if already owned
+bool RenderShopItem(pcItem itemID, const char* itemName, int price) {
+    bool isOwned = CheckIfPlayerAlreadyOwns(itemID);
+    
+    if (isOwned) {
+        ImGui::BeginDisabled();
+    }
+    
+    char buttonText[256];
+    snprintf(buttonText, sizeof(buttonText), "%s ($%d)", itemName, price);
+    
+    if (ImGui::Button(buttonText)) {
+        if (BuyThing(price)) {
+            nmh_sdk::AddLocker(itemID);
+        }
+    }
+    
+    if (isOwned) {
+        ImGui::EndDisabled();
+        // ImGui::SameLine();
+        // ImGui::Text("(Owned)");
+    }
+    
+    return isOwned;
+}
+
+void DisplayShop(mHRPc* player, bool toggle) {
+    ImGui::Begin("Arcade Shop", &toggle);
+    ImGui::Text("Current Money: $%i", player->mPcStatus.money);
+    ImVec2 windowSize = ImGui::GetIO().DisplaySize;
+    ImGui::SetWindowPos(ImVec2(windowSize.x * 0.535f, windowSize.y * 0.03f));
+    ImGui::SetWindowSize(ImVec2(windowSize.x * 0.3f, windowSize.y * 0.7475f));
+    if (ImGui::TreeNodeEx("Weapons", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
+        if (RenderShopItem(BLOOD_BERRY, "Blood Berry", 100)) {
+            if (RenderShopItem(BLOOD_BERRY_DAMAGE, "Blood Berry + Damage", 200)) {
+                RenderShopItem(BLOOD_BERRY_BATTERY_DAMAGE, "Blood Berry + Damage + Battery", 300);
+            }
+        }
+
+        if (RenderShopItem(TSUBAKI_MK1, "Tsubaki MK1", 150)) {
+            if (RenderShopItem(TSUBAKI_MK1_DAMAGE, "Tsubaki MK1 + Damage", 250)) {
+                RenderShopItem(TSUBAKI_MK1_BATTERY_DAMAGE, "Tsubaki MK1 + Damage + Battery", 350);
+            }
+        }
+
+        if (RenderShopItem(TSUBAKI_MK1, "Tsubaki MK2", 200)) {
+            if (RenderShopItem(TSUBAKI_MK2_DAMAGE, "Tsubaki MK2 + Damage", 300)) {
+                RenderShopItem(TSUBAKI_MK2_BATTERY_DAMAGE, "Tsubaki MK2 + Damage + Battery", 400);
+            }
+        }
+
+        if (RenderShopItem(TSUBAKI_MK3, "Tsubaki MK3", 250)) {
+            if (RenderShopItem(TSUBAKI_MK3_DAMAGE, "Tsubaki MK3 + Damage", 350)) {
+                RenderShopItem(TSUBAKI_MK3_BATTERY_DAMAGE, "Tsubaki MK3 + Damage + Battery", 450);
+            }
+        }
+
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNodeEx("Examples", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
+        RenderShopItem(GLASSES0, "GLASSES0", 100);
+        RenderShopItem(GLASSES1, "GLASSES1", 100);
+        ImGui::TreePop();
+    }
+    ImGui::End();
+}
+
 void ArcadeMode::on_draw_ui() {
     if (!ImGui::IsAnyItemHovered()) ArcadeMode::hoveredDescription = defaultDescription;
 
@@ -188,6 +277,26 @@ void ArcadeMode::on_draw_ui() {
         arcade_enabled = false;
     }
     if (ImGui::IsItemHovered()) ArcadeMode::hoveredDescription = "Enable this option in the Motel then exit through the door to begin";
+
+    static bool arcadeModeShopToggle = false;
+    ImGui::Checkbox("Display Arcade Shop", &arcadeModeShopToggle);
+    mHRPc* player = nmh_sdk::get_mHRPc();
+    if (arcadeModeShopToggle && player) {
+        DisplayShop(player, arcadeModeShopToggle);
+        if (ImGui::CollapsingHeader("Debug Shop")) {
+            ImGui::Text("Current Money:");
+            ImGui::InputInt("##Current Money InputInt", &player->mPcStatus.money);
+            static int giveItemID = 0;
+            ImGui::Text("Desired Item ID:");
+            ImGui::InputInt("##Give Item InputInt", &giveItemID);
+            ImGui::Text(clothing_items[giveItemID].name);
+            if (ImGui::Button("Give Item")) {
+                nmh_sdk::AddLocker(pcItem(giveItemID));
+            }
+            bool alreadyOwnsItem = CheckIfPlayerAlreadyOwns(pcItem(giveItemID));
+            ImGui::Checkbox("Is this item in your locker or your hand?", &alreadyOwnsItem);
+        }
+    }
 }
 
 // during load
