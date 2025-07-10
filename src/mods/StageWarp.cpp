@@ -5,8 +5,27 @@
 #include "fw-imgui/StageWarpAtlas.cpp"
 #if 1
 
-static int setStageArgs[7]{0, -1, -1, 0, 0, 0, 0};
-static int64_t inSetVolRateArg = 0;
+struct ExtraSetStageArgs {
+    int _StageAdd;
+    int _Arg1;
+    int _Arg2;
+    bool inBossInfoDisp;
+    int inFadeType;
+    int inSetVolRate;
+    bool inPause;
+    int a10;
+};
+
+static ExtraSetStageArgs setStageArgs{
+     0, // int _StageAdd;
+    -1, // int _Arg1;
+    -1, // int _Arg2;
+     0, // bool inBossInfoDisp;
+     0, // int inFadeType;
+     0, // int inSetVolRate;
+     0, // bool inPause;
+     0, // unsigned int a10;
+};
 
 static ImVec4 stageNameColor{ 1.00f, 0.79f, 0.45f, 1.0f };
 static ImVec4 stageInfoColor{ 0.81f, 0.40f, 0.38f, 1.0f };
@@ -380,8 +399,8 @@ void DisplayStageSection(const char* headerName, const T& stages) {
             }
 
             if (ImGui::IsItemClicked()) {
-                nmh_sdk::SetStage(stage.name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
-                    setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
+                nmh_sdk::SetStage(stage.name, setStageArgs._StageAdd, setStageArgs._Arg1, setStageArgs._Arg2, setStageArgs.inBossInfoDisp,
+                    setStageArgs.inFadeType, setStageArgs.inSetVolRate, setStageArgs.inPause, setStageArgs.a10);
             }
             ImGui::SameLine(ImGui::GetFontSize()*5.0f);
             ImGui::TextColored(stageInfoColor, buttonInfo);
@@ -390,8 +409,8 @@ void DisplayStageSection(const char* headerName, const T& stages) {
             }
 
             if (ImGui::IsItemClicked()) {
-                nmh_sdk::SetStage(stage.name, setStageArgs[0], setStageArgs[1], setStageArgs[2], setStageArgs[3],
-                    setStageArgs[4], inSetVolRateArg, setStageArgs[5], setStageArgs[6]);
+                nmh_sdk::SetStage(stage.name, setStageArgs._StageAdd, setStageArgs._Arg1, setStageArgs._Arg2, setStageArgs.inBossInfoDisp,
+                    setStageArgs.inFadeType, setStageArgs.inSetVolRate, setStageArgs.inPause, setStageArgs.a10);
             }
             ImGui::PopStyleVar();
         }
@@ -414,7 +433,7 @@ void StageWarp::on_draw_ui() {
         // ImGui::SetCursorPosX((available_width - combo_width) * 0.5f);
         ImGui::Text("Fade Type: ");
         ImGui::SameLine();
-        ImGui::Combo("##inFadeType", &setStageArgs[4], "Punk\0Fade\0Grey\0Stamps\0Instant (Soft Lock)\0");
+        ImGui::Combo("##inFadeType", &setStageArgs.inFadeType, "Punk\0Fade\0Grey\0Stamps\0Instant (Soft Lock)\0");
         if (ImGui::IsItemHovered()) {
             update_description("Fade Type", "Set the transition that plays when you teleport", TextureAtlas::getCoordinates(78));
         }
@@ -427,25 +446,25 @@ void StageWarp::on_draw_ui() {
         DisplayStageSection("Miscellaneous", misc_stages);
         DisplayStageSection("Toilets", save_stages);
 
-        //static const char* argsHelpMarker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n");
-        /*if (ImGui::CollapsingHeader("SetStage args")) {
+        static const char* argsHelpMarker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n");
+        if (ImGui::CollapsingHeader("SetStage args")) {
             help_marker(argsHelpMarker);
-            ImGui::InputInt("AddedStages", &setStageArgs[0]);
+            ImGui::InputInt("AddedStages", &setStageArgs._StageAdd);
             help_marker("I think this adds n to stageID? Not sure how else it would get next stage\nMotel>Overworld has this set to 2");
-            ImGui::InputInt("_Arg1", &setStageArgs[1]);
+            ImGui::InputInt("_Arg1", &setStageArgs._Arg1);
             help_marker("Motel>Overworld sets this to -1");
-            ImGui::InputInt("_Arg2", &setStageArgs[2]);
+            ImGui::InputInt("_Arg2", &setStageArgs._Arg2);
             help_marker("Motel>Overworld sets this to -1");
-            ImGui::InputInt("inBossInfoDisp", &setStageArgs[3]);
+            ImGui::Checkbox("inBossInfoDisp", &setStageArgs.inBossInfoDisp);
             help_marker("Shows the boss popup");
             
-            ImGui::InputScalar("inSetVolRate", ImGuiDataType_S64, &inSetVolRateArg);
-            ImGui::InputInt("inPause", &setStageArgs[5]);
-            ImGui::InputInt("a10", &setStageArgs[6]);
+            ImGui::InputInt("inSetVolRate", &setStageArgs.inSetVolRate);
+            ImGui::Checkbox("inPause", &setStageArgs.inPause);
+            ImGui::InputInt("a10", &setStageArgs.a10);
         }
         else {
             help_marker(argsHelpMarker);
-        }*/
+        }
     }
 }
 

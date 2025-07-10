@@ -8,6 +8,7 @@
 #include "glm/gtc/noise.hpp"
 #include <filesystem>
 
+
 #if 1
 bool StanceControl::mod_enabled = false;
 bool StanceControl::invert_input = false;
@@ -60,53 +61,53 @@ struct Frame {
 };
 
 struct TextureAtlas {
-    static constexpr auto BACK_GLOW_HIGH() {
+    static constexpr auto BACK_HIGH() {
         return Frame {
-            ImVec2 { 0.0f, 0.0f },  
+            ImVec2 { 4.0f, 4.0f },  
             ImVec2 { 1920.0f, 1080.0f },
-            ImVec2 { 0.0f / 4096.0f, 0.0f / 4096.0f },
-            ImVec2 { ( 0.0f + 1920.0f ) / 4096.0f, ( 0.0f + 1080.0f ) / 4096.0f }
-        }; //BACK_GLOW_HIGH
+            ImVec2 { 4.0f / 4096.0f, 4.0f / 4096.0f },
+            ImVec2 { ( 4.0f + 1920.0f ) / 4096.0f, ( 4.0f + 1080.0f ) / 4096.0f }
+        }; //BACK_HIGH
     };
-    static constexpr auto BACK_GLOW_LOW() {
+    static constexpr auto BACK_LOW() {
         return Frame {
-            ImVec2 { 0.0f, 1080.0f },  
+            ImVec2 { 1932.0f, 4.0f },  
             ImVec2 { 1920.0f, 1080.0f },
-            ImVec2 { 0.0f / 4096.0f, 1080.0f / 4096.0f },
-            ImVec2 { ( 0.0f + 1920.0f ) / 4096.0f, ( 1080.0f + 1080.0f ) / 4096.0f }
-        }; //BACK_GLOW_LOW
+            ImVec2 { 1932.0f / 4096.0f, 4.0f / 4096.0f },
+            ImVec2 { ( 1932.0f + 1920.0f ) / 4096.0f, ( 4.0f + 1080.0f ) / 4096.0f }
+        }; //BACK_LOW
     };
-    static constexpr auto BACK_GLOW_MID() {
+    static constexpr auto BACK_MID() {
         return Frame {
-            ImVec2 { 1920.0f, 0.0f },  
+            ImVec2 { 4.0f, 1092.0f },  
             ImVec2 { 1920.0f, 1080.0f },
-            ImVec2 { 1920.0f / 4096.0f, 0.0f / 4096.0f },
-            ImVec2 { ( 1920.0f + 1920.0f ) / 4096.0f, ( 0.0f + 1080.0f ) / 4096.0f }
-        }; //BACK_GLOW_MID
+            ImVec2 { 4.0f / 4096.0f, 1092.0f / 4096.0f },
+            ImVec2 { ( 4.0f + 1920.0f ) / 4096.0f, ( 1092.0f + 1080.0f ) / 4096.0f }
+        }; //BACK_MID
     };
-    static constexpr auto HIGH_GLOW_1() {
+    static constexpr auto HIGH_GLOW() {
         return Frame {
-            ImVec2 { 1920.0f, 1080.0f },  
+            ImVec2 { 1932.0f, 1092.0f },  
             ImVec2 { 1920.0f, 1080.0f },
-            ImVec2 { 1920.0f / 4096.0f, 1080.0f / 4096.0f },
-            ImVec2 { ( 1920.0f + 1920.0f ) / 4096.0f, ( 1080.0f + 1080.0f ) / 4096.0f }
-        }; //HIGH_GLOW_1
+            ImVec2 { 1932.0f / 4096.0f, 1092.0f / 4096.0f },
+            ImVec2 { ( 1932.0f + 1920.0f ) / 4096.0f, ( 1092.0f + 1080.0f ) / 4096.0f }
+        }; //HIGH_GLOW
     };
-    static constexpr auto LOW_GLOW_1() {
+    static constexpr auto LOW_GLOW() {
         return Frame {
-            ImVec2 { 0.0f, 2160.0f },  
+            ImVec2 { 4.0f, 2180.0f },  
             ImVec2 { 1920.0f, 1080.0f },
-            ImVec2 { 0.0f / 4096.0f, 2160.0f / 4096.0f },
-            ImVec2 { ( 0.0f + 1920.0f ) / 4096.0f, ( 2160.0f + 1080.0f ) / 4096.0f }
-        }; //LOW_GLOW_1
+            ImVec2 { 4.0f / 4096.0f, 2180.0f / 4096.0f },
+            ImVec2 { ( 4.0f + 1920.0f ) / 4096.0f, ( 2180.0f + 1080.0f ) / 4096.0f }
+        }; //LOW_GLOW
     };
-    static constexpr auto MID_GLOW_1() {
+    static constexpr auto MID_GLOW() {
         return Frame {
-            ImVec2 { 1920.0f, 2160.0f },  
+            ImVec2 { 1932.0f, 2180.0f },  
             ImVec2 { 1920.0f, 1080.0f },
-            ImVec2 { 1920.0f / 4096.0f, 2160.0f / 4096.0f },
-            ImVec2 { ( 1920.0f + 1920.0f ) / 4096.0f, ( 2160.0f + 1080.0f ) / 4096.0f }
-        }; //MID_GLOW_1
+            ImVec2 { 1932.0f / 4096.0f, 2180.0f / 4096.0f },
+            ImVec2 { ( 1932.0f + 1920.0f ) / 4096.0f, ( 2180.0f + 1080.0f ) / 4096.0f }
+        }; //MID_GLOW
     };
 
     static constexpr auto meta_size() {
@@ -663,7 +664,7 @@ void StanceControl::GearControls(mHRPc* player) {
 
 // do something every frame
 static uint32_t g_frame_counter = 0;
-#ifndef NDEBUG
+#ifdef HOT_RELOAD
 struct DebugTexture {
     const char* filename;
     std::unique_ptr<Texture2DD3D11> texture;
@@ -705,10 +706,10 @@ void StanceControl::on_frame() {
             };
 
             static constexpr KanaeDisp kanae {
-                { atlas.BACK_GLOW_HIGH(), atlas.BACK_GLOW_LOW(), atlas.BACK_GLOW_MID() } 
+                { atlas.BACK_HIGH(), atlas.BACK_LOW(), atlas.BACK_MID() } 
             };
             static constexpr KanaeDisp kanae_glow {
-                { atlas.HIGH_GLOW_1(), atlas.LOW_GLOW_1(), atlas.MID_GLOW_1() }
+                { atlas.HIGH_GLOW(), atlas.LOW_GLOW(), atlas.MID_GLOW() }
             };
 
             int pose = mHRPc->mPcStatus.pose;
@@ -734,7 +735,7 @@ void StanceControl::on_frame() {
                 ImVec2(kanae_glow.f[pose].uv1),
             };
 
-#ifndef NDEBUG 
+#ifdef HOT_RELOAD 
             DebugTexture* textures[] = {
                 &g_textures_debug[0],
                 &g_textures_debug[1],
@@ -754,9 +755,8 @@ void StanceControl::on_frame() {
             HrScreenStatus* v4 = nmh_sdk::get_mHRBattle()->mBtEffect.pScreenStatus;
             float glow = (((float)v4->m_GearRandCounter[1] / (float)v4->m_GearRandCounter[0]) * 255.0);
 #endif
-            for (int i = 0; i < 16; i++) {
-                ImU32 oppacity = IM_COL32(255, 255, 255, (char)(glow * (i * 0.05f)));
-#ifndef NDEBUG
+            ImU32 oppacity = IM_COL32(255, 255, 255, (char)(glow));
+#ifdef HOT_RELOAD
             DebugTexture* glow_textures[] = {
                 &g_textures_debug[3],
                 &g_textures_debug[4],
@@ -765,13 +765,12 @@ void StanceControl::on_frame() {
                 dl->AddImage((ImTextureID)glow_textures[pose]->texture->GetTexture(), points[0], points[1], ImVec2(0.0f, 0.0f), ImVec2(1.0f,1.0f), oppacity);
 #else
                 dl->AddImage((ImTextureID)tex, points[0], points[1], glow_uvs[0], glow_uvs[1], oppacity);
-#endif // !NDEBUG
+#endif // !HOT_RELOAD
 
-            }
             //dl->AddImageQuad(tex, points[0], points[1], points[2], points[3], glow_uvs[0], glow_uvs[1], glow_uvs[2], glow_uvs[3], oppacity);
             //dl->AddRectFilled(p0, p1, -1, 2.0f);
 
-#ifndef NDEBUG
+#ifdef HOT_RELOAD
             // NOTE(): load balancing :kappa:
             if ((g_frame_counter % 60) == 0) {
                 for (auto& tex : g_textures_debug) {
@@ -785,7 +784,7 @@ void StanceControl::on_frame() {
                 
             }
 
-#endif // !NDEBUG
+#endif // !HOT_RELOAD
 
 
 #if 0
@@ -838,7 +837,7 @@ void StanceControl::on_frame() {
 }
 
 static bool load_kanae_texture() {
-#ifndef NDEBUG
+#ifdef HOT_RELOAD
     for (auto& tex : g_textures_debug) {
         tex.texture = std::make_unique<Texture2DD3D11>(tex.filename, g_framework->d3d11()->get_device());
         tex.filepath = std::filesystem::path(std::filesystem::current_path().string() + fmt::format("\\{}", tex.filename));
@@ -849,7 +848,7 @@ static bool load_kanae_texture() {
             OutputDebugStringA(e.what());
         }
     }
-#endif // !NDEBUG
+#endif // !HOT_RELOAD
 
     auto [data, size] = utility::decompress_file_from_memory_with_size(kanae_ta_compressed_data, kanae_ta_compressed_size);
     if (!data) {
@@ -867,11 +866,11 @@ static bool load_kanae_texture() {
 }
 
 void StanceControl::on_d3d_reset() {
-#ifndef NDEBUG
+#ifdef HOT_RELOAD
     for (auto& tex : g_textures_debug) {
         tex.texture.reset();
     }
-#endif // !NDEBUG
+#endif // !HOT_RELOAD
 
     g_kanae_texture_atlas.reset();
     load_kanae_texture();
