@@ -593,41 +593,43 @@ void WeaponSwitcher::on_frame() {
         if (weaponSwitchCooldown > weaponSwitchLockedFrames || animations_disabled) {
             tryPlayAnimation = false;
         }
-        if (tryPlayAnimation && !IsPlayingSwordChangeAnim(motID)) {
-            if (/*previousSwordEquipRead*/ player->mPcStatus.equip[0].readProc == eEqReadMax) {
-                switch (player->mPcStatus.equip[0].id) {
-                case BLOOD_BERRY:
-                case BLOOD_BERRY_BATTERY:
-                case BLOOD_BERRY_BATTERY_DAMAGE:
-                    nmh_sdk::PlayMotion(ePcMtBattou01, 0, 70, 1, 0.1f); // 249
-                    //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                    break;
-                case TSUBAKI_MK3:
-                case TSUBAKI_MK3_BATTERY:
-                case TSUBAKI_MK3_BATTERY_DAMAGE:
-                    nmh_sdk::PlayMotion(ePcMtBattou02Ed, 0, 0, 1, 0.1f); // 297
-                    //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                    break;
-                case TSUBAKI_MK1:
-                case TSUBAKI_MK1_BATTERY:
-                case TSUBAKI_MK1_BATTERY_DAMAGE:
-                    nmh_sdk::PlayMotion(ePcMtBattou03Ed, 0, 0, 1, 0.1f); // 345
-                    //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                    break;
-                case TSUBAKI_MK2:
-                case TSUBAKI_MK2_BATTERY:
-                case TSUBAKI_MK2_BATTERY_DAMAGE:
-                    nmh_sdk::PlayMotion(ePcMtBattou04Ed, 0, 0, 1, 0.1f); // 391
-                    //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                    break;
-                default:
-                    //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                    break;
-                }
-                //nmh_sdk::PlayCamMotFromCharMot(5, 1, true, false, true);
-                if (IsPlayingSwordChangeAnim(motID)) {
-                    tryPlayAnimation = false;
-                }
+        if (tryPlayAnimation && !IsPlayingSwordChangeAnim(motID) && player->mPcStatus.equip[0].readProc == eEqReadMax) {
+            switch (player->mPcStatus.equip[0].id) {
+            case BLOOD_BERRY:
+            case BLOOD_BERRY_BATTERY:
+            case BLOOD_BERRY_DAMAGE:
+            case BLOOD_BERRY_BATTERY_DAMAGE:
+                nmh_sdk::PlayMotion(ePcMtBattou01, 0, 70, 1, 0.1f); // 249
+                //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+                break;
+            case TSUBAKI_MK3:
+            case TSUBAKI_MK3_BATTERY:
+            case TSUBAKI_MK3_DAMAGE:
+            case TSUBAKI_MK3_BATTERY_DAMAGE:
+                nmh_sdk::PlayMotion(ePcMtBattou02Ed, 0, 0, 1, 0.1f); // 297
+                //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+                break;
+            case TSUBAKI_MK1:
+            case TSUBAKI_MK1_BATTERY:
+            case TSUBAKI_MK1_DAMAGE:
+            case TSUBAKI_MK1_BATTERY_DAMAGE:
+                nmh_sdk::PlayMotion(ePcMtBattou03Ed, 0, 0, 1, 0.1f); // 345
+                //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+                break;
+            case TSUBAKI_MK2:
+            case TSUBAKI_MK2_BATTERY:
+            case TSUBAKI_MK2_DAMAGE:
+            case TSUBAKI_MK2_BATTERY_DAMAGE:
+                nmh_sdk::PlayMotion(ePcMtBattou04Ed, 0, 0, 1, 0.1f); // 391
+                //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+                break;
+            default:
+                //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+                break;
+            }
+            //nmh_sdk::PlayCamMotFromCharMot(5, 1, true, false, true);
+            if (IsPlayingSwordChangeAnim(motID)) {
+                tryPlayAnimation = false;
             }
         }
 
