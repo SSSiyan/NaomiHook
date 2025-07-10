@@ -7,6 +7,8 @@ public:
   
   ModCategory get_category() { return ModCategory::SYSTEM; };
 
+  static bool imguiPopout;
+
   // void custom_imgui_window();
 
   // mod name string for config

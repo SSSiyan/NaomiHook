@@ -1,7 +1,7 @@
 #include "EnemyTracker.hpp"
 #include "GuiFunctions.hpp" // for g_framework
 #if 1
-static bool imguiPopout = false;
+bool EnemyTracker::imguiPopout = false;
 
 std::optional<std::string> EnemyTracker::on_initialize() {
     return Mod::on_initialize();

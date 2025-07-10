@@ -20,11 +20,15 @@
 #include "Config.hpp"
 #include "GuiFunctions.hpp"
 #include "Fonts.hpp"
-#include "mods/DisableMouse.hpp"
 #include "ImageViewer.hpp"
 #include "mods/KbmControls.hpp"
 #include "utility/Hash.hpp"
 #include <deque>
+
+#include "mods/DisableMouse.hpp"
+// we display mouse if any of these have an imguiPopout open
+#include "mods/PlayerTracker.hpp"
+#include "mods/EnemyTracker.hpp"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -200,7 +204,11 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
     // TODO(): hotkey crap from dmc4hook?
     if (message == WM_KEYDOWN && w_param == VK_DELETE) {
        m_draw_ui = !m_draw_ui;
-        DisableMouse::gui_open = m_draw_ui; // stops mouse clicks registering on menus
+       if (m_draw_ui || PlayerTracker::imguiPopout || EnemyTracker::imguiPopout) {
+           DisableMouse::any_gui_open = true; // stops mouse clicks registering on menus and stops the cursor hiding when inputting something on the controller
+       } else {
+           DisableMouse::any_gui_open = false;
+       }
         if(g_kbm_controls) {
             g_kbm_controls->m_capture_mouse = !m_draw_ui;
         }

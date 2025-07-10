@@ -341,7 +341,7 @@ void LockOnSettings::on_draw_ui() {
     }
     if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "Disables wrestling moves when holding lock on. This allows you to squeeze more out of the Beat Attack movelist by incorporating punches and kicks into your combos. Roundhouse Kick, Jumping Spinning Back Kick, and Overhead Kick have had their cancel windows changed and will not reset your combo string.";
 
-    if (ImGui::Checkbox("replace HIT Number", &replaceHitNumMod_enabled)) {
+    if (ImGui::Checkbox("Replace HIT Number", &replaceHitNumMod_enabled)) {
         replaceHitNumToggle(replaceHitNumMod_enabled);
     }
     if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "NMH1 displays a hit counter when locked on to an enemy. This setting repurposes that display to show enemy HP as a number instead.";

@@ -1,7 +1,7 @@
 #include "PlayerTracker.hpp"
 #include "GuiFunctions.hpp" // for g_framework
 #if 1
-static bool imguiPopout = false;
+bool PlayerTracker::imguiPopout = false;
 
 static uintptr_t gPcCommonTable = NULL;
 static float* OverheadKickAddr = NULL;

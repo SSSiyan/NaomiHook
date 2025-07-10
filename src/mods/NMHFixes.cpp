@@ -2,6 +2,7 @@
 #include <shlobj.h> // for ShellExecuteA
 #if 1
 bool NMHFixes::disableCrashDumps = false;
+
 bool NMHFixes::rankUpCrashFix = false;
 uintptr_t NMHFixes::rank_up_crash_fix_jmp_ret = NULL;
 uintptr_t NMHFixes::rank_up_crash_fix_jmp_je = NULL;

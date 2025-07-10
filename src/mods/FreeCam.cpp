@@ -128,7 +128,7 @@ void FreeCam::on_draw_ui() {
     if (ImGui::IsItemHovered()) FreeCam::hoveredDescription = "Camera movement sensitivity while holding L3";
     mHRPc* player = nmh_sdk::get_mHRPc();
     if (player) {
-        ImGui::Checkbox("Enable inputs to player", &player->mOperate);
+        ImGui::Checkbox("Enable Inputs To Player", &player->mOperate);
         if (ImGui::IsItemHovered()) FreeCam::hoveredDescription = "Disable player movement/actions";
     }
 }

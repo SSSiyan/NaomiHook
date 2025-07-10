@@ -8,7 +8,10 @@ public:
   ModCategory get_category() { return ModCategory::SYSTEM; };
   static bool mod_enabled;
   static uintptr_t jmp_ret1;
-  static bool gui_open;
+  static bool any_gui_open;
+
+  static bool dontHideMouseWhenHookIsOpen;
+  static uintptr_t dont_hide_mouse_jmp_ret;
 
   // mod name string for config
   std::string get_mod_name() const override { return "DisableMouse"; }
@@ -31,5 +34,6 @@ public:
   //void on_draw_debug_ui() override;
 private:
 	std::unique_ptr<FunctionHook> m_hook1;
+	std::unique_ptr<FunctionHook> dont_hide_mouse_hook1;
 	// std::unique_ptr<Patch> m_patch;
 };

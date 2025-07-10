@@ -7,12 +7,13 @@ public:
   
   ModCategory get_category() { return ModCategory::SYSTEM; };
   static bool disableCrashDumps;
+
   static bool rankUpCrashFix;
   static uintptr_t rank_up_crash_fix_jmp_ret;
   static uintptr_t rank_up_crash_fix_jmp_je;
 
   void disableCrashDumpsToggle(bool enabled);
-  void deepRankUpCrashFixToggle(bool enabled);
+  // void deepRankUpCrashFixToggle(bool enabled);
 
   // mod name string for config
   std::string get_mod_name() const override { return "NMHFixes"; }
