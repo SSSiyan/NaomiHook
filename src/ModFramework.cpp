@@ -206,6 +206,9 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
             g_kbm_controls->m_capture_mouse = !m_draw_ui;
         }
     }
+    if (message == WM_QUIT || message == WM_CLOSE) {
+        return true;
+    }
 
     if (g_kbm_controls->window_proc_handler(wnd, message, w_param, l_param)) {
         return false;
