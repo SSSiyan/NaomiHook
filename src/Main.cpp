@@ -3,6 +3,8 @@
 
 #include "ModFramework.hpp"
 
+#include "utility/ExceptionHandler.hpp"
+
 #include "mods/ResolutionScaleFix.hpp"
 
 #define DLLPATH "\\\\.\\GLOBALROOT\\SystemRoot\\SysWOW64\\XInput1_4.dll"
@@ -44,6 +46,9 @@ static DWORD WINAPI startup_thread([[maybe_unused]] LPVOID parameter) {
 #endif
 
     g_framework = std::make_unique<ModFramework>();
+#ifdef NDEBUG
+    reframework::setup_exception_handler();
+#endif
 
     return ERROR_SUCCESS;
 }

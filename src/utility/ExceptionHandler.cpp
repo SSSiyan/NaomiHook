@@ -88,12 +88,14 @@ static void get_modules(std::stringstream& ss) {
 
 LONG WINAPI reframework::global_exception_handler(struct _EXCEPTION_POINTERS* ei) {
     spdlog::flush_on(spdlog::level::err);
+
+    spdlog::error("Exception caught!");
    
     std::stringstream err_msg_buf;
     err_msg_buf << fmt::format("Exception occurred: {:x}", ei->ExceptionRecord->ExceptionCode) << '\n';
     err_msg_buf << get_exception_code_info(ei->ExceptionRecord->ExceptionCode) << '\n';
-    err_msg_buf << "Check for naomihook_crash.dmp in NMH1 installation directory" << '\n';
-    err_msg_buf << "Please describe what you were doing when NMH 1 crashed!and send it to the developers" << '\n';
+    err_msg_buf << "Check for naomihook_crash.dmp and NaomiHook_log.txt in NMH1 installation directory" << '\n';
+    err_msg_buf << "Please describe what you were doing when NMH 1 crashed and send these files to the developers" << '\n';
     err_msg_buf << fmt::format("EIP: {:x}", ei->ContextRecord->Eip) << '\n';
     err_msg_buf << fmt::format("ESP: {:x}", ei->ContextRecord->Esp) << '\n';
     err_msg_buf << fmt::format("ECX: {:x}", ei->ContextRecord->Ecx) << '\n';
@@ -110,6 +112,8 @@ LONG WINAPI reframework::global_exception_handler(struct _EXCEPTION_POINTERS* ei
     err_msg_buf << fmt::format("FS: {:x}", ei->ContextRecord->SegFs) << '\n';
     err_msg_buf << fmt::format("GS: {:x}", ei->ContextRecord->SegGs) << '\n';
     err_msg_buf << fmt::format("SS: {:x}", ei->ContextRecord->SegSs) << '\n';
+
+    get_modules(err_msg_buf);
 
     spdlog::error(err_msg_buf.str());
 

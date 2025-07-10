@@ -22,6 +22,13 @@
 
 #define IMGUI_WINDOW_ST_MODNAME_COLOR 0xffbfe6ff // mod title at top right
 
+static float linear_map(float edge0, float edge1, float x) {
+    // Scale, and clamp x to 0..1 range
+    x = ((x - edge0) / (edge1 - edge0));
+
+    return glm::clamp(x, 0.0f, 1.0f); // Simply return x instead of applying the cubic polynomial
+}
+
 namespace gui {
     void dark_theme(unsigned int dpi) {
         {
@@ -239,9 +246,10 @@ namespace gui {
             ctx->main_window_rect.Min.x,
             ctx->main_window_rect.Max.y + IMGUI_WINDOW_PADDING
         };
+        float anim     = linear_map(ctx->bottom_window_anim.time_start, ctx->bottom_window_anim.time_end, ctx->an_accumulator);
         glm::vec2 size {
             ctx->left_window_rect.Max.x - ctx->main_window_rect.Min.x,
-            io.DisplaySize.y * 0.16f
+            io.DisplaySize.y * 0.16f * anim,
         };
 
         ImGui::SetNextWindowPos(offset);
@@ -273,7 +281,8 @@ namespace gui {
             ctx->main_window_rect.Min.y
         };
 
-        glm::vec2 size = {ctx->main_window_rect.GetWidth(), ctx->main_window_rect.GetHeight()};
+        float anim     = linear_map(ctx->left_window_anim.time_start, ctx->left_window_anim.time_end, ctx->an_accumulator);
+        glm::vec2 size = { ctx->main_window_rect.GetWidth() * anim, ctx->main_window_rect.GetHeight()};
 
         ctx->left_window_rect.Min = offset;
         ctx->left_window_rect.Max = offset + size;
@@ -366,7 +375,8 @@ namespace gui {
             auto& io = ImGui::GetIO();
 
             glm::vec2 offset{50.0f, 30.0f};
-            glm::vec2 size{io.DisplaySize.x * 0.25f, io.DisplaySize.y * 0.58f};
+            float anim = linear_map(ctx->main_window_anim.time_start, ctx->main_window_anim.time_end, ctx->an_accumulator);
+            glm::vec2 size{io.DisplaySize.x * 0.25f, io.DisplaySize.y * 0.58f * anim};
 
             ctx->main_window_rect.Min = offset;
             ctx->main_window_rect.Max = offset + size;

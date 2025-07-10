@@ -209,9 +209,13 @@ bool ModFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_p
        } else {
            DisableMouse::any_gui_open = false;
        }
+        m_our_imgui_ctx->an_accumulator = 0.0f;
         if(g_kbm_controls) {
             g_kbm_controls->m_capture_mouse = !m_draw_ui;
         }
+    }
+    if (message == WM_QUIT || message == WM_CLOSE) {
+        return true;
     }
 
     if (g_kbm_controls->window_proc_handler(wnd, message, w_param, l_param)) {
@@ -271,6 +275,7 @@ void ModFramework::draw_ui() {
         return;
     }
     m_our_imgui_ctx->wflags = m_draw_ui;
+    m_our_imgui_ctx->an_accumulator += io.DeltaTime;
 
 #if 0
     ImGui::SetNextWindowPos(ImVec2(50, 50), ImGuiCond_::ImGuiCond_Once);
