@@ -127,6 +127,8 @@ naked void detour1() {
         cmp byte ptr [ecx+0x29a2], 1 // if mDeadPause, do not edit teleport
         je noStageEdit
         push 1
+        mov byte ptr [ecx+0x1704], 0 // reset rouletteHitRate
+        mov dword ptr [ecx+0x1780], 0 // reset ikasamaSlot
         call dword ptr [ArcadeMode::mSetVisible] // set char visible after cutscenes
         call dword ptr GetNextStage // put nextStage* in eax
         test eax, eax
