@@ -524,35 +524,34 @@ std::optional<std::string> KbmControls::on_initialize() {
         //ext->cl.rstick.x = -1.0f;
     });
 
-    // TODO(deep): idk which is correct bind to write
     g_input_map.input_map("Switch to Blood Berry", ImGuiKey_1,   [](KPADEXStatus* ext){ 
         uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
         if (dPadInputsAddr) {
             int8_t* dPadInput = (int8_t*)dPadInputsAddr;
-            *dPadInput = 8;
+            *dPadInput = DPAD_UP;
         }
     });
     g_input_map.input_map("Switch to Tsubaki MK1", ImGuiKey_2, [](KPADEXStatus* ext){ 
         uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
         if (dPadInputsAddr) {
             int8_t* dPadInput = (int8_t*)dPadInputsAddr;
-            *dPadInput = 2;
+            *dPadInput = DPAD_LEFT;
         }
         });
     g_input_map.input_map("Switch to Tsubaki MK2",  ImGuiKey_3, [](KPADEXStatus* ext){ 
         uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
         if (dPadInputsAddr) {
             int8_t* dPadInput = (int8_t*)dPadInputsAddr;
-            *dPadInput = 4;
+            *dPadInput = DPAD_DOWN;
         }
     });
     g_input_map.input_map("Switch to Tsubaki MK3",  ImGuiKey_4, [](KPADEXStatus* ext){ 
         uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
         if (dPadInputsAddr) {
             int8_t* dPadInput = (int8_t*)dPadInputsAddr;
-            *dPadInput = 1;
+            *dPadInput = DPAD_RIGHT;
         }
-        });
+    });
 
     g_input_map.input_map("Call Bike",    ImGuiKey_B, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_SQUARE; });
 
@@ -618,7 +617,7 @@ void KbmControls::on_frame() {
 }
 
 void KbmControls::on_draw_ui() {
-    if (m_mod_enabled->draw("Enable Keyboard and Mouse Support?")) {
+    if (m_mod_enabled->draw("Enable Keyboard and Mouse Support")) {
         if (m_mod_enabled->value() && !m_hooks) {
             m_hooks = std::make_unique<RAIIHooks>();
             register_raw_input_mouse(m_wnd);
@@ -627,7 +626,7 @@ void KbmControls::on_draw_ui() {
             m_hooks.reset();
         }
     }
-    m_block_lockon->draw("Block mouse inputs when locked on?");
+    m_block_lockon->draw("Block Mouse Inputs While Locked On");
 
     m_base_mouse_sens->draw("Base mouse sensitivity");
     m_cams_mouse_sens->draw("Camera senisitivity");
