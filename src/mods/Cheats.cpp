@@ -1,6 +1,7 @@
 #include "Cheats.hpp"
 #include <unordered_set>
 #include "../Config.hpp" // for CONFIG_FILENAME
+#include "ReprisalSwap.hpp"
 #if 1
 bool Cheats::take_no_damage = false;
 bool Cheats::deal_no_damage = false;
@@ -79,14 +80,42 @@ void Cheats::toggleDealNoDamage(bool enable) {
 }
 
 // clang-format off
+static constexpr float oneHitKillDamage = 9999.0f;
+static constexpr float reprisalDamageModifier = 0.1f;
 naked void detour_damage_modifier() { 
     __asm {
-        cmp byte ptr [Cheats::one_hit_kill], 0
-        je originalcode
+        cmp byte ptr [Cheats::one_hit_kill], 1
+        je oneHitKill
+        cmp byte ptr [ReprisalSwap::mod_enabled], 1
+        je reprisalMoveIDCheck
+        cmp byte ptr [ReprisalSwap::mid_stance_enabled], 1
+        je reprisalMoveIDCheck
+        jmp originalcode
 
-        mov dword ptr [esp], 0x461c3c00 // 9999.0f
-        jmp retcode
+        reprisalMoveIDCheck:
+        cmp byte ptr [edi+0x1707], 1 // justAttack
+        jne originalcode
+        cmp dword ptr [edi+0x18C], ePcMtBtAtkChgUp
+        je checkHighReprisalCheatTicked
+        cmp dword ptr [edi+0x18C], ePcMtBtAtkChg
+        je checkMidReprisalCheatTicked
+        jmp originalcode
 
+    checkHighReprisalCheatTicked:
+        cmp byte ptr [ReprisalSwap::mod_enabled], 1
+        je newReprisalDamage
+        jmp originalcode
+
+    checkMidReprisalCheatTicked:
+        cmp byte ptr [ReprisalSwap::mid_stance_enabled], 1
+        je newReprisalDamage
+        jmp originalcode
+
+    oneHitKill:
+        movss xmm0, [oneHitKillDamage]
+        jmp originalcode
+    newReprisalDamage:
+        mulss xmm0, [reprisalDamageModifier]
     originalcode:
         movss [esp],xmm0
     retcode:
@@ -111,15 +140,6 @@ void Cheats::toggleEnemiesDontAttack(bool enable) {
     else {
         install_patch_offset(0x43536E, patchEnemiesDontAttack, "\x7A\x1C", 2); // jp nmh.HRZAKO::mFrameProc+5C
     }
-}
-
-std::optional<std::string> Cheats::on_initialize() {
-    if (!install_hook_offset(0x3CB82F, damage_modifier_hook, &detour_damage_modifier, &Cheats::damage_modifier_jmp_ret, 5)) {
-        spdlog::error("Failed to init DamageModifier mod\n");
-        return "Failed to init DamageModifier mod";
-    }
-
-    return Mod::on_initialize();
 }
 
 void Cheats::render_description() const {
@@ -218,6 +238,15 @@ void Cheats::on_draw_ui() {
         }
         if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
     }
+}
+
+std::optional<std::string> Cheats::on_initialize() {
+    if (!install_hook_offset(0x3CB82F, damage_modifier_hook, &detour_damage_modifier, &Cheats::damage_modifier_jmp_ret, 5)) {
+        spdlog::error("Failed to init DamageModifier mod\n");
+        return "Failed to init DamageModifier mod";
+    }
+
+    return Mod::on_initialize();
 }
 
 void Cheats::on_config_load(const utility::Config &cfg) {
