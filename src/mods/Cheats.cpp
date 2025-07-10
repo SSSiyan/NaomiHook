@@ -58,6 +58,11 @@ void check_password() {
 }
 
 bool is_cheat_unlocked(const std::string& cheat_name) {
+    // NOTE(deep): too lazy to type those every time i juggle configs
+#ifndef NDEBUG
+        return true;
+#endif
+
     return unlocked_cheats.find(cheat_name) != unlocked_cheats.end();
 }
 
