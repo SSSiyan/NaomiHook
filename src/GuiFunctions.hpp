@@ -66,7 +66,7 @@ void dark_theme(unsigned int dpi);
 void help_marker(const char* desc);
 
 void imgui_main_window_proc(OurImGuiContext* ctx, Mods* pmods, bool* window_open);
-void imgui_left_window_proc(OurImGuiContext* ctx, Mods* pmods);
+void imgui_right_window_proc(OurImGuiContext* ctx, Mods* pmods);
 void imgui_bottom_window_proc(OurImGuiContext* ctx, Mods* pmods);
 
 struct ImGuiURL {

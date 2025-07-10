@@ -272,7 +272,7 @@ namespace gui {
         ImGui::End();
     }
 
-    void imgui_left_window_proc(OurImGuiContext* ctx, Mods* pmods) {
+    void imgui_right_window_proc(OurImGuiContext* ctx, Mods* pmods) {
 
         bool window_open = ctx->selected_mod;
 

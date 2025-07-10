@@ -7,6 +7,7 @@ public:
   
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
   static bool mod_enabled;
+  static bool animations_disabled;
   static uintptr_t jmp_ret1;
   static uintptr_t jmp_ret2;
   static uintptr_t jmp_ret3;

@@ -64,6 +64,7 @@ Frame Mk_3 = g_atlas.Mk_3();
 #pragma endregion
 
 bool WeaponSwitcher::mod_enabled = false;
+bool WeaponSwitcher::animations_disabled;
 uintptr_t WeaponSwitcher::jmp_ret1 = NULL;
 uintptr_t WeaponSwitcher::jmp_ret2 = NULL;
 uintptr_t WeaponSwitcher::jmp_ret3 = NULL;
@@ -589,7 +590,7 @@ void WeaponSwitcher::on_frame() {
         // play an anim after the sword loads (eEqReadMax)
         // we have to keep trying on frame until it plays (IsPlayingSwordChangeAnim)
         int motID = player->mCharaStatus.motionNo;
-        if (weaponSwitchCooldown > weaponSwitchLockedFrames) {
+        if (weaponSwitchCooldown > weaponSwitchLockedFrames || animations_disabled) {
             tryPlayAnimation = false;
         }
         if (tryPlayAnimation && !IsPlayingSwordChangeAnim(motID)) {
@@ -680,6 +681,7 @@ std::optional<std::string> WeaponSwitcher::on_initialize() {
 // during load
 void WeaponSwitcher::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("weapon_switcher").value_or(false);
+    animations_disabled = cfg.get<bool>("disable_weapon_switcher_animations").value_or(false);
     if (mod_enabled) toggleForceMap(mod_enabled);
     savedSword[WS_LEFT] = cfg.get<int>("savedSword[0]").value_or(TSUBAKI_MK1);
     savedSword[WS_DOWN] = cfg.get<int>("savedSword[1]").value_or(TSUBAKI_MK2);
@@ -690,6 +692,7 @@ void WeaponSwitcher::on_config_load(const utility::Config &cfg) {
 // during save
 void WeaponSwitcher::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("weapon_switcher", mod_enabled);
+    cfg.set<bool>("disable_weapon_switcher_animations", animations_disabled);
     for (int i = 0; i < 4; i++) {
         cfg.set<int>(("savedSword[" + std::to_string(i) + "]"), selectedSword[i]);
     }

@@ -289,7 +289,7 @@ void ModFramework::draw_ui() {
 #endif
     if (m_error.empty() && m_game_data_initialized) {
         gui::imgui_main_window_proc  (m_our_imgui_ctx.get(), m_mods.get(), &m_draw_ui);
-        gui::imgui_left_window_proc  (m_our_imgui_ctx.get(), m_mods.get());
+        gui::imgui_right_window_proc  (m_our_imgui_ctx.get(), m_mods.get());
         gui::imgui_bottom_window_proc(m_our_imgui_ctx.get(), m_mods.get());
     }
     else if (!m_game_data_initialized) {
