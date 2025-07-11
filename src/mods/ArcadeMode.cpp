@@ -304,15 +304,44 @@ void DisplayShop(mHRPc* player, bool toggle) {
     }
 
     if (ImGui::TreeNodeEx("Wrestling", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
-        for (int i = 0; i < 16; ++i) {
-            RenderWrestlingUnlock(player, i, wrestlingNames[i], 150);
+        static constexpr int num = 16;
+        static constexpr int wrestlingPrices[num] = {
+            200, // "Dragon Suplex",           
+            200, // "Brain Buster",            
+            200, // "default##2",              
+            200, // "default##3",              
+            200, // "Hurricanrana",            
+            200, // "Power Bomb",              
+            200, // "Brain Buster Slam",       
+            200, // "Quebradora Con Giro",     
+            200, // "German Suplex",           
+            200, // "Tiger Suplex",            
+            200, // "Belly To Belly",          
+            200, // "Front Neck Chancery Drop",
+            200, // "Captured",                
+            200, // "Reverse Armsault",        
+            200, // "Double Arm Suplex",       
+            200  // "Double Wrist Armsault",   
+        };
+        for (int i = 0; i < num; ++i) {
+            RenderWrestlingUnlock(player, i, wrestlingNames[i], wrestlingPrices[i]);
         }
         ImGui::TreePop();
     }
 
     if (ImGui::TreeNodeEx("Skills", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
-        for (int i = 0; i < 7; ++i) {
-            RenderK7Unlock(player, i, k7Names[i], 150);
+        static constexpr int num = 7;
+        static constexpr int k7Prices[num] = {
+            200,  // "Memory of Demon - Jumping Slash",      
+            200,  // "Memory of Child - Sprint",             
+            200,  // "Memory of Three - Mini Map",           
+            200,  // "Memory of Woman - Darkside Extension", 
+            200,  // "Memory of Mask - Wrestling Grab Range",
+            200,  // "Memory of Tattoo - Total Rank Bonus",  
+            200   // "Memory of White - Jumping Down Attack",
+        };
+        for (int i = 0; i < num; ++i) {
+            RenderK7Unlock(player, i, k7Names[i], k7Prices[i]);
         }
         ImGui::TreePop();
     }

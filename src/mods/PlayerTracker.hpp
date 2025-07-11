@@ -38,8 +38,8 @@ private:
 static const char* wrestlingNames[16] {
     "Dragon Suplex",            // Skill Catch 0 Default 1
     "Brain Buster",             // Skill Catch 1 Default 2
-    "default#2",                // Skill Catch 2
-    "default#3",                // Skill Catch 3
+    "default##2",               // Skill Catch 2
+    "default##3",               // Skill Catch 3
     "Hurricanrana",             // Skill Catch 4  VHS Vol.3
     "Power Bomb",               // Skill Catch 5  VHS Vol.4
     "Brain Buster Slam",        // Skill Catch 6  VHS Vol.2
