@@ -356,14 +356,15 @@ namespace gui {
             ctx->selected_category = category_enum;
             auto& io = ImGui::GetIO();
             ImGui::PushFont(ctx->fancy_font, 18.0f * (io.DisplaySize.y / 1080.0f));
-
+            ImVec2 currentSpacing = ImGui::GetStyle().ItemSpacing;
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(currentSpacing.x, 69.0f));
             for (auto& mod : g_framework->get_mods()->m_mods) {
                 if (mod->get_category() != category_enum) {
                     continue;
                 }
                 entry_func(ctx, mod.get());
             }
-
+            ImGui::PopStyleVar();
             ImGui::PopFont();
             ImGui::TreePop();
         }
