@@ -316,7 +316,7 @@ namespace gui {
             ImVec2 pos           = ImGui::GetCursorPos();
             std::string btn_name = mod->get_mod_name();
             btn_name += "_btn";
-            ImVec2 sz = ImVec2(-FLT_MIN, ImGui::GetTextLineHeightWithSpacing());
+            ImVec2 sz = ImVec2(-FLT_MIN, ImGui::GetTextLineHeight());
             if (ImGui::InvisibleButton(btn_name.c_str(), sz)) {
                 ctx->selected_mod = mod;
             }
