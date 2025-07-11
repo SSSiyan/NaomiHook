@@ -357,7 +357,8 @@ namespace gui {
             auto& io = ImGui::GetIO();
             ImGui::PushFont(ctx->fancy_font, 18.0f * (io.DisplaySize.y / 1080.0f));
             ImVec2 currentSpacing = ImGui::GetStyle().ItemSpacing;
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(currentSpacing.x, 69.0f));
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(currentSpacing.x, 69.0f * (io.DisplaySize.y / 1080.0f))); // spacing between entries
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f * (io.DisplaySize.y / 1080.0f)); // spacing before first entry
             for (auto& mod : g_framework->get_mods()->m_mods) {
                 if (mod->get_category() != category_enum) {
                     continue;
