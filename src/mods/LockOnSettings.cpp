@@ -5,7 +5,7 @@ const char* LockOnSettings::defaultDescription = "Lock On Settings";
 const char* LockOnSettings::hoveredDescription = defaultDescription;
 
 bool      LockOnSettings::lockon_more_actions = false;
-bool      LockOnSettings::lockon_deathblows = false;
+// bool      LockOnSettings::lockon_deathblows = false;
 bool      LockOnSettings::lockon_deathblows_start = false;
 bool      LockOnSettings::lockon_parry_qtes = false;
 //////////////////////////////////////////////////
@@ -39,14 +39,14 @@ enum HP_DISPLAY_MODE {
 };
 int LockOnSettings::replaceHitNumDisplayMode = DISPLAY_HP;
 //////////////////////////////////////////////////
-void LockOnSettings::toggle_deathblow_lockon(bool enable) {
-    if (enable) {
-        install_patch_offset(0x3C4429, patch_toggle_deathblow_during, "\xEB\x58", 2); // jmp nmh.exe+3C4483
-    }
-    else {
-        install_patch_offset(0x3C4429, patch_toggle_deathblow_during, "\x75\x58", 2); // jne nmh.exe+3C4483
-    }
-}
+// void LockOnSettings::toggle_deathblow_lockon(bool enable) {
+//     if (enable) {
+//         install_patch_offset(0x3C4429, patch_toggle_deathblow_during, "\xEB\x58", 2); // jmp nmh.exe+3C4483
+//     }
+//     else {
+//         install_patch_offset(0x3C4429, patch_toggle_deathblow_during, "\x75\x58", 2); // jne nmh.exe+3C4483
+//     }
+// }
 
 void LockOnSettings::toggle_deathblow_lockon_start(bool enable) {
     if (enable) {
@@ -312,10 +312,10 @@ void LockOnSettings::on_draw_ui() {
     ImGui::Checkbox("Rolls & Dark Step", &lockon_more_actions);
     if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "Prevent the game from disabling lock-on during rolls and Dark Step";
 
-    if (ImGui::Checkbox("Full Lockon Freedom During Deathblows", &lockon_deathblows)) {
-        toggle_deathblow_lockon(lockon_deathblows);
-    }
-    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "Removes all lock on related restrictions from Death Blows";
+    // if (ImGui::Checkbox("Full Lockon Freedom During Deathblows", &lockon_deathblows)) {
+    //     toggle_deathblow_lockon(lockon_deathblows);
+    // }
+    // if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "Removes all lock on related restrictions from Death Blows";
 
     if (ImGui::Checkbox("Death Blows", &lockon_deathblows_start)) {
         toggle_deathblow_lockon_start(lockon_deathblows_start);
@@ -356,8 +356,8 @@ void LockOnSettings::on_draw_ui() {
 
 // during load
 void LockOnSettings::on_config_load(const utility::Config &cfg) {
-    lockon_deathblows = cfg.get<bool>("lockon_deathblows").value_or(false);
-    if (lockon_deathblows) toggle_deathblow_lockon(lockon_deathblows);
+    // lockon_deathblows = cfg.get<bool>("lockon_deathblows").value_or(false);
+    // if (lockon_deathblows) toggle_deathblow_lockon(lockon_deathblows);
     lockon_deathblows_start = cfg.get<bool>("lockon_deathblows_start").value_or(false);
     if (lockon_deathblows_start) toggle_deathblow_lockon_start(lockon_deathblows_start);
     lockon_parry_qtes = cfg.get<bool>("lockon_parry_qtes").value_or(false);
@@ -377,7 +377,7 @@ void LockOnSettings::on_config_load(const utility::Config &cfg) {
 
 // during save
 void LockOnSettings::on_config_save(utility::Config &cfg) {
-    cfg.set<bool>("lockon_deathblows", lockon_deathblows);
+    // cfg.set<bool>("lockon_deathblows", lockon_deathblows);
     cfg.set<bool>("lockon_deathblows_start", lockon_deathblows_start);
     cfg.set<bool>("lockon_parry_qtes", lockon_parry_qtes);
 

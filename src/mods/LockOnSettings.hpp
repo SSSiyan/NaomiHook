@@ -8,8 +8,8 @@ public:
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
   //////////////////////////////////////////////////
   static bool      lockon_more_actions;
-  static bool      lockon_deathblows;
-  void             toggle_deathblow_lockon(bool enable);
+  // static bool      lockon_deathblows;
+  // void             toggle_deathblow_lockon(bool enable);
   static bool      lockon_deathblows_start;
   void			   toggle_deathblow_lockon_start(bool enable);
   static bool      lockon_parry_qtes;
