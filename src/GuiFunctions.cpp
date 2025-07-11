@@ -312,7 +312,7 @@ namespace gui {
     static void draw_category(OurImGuiContext* ctx, const char* category_name, ModCategory category_enum) {
 
         static constexpr auto entry_func = [](OurImGuiContext* ctx, Mod* mod) {
-            ImColor color        = ImColor(170, 94, 88); // cheat entry colour
+            ImColor color        = ImColor(240, 240, 240); // cheat entry colour
             ImVec2 pos           = ImGui::GetCursorPos();
             std::string btn_name = mod->get_mod_name();
             btn_name += "_btn";
@@ -322,7 +322,7 @@ namespace gui {
             }
             ImGui::SetCursorPos(pos);
             if (ImGui::IsItemHovered()) {
-                color = ImColor(94, 180, 88);
+                color = ImColor(40, 255, 33);
             }
             ImGui::TextColored(color, mod->get_human_readable_name().c_str());
         };
@@ -355,9 +355,9 @@ namespace gui {
         if (ImGui::TreeNodeEx(category_name, flags)) {
             ctx->selected_category = category_enum;
             auto& io = ImGui::GetIO();
-            ImGui::PushFont(ctx->fancy_font, 18.0f * (io.DisplaySize.y / 1080.0f));
+            ImGui::PushFont(ctx->tony_font, 12.0f * (io.DisplaySize.y / 1080.0f));
             ImVec2 currentSpacing = ImGui::GetStyle().ItemSpacing;
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(currentSpacing.x, 69.0f * (io.DisplaySize.y / 1080.0f))); // spacing between entries
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(currentSpacing.x, 10.0f * (io.DisplaySize.y / 1080.0f))); // spacing between entries
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f * (io.DisplaySize.y / 1080.0f)); // spacing before first entry
             for (auto& mod : g_framework->get_mods()->m_mods) {
                 if (mod->get_category() != category_enum) {

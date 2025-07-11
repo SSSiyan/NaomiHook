@@ -267,30 +267,30 @@ void DisplayShop(mHRPc* player, bool toggle) {
     ImGui::Begin("Arcade Shop", &toggle);
     ImGui::Text("Current Money: $%i", player->mPcStatus.money);
     ImVec2 windowSize = ImGui::GetIO().DisplaySize;
-    ImGui::SetWindowPos(ImVec2(windowSize.x * 0.535f, windowSize.y * 0.03f));
+    ImGui::SetWindowPos(ImVec2(windowSize.x * 0.535f, windowSize.y * 0.029f));
     ImGui::SetWindowSize(ImVec2(windowSize.x * 0.3f, windowSize.y * 0.7475f));
     if (ImGui::TreeNodeEx("Inventory", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (RenderShopLockerItem(BLOOD_BERRY, 100)) {
-            if (RenderShopLockerItem(BLOOD_BERRY_DAMAGE, 200)) {
-                RenderShopLockerItem(BLOOD_BERRY_BATTERY_DAMAGE, 300);
+            if (RenderShopLockerItem(BLOOD_BERRY_DAMAGE, 95000)) {
+                RenderShopLockerItem(BLOOD_BERRY_BATTERY_DAMAGE, 105000);
             }
         }
 
-        if (RenderShopLockerItem(TSUBAKI_MK1, 150)) {
-            if (RenderShopLockerItem(TSUBAKI_MK1_DAMAGE, 250)) {
-                RenderShopLockerItem(TSUBAKI_MK1_BATTERY_DAMAGE, 350);
+        if (RenderShopLockerItem(TSUBAKI_MK1, 98000)) {
+            if (RenderShopLockerItem(TSUBAKI_MK1_DAMAGE, 129800)) {
+                RenderShopLockerItem(TSUBAKI_MK1_BATTERY_DAMAGE, 129800);
             }
         }
 
-        if (RenderShopLockerItem(TSUBAKI_MK1, 200)) {
-            if (RenderShopLockerItem(TSUBAKI_MK2_DAMAGE, 300)) {
-                RenderShopLockerItem(TSUBAKI_MK2_BATTERY_DAMAGE, 400);
+        if (RenderShopLockerItem(TSUBAKI_MK2, 148000)) {
+            if (RenderShopLockerItem(TSUBAKI_MK2_DAMAGE, 150000)) {
+                RenderShopLockerItem(TSUBAKI_MK2_BATTERY_DAMAGE, 150000);
             }
         }
 
-        if (RenderShopLockerItem(TSUBAKI_MK3, 250)) {
-            if (RenderShopLockerItem(TSUBAKI_MK3_DAMAGE, 350)) {
-                RenderShopLockerItem(TSUBAKI_MK3_BATTERY_DAMAGE, 450);
+        if (RenderShopLockerItem(TSUBAKI_MK3, 498000)) {
+            if (RenderShopLockerItem(TSUBAKI_MK3_DAMAGE, 200000)) {
+                RenderShopLockerItem(TSUBAKI_MK3_BATTERY_DAMAGE, 999999);
             }
         }
 
@@ -310,18 +310,18 @@ void DisplayShop(mHRPc* player, bool toggle) {
             200, // "Brain Buster",            
             200, // "default##2",              
             200, // "default##3",              
-            200, // "Hurricanrana",            
-            200, // "Power Bomb",              
-            200, // "Brain Buster Slam",       
-            200, // "Quebradora Con Giro",     
-            200, // "German Suplex",           
-            200, // "Tiger Suplex",            
-            200, // "Belly To Belly",          
-            200, // "Front Neck Chancery Drop",
-            200, // "Captured",                
-            200, // "Reverse Armsault",        
-            200, // "Double Arm Suplex",       
-            200  // "Double Wrist Armsault",   
+            5000, // "Hurricanrana",            
+            5000, // "Power Bomb",              
+            5000, // "Brain Buster Slam",       
+            5000, // "Quebradora Con Giro",     
+            1000, // "German Suplex",           
+            1000, // "Tiger Suplex",            
+            1000, // "Belly To Belly",          
+            1000, // "Front Neck Chancery Drop",
+            1000, // "Captured",                
+            1000, // "Reverse Armsault",        
+            1000, // "Double Arm Suplex",       
+            1000  // "Double Wrist Armsault",   
         };
         for (int i = 0; i < num; ++i) {
             RenderWrestlingUnlock(player, i, wrestlingNames[i], wrestlingPrices[i]);
@@ -332,13 +332,13 @@ void DisplayShop(mHRPc* player, bool toggle) {
     if (ImGui::TreeNodeEx("Skills", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
         static constexpr int num = 7;
         static constexpr int k7Prices[num] = {
-            200,  // "Memory of Demon - Jumping Slash",      
-            200,  // "Memory of Child - Sprint",             
-            200,  // "Memory of Three - Mini Map",           
-            200,  // "Memory of Woman - Darkside Extension", 
-            200,  // "Memory of Mask - Wrestling Grab Range",
-            200,  // "Memory of Tattoo - Total Rank Bonus",  
-            200   // "Memory of White - Jumping Down Attack",
+            5000,  // "Memory of Demon - Jumping Slash",      
+            2500,  // "Memory of Child - Sprint",             
+            1000,  // "Memory of Three - Mini Map",           
+            20000,  // "Memory of Woman - Darkside Extension", 
+            15000,  // "Memory of Mask - Wrestling Grab Range",
+            30000,  // "Memory of Tattoo - Total Rank Bonus",  
+            10000   // "Memory of White - Jumping Down Attack",
         };
         for (int i = 0; i < num; ++i) {
             RenderK7Unlock(player, i, k7Names[i], k7Prices[i]);

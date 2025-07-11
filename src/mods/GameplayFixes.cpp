@@ -11,7 +11,7 @@ bool GameplayFixes::baseball_power_fix_enabled = false;
 uintptr_t GameplayFixes::baseball_power_fix_jmp_ret1 = NULL;
 uintptr_t GameplayFixes::baseball_power_fix_jmp_ret2 = NULL;
 
-const char* GameplayFixes::defaultDescription = "@DHMalice";
+const char* GameplayFixes::defaultDescription = "Here you'll find various fixes for gameplay bugs.";
 const char* GameplayFixes::hoveredDescription = defaultDescription;
 
 void GameplayFixes::render_description() const {
