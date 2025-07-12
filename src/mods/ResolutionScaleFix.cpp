@@ -6,7 +6,13 @@ static std::unique_ptr<FunctionHook> g_hook;
 
 void winapi_set_dpi_awareness() {
     BOOL dpi_success = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-    assert(dpi_success);
+
+#ifndef NDEBUG
+    if (dpi_success == FALSE) {
+        DWORD err = GetLastError();
+        assert (err == ERROR_ACCESS_DENIED);
+    }
+#endif // !NDEBUG
 }
 
 // clang-format off
