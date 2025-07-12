@@ -1,5 +1,6 @@
 #include "ReprisalSwap.hpp"
 #include "StanceControl.hpp"
+#include "ChargeSubsBattery.hpp"
 #if 1
 bool ReprisalSwap::mod_enabled = false;
 bool ReprisalSwap::mid_stance_enabled = false;
@@ -51,16 +52,21 @@ naked void detour1() { // player in ecx
     }
 }
 
-naked void detour2() { // disable parries on new reprisals // player in edi
+naked void detour2() { // disable clashes on new reprisals // disable clashes on charges when Charging Slashes cheat is enabled // player in edi
     __asm {
         cmp byte ptr [ReprisalSwap::mod_enabled], 0
-        je originalcode
-
+        je check2
         cmp dword ptr [edi+0x18C], ePcMtBtAtkChg
         je jmp_je
         cmp dword ptr [edi+0x18C], ePcMtBtAtkChgUp
         je jmp_je
-
+    check2:
+        cmp byte ptr [ChargeSubsBattery::mod_enabled], 1
+        jne originalcode
+        cmp dword ptr [edi+0x18C], ePcMtBtAtkChg // 169 Mid Charged Slash
+        je jmp_je
+        cmp dword ptr [edi+0x18C], ePcMtBtAtkChgUp // 170 High Charged Slash
+        je jmp_je
     originalcode:
         cmp byte ptr [edi+0x00001664],00
         jmp dword ptr [ReprisalSwap::jmp_ret2]

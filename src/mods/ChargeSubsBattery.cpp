@@ -52,20 +52,20 @@ naked void detour2() { // mid sub battery func, skip mk3 compares if in certain 
             cmp byte ptr [ChargeSubsBattery::mod_enabled], 0
             je originalcode
 
-            cmp dword ptr [esi+0x18C], 167 // low charging
+            cmp dword ptr [esi+0x18C], ePcMtBtChgStrt // 167 low charging
             je je_skipmk3
-            cmp dword ptr [esi+0x18C], 168 // low charging pt2
+            cmp dword ptr [esi+0x18C], ePcMtBtChgLp // 168 low charging pt2
             je je_skipmk3
-            cmp dword ptr [esi+0x18C], 170 // high charge
+            cmp dword ptr [esi+0x18C], ePcMtBtAtkChgUp // 170 high charge
             je je_skipmk3
 
-            cmp dword ptr [esi+0x18C], 169 // low mid charge hit
+            cmp dword ptr [esi+0x18C], ePcMtBtAtkChg // 169 low mid charge hit
             je je_skipmk3
-            cmp dword ptr [esi+0x18C], 290 // low full charge hit
+            cmp dword ptr [esi+0x18C], ePcMtBtAtk02RngCmbA // 290 low full charge hit
             je je_skipmk3
-            cmp dword ptr [esi+0x18C], 291 // low full charge hit 2
+            cmp dword ptr [esi+0x18C], ePcMtBtAtk02RngCmbB // 291 low full charge hit 2
             je je_skipmk3
-            cmp dword ptr [esi+0x18C], 292 // low full charge hit 3
+            cmp dword ptr [esi+0x18C], ePcMtBtAtk02RngCmbC // 292 low full charge hit 3
             je je_skipmk3
 
         originalcode:
