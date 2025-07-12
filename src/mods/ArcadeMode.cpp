@@ -271,8 +271,8 @@ void DisplayShop(mHRPc* player, bool toggle) {
     ImGui::SetWindowSize(ImVec2(windowSize.x * 0.3f, windowSize.y * 0.7475f));
     if (ImGui::TreeNodeEx("Inventory", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (RenderShopLockerItem(BLOOD_BERRY, 100)) {
-            if (RenderShopLockerItem(BLOOD_BERRY_DAMAGE, 95000)) {
-                RenderShopLockerItem(BLOOD_BERRY_BATTERY_DAMAGE, 105000);
+            if (RenderShopLockerItem(BLOOD_BERRY_DAMAGE, 35000)) {
+                RenderShopLockerItem(BLOOD_BERRY_BATTERY_DAMAGE, 95000);
             }
         }
 
@@ -310,18 +310,18 @@ void DisplayShop(mHRPc* player, bool toggle) {
             200, // "Brain Buster",            
             200, // "default##2",              
             200, // "default##3",              
-            5000, // "Hurricanrana",            
-            5000, // "Power Bomb",              
-            5000, // "Brain Buster Slam",       
-            5000, // "Quebradora Con Giro",     
-            1000, // "German Suplex",           
-            1000, // "Tiger Suplex",            
-            1000, // "Belly To Belly",          
-            1000, // "Front Neck Chancery Drop",
-            1000, // "Captured",                
-            1000, // "Reverse Armsault",        
-            1000, // "Double Arm Suplex",       
-            1000  // "Double Wrist Armsault",   
+            35000, // "Hurricanrana",            
+            35000, // "Power Bomb",              
+            35000, // "Brain Buster Slam",       
+            35000, // "Quebradora Con Giro",     
+            30000, // "German Suplex",           
+            30000, // "Tiger Suplex",            
+            30000, // "Belly To Belly",          
+            30000, // "Front Neck Chancery Drop",
+            30000, // "Captured",                
+            30000, // "Reverse Armsault",        
+            30000, // "Double Arm Suplex",       
+            30000  // "Double Wrist Armsault",   
         };
         for (int i = 0; i < num; ++i) {
             RenderWrestlingUnlock(player, i, wrestlingNames[i], wrestlingPrices[i]);
@@ -332,9 +332,9 @@ void DisplayShop(mHRPc* player, bool toggle) {
     if (ImGui::TreeNodeEx("Skills", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
         static constexpr int num = 7;
         static constexpr int k7Prices[num] = {
-            5000,  // "Memory of Demon - Jumping Slash",      
-            2500,  // "Memory of Child - Sprint",             
-            1000,  // "Memory of Three - Mini Map",           
+            5000,   // "Memory of Demon - Jumping Slash",      
+            2500,   // "Memory of Child - Sprint",             
+            1000,   // "Memory of Three - Mini Map",           
             20000,  // "Memory of Woman - Darkside Extension", 
             15000,  // "Memory of Mask - Wrestling Grab Range",
             30000,  // "Memory of Tattoo - Total Rank Bonus",  

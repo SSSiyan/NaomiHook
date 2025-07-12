@@ -101,10 +101,10 @@ const char* ReprisalSwap::hoveredDescription = defaultDescription;
 void ReprisalSwap::on_draw_ui() {
     if (!ImGui::IsAnyItemHovered()) ReprisalSwap::hoveredDescription = defaultDescription;
 
-    ImGui::Checkbox("High Attack Reprisal", &mod_enabled); // high is pressed after gold block
+    ImGui::Checkbox("High Charge Reprisal", &mod_enabled); // high is pressed after gold block
     if (ImGui::IsItemHovered()) ReprisalSwap::hoveredDescription = "Changes the parry reprisal to HIGH Charged Slash when performed in HIGH stance.";
 
-    ImGui::Checkbox("Mid Stance Reprisal", &mid_stance_enabled); // high is pressed after gold block while in mid stance
+    ImGui::Checkbox("Mid Charge Reprisal", &mid_stance_enabled); // high is pressed after gold block while in mid stance
     if (ImGui::IsItemHovered()) ReprisalSwap::hoveredDescription = "Changes the parry reprisal to MID Charged Slash when performed in MID stance.";
 }
 

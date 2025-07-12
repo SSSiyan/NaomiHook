@@ -185,16 +185,16 @@ void Cheats::on_draw_ui() {
         if (ImGui::Checkbox("Deal No Damage", &deal_no_damage)) {
             toggleDealNoDamage(deal_no_damage);
         }
-        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Lethal Throws, Deathblows, and Charged Slashes can still kill enemies who don't have Endurance.";
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Lethal Throws, Deathblows, Jumping Slash, and Charged Slashes can still kill enemies who don't have Endurance.";
     }
 
     if (is_cheat_unlocked("one_hit_kill")) {
-        ImGui::Checkbox("One Hit Kill", &one_hit_kill);
+        ImGui::Checkbox("One Hit Kills", &one_hit_kill);
         if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "One hit kill all enemies";
     }
     
     if (is_cheat_unlocked("spend_no_battery")) {
-        if (ImGui::Checkbox("Spend No Battery", &spend_no_battery)) {
+        if (ImGui::Checkbox("Infinite Battery", &spend_no_battery)) {
             toggleSpendNoBattery(spend_no_battery);
         }
         if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
@@ -210,35 +210,35 @@ void Cheats::on_draw_ui() {
     float combo_width = ImGui::CalcItemWidth();
     
     if (is_cheat_unlocked("start_777")) {
-        if (ImGui::Button("Start 777", ImVec2(combo_width, NULL))) {
+        if (ImGui::Button("Activate Anarchy In The Galaxy", ImVec2(combo_width, NULL))) {
             nmh_sdk::Start777();
         }
         if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
     }
     
     if (is_cheat_unlocked("start_bar")) {
-        if (ImGui::Button("Start Bar", ImVec2(combo_width, NULL))) {
+        if (ImGui::Button("Activate Cranberry Chocolate Sundae", ImVec2(combo_width, NULL))) {
             nmh_sdk::StartBar(false, 0);
         }
         if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
     }
     
     if (is_cheat_unlocked("start_bell")) {
-        if (ImGui::Button("Start Bell", ImVec2(combo_width, NULL))) {
+        if (ImGui::Button("Activate Blueberry Cheese Brownie", ImVec2(combo_width, NULL))) {
             nmh_sdk::StartBell();
         }
         if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
     }
     
     if (is_cheat_unlocked("start_hopper")) {
-        if (ImGui::Button("Start Hopper", ImVec2(combo_width, NULL))) {
+        if (ImGui::Button("Activate Strawberry on The Shortcake", ImVec2(combo_width, NULL))) {
             nmh_sdk::StartHopper();
         }
         if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
     }
     
     if (is_cheat_unlocked("start_cherry")) {
-        if (ImGui::Button("Start Cherry", ImVec2(combo_width, NULL))) {
+        if (ImGui::Button("Activate Cherries", ImVec2(combo_width, NULL))) {
             nmh_sdk::StartCherry();
         }
         if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;

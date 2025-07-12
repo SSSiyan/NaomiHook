@@ -348,7 +348,7 @@ void LockOnSettings::on_draw_ui() {
     
     if (replaceHitNumMod_enabled) {
         ImGui::Indent();
-        ImGui::Combo("HP Display Mode", &replaceHitNumDisplayMode, "HP\0TENSION\0MONEY\0STORE_DAMAGE\0", 4);
+        ImGui::Combo("Display Type", &replaceHitNumDisplayMode, "HP\0TENSION\0MONEY\0STORE_DAMAGE\0", 4);
         ImGui::Unindent();
     }
     if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "DHMalice please add details";

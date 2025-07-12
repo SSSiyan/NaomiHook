@@ -520,7 +520,7 @@ void StanceControl::render_description() const {
 void StanceControl::on_draw_ui() {
     if (!ImGui::IsAnyItemHovered()) StanceControl::hoveredDescription = defaultDescription;
 
-    if (ImGui::Checkbox("Stance Control on R2", &mod_enabled)) {
+    if (ImGui::Checkbox("Gradual", &mod_enabled)) {
         toggle(mod_enabled);
         if (mod_enabled_gear_system) {
             mod_enabled_gear_system = false;
@@ -552,13 +552,13 @@ void StanceControl::on_draw_ui() {
 
         // ImGui::Checkbox("Show Custom Stance UI", &StanceControl::show_new_ui);
 
-        ImGui::Checkbox("Combo Extend Speedup On Low Attacks", &mod_enabled_faster_nu_lows);
-        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks";
+        ImGui::Checkbox("Combo Speed Upgrade On Low Attacks", &mod_enabled_faster_nu_lows);
+        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "The unused Low stance attacks don't utilize the speed buff that comes with the combo extension upgrades. Tick this to apply it.";
 
         ImGui::Unindent();
     }
 
-    if (ImGui::Checkbox("Gear System", &mod_enabled_gear_system)) {
+    if (ImGui::Checkbox("Toggle Mode", &mod_enabled_gear_system)) {
         toggle(mod_enabled_gear_system); // disable stance switching when pressing face buttons
         disable_cam_reset(mod_enabled_gear_system); // disable cam reset, we need the button
         mod_enabled = false;
@@ -567,11 +567,11 @@ void StanceControl::on_draw_ui() {
 
     if (mod_enabled_gear_system) {
         ImGui::Indent();
-        ImGui::Checkbox("Use Hold Inputs", &gear_system_holds);
+        ImGui::Checkbox("Hold Mode", &gear_system_holds);
         if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Instead of toggling stances, access them with hold inputs. Hold R1 for High, R2 for low";
 
         ImGui::Checkbox("Combo Extend Speedup On Low Attacks", &mod_enabled_faster_nu_lows);
-        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks";
+        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks. This still requires you to purchase the upgrade.";
 
         // ImGui::Checkbox("Very Smooth", &verySmooth);
         // if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "DEV ONLY. How smooth do you want going between stances to look? Untick for linear. Imo it's cool but too dmc5 for this game";
@@ -592,7 +592,7 @@ void StanceControl::on_draw_ui() {
     if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "The High/Low stances are mistakenly inverted by default, forcing Travis to take on the incorrect stance. This setting "
                 "corrects that issue. This is purely cosmetic.";
 
-    if (ImGui::Checkbox("Disable Combo Extend Speedup", &mod_enabled_disable_combo_extend_speedup)) {
+    if (ImGui::Checkbox("Disable Combo Speed Upgrade", &mod_enabled_disable_combo_extend_speedup)) {
         toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
     }
     if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";

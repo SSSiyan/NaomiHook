@@ -351,15 +351,15 @@ std::array<std::reference_wrapper<StageWarp::Stage>, 18> misc_stages = {
 
 std::array<std::reference_wrapper<StageWarp::Stage>, 10> save_stages = {
     StageWarp::stage_items[67],  // DeathMetal Toilet
-    StageWarp::stage_items[68],  // Darkstar Toilet
-    StageWarp::stage_items[69],  // Badgirl Toilet
-    StageWarp::stage_items[70],  // Speedbuster Toilet
-    StageWarp::stage_items[71],  // Harvey Toilet
-    StageWarp::stage_items[72],  // Letz Shake Toilet
-    StageWarp::stage_items[73],  // Holly Toilet
-    StageWarp::stage_items[74],  // Destroyman Toilet
+    StageWarp::stage_items[77],  // Dr.Peace Toilet
     StageWarp::stage_items[76],  // Shinobu Toilet
-    StageWarp::stage_items[77]   // Dr.Peace Toilet
+    StageWarp::stage_items[74],  // Destroyman Toilet
+    StageWarp::stage_items[73],  // Holly Toilet
+    StageWarp::stage_items[72],  // Letz Shake Toilet
+    StageWarp::stage_items[71],  // Harvey Toilet
+    StageWarp::stage_items[70],  // Speedbuster Toilet
+    StageWarp::stage_items[69],  // Bad Girl Toilet
+    StageWarp::stage_items[68]   // Darkstar Toilet
 };
 
 bool load_stage_warp_texture() {
