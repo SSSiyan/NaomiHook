@@ -68,7 +68,7 @@ naked void detour2() { // disable clashes on new reprisals // disable clashes on
         cmp dword ptr [edi+0x18C], ePcMtBtAtkChgUp // 170 High Charged Slash
         je jmp_je
     originalcode:
-        cmp byte ptr [edi+0x00001664],00
+        cmp byte ptr [edi+0x00001664], 00
         jmp dword ptr [ReprisalSwap::jmp_ret2]
 
     jmp_je:
