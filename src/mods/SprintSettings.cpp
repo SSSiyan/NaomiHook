@@ -11,6 +11,7 @@ uintptr_t SprintSettings::jmp_ret2 = NULL;
 float SprintSettings::sprintSpeed = 2.0f;
 float SprintSettings::battleSprintSpeed = 1.35f;
 bool SprintSettings::sprintFlag = false;
+uintptr_t detour2_jmp_je = NULL;
 
 uintptr_t SprintSettings::jmp_ret3 = NULL;
 
@@ -87,21 +88,22 @@ naked void detour2() { // Set sprint speeds
             je originalcode
         // 
             cmp dword ptr [esi+0x2990], 3 // mode
-            jne originalCode
-        //
-            push eax
-            mov eax, [SprintSettings::battleSprintSpeed]
-            mov [edi], eax // in combat
-            pop eax
-            jmp returnCode
+            jne originalcode
+        // cheatcode
+            // cmp dword ptr [esi+0x0000018C], 0x0E
+            lea edi, [esi+0x00000090]
+            mov dword ptr [edi], 0x3faccccd // 1.35f
+            jmp jecode
 
-        originalCode:
-            push eax
-            mov eax, [SprintSettings::sprintSpeed]
-            mov [edi], eax // default
-            pop eax
-        returnCode:
+        originalcode:
+            cmp dword ptr [esi+0x0000018C], 0x0E
+            lea edi, [esi+0x00000090]
+            mov dword ptr [edi], 0x40000000 // 2.0f
+            je jecode
+        retcode:
             jmp dword ptr [SprintSettings::jmp_ret2]
+        jecode:
+            jmp dword ptr [detour2_jmp_je]
     }
 }
 
@@ -175,24 +177,25 @@ std::optional<std::string> SprintSettings::on_initialize() {
     SprintSettings::jneAddr = g_framework->get_module().as<uintptr_t>() + 0x3D2BEB;
     SprintSettings::closeQuartersAddr = g_framework->get_module().as<uintptr_t>() + 0x7A4414;
     if (!install_hook_offset(0x3D287C, m_hook1, &detour1, &SprintSettings::jmp_ret1, 7)) {
-        spdlog::error("Failed to init SprintSettings mod\n");
-        return "Failed to init SprintSettings mod";
+        spdlog::error("Failed to init SprintSettings mod 1\n");
+        return "Failed to init SprintSettings mod 1";
     }
 
-    if (!install_hook_offset(0x3D2C9E, m_hook2, &detour2, &SprintSettings::jmp_ret2, 6)) {
-        spdlog::error("Failed to init SprintSettings mod\n");
-        return "Failed to init SprintSettings mod";
+    detour2_jmp_je = g_framework->get_module().as<uintptr_t>() + 0x3D2D48;
+    if (!install_hook_offset(0x3D2C91, m_hook2, &detour2, &SprintSettings::jmp_ret2, 25)) {
+        spdlog::error("Failed to init SprintSettings mod 2\n");
+        return "Failed to init SprintSettings mod 2";
     }
 
     if (!install_hook_offset(0x3D2DC3, m_hook3, &detour3, &SprintSettings::jmp_ret3, 41)) {
-        spdlog::error("Failed to init SprintSettings mod\n");
-        return "Failed to init SprintSettings mod";
+        spdlog::error("Failed to init SprintSettings mod 3\n");
+        return "Failed to init SprintSettings mod 3";
     }
 
     SprintSettings::gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
     if (!install_hook_offset(0x402956, m_hook4, &detour4, &SprintSettings::jmp_ret4, 6)) {
-        spdlog::error("Failed to init SprintSettings mod\n");
-        return "Failed to init SprintSettings mod";
+        spdlog::error("Failed to init SprintSettings mod 4\n");
+        return "Failed to init SprintSettings mod 4";
     }
 
     return Mod::on_initialize();
