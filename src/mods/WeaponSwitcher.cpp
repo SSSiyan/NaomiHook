@@ -79,6 +79,9 @@ int WeaponSwitcher::weaponSwitchCooldown = 80; // this is what ticks
 static int weaponSwitchLockedFrames = 10; // this locks you out from weapon switching
 static int animationDuration = WeaponSwitcher::weaponSwitchCooldown;
 
+static int previousSwordEquipRead = 0;
+static bool tryPlayAnimation = false;
+
 enum WEAPON_SWITCH_DIRECTION {
     WS_LEFT = 0,
     WS_DOWN = 1,
@@ -280,6 +283,7 @@ naked void detour1() { // play weapon anims // player in ecx // called last
             jmp dword ptr [WeaponSwitcher::jmp_ret1]
 
         originalcode:
+            mov byte ptr [tryPlayAnimation], 1
             push 01
             push 00
             push 01
@@ -537,8 +541,6 @@ bool IsPlayingSwordChangeAnim(int motID) {
 }
 
 void WeaponSwitcher::on_frame() {
-    static int previousSwordEquipRead = 0;
-    static bool tryPlayAnimation = false;
     //static int checkmotReadProc = 0;
     // Check unlocked weapons when eEqWait1Frame is seen
     if (mod_enabled) {
@@ -597,7 +599,7 @@ void WeaponSwitcher::on_frame() {
                 default:
                     break;
                 }
-                if (weaponSwitchCooldown == 0) { tryPlayAnimation = true; }
+                //if (weaponSwitchCooldown == 0) { tryPlayAnimation = true; }
             }
         }
 
