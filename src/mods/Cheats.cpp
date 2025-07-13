@@ -2,6 +2,7 @@
 #include <unordered_set>
 #include "../Config.hpp" // for CONFIG_FILENAME
 #include "ReprisalSwap.hpp"
+#include "ChargeSubsBattery.hpp"
 #if 1
 bool Cheats::take_no_damage = false;
 bool Cheats::deal_no_damage = false;
@@ -95,6 +96,8 @@ naked void detour_damage_modifier() {
         je reprisalMoveIDCheck
         cmp byte ptr [ReprisalSwap::mid_stance_enabled], 1
         je reprisalMoveIDCheck
+        cmp byte ptr [ChargeSubsBattery::mod_enabled], 1
+        je chargesMoveIDCheck
         jmp originalcode
 
         reprisalMoveIDCheck:
@@ -104,6 +107,21 @@ naked void detour_damage_modifier() {
         je checkHighReprisalCheatTicked
         cmp dword ptr [edi+0x18C], ePcMtBtAtkChg
         je checkMidReprisalCheatTicked
+        jmp originalcode
+
+        chargesMoveIDCheck:
+        cmp dword ptr [edi+0x18C], ePcMtBtAtk01Rng
+        je newReprisalDamage
+        cmp dword ptr [edi+0x18C], ePcMtBtAtk03Rng
+        je newReprisalDamage
+        cmp dword ptr [edi+0x18C], ePcMtBtAtk04Rng
+        je newReprisalDamage
+        cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbA
+        je newReprisalDamage
+        cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbB
+        je newReprisalDamage
+        cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbC
+        je newReprisalDamage
         jmp originalcode
 
     checkHighReprisalCheatTicked:
