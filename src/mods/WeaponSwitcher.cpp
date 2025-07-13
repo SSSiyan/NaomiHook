@@ -109,6 +109,7 @@ void WeaponSwitcher::toggleForceMap(bool enable) {
 
 // check a weapon switch ban list of states and animations
 bool WeaponSwitcher::CanWeaponSwitch(pcItem desiredWeapon) {
+    return true;
     if (mHRPc* playerPtr = nmh_sdk::get_mHRPc()) {
         enPcInputMode currentMode = playerPtr->mInputMode;
         pcItem currentWeapon = playerPtr->mPcStatus.equip[0].id;
@@ -675,7 +676,7 @@ void WeaponSwitcher::on_frame() {
 // will show up in main window, dump ImGui widgets you want here
 
 std::optional<std::string> WeaponSwitcher::on_initialize() {
-    if (!install_hook_offset(0x3DC561, m_hook1, &detour1, &WeaponSwitcher::jmp_ret1, 8)) { // play weapon anims // player in ecx // called last
+    /*if (!install_hook_offset(0x3DC561, m_hook1, &detour1, &WeaponSwitcher::jmp_ret1, 8)) { // play weapon anims // player in ecx // called last
         spdlog::error("Failed to init WeaponSwitcher mod 1\n");
         return "Failed to init WeaponSwitcher mod 1";
     }
@@ -683,7 +684,7 @@ std::optional<std::string> WeaponSwitcher::on_initialize() {
     if (!install_hook_offset(0x3D905B, m_hook2, &detour2, &WeaponSwitcher::jmp_ret2, 8)) { // play weapon anims // player in esi
         spdlog::error("Failed to init WeaponSwitcher mod 2\n");
         return "Failed to init WeaponSwitcher mod 2";
-    }
+    }*/
 
     detour3_je = (g_framework->get_module().as<uintptr_t>() + 0x3D4806);
     if (!install_hook_offset(0x3D47C4, m_hook3, &detour3, &WeaponSwitcher::jmp_ret3, 5)) { // add tsubaki mk1 weapon swap to canAttack ban list
