@@ -362,7 +362,9 @@ naked void detour3() { // add tsubaki mk1 weapon swap to canAttack ban list
     __asm {
             cmp byte ptr [WeaponSwitcher::mod_enabled], 0
             je originalcode
-
+            pushad
+            call dword ptr [WeaponSwitcher::WeaponSwapLogic]
+            popad
             cmp eax, ePcMtBattou03Ed
             je jmp_je
 
@@ -541,7 +543,7 @@ bool IsPlayingSwordChangeAnim(int motID) {
     return false;
 }
 
-void WeaponSwitcher::on_frame() {
+void WeaponSwitcher::WeaponSwapLogic() {
     //static int checkmotReadProc = 0;
     // Check unlocked weapons when eEqWait1Frame is seen
     if (mod_enabled) {
@@ -666,9 +668,14 @@ void WeaponSwitcher::on_frame() {
         // previousSwordEquipRead = player->mPcStatus.equip[0].readProc;
         weaponSwitchCooldown++;
         //if (weapon_switcher_ui) {
-        Display_UI();
+        // Display_UI();
         //}
     }
+}
+
+void WeaponSwitcher::on_frame() {
+    // WeaponSwapLogic();
+    Display_UI();
 }
 
 // will show up in debug window, dump ImGui widgets you want here

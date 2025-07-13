@@ -14,6 +14,7 @@ public:
   static int weaponSwitchCooldown;
   // static bool weapon_switcher_ui;
 
+  void WeaponSwapLogic();
   void toggleForceMap(bool enable);
   static bool CanWeaponSwitch(pcItem desiredWeapon);
   void Display_UI();
