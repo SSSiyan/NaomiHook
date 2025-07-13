@@ -593,7 +593,11 @@ std::optional<std::string> KbmControls::on_initialize() {
 
     g_input_map.input_map("Call Bike",    ImGuiKey_B, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_SQUARE; });
 
-    g_input_map.input_map("Combat Sprint", ImGuiKey_LeftCtrl, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_L3; });
+    g_input_map.input_map("Combat Sprint", ImGuiKey_LeftCtrl, [](KPADEXStatus* ext) {
+        ext->cl.hold |= KEY_L3; 
+        int* l3_address = (int*)(g_framework->get_module().as<uintptr_t>() + (ptrdiff_t)0x849D16);
+        *l3_address = 1;
+    });
 
     g_input_map.input_map("Shmup Shoot Keyboard", ImGuiKey_Space, [](KPADEXStatus* ext) { 
         if (auto hrtask = g_hrtask_ptr->hrtsk) {
