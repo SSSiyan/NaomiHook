@@ -4,6 +4,12 @@
 #include "fw-imgui/Texture2DD3D11.hpp"
 #include "fw-imgui/SwordSwitchAtlas.cpp"
 
+const char* WeaponSwitcher::defaultDescription = "Enable NMH2 styled weapon switching. While in combat, stand still and use the directional pad to select a katana.";
+const char* WeaponSwitcher::hoveredDescription = defaultDescription;
+void WeaponSwitcher::render_description() const {
+    ImGui::TextWrapped(WeaponSwitcher::hoveredDescription);
+}
+
 #if 1
 
 // directx stuff
@@ -64,7 +70,7 @@ Frame Mk_3 = g_atlas.Mk_3();
 #pragma endregion
 
 bool WeaponSwitcher::mod_enabled = false;
-bool WeaponSwitcher::animations_disabled;
+bool WeaponSwitcher::animations_enabled;
 uintptr_t WeaponSwitcher::jmp_ret1 = NULL;
 uintptr_t WeaponSwitcher::jmp_ret2 = NULL;
 uintptr_t WeaponSwitcher::jmp_ret3 = NULL;
@@ -221,6 +227,8 @@ naked void detour1() { // play weapon anims // player in ecx // called last
         //
             cmp byte ptr [WeaponSwitcher::mod_enabled], 0
             je originalcode
+            cmp byte ptr [WeaponSwitcher::animations_enabled], 1
+            je originalcode
         //
             cmp dword ptr [ecx+0x2990], ePcInputBattleIdle // enPcInputMode
             jne originalcode
@@ -284,6 +292,8 @@ naked void detour2() { // play weapon anims // player in esi
     __asm {
         //
             cmp byte ptr [WeaponSwitcher::mod_enabled], 0
+            je originalcode
+            cmp byte ptr [WeaponSwitcher::animations_enabled], 1
             je originalcode
         //
             cmp dword ptr [esi+0x2990], ePcInputBattleIdle // enPcInputMode
@@ -376,6 +386,7 @@ static bool load_weapon_switcher_texture() {
 }
 
 void WeaponSwitcher::on_draw_ui() {
+    if (!ImGui::IsAnyItemHovered()) WeaponSwitcher::hoveredDescription = defaultDescription;
     if (ImGui::Checkbox("Weapon Switcher", &mod_enabled)) {
         toggleForceMap(mod_enabled);
     }
@@ -411,6 +422,9 @@ void WeaponSwitcher::on_draw_ui() {
             ImGui::PopItemWidth();
 
             ImGui::Text("Current Weapon: %s", pcItemToString(player->mPcStatus.equip[0].id));
+
+            ImGui::Checkbox("Enable Experimental Animations", &animations_enabled);
+            if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = "@DHMALICE";
 
             // ImGui::Checkbox("Display UI", &weapon_switcher_ui);
         }
@@ -590,7 +604,7 @@ void WeaponSwitcher::on_frame() {
         // play an anim after the sword loads (eEqReadMax)
         // we have to keep trying on frame until it plays (IsPlayingSwordChangeAnim)
         int motID = player->mCharaStatus.motionNo;
-        if (weaponSwitchCooldown > weaponSwitchLockedFrames || animations_disabled) {
+        if (weaponSwitchCooldown > weaponSwitchLockedFrames || !animations_enabled) {
             tryPlayAnimation = false;
         }
         if (tryPlayAnimation && !IsPlayingSwordChangeAnim(motID) && player->mPcStatus.equip[0].readProc == eEqReadMax) {
@@ -628,9 +642,9 @@ void WeaponSwitcher::on_frame() {
                 break;
             }
             //nmh_sdk::PlayCamMotFromCharMot(5, 1, true, false, true);
-            if (IsPlayingSwordChangeAnim(motID)) {
-                tryPlayAnimation = false;
-            }
+            //if (IsPlayingSwordChangeAnim(motID)) {
+                //tryPlayAnimation = false;
+            //}
         }
 
         // effectively pause the game while loading a sword. Optional but should be safer
@@ -659,7 +673,7 @@ void WeaponSwitcher::on_frame() {
 // will show up in main window, dump ImGui widgets you want here
 
 std::optional<std::string> WeaponSwitcher::on_initialize() {
-    /*if (!install_hook_offset(0x3DC561, m_hook1, &detour1, &WeaponSwitcher::jmp_ret1, 8)) { // play weapon anims // player in ecx // called last
+    if (!install_hook_offset(0x3DC561, m_hook1, &detour1, &WeaponSwitcher::jmp_ret1, 8)) { // play weapon anims // player in ecx // called last
         spdlog::error("Failed to init WeaponSwitcher mod 1\n");
         return "Failed to init WeaponSwitcher mod 1";
     }
@@ -667,7 +681,7 @@ std::optional<std::string> WeaponSwitcher::on_initialize() {
     if (!install_hook_offset(0x3D905B, m_hook2, &detour2, &WeaponSwitcher::jmp_ret2, 8)) { // play weapon anims // player in esi
         spdlog::error("Failed to init WeaponSwitcher mod 2\n");
         return "Failed to init WeaponSwitcher mod 2";
-    }*/
+    }
 
     detour3_je = (g_framework->get_module().as<uintptr_t>() + 0x3D4806);
     if (!install_hook_offset(0x3D47C4, m_hook3, &detour3, &WeaponSwitcher::jmp_ret3, 5)) { // add tsubaki mk1 weapon swap to canAttack ban list
@@ -683,7 +697,7 @@ std::optional<std::string> WeaponSwitcher::on_initialize() {
 // during load
 void WeaponSwitcher::on_config_load(const utility::Config &cfg) {
     mod_enabled = cfg.get<bool>("weapon_switcher").value_or(false);
-    animations_disabled = cfg.get<bool>("disable_weapon_switcher_animations").value_or(false);
+    animations_enabled = cfg.get<bool>("enable_weapon_switcher_animations").value_or(false);
     if (mod_enabled) toggleForceMap(mod_enabled);
     savedSword[WS_LEFT] = cfg.get<int>("savedSword[0]").value_or(TSUBAKI_MK1);
     savedSword[WS_DOWN] = cfg.get<int>("savedSword[1]").value_or(TSUBAKI_MK2);
@@ -694,7 +708,7 @@ void WeaponSwitcher::on_config_load(const utility::Config &cfg) {
 // during save
 void WeaponSwitcher::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("weapon_switcher", mod_enabled);
-    cfg.set<bool>("disable_weapon_switcher_animations", animations_disabled);
+    cfg.set<bool>("enable_weapon_switcher_animations", animations_enabled);
     for (int i = 0; i < 4; i++) {
         cfg.set<int>(("savedSword[" + std::to_string(i) + "]"), selectedSword[i]);
     }

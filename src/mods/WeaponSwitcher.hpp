@@ -7,7 +7,7 @@ public:
   
   ModCategory get_category() { return ModCategory::GAMEPLAY; };
   static bool mod_enabled;
-  static bool animations_disabled;
+  static bool animations_enabled;
   static uintptr_t jmp_ret1;
   static uintptr_t jmp_ret2;
   static uintptr_t jmp_ret3;
@@ -21,7 +21,10 @@ public:
   // mod name string for config
   std::string get_mod_name() const override { return "WeaponSwitcher"; }
   std::string get_human_readable_name() const { return "Weapon Switcher"; }
-  const char* get_description() const override { return R"(Enable NMH2 styled weapon switching. While in combat, stand still and use the directional pad to select a katana.)"; };
+  //const char* get_description() const override { return R"(Enable NMH2 styled weapon switching. While in combat, stand still and use the directional pad to select a katana.)"; };
+  void render_description() const override;
+  static const char* defaultDescription;
+  static const char* hoveredDescription;
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;
