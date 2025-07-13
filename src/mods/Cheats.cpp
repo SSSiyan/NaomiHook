@@ -92,21 +92,15 @@ naked void detour_damage_modifier() {
     __asm {
         cmp byte ptr [Cheats::one_hit_kill], 1
         je oneHitKill
+        cmp byte ptr [Cheats::deal_no_damage], 1
+        je noDamage
         cmp byte ptr [ReprisalSwap::mod_enabled], 1
-        je reprisalMoveIDCheck
-        cmp byte ptr [ReprisalSwap::mid_stance_enabled], 1
         je reprisalMoveIDCheck
         cmp byte ptr [ChargeSubsBattery::mod_enabled], 1
         je chargesMoveIDCheck
+        cmp byte ptr [ReprisalSwap::mid_stance_enabled], 1
+        je reprisalMoveIDCheck
         jmp originalcode
-
-        reprisalMoveIDCheck:
-        cmp byte ptr [edi+0x1707], 1 // justAttack
-        jne originalcode
-        cmp dword ptr [edi+0x18C], ePcMtBtAtkChgUp
-        je checkHighReprisalCheatTicked
-        cmp dword ptr [edi+0x18C], ePcMtBtAtkChg
-        je checkMidReprisalCheatTicked
 
         chargesMoveIDCheck:
         cmp dword ptr [edi+0x18C], ePcMtBtAtk01Rng
@@ -121,6 +115,14 @@ naked void detour_damage_modifier() {
         je checkChargeCheatTicked
         cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbC
         je checkChargeCheatTicked
+
+        reprisalMoveIDCheck:
+        cmp byte ptr [edi+0x1707], 1 // justAttack
+        jne originalcode
+        cmp dword ptr [edi+0x18C], ePcMtBtAtkChgUp
+        je checkHighReprisalCheatTicked
+        cmp dword ptr [edi+0x18C], ePcMtBtAtkChg
+        je checkMidReprisalCheatTicked
         jmp originalcode
 
     checkHighReprisalCheatTicked:
@@ -147,6 +149,9 @@ naked void detour_damage_modifier() {
         movss [esp],xmm0
     retcode:
         jmp dword ptr [Cheats::damage_modifier_jmp_ret]
+    noDamage:
+        mov dword ptr [esp], 0
+        jmp retcode
     }
 }
 // clang-format on
@@ -204,10 +209,12 @@ void Cheats::on_draw_ui() {
     }
     
     if (is_cheat_unlocked("deal_no_damage")) {
-        if (ImGui::Checkbox("Deal No Damage", &deal_no_damage)) {
-            toggleDealNoDamage(deal_no_damage);
+        ImGui::Checkbox("Deal No Damage", &deal_no_damage);
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Deal no damage";
+        /*if (ImGui::Checkbox("Deal No Damage", &deal_no_damage)) {
+            // toggleDealNoDamage(deal_no_damage);
         }
-        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Lethal Throws, Deathblows, Jumping Slash, and Charged Slashes can still kill enemies who don't have Endurance.";
+        if (ImGui::IsItemHovered()) Cheats::hoveredDescription = "Lethal Throws, Deathblows, Jumping Slash, and Charged Slashes can still kill enemies who don't have Endurance.";*/
     }
 
     if (is_cheat_unlocked("one_hit_kill")) {
