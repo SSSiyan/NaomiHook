@@ -9,8 +9,8 @@ public:
 
   // mod name string for config
   std::string get_mod_name() const override { return "ClothesSwitcher"; }
-  std::string get_human_readable_name() const { return "Clothes Switcher"; }
-  const char* get_description() const override { return R"(Clothes Switcher)"; };
+  std::string get_human_readable_name() const { return "Portable Closet"; }
+  const char* get_description() const override { return R"(Take the Motel closet with you and access all clothing items at any time. The Portable Closet also grants access to several unused clothing items. Equipping items through the Portable Closet will unlock them on your save (does not apply to unused items)))"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

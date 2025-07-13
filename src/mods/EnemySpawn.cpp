@@ -236,7 +236,7 @@ void EnemySpawn::on_draw_ui() {
         }
         ImGui::EndCombo();
     }
-    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "'enPopReqType' determines the type of spawn the enemy will use.";
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "'enPopReqType' is the spawn type that your enemy will use when they're created. They can be assigned to spawn freely with no special conditions, spawn in a specific order, or spawn when the player navigates closely enough to their spawn point. .";
 
     ImGui::Text("inChType");
     if (ImGui::BeginCombo("## inChType Combo", charaTypeStrings[inChType])) {
@@ -251,7 +251,7 @@ void EnemySpawn::on_draw_ui() {
         }
         ImGui::EndCombo();
     }
-    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "'inChType' is the enemy type assigned to the enemy you're spawning. For example: You can spawn a regular Zako enemy with the data from a landmine object, or, with data from a boss such as Dr.Peace.";
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "'inChType' is the type of enemy data assigned to what you're spawning. For example: You can spawn a regular Zako enemy with the ChType from a landmine object, or, with data from a boss such as Dr.Peace and it will inherit their properties. This has very mixed results.";
     
     float combo_width = ImGui::CalcItemWidth();
     if (ImGui::Button("Spawn Enemy", ImVec2(combo_width, NULL))) {

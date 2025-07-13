@@ -180,7 +180,7 @@ void CameraSettings::on_draw_ui() {
     if (ImGui::Checkbox("Deathblow Blur Intensity", &deathblow_blur_enable)) {
         deathblow_blur_toggle(deathblow_blur_enable);
     }
-    if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = "Increases the intensity of the radial blur effect during Deathblows to more closely resemble its Wii counterpart.";
+    if (ImGui::IsItemHovered()) CameraSettings::hoveredDescription = "Increases the intensity of the radial blur effect during Deathblows to more closely resemble its Wii counterpart. Please note that if you're using the shader fix, this setting will not look correct as it was made for the default shaders of the PC version.";
 }
 
 // during load

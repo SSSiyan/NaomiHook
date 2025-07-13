@@ -431,7 +431,7 @@ void WeaponSwitcher::on_draw_ui() {
             ImGui::Text("Current Weapon: %s", pcItemToString(player->mPcStatus.equip[0].id));
 
             ImGui::Checkbox("Enable Experimental Animations", &animations_enabled);
-            if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = "@DHMALICE";
+            if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = "This enables the battle intro animations for unsheathing a beam katana. They are currently, very likely to cause crashes.";
 
             // ImGui::Checkbox("Display UI", &weapon_switcher_ui);
         }

@@ -332,13 +332,13 @@ void DisplayShop(mHRPc* player, bool toggle) {
     if (ImGui::TreeNodeEx("Skills", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
         static constexpr int num = 7;
         static constexpr int k7Prices[num] = {
-            5000,   // "Memory of Demon - Jumping Slash",      
-            2500,   // "Memory of Child - Sprint",             
-            1000,   // "Memory of Three - Mini Map",           
-            20000,  // "Memory of Woman - Darkside Extension", 
-            15000,  // "Memory of Mask - Wrestling Grab Range",
-            30000,  // "Memory of Tattoo - Total Rank Bonus",  
-            10000   // "Memory of White - Jumping Down Attack",
+            35000,   // "Memory of Demon - Jumping Slash",      
+            2500,    // "Memory of Child - Sprint",             
+            1000,    // "Memory of Three - Mini Map",           
+            20000,   // "Memory of Woman - Darkside Extension", 
+            15000,   // "Memory of Mask - Wrestling Grab Range",
+            30000,   // "Memory of Tattoo - Total Rank Bonus",  
+            10000    // "Memory of White - Jumping Down Attack",
         };
         for (int i = 0; i < num; ++i) {
             RenderK7Unlock(player, i, k7Names[i], k7Prices[i]);
@@ -357,7 +357,7 @@ void ArcadeMode::on_draw_ui() {
     }
     if (ImGui::IsItemHovered()) ArcadeMode::hoveredDescription = "Enable this option in the Motel then exit through the door to begin.\n"
         "To function flawlessly this feature currently requires a savegame with no story progress or you will get stuck. We're working on it!\n"
-        "For now if you get stuck you can teleport to a new area in Stage Warp while this is ticked to jump to the next part";
+        "For now if you get stuck you can teleport to a new area in Stage Warp while this is ticked to jump to the next part. Please be aware that if your game save was created on the latest, official NMH1 exe, the file for your data will be found in a different directory.";
     ImGui::Indent();
     if (ImGui::Button("Open Saved Games Folder")) {
         char savedGamesPath[MAX_PATH];
