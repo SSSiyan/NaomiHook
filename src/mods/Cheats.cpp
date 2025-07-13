@@ -107,25 +107,29 @@ naked void detour_damage_modifier() {
         je checkHighReprisalCheatTicked
         cmp dword ptr [edi+0x18C], ePcMtBtAtkChg
         je checkMidReprisalCheatTicked
-        jmp originalcode
 
         chargesMoveIDCheck:
         cmp dword ptr [edi+0x18C], ePcMtBtAtk01Rng
-        je newReprisalDamage
+        je checkChargeCheatTicked
         cmp dword ptr [edi+0x18C], ePcMtBtAtk03Rng
-        je newReprisalDamage
+        je checkChargeCheatTicked
         cmp dword ptr [edi+0x18C], ePcMtBtAtk04Rng
-        je newReprisalDamage
+        je checkChargeCheatTicked
         cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbA
-        je newReprisalDamage
+        je checkChargeCheatTicked
         cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbB
-        je newReprisalDamage
+        je checkChargeCheatTicked
         cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbC
-        je newReprisalDamage
+        je checkChargeCheatTicked
         jmp originalcode
 
     checkHighReprisalCheatTicked:
         cmp byte ptr [ReprisalSwap::mod_enabled], 1
+        je newReprisalDamage
+        jmp originalcode
+
+    checkChargeCheatTicked:
+        cmp byte ptr [ChargeSubsBattery::mod_enabled], 1
         je newReprisalDamage
         jmp originalcode
 
