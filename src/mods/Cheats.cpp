@@ -94,34 +94,34 @@ naked void detour_damage_modifier() {
         je oneHitKill
         cmp byte ptr [Cheats::deal_no_damage], 1
         je noDamage
-        cmp byte ptr [ReprisalSwap::mod_enabled], 1
-        je reprisalMoveIDCheck
         cmp byte ptr [ChargeSubsBattery::mod_enabled], 1
         je chargesMoveIDCheck
+        cmp byte ptr [ReprisalSwap::mod_enabled], 1
+        je reprisalMoveIDCheck
         cmp byte ptr [ReprisalSwap::mid_stance_enabled], 1
         je reprisalMoveIDCheck
         jmp originalcode
 
         chargesMoveIDCheck:
-        cmp dword ptr [edi+0x18C], ePcMtBtAtk01Rng
+        cmp dword ptr [edi+0x18C], ePcMtBtAtk01Rng // 246
         je checkChargeCheatTicked
-        cmp dword ptr [edi+0x18C], ePcMtBtAtk03Rng
+        cmp dword ptr [edi+0x18C], ePcMtBtAtk03Rng // 340
         je checkChargeCheatTicked
-        cmp dword ptr [edi+0x18C], ePcMtBtAtk04Rng
+        cmp dword ptr [edi+0x18C], ePcMtBtAtk04Rng // 386
         je checkChargeCheatTicked
-        cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbA
+        cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbA // 290
         je checkChargeCheatTicked
-        cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbB
+        cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbB // 291
         je checkChargeCheatTicked
-        cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbC
+        cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbC // 292
         je checkChargeCheatTicked
 
         reprisalMoveIDCheck:
         cmp byte ptr [edi+0x1707], 1 // justAttack
         jne originalcode
-        cmp dword ptr [edi+0x18C], ePcMtBtAtkChgUp
+        cmp dword ptr [edi+0x18C], ePcMtBtAtkChgUp // 170
         je checkHighReprisalCheatTicked
-        cmp dword ptr [edi+0x18C], ePcMtBtAtkChg
+        cmp dword ptr [edi+0x18C], ePcMtBtAtkChg // 169
         je checkMidReprisalCheatTicked
         jmp originalcode
 
