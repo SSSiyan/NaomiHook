@@ -1,6 +1,15 @@
 #pragma once
 #include "Mod.hpp"
 #include "sdk/ReClass.hpp"
+
+enum WEAPON_SWITCH_DIRECTION {
+    WS_LEFT = 0,
+    WS_DOWN = 1,
+    WS_RIGHT = 2,
+    WS_UP = 3,
+    WS_COUNT,
+};
+
 class WeaponSwitcher : public Mod {
 public:
   WeaponSwitcher() = default;
@@ -14,6 +23,7 @@ public:
   static int weaponSwitchCooldown;
   // static bool weapon_switcher_ui;
 
+  void WeaponSwitchTimeline(mHRPc* player, WEAPON_SWITCH_DIRECTION direction);
   void WeaponSwapLogic();
   void toggleForceMap(bool enable);
   static bool CanWeaponSwitch(pcItem desiredWeapon);

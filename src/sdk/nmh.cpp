@@ -283,6 +283,40 @@ namespace nmh_sdk {
         return true; // player ptr invalid
     }
 
+    void SetInputMode(mHRPc* mHRPc, enPcInputMode inMode) {
+        uintptr_t setInputModeAddr = (g_framework->get_module().as<uintptr_t>() + 0x3E28B0);
+        mSetInputModeFunc setInputMode = (mSetInputModeFunc)setInputModeAddr;
+        if (mHRPc) {
+            setInputMode(mHRPc, inMode);
+        }
+    }
+
+    bool CheckTrvReadEnd(mHRPc* mHRPc) {
+        uintptr_t travisReadEndAddr = (g_framework->get_module().as<uintptr_t>() + 0x3E2AA0);
+        mCheckTrvReadEndFunc trvReadEnd = (mCheckTrvReadEndFunc)travisReadEndAddr;
+        if (mHRPc) {
+            return trvReadEnd(mHRPc);
+        }
+        return false;
+    }
+
+    bool CheckEquipReadEnd(mHRPc* mHRPc) {
+        uintptr_t equipReadEndAddr = (g_framework->get_module().as<uintptr_t>() + 0x3DF290);
+        mCheckEquipReadEndFunc equipReadEnd = (mCheckEquipReadEndFunc)equipReadEndAddr;
+        if (mHRPc) {
+            return equipReadEnd(mHRPc);
+        }
+        return false;
+    }
+
+    void PlayBattouDemo(mHRPc* mHRPc) {
+        uintptr_t battouDemoAddr = (g_framework->get_module().as<uintptr_t>() + 0x3C3D70);
+        mPlayBattouDemoFunc battouDemo = (mPlayBattouDemoFunc)battouDemoAddr;
+        if (mHRPc) {
+            battouDemo(mHRPc);
+        }
+    }
+
     // Spawn enemies
     int setInitNpcDat(int inResNo, enCharaType inChType, int inRepop, const Vec* inPos, const Vec* inRot, enPopReqType inPopType, bool inDisEnableCollision) {
         uintptr_t mSetInitNpcDatAddress = (g_framework->get_module().as<uintptr_t>() + 0x3B6B30);

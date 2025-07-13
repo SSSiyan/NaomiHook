@@ -59,4 +59,12 @@ namespace nmh_sdk {
 	void AddLocker(pcItem itemID);
 	typedef bool(__thiscall* mChkLockerFunc)(mHRPc* mHRPc, pcItem pcItem);
 	bool CheckLocker(pcItem itemID);
+	typedef void(__thiscall* mSetInputModeFunc)(mHRPc* mHRPc, enPcInputMode inMode);
+	void SetInputMode(mHRPc* mHRPc, enPcInputMode inMode);
+	typedef bool(__thiscall* mCheckTrvReadEndFunc)(mHRPc* mHRPc);
+	bool CheckTrvReadEnd(mHRPc* mHRPc);
+	typedef bool(__thiscall* mCheckEquipReadEndFunc)(mHRPc* mHRPc);
+	bool CheckEquipReadEnd(mHRPc* mHRPc);
+	typedef void(__thiscall* mPlayBattouDemoFunc)(mHRPc* mHRPc);
+	void PlayBattouDemo(mHRPc* mHRPc);
 };
