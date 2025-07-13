@@ -17,6 +17,24 @@ struct MouseRaw {
 
 static MouseRaw g_mouser{};
 
+class hrTaskPtrStatic
+{
+public:
+    class hrTask *hrtsk; //0x0000
+}; //Size: 0x0004
+
+// TODO(): siyan fixed the offsets but im too lazy to change it all now
+class hrTask
+{
+public:
+    char pad_0000[104]; //0x0000
+    void *shootyGame; //0x0068
+    char pad_006C[44]; //0x006C
+    uint32_t state; //0x0098
+}; //Size: 0x009C
+
+hrTaskPtrStatic* g_hrtask_ptr = nullptr;
+
 #if 0
 inline void mouse_set_visible(BOOL visible)
 {
@@ -202,7 +220,17 @@ void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
             }
         }
     }
-    //append_ui_log(fmt::format("cl_rstick=({},{})", exstatus->cl.rstick.x, exstatus->cl.rstick.y));
+    // append_ui_log(fmt::format("cl_rstick=({},{})", exstatus->cl.rstick.x, exstatus->cl.rstick.y));
+
+    // i am not a clever man
+    if (auto hrtask = g_hrtask_ptr->hrtsk) {
+        // shooty game is 27
+        if (hrtask->state == 27) {
+            exstatus->cl.lstick.x += exstatus->cl.rstick.x * 2.0f;
+            exstatus->cl.lstick.y += exstatus->cl.rstick.y * 2.0f;
+        }
+    }
+
     g_mouse_delta = glm::vec2(0.0);
     g_mouser.x = 0;
     g_mouser.y = 0;
@@ -420,12 +448,14 @@ std::optional<std::string> KbmControls::on_initialize() {
     auto ptr = (base+0x849D10);
     g_ppad = (PAD_UNI*)ptr;
 
+    g_hrtask_ptr = (decltype(g_hrtask_ptr))0x00C41414;
 
     // NOTE(deep): order matters unfortunately
     g_input_map.input_map("Forward", ImGuiKey_W, 
         [](KPADEXStatus* ext) { 
             ext->cl.lstick.y = 1.0f;  /* ext->cl.hold = KEY_DPAD_UP; */ 
             
+            // check bike
             if (mHRPc* pc = nmh_sdk::get_mHRPc()) {
                 if (pc->mInputMode == 5) {
                     ext->cl.hold |= KEY_CROSS;
@@ -435,6 +465,8 @@ std::optional<std::string> KbmControls::on_initialize() {
     g_input_map.input_map("Back", ImGuiKey_S, 
         [](KPADEXStatus* ext) { 
             ext->cl.lstick.y = -1.0f; /* ext->cl.hold = KEY_DPAD_DOWN; */
+
+            // check bike
             if (mHRPc* pc = nmh_sdk::get_mHRPc()) {
                 if (pc->mInputMode == 5) {
                     ext->cl.hold |= KEY_CIRCLE;
@@ -475,7 +507,13 @@ std::optional<std::string> KbmControls::on_initialize() {
         *ass3 |= 0x2000;
     } );
 
-    g_input_map.input_map("Low Slash Mouse", ImGuiKey_MouseLeft,   [](KPADEXStatus* ext) { ext->cl.hold |= KEY_SQUARE; });
+    g_input_map.input_map("Low Slash Mouse", ImGuiKey_MouseLeft,   [](KPADEXStatus* ext) { 
+        // NOTE(): hack to stop bomb spam in shmup :(
+        if (auto hrtask = g_hrtask_ptr->hrtsk) {
+            if (hrtask->state == 27) { return; }
+        }
+        ext->cl.hold |= KEY_SQUARE; 
+    });
     g_input_map.input_map("High Slash Mouse", ImGuiKey_MouseRight, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_TRIANGLE; });
 
     g_input_map.input_map("Low Slash Keyboard",    ImGuiKey_C, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_SQUARE; });
@@ -498,7 +536,7 @@ std::optional<std::string> KbmControls::on_initialize() {
             }
     });
 
-    g_input_map.input_map("Battery Charge Start", ImGuiKey_LeftCtrl, KEY_LB);
+    g_input_map.input_map("Battery Charge Start", ImGuiKey_R, KEY_LB);
     g_input_map.input_map("Camera Reset", ImGuiKey_LeftAlt, KEY_RB);
 
 #if 0
@@ -554,6 +592,49 @@ std::optional<std::string> KbmControls::on_initialize() {
     });
 
     g_input_map.input_map("Call Bike",    ImGuiKey_B, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_SQUARE; });
+
+    g_input_map.input_map("Combat Sprint", ImGuiKey_LeftCtrl, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_L3; });
+
+    g_input_map.input_map("Shmup Shoot Keyboard", ImGuiKey_Space, [](KPADEXStatus* ext) { 
+        if (auto hrtask = g_hrtask_ptr->hrtsk) {
+            if (hrtask->state == 27) {
+                ext->cl.hold |= KEY_CIRCLE;
+            }
+        }
+    });
+    g_input_map.input_map("Shmup Sword Keyboard", ImGuiKey_LeftShift, [](KPADEXStatus* ext) { 
+        if (auto hrtask = g_hrtask_ptr->hrtsk) {
+            if (hrtask->state == 27) {
+                ext->cl.hold |= KEY_CROSS;
+            }
+        }
+    });
+
+    g_input_map.input_map("Shmup Shoot Mouse", ImGuiKey_MouseLeft, [](KPADEXStatus* ext) { 
+                // NOTE(): hack hack unset bits so it doesnt spam bombs when shooting
+        if (auto hrtask = g_hrtask_ptr->hrtsk) {
+            if (hrtask->state == 27) {
+                ext->cl.hold |= KEY_CIRCLE;
+            }
+        }
+    });
+
+    g_input_map.input_map("Shmup Sword Mouse", ImGuiKey_MouseRight, [](KPADEXStatus* ext) { 
+        if (auto hrtask = g_hrtask_ptr->hrtsk) {
+            if (hrtask->state == 27) {
+                ext->cl.hold |= KEY_CROSS;
+            }
+        }
+    });
+
+    g_input_map.input_map("Shmup Bomb", ImGuiKey_Tab, [](KPADEXStatus* ext) { 
+        if (auto hrtask = g_hrtask_ptr->hrtsk) {
+            if (hrtask->state == 27) {
+                ext->cl.hold |= KEY_SQUARE;
+            }
+        }
+    });
+    
 
     return Mod::on_initialize();
 }
