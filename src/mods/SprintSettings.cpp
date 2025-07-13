@@ -45,6 +45,8 @@ naked void detour1() { // Enable sprint in combat // sprint's mode check // play
             // cmp dword ptr [esi+0x18c], ePcMtBtDefRunL // 25 lock on strafe left
             // je canSprint
         notLockedOn:
+            cmp byte ptr [esi+0x1770], 1 // is telephone Ramble
+            je popCode
             cmp dword ptr [esi+0x18c], ePcMtBt01Rn // 221 berry run
             je canSprint
             cmp dword ptr [esi+0x18c], ePcMtBt02Rn // 269 tsubaki mk3 run
