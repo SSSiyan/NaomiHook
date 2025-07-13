@@ -82,6 +82,7 @@ void ClothesSwitcher::on_draw_ui() {
                     if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
                         selected_indices[1] = n - combo.start_idx;
                         nmh_sdk::SetEquip((pcItem)clothing_items[n].id, 0);
+                        // nmh_sdk::PlayCamMotFromCharMot(0x2C, -1, false, true, false); 
                     }
                     if (is_selected) {
                         ImGui::SetItemDefaultFocus();
@@ -106,6 +107,7 @@ void ClothesSwitcher::on_draw_ui() {
                     if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
                         selected_indices[2] = n - combo.start_idx;
                         nmh_sdk::SetEquip((pcItem)clothing_items[n].id, 0);
+                        // nmh_sdk::PlayCamMotFromCharMot(0x2C, -1, false, true, false); 
                     }
                     if (is_selected) {
                         ImGui::SetItemDefaultFocus();
@@ -130,6 +132,7 @@ void ClothesSwitcher::on_draw_ui() {
                     if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
                         selected_indices[6] = n - combo.start_idx;
                         nmh_sdk::SetEquip((pcItem)clothing_items[n].id, 0);
+                        // nmh_sdk::PlayCamMotFromCharMot(0x2C, -1, false, true, false); 
                     }
                     if (is_selected) {
                         ImGui::SetItemDefaultFocus();
@@ -154,6 +157,7 @@ void ClothesSwitcher::on_draw_ui() {
                     if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
                         selected_indices[5] = n - combo.start_idx;
                         nmh_sdk::SetEquip((pcItem)clothing_items[n].id, 0);
+                        // nmh_sdk::PlayCamMotFromCharMot(0x2C, -1, false, true, false); 
                     }
                     if (is_selected) {
                         ImGui::SetItemDefaultFocus();
@@ -178,6 +182,7 @@ void ClothesSwitcher::on_draw_ui() {
                     if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
                         selected_indices[4] = n - combo.start_idx;
                         nmh_sdk::SetEquip((pcItem)clothing_items[n].id, 0);
+                        // nmh_sdk::PlayCamMotFromCharMot(0x2C, -1, false, true, false); 
                     }
                     if (is_selected) {
                         ImGui::SetItemDefaultFocus();
@@ -202,6 +207,7 @@ void ClothesSwitcher::on_draw_ui() {
                     if (ImGui::Selectable(clothing_items[n].name, is_selected)) {
                         selected_indices[3] = n - combo.start_idx;
                         nmh_sdk::SetEquip((pcItem)clothing_items[n].id, 0);
+                        // nmh_sdk::PlayCamMotFromCharMot(0x2C, -1, false, true, false); 
                     }
                     if (is_selected) {
                         ImGui::SetItemDefaultFocus();

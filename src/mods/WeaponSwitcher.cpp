@@ -643,7 +643,7 @@ void WeaponSwitcher::on_frame() {
                 //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
                 break;
             }
-            //nmh_sdk::PlayCamMotFromCharMot(5, 1, true, false, true);
+            //nmh_sdk::PlayCamMotFromCharMot(5, 1, true, false, true); 
             //if (IsPlayingSwordChangeAnim(motID)) {
                 //tryPlayAnimation = false;
             //}

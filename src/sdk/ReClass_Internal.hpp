@@ -5063,7 +5063,7 @@ public:
       HR_PROCESS_MAX = 41,
     };
 
-  /* 0x0000 */ char Padding_972[0x50];
+  /* 0x0000 */ char Padding_972[0x40];
   /* 0x0050 */ enum HrGameTask::HR_LOAD_STS mLoadSts;
   /* 0x0054 */ class HrRankingUp* mpRankingUp;
   /* 0x0058 */ int mDebugScenarioID;
