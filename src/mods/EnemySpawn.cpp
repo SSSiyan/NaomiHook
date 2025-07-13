@@ -4,6 +4,7 @@ int EnemySpawn::inResNo = 0;
 int EnemySpawn::inRepop = 0;
 int EnemySpawn::inChType = 0;
 bool EnemySpawn::spawnAtPlayerPos = false;
+bool EnemySpawn::spawnAtFreecamPos = false;
 Vec EnemySpawn::inPos{ 0.0f, 0.0f, 0.0f };
 Vec EnemySpawn::inRot{ 0.0f, 0.0f, 0.0f };
 int EnemySpawn::inPopType = 0;
@@ -166,27 +167,34 @@ int GetNumOfInResNoAvailableInThisStage(const char* currentStage) {
 
 void EnemySpawn::on_draw_ui() {
     if (!ImGui::IsAnyItemHovered()) EnemySpawn::hoveredDescription = defaultDescription;
+
     static int numOfInResNoAvailableInThisStage = 0;
     char* currentStage = nmh_sdk::get_CBgCtrl()->m_NowStageName;
     if (currentStage && (strlen(currentStage) < 20)) {
         nmh_sdk::get_CBgCtrl()->m_NowStageName;
         numOfInResNoAvailableInThisStage = GetNumOfInResNoAvailableInThisStage(currentStage);
     }
+
     if (inResNo > numOfInResNoAvailableInThisStage) { inResNo = numOfInResNoAvailableInThisStage; }
     ImGui::Text("inResNo");
     ImGui::SliderInt("## inResNo Input Int", &inResNo, 0, numOfInResNoAvailableInThisStage);
     if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Every stage has different models and textures for the enemies you encounter. 'inResNo' selects which variant you will spawn in.";
+
     ImGui::Text("inRepop");
     ImGui::InputInt("## inRepop Input Int", &inRepop);
-    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "'inRepop' is the number of times the enemy will respawn after death.";
-    ImGui::Checkbox("Spawn At Player Pos", &spawnAtPlayerPos);
-    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Spawn the enemy at Travis's current coordinates";
-    if (!spawnAtPlayerPos){
-        ImGui::Text("Custom Position");
-        ImGui::InputFloat3("## Custom Position Input Float", &inPos.x);
-        if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Manually assign coordinates for the enemy to spawn at.";
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "'inRepop' is the number of times the enemy will respawn after death";
+
+    if (ImGui::Checkbox("Spawn At Player Pos", &spawnAtPlayerPos)) {
+        spawnAtFreecamPos = false;
     }
-    else {
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Spawn the enemy at Travis's current coordinates";
+
+    if (ImGui::Checkbox("Spawn At Free Camera Pos", &spawnAtFreecamPos)) {
+        spawnAtPlayerPos = false;
+    }
+    if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Spawn the enemy at the Free Cam's current coordinates";
+
+    if (spawnAtPlayerPos) {
         if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
             ImGui::Text("Player Position");
             ImGui::InputFloat3("## Player Position Input Float", &mHRPc->mCharaStatus.pos.x);
@@ -194,11 +202,27 @@ void EnemySpawn::on_draw_ui() {
             inPos = mHRPc->mCharaStatus.pos;
         }
     }
+    else if (spawnAtFreecamPos) {
+        if (auto cam = nmh_sdk::get_HrCamera()) {
+            ImGui::Text("Camera Position");
+            ImGui::InputFloat3("## Camera Position Input Float", &cam->MAIN.free.C_T_Pos.x);
+            if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Current freecam coords";
+            inPos = cam->MAIN.free.C_T_Pos;
+        }
+    }
+    else {
+        ImGui::Text("Custom Position");
+        ImGui::InputFloat3("## Custom Position Input Float", &inPos.x);
+        if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Manually assign coordinates for the enemy to spawn at";
+    }
+
     ImGui::Text("Rotation");
     ImGui::InputFloat3("## Rotation Input Float", &inRot.x);
     if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Which way the spawned enemy will face";
+
     ImGui::Checkbox("inDisEnableCollision", &inDisEnableCollision);
     if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "The spawned enemy will ignore collisions";
+
     ImGui::Text("enPopReqType");
     if (ImGui::BeginCombo("## enPopReqType Combo", enPopReqTypeStrings[inPopType])) {
         for (int i = 0; i < IM_ARRAYSIZE(enPopReqTypeStrings); i++) {
@@ -213,6 +237,7 @@ void EnemySpawn::on_draw_ui() {
         ImGui::EndCombo();
     }
     if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "'enPopReqType' determines the type of spawn the enemy will use.";
+
     ImGui::Text("inChType");
     if (ImGui::BeginCombo("## inChType Combo", charaTypeStrings[inChType])) {
         for (int i = 0; i < IM_ARRAYSIZE(charaTypeStrings); i++) {
@@ -227,6 +252,7 @@ void EnemySpawn::on_draw_ui() {
         ImGui::EndCombo();
     }
     if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "'inChType' is the enemy type assigned to the enemy you're spawning. For example: You can spawn a regular Zako enemy with the data from a landmine object, or, with data from a boss such as Dr.Peace.";
+    
     float combo_width = ImGui::CalcItemWidth();
     if (ImGui::Button("Spawn Enemy", ImVec2(combo_width, NULL))) {
         if (inChType > 65)
@@ -243,6 +269,7 @@ void EnemySpawn::on_config_load(const utility::Config &cfg) {
     inRepop = cfg.get<int>("inRepop").value_or(1);
     inChType = cfg.get<int>("inChType").value_or(7);
     spawnAtPlayerPos = cfg.get<bool>("spawnAtPlayerPos").value_or(true);
+    spawnAtFreecamPos = cfg.get<bool>("spawnAtFreecamPos").value_or(false);
     inPopType = cfg.get<int>("inPopType").value_or(1);
 }
 
@@ -252,6 +279,7 @@ void EnemySpawn::on_config_save(utility::Config &cfg) {
     cfg.set<int>("inRepop", inRepop);
     cfg.set<int>("inChType", inChType);
     cfg.set<bool>("spawnAtPlayerPos", spawnAtPlayerPos);
+    cfg.set<bool>("spawnAtFreecamPos", spawnAtFreecamPos);
     cfg.set<int>("inPopType", inPopType);
 }
 

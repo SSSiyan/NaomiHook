@@ -11,6 +11,7 @@ public:
   static int inRepop;
   static int inChType;
   static bool spawnAtPlayerPos;
+  static bool spawnAtFreecamPos;
   static Vec inPos;
   static Vec inRot;
   static int inPopType;
