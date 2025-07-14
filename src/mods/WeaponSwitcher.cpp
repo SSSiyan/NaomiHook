@@ -445,21 +445,24 @@ void WeaponSwitcher::on_draw_ui() {
             // ImGui::Checkbox("Display UI", &weapon_switcher_ui);
 
             //
-            if (animations_enabled) {
-                ImGui::Indent();
-                ImGui::Text("mOperate false, mPauseNpc true, mode idle");
-                ImGui::SliderInt("##sliderInt mOperate false, mPauseNpc true, mode idle", &wsProcess0, 0, 300);
-                ImGui::Text("play noutou demo, set noutou");
-                ImGui::SliderInt("##sliderInt play noutou demo, set noutou", &wsProcess1, 0, 300);
-                ImGui::Text("equip new sword");
-                ImGui::SliderInt("##sliderInt equip new sword", &wsProcess2, 0, 300);
-                ImGui::Text("set input mode to battle");
-                ImGui::SliderInt("##sliderInt set input mode to battle", &wsProcess3, 0, 300);
-                ImGui::Text("play battou demo, set battou");
-                ImGui::SliderInt("##sliderInt play battou demo, set battou", &wsProcess4, 0, 300);
-                ImGui::Text("mOperate true, mPauseNpc false");
-                ImGui::SliderInt("##sliderInt mOperate true, mPauseNpc false", &wsProcess5, 0, 300);
-                ImGui::Unindent();
+            static bool showExperimentalTimeline = false;
+            if (showExperimentalTimeline) {
+                if (animations_enabled) {
+                    ImGui::Indent();
+                    ImGui::Text("mOperate false, mPauseNpc true, mode idle");
+                    ImGui::SliderInt("##sliderInt mOperate false, mPauseNpc true, mode idle", &wsProcess0, 0, 300);
+                    ImGui::Text("play noutou demo, set noutou");
+                    ImGui::SliderInt("##sliderInt play noutou demo, set noutou", &wsProcess1, 0, 300);
+                    ImGui::Text("equip new sword");
+                    ImGui::SliderInt("##sliderInt equip new sword", &wsProcess2, 0, 300);
+                    ImGui::Text("set input mode to battle");
+                    ImGui::SliderInt("##sliderInt set input mode to battle", &wsProcess3, 0, 300);
+                    ImGui::Text("play battou demo, set battou");
+                    ImGui::SliderInt("##sliderInt play battou demo, set battou", &wsProcess4, 0, 300);
+                    ImGui::Text("mOperate true, mPauseNpc false");
+                    ImGui::SliderInt("##sliderInt mOperate true, mPauseNpc false", &wsProcess5, 0, 300);
+                    ImGui::Unindent();
+                }
             }
             //
         }
