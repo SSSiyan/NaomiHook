@@ -628,22 +628,29 @@ void WeaponSwitcher::WeaponSwitchTimeline(mHRPc* player, WEAPON_SWITCH_DIRECTION
 
 // Check unlocked weapons when eEqWait1Frame is seen
 void WeaponSwitcher::CheckForWeaponUpdates() {
+    static int cooldown = 0;
     if (mod_enabled) {
-        mHRPc* player = nmh_sdk::get_mHRPc();
-        if (!player) { return; }
-        if (player->mPcStatus.equip[0].readProc == eEqWait1Frame) {
-            for (int i = 0; i < 4; i++) {
-                std::vector<pcItem> matchingItems = FindMatchingItemsForSlot((WEAPON_SWITCH_DIRECTION)i);
-                for (auto item : matchingItems) {
-                    if (item == savedSword[i]) {
-                        selectedSword[i] = savedSword[i];
-                        break;
+        if (cooldown == 0) {
+            mHRPc* player = nmh_sdk::get_mHRPc();
+            if (!player) { return; }
+            if (player->mPcStatus.equip[0].readProc < eEqReadMax) {
+                cooldown = 100;
+                for (int i = 0; i < 4; i++) {
+                    std::vector<pcItem> matchingItems = FindMatchingItemsForSlot((WEAPON_SWITCH_DIRECTION)i);
+                    for (auto item : matchingItems) {
+                        if (item == savedSword[i]) {
+                            selectedSword[i] = savedSword[i];
+                            break;
+                        }
                     }
                 }
+                if (selectedSword[WS_UP] == -1) {
+                    selectedSword[WS_UP] = BLOOD_BERRY; // default to Blood Berry
+                }
             }
-            if (selectedSword[WS_UP] == -1) {
-                selectedSword[WS_UP] = BLOOD_BERRY; // default to Blood Berry
-            }
+        }
+        if (cooldown > 0) {
+            cooldown--;
         }
     }
 }
