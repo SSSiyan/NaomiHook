@@ -13,7 +13,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
-#define GUI_VERSION "0.0.0"
+#define GUI_VERSION "- Vol.10"
 #define IMGUI_WINDOW_PADDING 10.0f
 
 #define IMGUI_WINDOW_BG_COLOR IM_COL32(22, 22, 22, 170)    // background
