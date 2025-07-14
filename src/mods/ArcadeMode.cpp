@@ -263,6 +263,40 @@ bool RenderK7Unlock(mHRPc* player, int id, const char* skillName, int price) {
     return isOwned;
 }
 
+// returns true if already owned
+bool RenderCmbExtendUnlock(mHRPc* player, int section, const char* swordName, int price) {
+    int baseIndex = section * 4;
+    
+    bool isOwned = true;
+    for (int i = 0; i < 4; i++) {
+        if (!player->mPcStatus.wepInfo[baseIndex + i].cmbExtend) {
+            isOwned = false;
+            break;
+        }
+    }
+    
+    if (isOwned) {
+        ImGui::BeginDisabled();
+    }
+    
+    char buttonText[256];
+    snprintf(buttonText, sizeof(buttonText), "%s ($%d)", swordName, price);
+    
+    if (ImGui::Button(buttonText)) {
+        if (BuyThing(price)) {
+            for (int i = 0; i < 4; i++) {
+                player->mPcStatus.wepInfo[baseIndex + i].cmbExtend = true;
+            }
+        }
+    }
+    
+    if (isOwned) {
+        ImGui::EndDisabled();
+    }
+    
+    return isOwned;
+}
+
 void DisplayShop(mHRPc* player, bool toggle) {
     ImGui::Begin("Arcade Shop", &toggle);
     ImGui::Text("Current Money: $%i", player->mPcStatus.money);
@@ -292,12 +326,6 @@ void DisplayShop(mHRPc* player, bool toggle) {
             if (RenderShopLockerItem(TSUBAKI_MK3_DAMAGE, 200000)) {
                 RenderShopLockerItem(TSUBAKI_MK3_BATTERY_DAMAGE, 999999);
             }
-        }
-
-        if (ImGui::TreeNodeEx("Examples", ImGuiTreeNodeFlags_DrawLinesFull)) {
-            RenderShopLockerItem(GLASSES0, 100);
-            RenderShopLockerItem(GLASSES1, 100);
-            ImGui::TreePop();
         }
 
         ImGui::TreePop();
@@ -345,7 +373,13 @@ void DisplayShop(mHRPc* player, bool toggle) {
         }
         ImGui::TreePop();
     }
-
+    if (ImGui::TreeNodeEx("Combo Extend", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
+        RenderCmbExtendUnlock(player, 0, "Blood Berry Combo Extend", 100);
+        RenderCmbExtendUnlock(player, 1, "Tsubaki Mk3 Combo Extend", 200);
+        RenderCmbExtendUnlock(player, 2, "Tsubaki Mk1 Combo Extend", 300);
+        RenderCmbExtendUnlock(player, 3, "Tsubaki Mk2 Combo Extend", 500);
+        ImGui::TreePop();
+    }
     ImGui::End();
 }
 
@@ -381,33 +415,45 @@ void ArcadeMode::on_draw_ui() {
     mHRPc* player = nmh_sdk::get_mHRPc();
     if (arcadeModeShopToggle && player) {
         DisplayShop(player, arcadeModeShopToggle);
-        if (ImGui::CollapsingHeader("Debug Shop")) {
-            if (ImGui::TreeNodeEx("Locker Items", ImGuiTreeNodeFlags_DrawLinesFull)) {
-                ImGui::Text("Current Money:");
-                ImGui::InputInt("##Current Money InputInt", &player->mPcStatus.money);
-                static int giveItemID = 0;
-                ImGui::Text("Desired Item ID:");
-                ImGui::InputInt("##Give Item InputInt", &giveItemID);
-                ImGui::Text(clothing_items[giveItemID].name);
-                if (ImGui::Button("Give Item")) {
-                    nmh_sdk::AddLocker(pcItem(giveItemID));
-                }
-                bool alreadyOwnsItem = CheckIfPlayerAlreadyOwnsLockerItem(pcItem(giveItemID));
-                ImGui::Checkbox("Is this item in your locker or your hand?", &alreadyOwnsItem);
-                ImGui::TreePop();
-            }
-            if (ImGui::TreeNodeEx("Wrestling Moves", ImGuiTreeNodeFlags_DrawLinesFull)) {
-                for (int i = 0; i < 16; i++) {
-                    ImGui::Checkbox(wrestlingNames[i], &player->mPcStatus.skillCatch[i]);
-                }
-                ImGui::TreePop();
-            }
 
-            if (ImGui::TreeNodeEx("Skills", ImGuiTreeNodeFlags_DrawLinesFull)) {
-                for (int i = 0; i < 7; i++) {
-                    ImGui::Checkbox(k7Names[i], &player->mPcStatus.skillK7[i]);
+        static bool shouldDisplayDebugShop = true; // change this to false to hide the debug shop
+        if (shouldDisplayDebugShop) {
+            if (ImGui::CollapsingHeader("Debug Shop")) {
+                if (ImGui::TreeNodeEx("Locker Items", ImGuiTreeNodeFlags_DrawLinesFull)) {
+                    ImGui::Text("Current Money:");
+                    ImGui::InputInt("##Current Money InputInt", &player->mPcStatus.money);
+                    static int giveItemID = 0;
+                    ImGui::Text("Desired Item ID:");
+                    ImGui::InputInt("##Give Item InputInt", &giveItemID);
+                    ImGui::Text(clothing_items[giveItemID].name);
+                    if (ImGui::Button("Give Item")) {
+                        nmh_sdk::AddLocker(pcItem(giveItemID));
+                    }
+                    bool alreadyOwnsItem = CheckIfPlayerAlreadyOwnsLockerItem(pcItem(giveItemID));
+                    ImGui::Checkbox("Is this item in your locker or your hand?", &alreadyOwnsItem);
+                    ImGui::TreePop();
                 }
-                ImGui::TreePop();
+                if (ImGui::TreeNodeEx("Wrestling Moves", ImGuiTreeNodeFlags_DrawLinesFull)) {
+                    for (int i = 0; i < 16; i++) {
+                        ImGui::Checkbox(wrestlingNames[i], &player->mPcStatus.skillCatch[i]);
+                    }
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNodeEx("Skills", ImGuiTreeNodeFlags_DrawLinesFull)) {
+                    for (int i = 0; i < 7; i++) {
+                        ImGui::Checkbox(k7Names[i], &player->mPcStatus.skillK7[i]);
+                    }
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNodeEx("cmbExtend", ImGuiTreeNodeFlags_DrawLinesFull)) {
+                    for (int i = 0; i < 16; i++) {
+                        int id = player->mPcStatus.wepInfo[i].id;
+                        ImGui::Checkbox(clothing_items[id].name, &player->mPcStatus.wepInfo[i].cmbExtend);
+                    }
+                    ImGui::TreePop();
+                }
             }
         }
     }

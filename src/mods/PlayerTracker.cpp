@@ -1,5 +1,6 @@
 #include "PlayerTracker.hpp"
 #include "GuiFunctions.hpp" // for g_framework
+#include "ClothesSwitcher.hpp"
 #if 1
 bool PlayerTracker::imguiPopout = false;
 
@@ -1235,6 +1236,7 @@ void DrawPlayerStats() {
                 if (ImGui::TreeNodeEx("Weapon Info", ImGuiTreeNodeFlags_DrawLinesFull)) {
                     for (int i = 0; i < 16; i++) {
                         ImGui::Text("Weapon Info %d", i);
+                        ImGui::Text(clothing_items[player->mPcStatus.wepInfo[i].id].name);
                         ImGui::InputInt(("ID ##" + std::to_string(i)).c_str(), &player->mPcStatus.wepInfo[i].id);
                         ImGui::InputScalar(("Battery ##" + std::to_string(i)).c_str(), ImGuiDataType_S16, &player->mPcStatus.wepInfo[i].battery);
                         ImGui::InputScalar(("Battery Max ##" + std::to_string(i)).c_str(), ImGuiDataType_S16, &player->mPcStatus.wepInfo[i].batteryMax);
