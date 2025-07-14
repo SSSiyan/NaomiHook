@@ -24,7 +24,7 @@ public:
   std::string get_mod_name() const override { return "ChargeSubsBattery"; }
   std::string get_human_readable_name() const { return "Charged Slashes"; }
   const char* get_description() const override { return R"(Shuffles around the rules on charged slash cost and their rewards. Frame-perfect releases of Charged Slashes consume no battery, but the act of charging a slash will drain the battery for as long as it is held.
-All parry reprisals are now defensive tools to give you breathing room during block stun and deal 10% of their standard damage. MK-III battery upgrade also has had its Heroes Paradise nerf applied, meaning ordinary slashes are free, but charged slashes follow standard drain rules.)"; };
+All parry reprisals are now defensive tools to give you breathing room during block stun and deal 10 percent of their standard damage. MK-III battery upgrade also has had its Heroes Paradise nerf applied, meaning ordinary slashes are free, but charged slashes follow standard drain rules.)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

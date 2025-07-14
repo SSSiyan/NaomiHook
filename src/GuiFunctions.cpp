@@ -404,15 +404,16 @@ namespace gui {
 
                 ImGui::PopFont();
             }
-            static bool showImGuiDemoWindow = false;
+            /*static bool showImGuiDemoWindow = false;
             ImGui::Checkbox("Show ImGui Demo Window", &showImGuiDemoWindow);
             help_marker("Check out tools>style editor to play with changes to appearance.\n"
                 "Check out widgets to see if there's anything else you wanna use somewhere");
             if (showImGuiDemoWindow) {
                 ImGui::ShowDemoWindow();
-            }
+            }*/
             ImGui::End();
             ImGui::PopFont();
+            
         }
     }
 } // namespace gui
