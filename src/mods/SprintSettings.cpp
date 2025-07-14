@@ -204,7 +204,7 @@ std::optional<std::string> SprintSettings::on_initialize() {
 } 
 
 void SprintSettings::on_draw_ui() {
-    ImGui::Checkbox("Battle Sprint", &battleSprint);
+    ImGui::Checkbox("Combat Sprint", &battleSprint);
     /*if (battleSprint) {
         ImGui::Indent();
         ImGui::Text("Sprint Speed");
