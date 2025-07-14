@@ -317,6 +317,30 @@ namespace nmh_sdk {
         }
     }
 
+    void PlayNoutouDemo(mHRPc* mHRPc) {
+        uintptr_t noutouDemoAddr = (g_framework->get_module().as<uintptr_t>() + 0x3C3C80);
+        mPlayNoutouDemoFunc noutouDemo = (mPlayNoutouDemoFunc)noutouDemoAddr;
+        if (mHRPc) {
+            noutouDemo(mHRPc);
+        }
+    }
+
+    void SetNoutou(mHRPc* mHRPc, bool inSkipAttach) {
+        uintptr_t setNoutouAddr = (g_framework->get_module().as<uintptr_t>() + 0x3E0B00);
+        mSetNoutouFunc setNoutou = (mSetNoutouFunc)setNoutouAddr;
+        if (mHRPc) {
+            setNoutou(mHRPc, inSkipAttach);
+        }
+    }
+
+    void SetBattou(mHRPc* mHRPc, bool inSkipAttach) { 
+        uintptr_t setBattouAddr = (g_framework->get_module().as<uintptr_t>() + 0x3E0950);
+        mSetBattouFunc setBattou = (mSetBattouFunc)setBattouAddr;
+        if (mHRPc) {
+            setBattou(mHRPc, inSkipAttach);
+        }
+    }
+
     // Spawn enemies
     int setInitNpcDat(int inResNo, enCharaType inChType, int inRepop, const Vec* inPos, const Vec* inRot, enPopReqType inPopType, bool inDisEnableCollision) {
         uintptr_t mSetInitNpcDatAddress = (g_framework->get_module().as<uintptr_t>() + 0x3B6B30);

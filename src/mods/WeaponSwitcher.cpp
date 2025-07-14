@@ -550,28 +550,43 @@ void WeaponSwitcher::WeaponSwitchTimeline(mHRPc* player, WEAPON_SWITCH_DIRECTION
     if (wsProcessTimer == 0) {
         player->mOperate = false;
         player->mPauseNpc = true;
-        //nmh_sdk::SetInputMode(player, ePcInputIdle);
-        player->mInputMode = ePcInputIdle;
+        nmh_sdk::SetInputMode(player, ePcInputIdle);
+        // player->mInputMode = ePcInputIdle;
         weaponSwitchCooldown = 0;
         directionPressed = direction; // BLOOD_BERRY
         // nmh_sdk::PlayCamMotFromCharMot(5, 1, true, false, true); 
     }
     if (wsProcessTimer == 10) {
+        // does the animation but doesn't store the sword
+        // nmh_sdk::PlayMotion(ePcMtAtkEdWstR, 0, 0, 1, 0.1f);
+
+        // works but makes the hud disappear etc, need to spawn an electric fence
+        // player->mPcStatus.noutouDemo = true;
+
+        // player->mPcStatus.easyDemoProc = eEasyDemoInit;
+        // nmh_sdk::PlayNoutouDemo(player);
+
+        nmh_sdk::SetNoutou(player, false); // attaches sword to belt, doesn't play animation
+
         player->mPcStatus.easyDemoProc = eEasyDemoInit;
-        player->mPcStatus.noutouDemo = true;
+        nmh_sdk::PlayNoutouDemo(player);
     }
-    if (wsProcessTimer == 40) {
+    if (wsProcessTimer == 80) {
         nmh_sdk::SetEquip((pcItem)selectedSword[direction], false);
     }
     if (wsProcessTimer == 100) {
-        // nmh_sdk::SetInputMode(player, ePcInputBattleIdle);
-        player->mInputMode = ePcInputBattleIdle;
+        nmh_sdk::SetInputMode(player, ePcInputBattleIdle);
+        // player->mInputMode = ePcInputBattleIdle;
     }
     if (wsProcessTimer == 120) {
-        //player->mPcStatus.eqWep = true;
+        // player->mPcStatus.eqWep = true;
+        // player->mBattouDemoRequest = true;
+        // player->mPcStatus.battouDemo = true; // requires "a" press
+        // player->mPcStatus.battouDemoPauseMode = true; // seems like it just crashes
+
+        nmh_sdk::SetBattou(player, false);
+
         player->mPcStatus.easyDemoProc = eEasyDemoInit;
-        //player->mPcStatus.battouDemo = true; // requires "a" press
-        player->mPcStatus.battouDemoPauseMode = true; // seems like it just crashes
         nmh_sdk::PlayBattouDemo(player);
     }
     if (wsProcessTimer == 240) {

@@ -67,4 +67,10 @@ namespace nmh_sdk {
 	bool CheckEquipReadEnd(mHRPc* mHRPc);
 	typedef void(__thiscall* mPlayBattouDemoFunc)(mHRPc* mHRPc);
 	void PlayBattouDemo(mHRPc* mHRPc);
+	typedef void(__thiscall* mPlayNoutouDemoFunc)(mHRPc* mHRPc);
+	void PlayNoutouDemo(mHRPc* mHRPc);
+	typedef void(__thiscall* mSetNoutouFunc)(mHRPc* mHRPc, bool inSkipAttach);
+	void SetNoutou(mHRPc* mHRPc, bool inSkipAttach);
+	typedef void(__thiscall* mSetBattouFunc)(mHRPc* mHRPc, bool inSkipAttach);
+	void SetBattou(mHRPc* mHRPc, bool inSkipAttach);
 };
