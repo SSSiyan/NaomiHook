@@ -75,7 +75,7 @@ uintptr_t WeaponSwitcher::jmp_ret1 = NULL;
 uintptr_t WeaponSwitcher::jmp_ret2 = NULL;
 uintptr_t WeaponSwitcher::jmp_ret3 = NULL;
     uintptr_t detour3_je = NULL;
-int WeaponSwitcher::weaponSwitchCooldown = 80; // this is what ticks
+uint32_t WeaponSwitcher::weaponSwitchCooldown = 80; // this is what ticks
 static int weaponSwitchLockedFrames = 10; // this locks you out from weapon switching
 static int animationDuration = WeaponSwitcher::weaponSwitchCooldown;
 
@@ -549,6 +549,7 @@ static uint32_t wsProcessTimer = 200;
 void WeaponSwitcher::WeaponSwitchTimeline(mHRPc* player, WEAPON_SWITCH_DIRECTION direction) {
     if (wsProcessTimer == 0) {
         player->mOperate = false;
+        player->mPauseNpc = true;
         //nmh_sdk::SetInputMode(player, ePcInputIdle);
         player->mInputMode = ePcInputIdle;
         weaponSwitchCooldown = 0;
@@ -558,7 +559,6 @@ void WeaponSwitcher::WeaponSwitchTimeline(mHRPc* player, WEAPON_SWITCH_DIRECTION
     if (wsProcessTimer == 10) {
         player->mPcStatus.easyDemoProc = eEasyDemoInit;
         player->mPcStatus.noutouDemo = true;
-        // nmh_sdk::PlayMotion(ePcMtAtkEdWstR, 0, 0, 0, 0.1f); // put away weapon
     }
     if (wsProcessTimer == 40) {
         nmh_sdk::SetEquip((pcItem)selectedSword[direction], false);
@@ -571,7 +571,7 @@ void WeaponSwitcher::WeaponSwitchTimeline(mHRPc* player, WEAPON_SWITCH_DIRECTION
         //player->mPcStatus.eqWep = true;
         player->mPcStatus.easyDemoProc = eEasyDemoInit;
         //player->mPcStatus.battouDemo = true; // requires "a" press
-        //player->mPcStatus.battouDemoPauseMode = true; // seems like it just crashes
+        player->mPcStatus.battouDemoPauseMode = true; // seems like it just crashes
         nmh_sdk::PlayBattouDemo(player);
     }
     if (wsProcessTimer == 240) {
@@ -581,12 +581,12 @@ void WeaponSwitcher::WeaponSwitchTimeline(mHRPc* player, WEAPON_SWITCH_DIRECTION
     if (wsProcessTimer == 300) {
         //player->mPcStatus.battouDemoPauseMode = false;
         player->mOperate = true;
+        player->mPauseNpc = false;
     }
 }
 
-void WeaponSwitcher::WeaponSwapLogic() {
-    //static int checkmotReadProc = 0;
-    // Check unlocked weapons when eEqWait1Frame is seen
+// Check unlocked weapons when eEqWait1Frame is seen
+void WeaponSwitcher::CheckForWeaponUpdates() {
     if (mod_enabled) {
         mHRPc* player = nmh_sdk::get_mHRPc();
         if (!player) { return; }
@@ -604,134 +604,152 @@ void WeaponSwitcher::WeaponSwapLogic() {
                 selectedSword[WS_UP] = BLOOD_BERRY; // default to Blood Berry
             }
         }
-
-        // Weapon switching
-        if (weaponSwitchCooldown > weaponSwitchLockedFrames) {
-            uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
-            if (dPadInputsAddr) {
-                int8_t dPadInput = *(int8_t*)dPadInputsAddr;
-                switch (dPadInput) {
-                if (selectedSword[dPadInput] == -1) break;
-                case DPAD_LEFT:
-                    if (CanWeaponSwitch((pcItem)selectedSword[WS_LEFT])) {
-                            directionPressed = WS_LEFT; // TSUBAKI_MK1
-                            wsProcessTimer = 0;
-                            //nmh_sdk::SetInputMode(player, ePcInputIdle);
-                            //weaponSwitchCooldown = 0;
-                            //nmh_sdk::SetEquip((pcItem)selectedSword[WS_LEFT], false);
-                    }
-                    break;
-                case DPAD_RIGHT:
-                    if (CanWeaponSwitch((pcItem)selectedSword[WS_RIGHT])) {
-                            directionPressed = WS_RIGHT; // TSUBAKI_MK3
-                            wsProcessTimer = 0;
-                            //nmh_sdk::SetInputMode(player, ePcInputIdle);
-                            //weaponSwitchCooldown = 0;
-                            //nmh_sdk::SetEquip((pcItem)selectedSword[WS_RIGHT], false);
-                    }
-                    break;
-                case DPAD_DOWN:
-                    if (CanWeaponSwitch((pcItem)selectedSword[WS_DOWN])) {
-                            directionPressed = WS_DOWN; // TSUBAKI_MK2
-                            wsProcessTimer = 0;
-                            //nmh_sdk::SetInputMode(player, ePcInputIdle);
-                            //weaponSwitchCooldown = 0;
-                            //nmh_sdk::SetEquip((pcItem)selectedSword[WS_DOWN], false);
-                    }
-                    break;
-                case DPAD_UP:
-                    if (CanWeaponSwitch((pcItem)selectedSword[WS_UP])) {
-                            directionPressed = WS_UP; // BLOOD_BERRY
-                            wsProcessTimer = 0;
-                            //nmh_sdk::SetInputMode(player, ePcInputIdle);
-                            //weaponSwitchCooldown = 0;
-                            //nmh_sdk::SetEquip((pcItem)selectedSword[WS_UP], false);
-                    }
-                    break;
-                default:
-                    break;
-                }
-                // if (weaponSwitchCooldown == 0) { tryPlayAnimation = true; }
-            }
-        }
-        
-        /*
-        // play an anim after the sword loads (eEqReadMax)
-        // we have to keep trying on frame until it plays (IsPlayingSwordChangeAnim)
-        int motID = player->mCharaStatus.motionNo;
-        if (weaponSwitchCooldown > weaponSwitchLockedFrames || !animations_enabled) {
-            tryPlayAnimation = false;
-        }
-        if (tryPlayAnimation && !IsPlayingSwordChangeAnim(motID) && player->mPcStatus.equip[0].readProc == eEqReadMax) {
-            switch (player->mPcStatus.equip[0].id) {
-            case BLOOD_BERRY:
-            case BLOOD_BERRY_BATTERY:
-            case BLOOD_BERRY_DAMAGE:
-            case BLOOD_BERRY_BATTERY_DAMAGE:
-                nmh_sdk::PlayMotion(ePcMtBattou01, 0, 70, 1, 0.1f); // 249
-                //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                break;
-            case TSUBAKI_MK3:
-            case TSUBAKI_MK3_BATTERY:
-            case TSUBAKI_MK3_DAMAGE:
-            case TSUBAKI_MK3_BATTERY_DAMAGE:
-                nmh_sdk::PlayMotion(ePcMtBattou02Ed, 0, 0, 1, 0.1f); // 297
-                //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                break;
-            case TSUBAKI_MK1:
-            case TSUBAKI_MK1_BATTERY:
-            case TSUBAKI_MK1_DAMAGE:
-            case TSUBAKI_MK1_BATTERY_DAMAGE:
-                nmh_sdk::PlayMotion(ePcMtBattou03Ed, 0, 0, 1, 0.1f); // 345
-                //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                break;
-            case TSUBAKI_MK2:
-            case TSUBAKI_MK2_BATTERY:
-            case TSUBAKI_MK2_DAMAGE:
-            case TSUBAKI_MK2_BATTERY_DAMAGE:
-                nmh_sdk::PlayMotion(ePcMtBattou04Ed, 0, 0, 1, 0.1f); // 391
-                //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                break;
-            default:
-                //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
-                break;
-            }
-            //nmh_sdk::SetInputMode(player, ePcInputBattleIdle);
-            //nmh_sdk::PlayCamMotFromCharMot(5, 1, true, false, true); 
-            if (IsPlayingSwordChangeAnim(motID)) {
-                tryPlayAnimation = false;
-            }
-        }
-
-        // effectively pause the game while loading a sword. Optional but should be safer
-        // Can't pause all because then the loading process pauses too
-        // Of course this lets you move during cutscenes I am so dumb
-        /*if (player->mInputMode == ePcInputBattleIdle) {
-            if (player->mPcStatus.equip[0].readProc != eEqReadMax) {
-                player->mPauseNpc = true;
-                player->mOperate = false;
-            }
-            else {
-                player->mPauseNpc = false;
-                player->mOperate = true;
-            }
-        }*/
-        // previousSwordEquipRead = player->mPcStatus.equip[0].readProc;
-        weaponSwitchCooldown++;
-        //if (weapon_switcher_ui) {
-        // Display_UI();
-        //}
     }
 }
 
-void WeaponSwitcher::on_frame() {
-    WeaponSwapLogic();
-    WeaponSwitchTimeline(nmh_sdk::get_mHRPc(), directionPressed);
-    wsProcessTimer++;
-    if (wsProcessTimer == 500000) {
-        wsProcessTimer = 500;
+void WeaponSwitcher::WeaponSwapLogic() {
+    if (!mod_enabled) { return; }
+    mHRPc* player = nmh_sdk::get_mHRPc();
+    if (!player) { return; }
+    // Weapon switching
+    if (weaponSwitchCooldown > weaponSwitchLockedFrames) {
+        uintptr_t dPadInputsAddr = (g_framework->get_module().as<uintptr_t>() + 0x849D14);
+        if (dPadInputsAddr) {
+            int8_t dPadInput = *(int8_t*)dPadInputsAddr;
+            switch (dPadInput) {
+            if (selectedSword[dPadInput] == -1) break;
+            case DPAD_LEFT:
+                if (CanWeaponSwitch((pcItem)selectedSword[WS_LEFT])) {
+                    directionPressed = WS_LEFT; // TSUBAKI_MK1
+                    weaponSwitchCooldown = 0;
+                    if (animations_enabled) {
+                        wsProcessTimer = 0;
+                    } else {
+                        nmh_sdk::SetEquip((pcItem)selectedSword[WS_LEFT], false);
+                    }
+                }
+                break;
+            case DPAD_RIGHT:
+                if (CanWeaponSwitch((pcItem)selectedSword[WS_RIGHT])) {
+                    directionPressed = WS_RIGHT; // TSUBAKI_MK3
+                    weaponSwitchCooldown = 0;
+                    if (animations_enabled) {
+                        wsProcessTimer = 0;
+                    } else {
+                        nmh_sdk::SetEquip((pcItem)selectedSword[WS_RIGHT], false);
+                    }
+                }
+                break;
+            case DPAD_DOWN:
+                if (CanWeaponSwitch((pcItem)selectedSword[WS_DOWN])) {
+                    directionPressed = WS_DOWN; // TSUBAKI_MK2
+                    weaponSwitchCooldown = 0;
+                    if (animations_enabled) {
+                        wsProcessTimer = 0;
+                    } else {
+                        nmh_sdk::SetEquip((pcItem)selectedSword[WS_DOWN], false);
+                    }
+                }
+                break;
+            case DPAD_UP:
+                if (CanWeaponSwitch((pcItem)selectedSword[WS_UP])) {
+                    directionPressed = WS_UP; // BLOOD_BERRY
+                    weaponSwitchCooldown = 0;
+                    if (animations_enabled) {
+                        wsProcessTimer = 0;
+                    } else {
+                        nmh_sdk::SetEquip((pcItem)selectedSword[WS_UP], false);
+                    }
+                }
+                break;
+            default:
+                break;
+            }
+            if (weaponSwitchCooldown == 0) { tryPlayAnimation = true; }
+        }
     }
+    // play an anim after the sword loads (eEqReadMax)
+    // we have to keep trying on frame until it plays (IsPlayingSwordChangeAnim)
+    /*
+    int motID = player->mCharaStatus.motionNo;
+    if (weaponSwitchCooldown > weaponSwitchLockedFrames || !animations_enabled) {
+        tryPlayAnimation = false;
+    }
+    if (tryPlayAnimation && !IsPlayingSwordChangeAnim(motID) && player->mPcStatus.equip[0].readProc == eEqReadMax) {
+        switch (player->mPcStatus.equip[0].id) {
+        case BLOOD_BERRY:
+        case BLOOD_BERRY_BATTERY:
+        case BLOOD_BERRY_DAMAGE:
+        case BLOOD_BERRY_BATTERY_DAMAGE:
+            nmh_sdk::PlayMotion(ePcMtBattou01, 0, 70, 1, 0.1f); // 249
+            //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+            break;
+        case TSUBAKI_MK3:
+        case TSUBAKI_MK3_BATTERY:
+        case TSUBAKI_MK3_DAMAGE:
+        case TSUBAKI_MK3_BATTERY_DAMAGE:
+            nmh_sdk::PlayMotion(ePcMtBattou02Ed, 0, 0, 1, 0.1f); // 297
+            //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+            break;
+        case TSUBAKI_MK1:
+        case TSUBAKI_MK1_BATTERY:
+        case TSUBAKI_MK1_DAMAGE:
+        case TSUBAKI_MK1_BATTERY_DAMAGE:
+            nmh_sdk::PlayMotion(ePcMtBattou03Ed, 0, 0, 1, 0.1f); // 345
+            //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+            break;
+        case TSUBAKI_MK2:
+        case TSUBAKI_MK2_BATTERY:
+        case TSUBAKI_MK2_DAMAGE:
+        case TSUBAKI_MK2_BATTERY_DAMAGE:
+            nmh_sdk::PlayMotion(ePcMtBattou04Ed, 0, 0, 1, 0.1f); // 391
+            //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+            break;
+        default:
+            //nmh_sdk::PlayMotion(ePcMtBtIdl0, 0, 0, 0, 0.1f); // 3
+            break;
+        }
+        //nmh_sdk::SetInputMode(player, ePcInputBattleIdle);
+        //nmh_sdk::PlayCamMotFromCharMot(5, 1, true, false, true); 
+        if (IsPlayingSwordChangeAnim(motID)) {
+            tryPlayAnimation = false;
+        }
+    }
+    */
+    // effectively pause the game while loading a sword. Optional but should be safer
+    // Can't pause all because then the loading process pauses too
+    // Of course this lets you move during cutscenes I am so dumb
+    /*if (player->mInputMode == ePcInputBattleIdle) {
+        if (player->mPcStatus.equip[0].readProc != eEqReadMax) {
+            player->mPauseNpc = true;
+            player->mOperate = false;
+        }
+        else {
+            player->mPauseNpc = false;
+            player->mOperate = true;
+        }
+    }*/
+    // previousSwordEquipRead = player->mPcStatus.equip[0].readProc;
+    //if (weapon_switcher_ui) {
+    // Display_UI();
+    //}
+}
+
+void WeaponSwitcher::on_frame() {
+    CheckForWeaponUpdates();
+    WeaponSwapLogic();
     Display_UI();
+
+    if (animations_enabled) {
+        WeaponSwitchTimeline(nmh_sdk::get_mHRPc(), directionPressed);
+        if (wsProcessTimer < 1000) {
+            wsProcessTimer++;
+        }
+    }
+
+    if (weaponSwitchCooldown < 1000) {
+        weaponSwitchCooldown++;
+    }
 }
 
 // will show up in debug window, dump ImGui widgets you want here
@@ -744,10 +762,10 @@ std::optional<std::string> WeaponSwitcher::on_initialize() {
         return "Failed to init WeaponSwitcher mod 1";
     }
 
-    /*if (!install_hook_offset(0x3D905B, m_hook2, &detour2, &WeaponSwitcher::jmp_ret2, 8)) { // play weapon anims // player in esi
+    if (!install_hook_offset(0x3D905B, m_hook2, &detour2, &WeaponSwitcher::jmp_ret2, 8)) { // play weapon anims // player in esi
         spdlog::error("Failed to init WeaponSwitcher mod 2\n");
         return "Failed to init WeaponSwitcher mod 2";
-    }*/
+    }
 
     detour3_je = (g_framework->get_module().as<uintptr_t>() + 0x3D4806);
     if (!install_hook_offset(0x3D47C4, m_hook3, &detour3, &WeaponSwitcher::jmp_ret3, 5)) { // add tsubaki mk1 weapon swap to canAttack ban list

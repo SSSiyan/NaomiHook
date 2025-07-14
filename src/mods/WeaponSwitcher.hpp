@@ -20,9 +20,10 @@ public:
   static uintptr_t jmp_ret1;
   static uintptr_t jmp_ret2;
   static uintptr_t jmp_ret3;
-  static int weaponSwitchCooldown;
+  static uint32_t weaponSwitchCooldown;
   // static bool weapon_switcher_ui;
 
+  void CheckForWeaponUpdates();
   void WeaponSwitchTimeline(mHRPc* player, WEAPON_SWITCH_DIRECTION direction);
   void WeaponSwapLogic();
   void toggleForceMap(bool enable);
