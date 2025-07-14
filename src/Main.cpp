@@ -47,7 +47,7 @@ static DWORD WINAPI startup_thread([[maybe_unused]] LPVOID parameter) {
 
     g_framework = std::make_unique<ModFramework>();
 #ifdef NDEBUG
-   // reframework::setup_exception_handler();
+    reframework::setup_exception_handler();
 #endif
 
     return ERROR_SUCCESS;
