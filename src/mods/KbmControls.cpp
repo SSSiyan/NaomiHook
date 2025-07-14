@@ -183,6 +183,22 @@ static glm::vec2 g_mouse_delta_cam {};
 static PAD_UNI* g_ppad {nullptr};
 KPADEXStatus* g_exstatus {nullptr};
 
+void shooty_game_fix(KPADEXStatus* ext) {
+    if (!g_hrtask_ptr) {
+        return;
+    }
+    if (!g_hrtask_ptr->hrtsk) {
+        return;
+    }
+    if (auto hrtask = g_hrtask_ptr->hrtsk) {
+        // shooty game is 27
+        if (hrtask->state == 27) {
+            ext->cl.lstick.x += ext->cl.rstick.x * 2.0f;
+            ext->cl.lstick.y += ext->cl.rstick.y * 2.0f;
+        }
+    }
+}
+
 void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
 
     uintptr_t base = (uintptr_t)GetModuleHandleA(NULL);
@@ -223,13 +239,7 @@ void __cdecl ghm_pad_prWiiPadSamplingCallback_(void* status, void* context) {
     // append_ui_log(fmt::format("cl_rstick=({},{})", exstatus->cl.rstick.x, exstatus->cl.rstick.y));
 
     // i am not a clever man
-    if (auto hrtask = g_hrtask_ptr->hrtsk) {
-        // shooty game is 27
-        if (hrtask->state == 27) {
-            exstatus->cl.lstick.x += exstatus->cl.rstick.x * 2.0f;
-            exstatus->cl.lstick.y += exstatus->cl.rstick.y * 2.0f;
-        }
-    }
+    shooty_game_fix(exstatus);
 
     g_mouse_delta = glm::vec2(0.0);
     g_mouser.x = 0;
@@ -448,7 +458,7 @@ std::optional<std::string> KbmControls::on_initialize() {
     auto ptr = (base+0x849D10);
     g_ppad = (PAD_UNI*)ptr;
 
-    g_hrtask_ptr = (decltype(g_hrtask_ptr))0x00C41414;
+    g_hrtask_ptr = (hrTaskPtrStatic*)(g_framework->get_module().as<uintptr_t>() + (ptrdiff_t)0x841414);
 
     // NOTE(deep): order matters unfortunately
     g_input_map.input_map("Forward", ImGuiKey_W, 
@@ -509,6 +519,12 @@ std::optional<std::string> KbmControls::on_initialize() {
 
     g_input_map.input_map("Low Slash Mouse", ImGuiKey_MouseLeft,   [](KPADEXStatus* ext) { 
         // NOTE(): hack to stop bomb spam in shmup :(
+        if (!g_hrtask_ptr) {
+            return;
+        }
+        if (!g_hrtask_ptr->hrtsk) {
+            return;
+        }
         if (auto hrtask = g_hrtask_ptr->hrtsk) {
             if (hrtask->state == 27) { return; }
         }
@@ -599,7 +615,7 @@ std::optional<std::string> KbmControls::on_initialize() {
         *l3_address = 1;
     });
 
-    g_input_map.input_map("Shmup Shoot Keyboard", ImGuiKey_Space, [](KPADEXStatus* ext) { 
+    g_input_map.input_map("Shmup Shoot Keyboard", ImGuiKey_Space, [](KPADEXStatus* ext) {
         if (auto hrtask = g_hrtask_ptr->hrtsk) {
             if (hrtask->state == 27) {
                 ext->cl.hold |= KEY_CIRCLE;
@@ -615,7 +631,6 @@ std::optional<std::string> KbmControls::on_initialize() {
     });
 
     g_input_map.input_map("Shmup Shoot Mouse", ImGuiKey_MouseLeft, [](KPADEXStatus* ext) { 
-                // NOTE(): hack hack unset bits so it doesnt spam bombs when shooting
         if (auto hrtask = g_hrtask_ptr->hrtsk) {
             if (hrtask->state == 27) {
                 ext->cl.hold |= KEY_CIRCLE;
