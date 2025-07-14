@@ -96,13 +96,11 @@ naked void detour_damage_modifier() {
         je noDamage
         cmp byte ptr [ChargeSubsBattery::mod_enabled], 1
         je chargesMoveIDCheck
-        cmp byte ptr [ReprisalSwap::mod_enabled], 1
-        je reprisalMoveIDCheck
-        cmp byte ptr [ReprisalSwap::mid_stance_enabled], 1
-        je reprisalMoveIDCheck
-        jmp originalcode
+        jmp reprisalMoveIDCheck
 
         chargesMoveIDCheck:
+        cmp byte ptr [edi+0x1707], 1 // justAttack // limit damage edits to reprisals
+        jne originalcode
         cmp dword ptr [edi+0x18C], ePcMtBtAtk01Rng // 246
         je checkChargeCheatTicked
         cmp dword ptr [edi+0x18C], ePcMtBtAtk03Rng // 340
@@ -116,8 +114,14 @@ naked void detour_damage_modifier() {
         cmp dword ptr [edi+0x18C], ePcMtBtAtk02RngCmbC // 292
         je checkChargeCheatTicked
 
+        cmp byte ptr [ReprisalSwap::mod_enabled], 1
+        je reprisalMoveIDCheck
+        cmp byte ptr [ReprisalSwap::mid_stance_enabled], 1
+        je reprisalMoveIDCheck
+        jmp originalcode
+
         reprisalMoveIDCheck:
-        cmp byte ptr [edi+0x1707], 1 // justAttack
+        cmp byte ptr [edi+0x1707], 1 // justAttack // limit damage edits to reprisals
         jne originalcode
         cmp dword ptr [edi+0x18C], ePcMtBtAtkChgUp // 170
         je checkHighReprisalCheatTicked
