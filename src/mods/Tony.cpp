@@ -488,7 +488,7 @@ naked void detour5() { // money rewards // player in edi
 // clang-format on
 
 void Tony::on_draw_ui() {
-    ImGui::Checkbox("Tony", &mod_enabled);
+    ImGui::Checkbox("Score Visualizer", &mod_enabled);
 }
 
 std::optional<std::string> Tony::on_initialize() {

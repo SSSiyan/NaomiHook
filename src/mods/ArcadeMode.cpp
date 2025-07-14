@@ -373,7 +373,7 @@ void DisplayShop(mHRPc* player, bool toggle) {
         }
         ImGui::TreePop();
     }
-    if (ImGui::TreeNodeEx("Combo Extend", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
+    if (ImGui::TreeNodeEx("Combo Extend Upgrade", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
         RenderCmbExtendUnlock(player, 0, "Blood Berry Combo Extend", 10000);
         RenderCmbExtendUnlock(player, 1, "Tsubaki Mk3 Combo Extend", 15000);
         RenderCmbExtendUnlock(player, 2, "Tsubaki Mk1 Combo Extend", 12000);
@@ -416,7 +416,7 @@ void ArcadeMode::on_draw_ui() {
     if (arcadeModeShopToggle && player) {
         DisplayShop(player, arcadeModeShopToggle);
 
-        static bool shouldDisplayDebugShop = true; // change this to false to hide the debug shop
+        static bool shouldDisplayDebugShop = false; // change this to false to hide the debug shop
         if (shouldDisplayDebugShop) {
             if (ImGui::CollapsingHeader("Debug Shop")) {
                 if (ImGui::TreeNodeEx("Locker Items", ImGuiTreeNodeFlags_DrawLinesFull)) {
