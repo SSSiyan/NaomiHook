@@ -374,10 +374,10 @@ void DisplayShop(mHRPc* player, bool toggle) {
         ImGui::TreePop();
     }
     if (ImGui::TreeNodeEx("Combo Extend", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
-        RenderCmbExtendUnlock(player, 0, "Blood Berry Combo Extend", 100);
-        RenderCmbExtendUnlock(player, 1, "Tsubaki Mk3 Combo Extend", 200);
-        RenderCmbExtendUnlock(player, 2, "Tsubaki Mk1 Combo Extend", 300);
-        RenderCmbExtendUnlock(player, 3, "Tsubaki Mk2 Combo Extend", 500);
+        RenderCmbExtendUnlock(player, 0, "Blood Berry Combo Extend", 10000);
+        RenderCmbExtendUnlock(player, 1, "Tsubaki Mk3 Combo Extend", 15000);
+        RenderCmbExtendUnlock(player, 2, "Tsubaki Mk1 Combo Extend", 12000);
+        RenderCmbExtendUnlock(player, 3, "Tsubaki Mk2 Combo Extend", 13000);
         ImGui::TreePop();
     }
     ImGui::End();
