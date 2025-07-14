@@ -88,6 +88,13 @@ static WEAPON_SWITCH_DIRECTION directionPressed = WS_LEFT;
 static int selectedSword[WS_COUNT]{ -1, -1, -1, -1 }; // pcItem
 static int savedSword[WS_COUNT]{ -1, -1, -1, -1 }; // pcItem
 
+static int wsProcess0 = 0;
+static int wsProcess1 = 10;
+static int wsProcess2 = 80;
+static int wsProcess3 = 100;
+static int wsProcess4 = 120;
+static int wsProcess5 = 300;
+
 // bool WeaponSwitcher::weapon_switcher_ui = false;
 
 // Disable toggling the map while Weapon Switcher is active
@@ -436,6 +443,25 @@ void WeaponSwitcher::on_draw_ui() {
             // }
 
             // ImGui::Checkbox("Display UI", &weapon_switcher_ui);
+
+            //
+            if (animations_enabled) {
+                ImGui::Indent();
+                ImGui::Text("mOperate false, mPauseNpc true, mode idle");
+                ImGui::SliderInt("##sliderInt mOperate false, mPauseNpc true, mode idle", &wsProcess0, 0, 300);
+                ImGui::Text("play noutou demo, set noutou");
+                ImGui::SliderInt("##sliderInt play noutou demo, set noutou", &wsProcess1, 0, 300);
+                ImGui::Text("equip new sword");
+                ImGui::SliderInt("##sliderInt equip new sword", &wsProcess2, 0, 300);
+                ImGui::Text("set input mode to battle");
+                ImGui::SliderInt("##sliderInt set input mode to battle", &wsProcess3, 0, 300);
+                ImGui::Text("play battou demo, set battou");
+                ImGui::SliderInt("##sliderInt play battou demo, set battou", &wsProcess4, 0, 300);
+                ImGui::Text("mOperate true, mPauseNpc false");
+                ImGui::SliderInt("##sliderInt mOperate true, mPauseNpc false", &wsProcess5, 0, 300);
+                ImGui::Unindent();
+            }
+            //
         }
     }
 }
@@ -547,7 +573,7 @@ bool IsPlayingSwordChangeAnim(int motID) {
 
 static uint32_t wsProcessTimer = 200;
 void WeaponSwitcher::WeaponSwitchTimeline(mHRPc* player, WEAPON_SWITCH_DIRECTION direction) {
-    if (wsProcessTimer == 0) {
+    if (wsProcessTimer == wsProcess0) { // mOperate false, mPauseNpc true, input mode to idle
         player->mOperate = false;
         player->mPauseNpc = true;
         nmh_sdk::SetInputMode(player, ePcInputIdle);
@@ -556,7 +582,7 @@ void WeaponSwitcher::WeaponSwitchTimeline(mHRPc* player, WEAPON_SWITCH_DIRECTION
         directionPressed = direction; // BLOOD_BERRY
         // nmh_sdk::PlayCamMotFromCharMot(5, 1, true, false, true); 
     }
-    if (wsProcessTimer == 10) {
+    if (wsProcessTimer == wsProcess1) { // play noutou demo, set noutou
         // does the animation but doesn't store the sword
         // nmh_sdk::PlayMotion(ePcMtAtkEdWstR, 0, 0, 1, 0.1f);
 
@@ -571,29 +597,26 @@ void WeaponSwitcher::WeaponSwitchTimeline(mHRPc* player, WEAPON_SWITCH_DIRECTION
         player->mPcStatus.easyDemoProc = eEasyDemoInit;
         nmh_sdk::PlayNoutouDemo(player);
     }
-    if (wsProcessTimer == 80) {
+    if (wsProcessTimer == wsProcess2) { // equip new sword
         nmh_sdk::SetEquip((pcItem)selectedSword[direction], false);
     }
-    if (wsProcessTimer == 100) {
+    if (wsProcessTimer == wsProcess3) { // set input mode to battle
         nmh_sdk::SetInputMode(player, ePcInputBattleIdle);
         // player->mInputMode = ePcInputBattleIdle;
     }
-    if (wsProcessTimer == 120) {
+    if (wsProcessTimer == wsProcess4) { // play battou demo, set battou
         // player->mPcStatus.eqWep = true;
         // player->mBattouDemoRequest = true;
         // player->mPcStatus.battouDemo = true; // requires "a" press
         // player->mPcStatus.battouDemoPauseMode = true; // seems like it just crashes
 
-        nmh_sdk::SetBattou(player, false);
 
         player->mPcStatus.easyDemoProc = eEasyDemoInit;
+        nmh_sdk::SetBattou(player, false);
         nmh_sdk::PlayBattouDemo(player);
     }
-    if (wsProcessTimer == 240) {
-        player->mPcStatus.eqWepLaser = true;
-    }
 
-    if (wsProcessTimer == 300) {
+    if (wsProcessTimer == wsProcess5) { // enable mOperate, disable mPauseNpc
         //player->mPcStatus.battouDemoPauseMode = false;
         player->mOperate = true;
         player->mPauseNpc = false;
