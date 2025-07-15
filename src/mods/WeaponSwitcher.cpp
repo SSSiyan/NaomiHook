@@ -196,11 +196,15 @@ std::vector<pcItem> FindMatchingItemsForSlot(WEAPON_SWITCH_DIRECTION slotID) {
         }
     }
 
-    if ((slotID == WS_LEFT  && (equippedWeapon == TSUBAKI_MK1 || equippedWeapon == TSUBAKI_MK1_DAMAGE || equippedWeapon == TSUBAKI_MK1_BATTERY || equippedWeapon == TSUBAKI_MK1_BATTERY_DAMAGE)) ||
-        (slotID == WS_DOWN  && (equippedWeapon == TSUBAKI_MK2 || equippedWeapon == TSUBAKI_MK2_DAMAGE || equippedWeapon == TSUBAKI_MK2_BATTERY || equippedWeapon == TSUBAKI_MK2_BATTERY_DAMAGE)) ||
+    if ((slotID == WS_LEFT && (equippedWeapon == TSUBAKI_MK1 || equippedWeapon == TSUBAKI_MK1_DAMAGE || equippedWeapon == TSUBAKI_MK1_BATTERY || equippedWeapon == TSUBAKI_MK1_BATTERY_DAMAGE)) ||
+        (slotID == WS_DOWN && (equippedWeapon == TSUBAKI_MK2 || equippedWeapon == TSUBAKI_MK2_DAMAGE || equippedWeapon == TSUBAKI_MK2_BATTERY || equippedWeapon == TSUBAKI_MK2_BATTERY_DAMAGE)) ||
         (slotID == WS_RIGHT && (equippedWeapon == TSUBAKI_MK3 || equippedWeapon == TSUBAKI_MK3_DAMAGE || equippedWeapon == TSUBAKI_MK3_BATTERY || equippedWeapon == TSUBAKI_MK3_BATTERY_DAMAGE)) ||
-        (slotID == WS_UP    && (equippedWeapon == BLOOD_BERRY || equippedWeapon == BLOOD_BERRY_DAMAGE || equippedWeapon == BLOOD_BERRY_BATTERY || equippedWeapon == BLOOD_BERRY_BATTERY_DAMAGE))) {
-        matchingItems.push_back(equippedWeapon);
+        (slotID == WS_UP && (equippedWeapon == BLOOD_BERRY || equippedWeapon == BLOOD_BERRY_DAMAGE || equippedWeapon == BLOOD_BERRY_BATTERY || equippedWeapon == BLOOD_BERRY_BATTERY_DAMAGE))) {
+
+        // see if we've already found it
+        if (std::find(matchingItems.begin(), matchingItems.end(), equippedWeapon) == matchingItems.end()) {
+            matchingItems.push_back(equippedWeapon);
+        }
     }
 
     return matchingItems;

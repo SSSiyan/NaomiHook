@@ -8,6 +8,9 @@ public:
   ModCategory get_category() { return ModCategory::COSMETICS; };
   static bool mod_enabled;
   static bool sword_glow_enabled;
+  static bool always_trail;
+  void toggleForceTrail(bool enable);
+  static bool heart_colours;
 
   static uintptr_t jmp_ret1;
   static uintptr_t gpBattle;
@@ -46,5 +49,5 @@ public:
   void on_d3d_reset() override;
 private:
 	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3;
-	// std::unique_ptr<Patch> m_patch;
+	std::unique_ptr<Patch> patch_force_trail;
 };
