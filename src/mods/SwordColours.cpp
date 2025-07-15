@@ -6,6 +6,8 @@
 
 bool SwordColours::mod_enabled = false;
 bool SwordColours::sword_glow_enabled = false;
+bool SwordColours::always_trail = false;
+bool SwordColours::heart_colours = false;
 
 uintptr_t SwordColours::jmp_ret1 = NULL;
 uintptr_t SwordColours::gpBattle = NULL;
@@ -29,6 +31,10 @@ struct IntColor {
 
 static ImColor colours_picked_rgba[5];
 static IntColor colours_picked_rgbaInt[5];
+
+static IntColor heart_colour_rgbaInt{};
+static float lastHpScale = 1.0f;
+static IntColor frozenColor = {255, 255, 255, 255};
 
 // directx stuff
 static std::unique_ptr<Texture2DD3D11> g_sword_texture_atlas{};
@@ -136,11 +142,13 @@ static constexpr float highHalfCharge = highJustChargeEnd + (frameTime);
 // clang-format off
 naked void detour1() { // swords, player in ebx
     __asm {
-        //
-            cmp byte ptr [SwordColours::mod_enabled], 0
+            push eax
+            mov al, [SwordColours::heart_colours]
+            or al, [SwordColours::mod_enabled]
+            cmp eax, 0
+            pop eax
             je originalcode
-            
-            // check this is player
+        // check this is player
             push eax
             mov eax, [SwordColours::gpBattle]
             mov eax, [eax]
@@ -149,6 +157,10 @@ naked void detour1() { // swords, player in ebx
             pop eax
             jne originalcode
             
+            cmp byte ptr [SwordColours::heart_colours], 1
+            je heartColours
+            cmp byte ptr [SwordColours::mod_enabled], 0
+            je originalcode
             cmp dword ptr [SwordColours::deathblowTimer], 100
             jbe deathblowColour
             jmp getSwordID
@@ -214,6 +226,18 @@ naked void detour1() { // swords, player in ebx
             pop eax
             jmp originalcode
             */
+
+        heartColours:
+            push eax // 4
+            mov eax,[heart_colour_rgbaInt]
+            mov [esp+0x4+0x4],eax
+            mov eax,[heart_colour_rgbaInt+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[heart_colour_rgbaInt+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
+
         getSwordID:
             cmp dword ptr [ebx+0x42C], BLOOD_BERRY
             je berryColour
@@ -322,11 +346,13 @@ naked void detour1() { // swords, player in ebx
 
 naked void detour2() { // trails, player in ebx
     __asm {
-        //
-            cmp byte ptr [SwordColours::mod_enabled], 0
+            push eax
+            mov al, [SwordColours::sword_glow_enabled]
+            or al, [SwordColours::mod_enabled]
+            cmp eax, 0
+            pop eax
             je originalcode
-            
-            // check this is player
+        // check this is player
             push eax
             mov eax, [SwordColours::gpBattle]
             mov eax, [eax]
@@ -335,9 +361,24 @@ naked void detour2() { // trails, player in ebx
             pop eax
             jne originalcode
 
+            cmp byte ptr [SwordColours::heart_colours], 1
+            je heartColours
+            cmp byte ptr [SwordColours::mod_enabled], 0
+            je originalcode
             cmp dword ptr [SwordColours::deathblowTimer], 100
             jbe deathblowColour
             jmp getSwordID
+
+        heartColours:
+            push eax // 4
+            mov eax,[heart_colour_rgbaInt]
+            mov [esp+0x4+0x4],eax
+            mov eax,[heart_colour_rgbaInt+0x4]
+            mov [esp+0x4+0x8],eax
+            mov eax,[heart_colour_rgbaInt+0x8]
+            mov [esp+0x4+0xC],eax
+            pop eax
+            jmp originalcode
 
         getSwordID:
             cmp dword ptr [ebx+0x42C], BLOOD_BERRY
@@ -631,6 +672,63 @@ void SwordColours::on_frame() {
             }
         }
     }
+    if (heart_colours) {
+        mHRPc* player = nmh_sdk::get_mHRPc();
+        if (!player) { return; }
+        mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle();
+        if (!mHRBattle) { return; }
+        HrScreenStatus* screenStatus = mHRBattle->mBtEffect.pScreenStatus;
+        if (screenStatus) {
+            static float colorPhase = 0.0f;
+            if (screenStatus->m_HpScale > 1.0f) {
+                float beatIntensity = (screenStatus->m_HpScale - 1.0f) / 0.2f;
+                beatIntensity = std::min(beatIntensity, 1.0f);
+        
+                if (lastHpScale <= 1.0f && screenStatus->m_HpScale > 1.0f) {
+                    colorPhase += screenStatus->m_HpScale;
+                }
+        
+                float r = sin(colorPhase * 1.3f) * 0.3f + 0.7f;
+                float g = sin(colorPhase * 0.8f + 2.0f) * 0.3f + 0.5f;
+                float b = sin(colorPhase * 1.1f + 4.0f) * 0.3f + 0.6f;
+        
+                r += beatIntensity * 0.2f;
+                g += beatIntensity * 0.1f;
+                b += beatIntensity * 0.1f;
+        
+                r = std::min(r, 1.0f);
+                g = std::min(g, 1.0f);
+                b = std::min(b, 1.0f);
+        
+                heart_colour_rgbaInt.r = (int)(r * 255.0f);
+                heart_colour_rgbaInt.g = (int)(g * 255.0f);
+                heart_colour_rgbaInt.b = (int)(b * 255.0f);
+                heart_colour_rgbaInt.a = 255;
+        
+                frozenColor.r = heart_colour_rgbaInt.r;
+                frozenColor.g = heart_colour_rgbaInt.g;
+                frozenColor.b = heart_colour_rgbaInt.b;
+                frozenColor.a = heart_colour_rgbaInt.a;
+        
+            } else if (screenStatus->m_HpScale == 1.0f) {
+                heart_colour_rgbaInt.r = frozenColor.r;
+                heart_colour_rgbaInt.g = frozenColor.g;
+                heart_colour_rgbaInt.b = frozenColor.b;
+                heart_colour_rgbaInt.a = frozenColor.a;
+            }
+    
+            lastHpScale = screenStatus->m_HpScale;
+        }
+    }
+}
+
+void SwordColours::toggleForceTrail(bool enable) {
+    if (enable) {
+        install_patch_offset(0x3BF53A, patch_force_trail, "\x90\x90\x90", 3); // 
+    }
+    else {
+        install_patch_offset(0x3BF53A, patch_force_trail, "\x8A\x55\x08", 3); // mov dl,[ebp+08]
+    }
 }
 
 void SwordColours::render_description() const {
@@ -647,13 +745,26 @@ void SwordColours::on_draw_ui() {
             if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set how bright the glow from your sword is";
         ImGui::Unindent();
     }
-    ImGui::Checkbox("Custom Colours", &mod_enabled);
+    if (ImGui::Checkbox("Always Display Laser Trails", &always_trail)) {
+        toggleForceTrail(always_trail);
+    }
+    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "@DHMalice";
+
+    if (ImGui::Checkbox("Heart Colours", &heart_colours)) {
+        mod_enabled =false;
+    }
+    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Cycle to random colours while your health pulses";
+
+    if (ImGui::Checkbox("Custom Colours", &mod_enabled)) {
+        heart_colours = false;
+    }
     if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = defaultDescription;
+
     if (mod_enabled) {
         ImGui::Indent();
 
         for (size_t i = 0; i < swords.size(); i++) {
-            draw_sword_behavior(swords[i].name, swords[i].blade, swords[i].hilt, 
+            draw_sword_behavior(swords[i].name, swords[i].blade, swords[i].hilt,
                 colours_picked_rgba[i], colours_picked_rgbaInt[i], cfg_defaults[i]);
         }
 
@@ -707,6 +818,9 @@ std::optional<std::string> SwordColours::on_initialize() {
 void SwordColours::on_config_load(const utility::Config &cfg) {
     sword_glow_enabled = cfg.get<bool>("sword_glow_enabled").value_or(false);
     mod_enabled = cfg.get<bool>("custom_colours").value_or(false);
+    always_trail = cfg.get<bool>("always_trail").value_or(false);
+    if (always_trail) toggleForceTrail(always_trail);
+    heart_colours = cfg.get<bool>("heart_colours").value_or(false);
     {
         size_t i = 0;
         for (const auto& RgbaDefault : cfg_defaults) {
@@ -727,6 +841,8 @@ void SwordColours::on_config_load(const utility::Config &cfg) {
 void SwordColours::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("sword_glow_enabled", sword_glow_enabled);
     cfg.set<bool>("custom_colours", mod_enabled);
+    cfg.set<bool>("always_trail", always_trail);
+    cfg.set<bool>("heart_colours", heart_colours);
     for (const auto& RgbaDefault : cfg_defaults) {
         cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".r", RgbaDefault.color->r);
         cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".g", RgbaDefault.color->g);
