@@ -741,19 +741,19 @@ void SwordColours::on_draw_ui() {
     if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Restores the beam reflections seen in early gameplay footage. This is the same glow that would later be used in NMH2 and Heroes Paradise";
     if (sword_glow_enabled) {
         ImGui::Indent();
-        ImGui::SliderFloat("Glow Amount", &swordGlowAmount, 1.0f, 5.0f, "%.0f");
-            if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set how bright the glow from your sword is";
+        ImGui::SliderFloat("Glow Intensity", &swordGlowAmount, 1.0f, 5.0f, "%.0f");
+            if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set how bright the glow from your sword is.";
         ImGui::Unindent();
     }
     if (ImGui::Checkbox("Always Display Laser Trails", &always_trail)) {
         toggleForceTrail(always_trail);
     }
-    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "@DHMalice";
+    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Force the Beam Katana trails to always display.";
 
-    if (ImGui::Checkbox("Heart Colours", &heart_colours)) {
+    if (ImGui::Checkbox("Heartbeat Color Sync", &heart_colours)) {
         mod_enabled =false;
     }
-    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Cycle to random colours while your health pulses";
+    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Randomly cycles through beam colors and pulses with each color switch. This is synced to the HP's heart beat.";
 
     if (ImGui::Checkbox("Custom Colours", &mod_enabled)) {
         heart_colours = false;

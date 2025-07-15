@@ -726,7 +726,7 @@ void KbmControls::on_draw_ui() {
             m_hooks.reset();
         }
     }
-    m_block_lockon->draw("Block Mouse Inputs While Locked On");
+    m_block_lockon->draw("Disable Mouse Roll");
 
     m_base_mouse_sens->draw("Base mouse sensitivity");
     m_cams_mouse_sens->draw("Camera senisitivity");

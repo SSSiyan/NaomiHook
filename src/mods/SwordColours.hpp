@@ -25,7 +25,7 @@ public:
 
   // mod name string for config
   std::string get_mod_name() const override { return "SwordColours"; }
-  std::string get_human_readable_name() const { return "Sword Colours"; }
+  std::string get_human_readable_name() const { return "Beam Customization"; }
   //const char* get_description() const override { return R"(Customize your beam katana colors. You can also set a unique color specifically for Death Blows. )"; };
   void render_description() const override;
   static const char* defaultDescription;
