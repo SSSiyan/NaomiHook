@@ -7,6 +7,7 @@
 
 #include "mods/ResolutionScaleFix.hpp"
 
+#ifndef NMH_LINUX
 #define DLLPATH "\\\\.\\GLOBALROOT\\SystemRoot\\SysWOW64\\XInput1_4.dll"
 
 #pragma comment(linker, "/EXPORT:DllMain=" DLLPATH ".DllMain,@1")
@@ -24,6 +25,7 @@
 #pragma comment(linker, "/EXPORT:__proxy104=" DLLPATH ".#104,@104,NONAME")
 #pragma comment(linker, "/EXPORT:__proxy108=" DLLPATH ".#108,@108,NONAME")
 
+#endif
 
 static DWORD WINAPI startup_thread([[maybe_unused]] LPVOID parameter) {
 
@@ -47,7 +49,9 @@ static DWORD WINAPI startup_thread([[maybe_unused]] LPVOID parameter) {
 
     g_framework = std::make_unique<ModFramework>();
 #ifdef NDEBUG
+#ifndef NMH_LINUX
     reframework::setup_exception_handler();
+#endif // !LINUX_MAYBE
 #endif
 
     return ERROR_SUCCESS;

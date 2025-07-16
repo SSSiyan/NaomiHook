@@ -166,27 +166,22 @@ source_group("SDK" FILES ${SDK_SRC})
 source_group("Utility" FILES ${UTILITY_SRC})
 source_group("Framework" FILES ${FRAMEWORK_SRC})
 
-string(REGEX REPLACE "/W0" "/W3" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+#string(REGEX REPLACE "/W0" "/W3" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
-add_library(${CMAKE_PROJECT_NAME} SHARED
-            Main.cpp
-            LicenseStrings.hpp
-            ${SDK_SRC}
-            ${MODS_SRC}
-            ${HOOKS_SRC}
-            ${UTILITY_SRC}
-            ${IMGUI_SRC}
-            ${FRAMEWORK_SRC}
-)
+macro(build_my_lib target_name def output_name extension)
+  add_library(${target_name} SHARED Main.cpp LicenseStrings.hpp ${SDK_SRC} ${MODS_SRC} ${HOOKS_SRC} ${UTILITY_SRC} ${IMGUI_SRC} ${FRAMEWORK_SRC})
+  target_link_libraries(${target_name} PUBLIC imgui minhook d3d11 glm csys::csys shlwapi)
+  target_compile_definitions(${target_name} PRIVATE ${def})
+  include_directories(${target_name} ${CMAKE_CURRENT_SOURCE_DIR})
+  set_target_properties(${target_name} PROPERTIES OUTPUT_NAME "${output_name}")
+  set_target_properties(${target_name} PROPERTIES SUFFIX "${extension}")
+endmacro()
 
-target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC imgui minhook d3d11 glm csys::csys shlwapi)
-#target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC /GS- /GR-)
-target_compile_features(${CMAKE_PROJECT_NAME} PUBLIC cxx_std_17)
+# windows dll with fancy proxying tech that doesn't work on wine
+build_my_lib(${CMAKE_PROJECT_NAME} NMH_WINDOWS xinput1_4 .dll)
 
-include_directories(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
-set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME xinput1_4)
-
-if(DEVELOPER_MODE)
-    target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC DEVELOPER)
-    target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC /EHa)
+# build .asi file for use on Linux with ASI injector
+if(BUILD_ASI)
+  build_my_lib(NaomiHook_Linux NMH_LINUX NaomiHook_Linux .asi)
 endif()
+
