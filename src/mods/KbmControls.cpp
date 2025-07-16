@@ -492,7 +492,12 @@ std::optional<std::string> KbmControls::on_initialize() {
     g_input_map.input_map("Cancel", ImGuiKey_Backspace, KEY_SELECT);
 
     g_input_map.input_map("Skip Scene", ImGuiKey_Backspace, KEY_SELECT);
-    g_input_map.input_map("Open Menu",  ImGuiKey_Tab,       KEY_START);
+    g_input_map.input_map("Open Menu",  ImGuiKey_Tab,       [](KPADEXStatus* ext) { 
+        ext->cl.hold |= KEY_SELECT;
+        ext->cl.hold |= KEY_START;
+        static uint32_t* ass3 = (uint32_t*)(g_framework->get_module().as<uintptr_t>() + (ptrdiff_t)0x849D14);//(uint32_t*)(0x00C49D14);
+        *ass3 |= 0x10;
+    });
 
     g_input_map.input_map("Target Lock On", ImGuiKey_LeftShift, [](KPADEXStatus* ext) { 
         ext->cl.hold |= KEY_LT; ext->cl.ltrigger = 255.0f; 
@@ -607,7 +612,11 @@ std::optional<std::string> KbmControls::on_initialize() {
         }
     });
 
-    g_input_map.input_map("Call Bike",    ImGuiKey_B, [](KPADEXStatus* ext) { ext->cl.hold |= KEY_SQUARE; });
+    g_input_map.input_map("Call Bike",    ImGuiKey_B, [](KPADEXStatus* ext) {
+        ext->cl.hold |= KEY_SQUARE; 
+        static uint32_t* ass3 = (uint32_t*)(g_framework->get_module().as<uintptr_t>() + (ptrdiff_t)0x849D14);//(uint32_t*)(0x00C49D14);
+        *ass3 |= 0x200;
+    });
 
     g_input_map.input_map("Combat Sprint", ImGuiKey_LeftCtrl, [](KPADEXStatus* ext) {
         ext->cl.hold |= KEY_L3; 
