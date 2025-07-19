@@ -339,7 +339,7 @@ void LockOnSettings::on_draw_ui() {
     if (ImGui::Checkbox("Wrestling and Beat Attacks", &disable_throws_mod_enabled)) {
         toggle_kick_cancel(disable_throws_mod_enabled);
     }
-    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "Disables wrestling moves when holding lock on. This allows you to squeeze more out of the Beat Attack movelist by incorporating punches and kicks into your combos. Roundhouse Kick, Jumping Spinning Back Kick, and Overhead Kick have had their cancel windows changed and will not reset your combo string.";
+    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "DISABLES WRESTLING MOVES WHEN LOCKED ON. This allows you to squeeze more out of the Beat Attack movelist by incorporating punches and kicks into your combos. Roundhouse Kick, Jumping Spinning Back Kick, and Overhead Kick have had their cancel windows changed and will not reset your combo string.";
 
     if (ImGui::Checkbox("Replace HIT Number", &replaceHitNumMod_enabled)) {
         replaceHitNumToggle(replaceHitNumMod_enabled);
