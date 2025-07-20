@@ -15,7 +15,7 @@ uintptr_t ArcadeMode::jmp_ret1 = NULL;
 uintptr_t ArcadeMode::gpBattle = NULL;
 uintptr_t ArcadeMode::mSetVisible = NULL;
 
-static constexpr std::array<const char*, 28> arcadeMode = {
+static constexpr std::array<const char*, 27> arcadeMode = {
     "STG500",   // Motel
     "STG083",   // Deathmetal Zako 1
     "STG080",   // Deathmetal Zako 2
@@ -34,7 +34,6 @@ static constexpr std::array<const char*, 28> arcadeMode = {
     "STG0002",  // Holly Summers Zako
     "STG0001",  // Holly Summers
     "STG051",   // Letz Shake Zako
-    "STG1708",  // Harvey Zako
     "STG090",   // Harvey
     "STG00014", // Speedbuster Zako
     "STG060",   // SpeedBuster

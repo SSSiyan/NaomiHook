@@ -63,10 +63,12 @@ naked void detour2() { // disable clashes on new reprisals // disable clashes on
     check2:
         cmp byte ptr [ChargeSubsBattery::mod_enabled], 1
         jne originalcode
-        cmp dword ptr [edi+0x18C], ePcMtBtAtkChg // 169 Mid Charged Slash
-        je jmp_je
-        cmp dword ptr [edi+0x18C], ePcMtBtAtkChgUp // 170 High Charged Slash
-        je jmp_je
+        cmp dword ptr [edi+0x18C], ePcMtBtAtkChg         // 169 Mid Charged Slash
+        je jmp_je                                        
+        cmp dword ptr [edi+0x18C], ePcMtBtAtkChgUp       // 170 High Charged Slash
+        je jmp_je                                        
+        cmp dword ptr [edi+0x18C], ePcMtBtAtk03CmbBtmB   // 334 Low1 MK-I
+        je jmp_je                                        
     originalcode:
         cmp byte ptr [edi+0x00001664], 00
         jmp dword ptr [ReprisalSwap::jmp_ret2]
