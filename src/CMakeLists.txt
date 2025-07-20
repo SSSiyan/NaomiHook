@@ -69,6 +69,8 @@ set(MODS_SRC
     mods/Volume.cpp 
     mods/ResolutionScaleFix.hpp  
     mods/ResolutionScaleFix.cpp
+    mods/ShaderEdit.hpp
+    mods/ShaderEdit.cpp
 )
 
 set(HOOKS_SRC

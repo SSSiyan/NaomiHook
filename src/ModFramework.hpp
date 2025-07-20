@@ -3,6 +3,7 @@
 #include <spdlog/spdlog.h>
 
 class Mods;
+class Mod;
 struct OurImGuiContext;
 struct ID3D11Device;
 
@@ -60,6 +61,8 @@ public:
     bool m_draw_ui { false };
 
     HWND m_wnd{0};
+
+    Mod* m_shader_editor_mod {nullptr};
 
 private:
     void draw_ui();

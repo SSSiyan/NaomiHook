@@ -38,6 +38,7 @@
 #include "mods/KillObscuringTreasureChests.hpp"
 #include "mods/HudSettings.hpp"
 #include "mods/FreeCam.hpp"
+#include "mods/ShaderEdit.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -85,6 +86,10 @@ Mods::Mods()
     ADD_MOD(KbmControls);
     ADD_MOD(HudSettings);
     ADD_MOD(FreeCam);
+    // Shader edit stuffs
+    // need to construct it in a special way :shrug:
+    m_mods.emplace_back(g_framework->m_shader_editor_mod);
+    m_hash.emplace_back("ShaderEdit"_hash);
     //m_mods.emplace_back(std::make_unique<YourMod>());
 
 #ifdef DEVELOPER

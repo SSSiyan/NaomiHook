@@ -6,6 +6,7 @@
 #include "utility/ExceptionHandler.hpp"
 
 #include "mods/ResolutionScaleFix.hpp"
+#include "mods/ShaderEdit.hpp"
 
 #ifndef NMH_LINUX
 #define DLLPATH "\\\\.\\GLOBALROOT\\SystemRoot\\SysWOW64\\XInput1_4.dll"
@@ -26,6 +27,8 @@
 #pragma comment(linker, "/EXPORT:__proxy108=" DLLPATH ".#108,@108,NONAME")
 
 #endif
+
+Mod* g_shader_fix_mod {nullptr};
 
 static DWORD WINAPI startup_thread([[maybe_unused]] LPVOID parameter) {
 
@@ -53,6 +56,7 @@ static DWORD WINAPI startup_thread([[maybe_unused]] LPVOID parameter) {
     reframework::setup_exception_handler();
 #endif // !LINUX_MAYBE
 #endif
+    g_framework->m_shader_editor_mod = g_shader_fix_mod;
 
     return ERROR_SUCCESS;
 }
@@ -79,10 +83,21 @@ BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
             sprintf(buffer, "Failed to initialize ResoultionScaleFix: %s", maybe_error.value().c_str() );
             MessageBox(NULL, buffer, "NMH1", MB_ICONINFORMATION);
         }
+
+        g_shader_fix_mod = new ShaderEdit();
+        maybe_error = g_shader_fix_mod->on_initialize();
+        if (maybe_error.has_value()) {
+            char buffer[512];
+            sprintf(buffer, "Failed to initialize ResoultionScaleFix: %s", maybe_error.value().c_str() );
+            MessageBox(NULL, buffer, "NMH1", MB_ICONINFORMATION);
+        }
+
     }
     if (reason == DLL_PROCESS_DETACH) {
         FreeLibrary(g_nmhfix_handle);
         delete g_dpi_fix_mod;
+        // we'll move this into mods later i guess
+        //delete g_shader_fix_mod;
     }
     return TRUE;
 }

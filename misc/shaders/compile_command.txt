@@ -1,0 +1,1 @@
+fxc /T ps_5_0 /Fo .\color_tex0.ps .\color_tex0.hlsl
