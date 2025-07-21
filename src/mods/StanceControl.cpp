@@ -1,4 +1,5 @@
 #include "StanceControl.hpp"
+#include "KbmControls.hpp"
 #include "fw-imgui/Texture2DD3D11.hpp"
 #include "fw-imgui/KanaeTextureAtlas.cpp"
 #include "utility/Compressed.hpp"
@@ -613,7 +614,8 @@ static constexpr uint8_t   templeos_hymn_risen_values[] = {
 void StanceControl::GearControls(mHRPc* player) { 
     if (!player || !gpPad) return;
     
-    int8_t* r1Press = (int8_t*)(gpPad + 0x1CD4);  
+    static uintptr_t base = g_framework->get_module().as<uintptr_t>();
+    int8_t* r1Press = (int8_t*)(base+0x84B930);  
     float* r2Press = (float*)(gpPad + 0x64);
     int8_t* stance = (int8_t*)&(player->mPcStatus.pose);
     static constexpr float r2PressThreshold = 20.0f; // 20/255

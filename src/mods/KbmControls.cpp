@@ -9,6 +9,8 @@ static bool g_block_inputs { false };
 typedef void(__fastcall *PADSetHideMouseCursor_ptr)(bool s, bool lock);
 static PADSetHideMouseCursor_ptr PADSetHideMouseCursor_ee { nullptr };
 
+int8_t g_kbm_stance {-1};
+
 struct MouseRaw {
     int x = 0;
     int y = 0;
@@ -492,7 +494,7 @@ std::optional<std::string> KbmControls::on_initialize() {
     g_input_map.input_map("Cancel", ImGuiKey_Backspace, KEY_SELECT);
 
     g_input_map.input_map("Skip Scene", ImGuiKey_Backspace, KEY_SELECT);
-    g_input_map.input_map("Open Menu",  ImGuiKey_Tab,       [](KPADEXStatus* ext) { 
+    g_input_map.input_map("Open Menu",  ImGuiKey_Escape,       [](KPADEXStatus* ext) { 
         ext->cl.hold |= KEY_SELECT;
         ext->cl.hold |= KEY_START;
         static uint32_t* ass3 = (uint32_t*)(g_framework->get_module().as<uintptr_t>() + (ptrdiff_t)0x849D14);//(uint32_t*)(0x00C49D14);
@@ -558,7 +560,6 @@ std::optional<std::string> KbmControls::on_initialize() {
     });
 
     g_input_map.input_map("Battery Charge Start", ImGuiKey_R, KEY_LB);
-    g_input_map.input_map("Camera Reset", ImGuiKey_LeftAlt, KEY_RB);
 
 #if 0
     g_input_map.input_map("Up Arrow",    ImGuiKey_UpArrow,    KEY_DPAD_UP);
@@ -662,7 +663,52 @@ std::optional<std::string> KbmControls::on_initialize() {
             }
         }
     });
-    
+
+#if 0
+    g_input_map.input_map("Stance Control HIGH stance", ImGuiKey_Tab, [](KPADEXStatus* ext) {
+        if (auto player = nmh_sdk::get_mHRPc()) {
+            g_kbm_stance = 0;
+        }
+    });
+    g_input_map.input_map("Stance Control MID stance", ImGuiKey_CapsLock, [](KPADEXStatus* ext) {
+        if (auto player = nmh_sdk::get_mHRPc()) {
+            g_kbm_stance = 2;
+        }
+    });
+    g_input_map.input_map("Stance Control LOW stance", ImGuiKey_LeftCtrl, [](KPADEXStatus* ext) {
+        if (auto player = nmh_sdk::get_mHRPc()) {
+            g_kbm_stance = 1;
+        }
+    });
+#endif
+
+    g_input_map.input_map("Stance Control Cycle Up", ImGuiKey_Tab, KEY_RB);
+
+    g_input_map.input_map("Stance Control Cycle Down", ImGuiKey_CapsLock, [](KPADEXStatus* ext) {
+        if (auto player = nmh_sdk::get_mHRPc()) {
+            auto gpPad = g_framework->get_module().as<uintptr_t>() + 0x849D10;
+            float* r2Press  = (float*)(gpPad + 0x64);
+            *r2Press       = 200.0f;
+        }
+    });
+
+    g_input_map.input_map("Stance Control Mouse Wheel", ImGuiKey_MouseWheelY, [](KPADEXStatus* ext) {
+        if (auto player = nmh_sdk::get_mHRPc()) {
+            auto gpPad = g_framework->get_module().as<uintptr_t>() + 0x849D10;
+            int wheel       = g_mouser.wheel;
+            float* r2Press  = (float*)(gpPad + 0x64);
+            if(wheel > 0) {
+                ext->cl.hold |= KEY_RB;
+            }
+            else if(wheel < 0) {
+                *r2Press = 200.0f;
+            }
+            else {
+                ext->cl.hold &= ~KEY_RB;
+                *r2Press = 0.0f;
+            }
+        }
+    });
 
     return Mod::on_initialize();
 }

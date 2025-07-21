@@ -12,7 +12,7 @@ struct RAIIHooks {
 };
 
 #pragma region GHM_RECLASS
-struct Vec2 {
+struct Vec2Our {
     float x,y;
 };
 
@@ -20,7 +20,7 @@ struct KPADEXStatus
 {
   struct
   {
-    /* 0x0000 */ struct Vec2 stick;
+    /* 0x0000 */ struct Vec2Our stick;
     /* 0x0008 */ struct Vec acc;
     /* 0x0014 */ float acc_value;
     /* 0x0018 */ float acc_speed;
@@ -30,8 +30,8 @@ struct KPADEXStatus
     /* 0x001c */ unsigned int hold;
     /* 0x0020 */ unsigned int trig;
     /* 0x0024 */ unsigned int release;
-    /* 0x0028 */ struct Vec2 lstick;
-    /* 0x0030 */ struct Vec2 rstick;
+    /* 0x0028 */ struct Vec2Our lstick;
+    /* 0x0030 */ struct Vec2Our rstick;
     /* 0x0038 */ float ltrigger;
     /* 0x003c */ float rtrigger;
   } /* size: 0x0024 */ cl;
@@ -187,3 +187,4 @@ public:
 private:
   // std::unique_ptr<FunctionHook> m_hook;
 };
+extern int8_t g_kbm_stance;
