@@ -69,11 +69,14 @@ static uintptr_t set_rt_hook_jmp_back {NULL};
 naked void set_rt_detour() {
     __asm {
         mov eax,[eax+edi*4+0B4h]
+        cmp DWORD PTR [g_our_edited_shader_ptr], 0
+        jne shaderFound
         pushad
         push eax
         call find_our_edited_shader
         pop eax
         popad
+    shaderFound:
         jmp qword ptr [set_rt_hook_jmp_back]
     }
 }
