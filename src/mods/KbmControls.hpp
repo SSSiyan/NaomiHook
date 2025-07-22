@@ -145,7 +145,7 @@ public:
   // mod name string for config
   std::string get_mod_name() const override { return "KbmControls"; }
   std::string get_human_readable_name() const { return "Keyboard and Mouse Controls"; }
-  const char* get_description() const override { return R"(Experimental KBM controls. Has some limitations, and certain NaomiHook settings aren't fully compatible with our KBM.)"; };
+  const char* get_description() const override { return R"(Keyboard and mouse support is still in development and may have some limitations. Certain NaomiHook settings may not be fully compatible. The default keybinds are provided as a baseline, and users are encouraged to rebind them to suit their preferences.)"; };
 
 
   // void custom_imgui_window();

@@ -151,9 +151,30 @@ void ShaderEdit::on_config_save(utility::Config& cfg) {
 
 void ShaderEdit::on_draw_ui() {
     int shader_created = 0;
-    if (ImGui::DragFloat3("Adjust contrast", (float*)&g_shader_contrast, 0.1f, 0.0f, 3.0f)) {
-        shader_created = recreate_shader(g_shader_contrast);
+
+    // Calculate average contrast from g_shader_contrast
+    float average_contrast           = (g_shader_contrast[0] + g_shader_contrast[1] + g_shader_contrast[2]) / 3.0f;
+    static bool use_uniform_contrast = true;
+
+    ImGui::Checkbox("Use uniform contrast", &use_uniform_contrast);
+
+    if (use_uniform_contrast) {
+        // Slider controls all three channels equally
+        if (ImGui::SliderFloat("Adjust contrast", &average_contrast, 0.0f, 3.0f, "%.2f")) {
+            g_shader_contrast[0] = average_contrast;
+            g_shader_contrast[1] = average_contrast;
+            g_shader_contrast[2] = average_contrast;
+
+            shader_created = recreate_shader(g_shader_contrast);
+        }
+    } else {
+        // Separate sliders for RGB contrast values
+        if (ImGui::DragFloat3("Adjust contrast (RGB)", g_shader_contrast, 0.1f, 0.0f, 3.0f)) {
+            shader_created = recreate_shader(g_shader_contrast);
+        }
     }
+
+
     if (shader_created == 1) {
         ImGui::TextColored(ImColor::ImColor(0.3f, 1.0f, 0.3f, 1.0f), "Shader created!");
     }

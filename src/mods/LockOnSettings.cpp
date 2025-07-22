@@ -344,7 +344,7 @@ void LockOnSettings::on_draw_ui() {
     if (ImGui::Checkbox("Replace HIT Number", &replaceHitNumMod_enabled)) {
         replaceHitNumToggle(replaceHitNumMod_enabled);
     }
-    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "NMH1 displays a hit counter when locked on to an enemy. This setting repurposes that display to show enemy HP as a number instead.";
+    if (ImGui::IsItemHovered()) LockOnSettings::hoveredDescription = "NMH1 displays a hit counter when locked on to an enemy. This setting repurposes that display to show different kinds of enemy data.";
     
     if (replaceHitNumMod_enabled) {
         ImGui::Indent();
