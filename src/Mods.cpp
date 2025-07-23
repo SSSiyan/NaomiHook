@@ -39,6 +39,7 @@
 #include "mods/HudSettings.hpp"
 #include "mods/FreeCam.hpp"
 #include "mods/ShaderEdit.hpp"
+#include "mods/BrainAge.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -86,6 +87,7 @@ Mods::Mods()
     ADD_MOD(KbmControls);
     ADD_MOD(HudSettings);
     ADD_MOD(FreeCam);
+    ADD_MOD(BrainAge);
     // Shader edit stuffs
     // need to construct it in a special way :shrug:
     m_mods.emplace_back(g_framework->m_shader_editor_mod);

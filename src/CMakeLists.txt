@@ -1,4 +1,6 @@
 set(MODS_SRC
+    mods/BrainAge.hpp
+    mods/BrainAge.cpp
     mods/FreeCam.hpp
     mods/FreeCam.cpp
     mods/HudSettings.hpp
