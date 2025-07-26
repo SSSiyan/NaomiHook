@@ -32,6 +32,7 @@ void BrainAge::Stuff() {
         mHRPc* player = nmh_sdk::get_mHRPc();
         if (player) {
             float fontSize = ImGui::GetFontSize();
+            ImVec2 contentRegionAvail = ImGui::GetContentRegionAvail();
             // ImGui::Text("Current Index: %i", currentIndex);
             // ImGui::Text("Current Motion No: %i", currentMotion);
             if (ImGui::BeginTabBar("##weapon_tabs")) {
@@ -39,7 +40,7 @@ void BrainAge::Stuff() {
                     if (ImGui::BeginTabItem(weaponData.name)) {
                         currentWeapon = weaponData.name;
                         //                                                       60% of the avaiable width, 60% of the available height
-                        ImGui::BeginChild("##anim_buttons", ImVec2(ImGui::GetContentRegionAvail().x * 0.6f, ImGui::GetContentRegionAvail().y * 0.6f));
+                        ImGui::BeginChild("##anim_buttons", ImVec2(contentRegionAvail.x * 0.6f, contentRegionAvail.y * 0.6f));
                         for (const auto& anim : weaponData.animations) {
                             std::string buttonLabel = std::string(anim.first) + " (" + std::to_string(anim.second) + ")";
                             if (ImGui::Button(buttonLabel.c_str())) {
@@ -49,7 +50,8 @@ void BrainAge::Stuff() {
                         }
                         ImGui::EndChild();
                         ImGui::Separator();
-
+                        float sliderWidth = contentRegionAvail.x * 0.2f;
+                        if (imguiPopout) { sliderWidth = contentRegionAvail.x * 0.3f; }
                         auto& playlist = animationPlaylists[currentWeapon];
                         ImGui::Text("Animation Playlist:");
                         for (auto it = playlist.begin(); it != playlist.end(); ) {
@@ -60,12 +62,12 @@ void BrainAge::Stuff() {
                             ImGui::SameLine();
                             ImGui::Text("Delay:");
                             ImGui::SameLine();
-                            ImGui::SetNextItemWidth(fontSize * 4.0f);
+                            ImGui::SetNextItemWidth(sliderWidth);
                             ImGui::SliderFloat(("##DelaySliderFloat" + std::to_string(i)).c_str(), &it->delay, 0.01f, 2.0f, "%.1f");
                             ImGui::SameLine();
                             ImGui::Text("Speed:");
                             ImGui::SameLine();
-                            ImGui::SetNextItemWidth(fontSize * 4.0f);
+                            ImGui::SetNextItemWidth(sliderWidth);
                             ImGui::SliderFloat(("##SpeedSliderFloat" + std::to_string(i)).c_str(), &it->speed, 0.01f, 10.0f, "%.1f");
                             if (shouldRemove) {
                                 it = playlist.erase(it);
