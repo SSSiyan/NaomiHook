@@ -5,20 +5,6 @@ float AnimPlayer::custom_anim_speed = 1.0f;
 static bool isPlayingAnimPlaylist = false;
 uintptr_t AnimPlayer::anim_speed_jmp_ret = NULL;
 
-template<typename T>
-bool getBit(T flags, int bit) {
-    return (flags & (1 << bit)) != 0;
-}
-
-template<typename T>
-void setBit(T& flags, int bit, bool value) {
-    if (value) {
-        flags |= (1 << bit);  // Set the bit
-    } else {
-        flags &= ~(1 << bit); // Clear the bit
-    }
-}
-
 static std::unordered_map<std::string, std::vector<AnimationEntry>> animationPlaylists;
 static size_t currentIndex = 0;
 static float timeSinceLast = 0.0f;
