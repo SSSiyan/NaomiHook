@@ -1,4 +1,6 @@
 set(MODS_SRC
+    mods/AnimPlayer.hpp
+    mods/AnimPlayer.cpp
     mods/BrainAge.hpp
     mods/BrainAge.cpp
     mods/FreeCam.hpp
