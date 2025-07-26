@@ -11,6 +11,9 @@ public:
   void toggleCam(bool enable);
   void Stuff();
 
+  static float custom_anim_speed;
+  static uintptr_t anim_speed_jmp_ret;
+
   // void custom_imgui_window();
 
   // mod name string for config
@@ -33,8 +36,17 @@ public:
   // on_draw_debug_ui() is called when debug window shows up
   //void on_draw_debug_ui() override;
 private:
-	// std::unique_ptr<FunctionHook> m_hook1;
+	std::unique_ptr<FunctionHook> anim_speed_hook;
 	std::unique_ptr<Patch> m_patch1;
+};
+
+struct AnimationEntry {
+    int id;
+    float delay;
+    float speed;
+    AnimationEntry(int animId, float animDelay, float animSpeed) 
+        : id(animId), delay(animDelay), speed(animSpeed)
+    {}
 };
 
 struct WeaponAnimations {
