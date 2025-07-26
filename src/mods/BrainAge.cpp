@@ -1,4 +1,4 @@
-#include "BrainAge.hpp"
+﻿#include "BrainAge.hpp"
 #if 1
 bool BrainAge::imguiPopout = false;
 float BrainAge::custom_anim_speed = 1.0f;
@@ -19,36 +19,45 @@ void setBit(T& flags, int bit, bool value) {
     }
 }
 
+static std::unordered_map<std::string, std::vector<AnimationEntry>> animationPlaylists;
+static size_t currentIndex = 0;
+static float timeSinceLast = 0.0f;
+static float lastTime = 0.0f;
+static int lastMotionNo = -1;
+static float motionCheckDelay = 0.0f;
+static std::string currentWeapon = "Blood Berry";
+
 void BrainAge::Stuff() {
     if (ImGui::CollapsingHeader("Anim Player")) {
         mHRPc* player = nmh_sdk::get_mHRPc();
         if (player) {
-            static std::unordered_map<std::string, std::vector<AnimationEntry>> animationPlaylists;
-            static size_t currentIndex = 0;
-            static float timeSinceLast = 0.0f;
-            static float lastTime = 0.0f;
-            static int lastMotionNo = -1;
-            static float motionCheckDelay = 0.0f;
-            int currentMotion = player->mCharaStatus.motionNo;
             float fontSize = ImGui::GetFontSize();
-            static std::string currentWeapon = "Blood Berry";
-            ImGui::Text("Current Index: %i", currentIndex);
-            ImGui::Text("Current Motion No: %i", currentMotion);
+            // ImGui::Text("Current Index: %i", currentIndex);
+            // ImGui::Text("Current Motion No: %i", currentMotion);
             if (ImGui::BeginTabBar("##weapon_tabs")) {
                 for (const auto& weaponData : weaponAnimationData) {
                     if (ImGui::BeginTabItem(weaponData.name)) {
                         currentWeapon = weaponData.name;
+                        //                                                       60% of the avaiable width, 60% of the available height
+                        ImGui::BeginChild("##anim_buttons", ImVec2(ImGui::GetContentRegionAvail().x * 0.6f, ImGui::GetContentRegionAvail().y * 0.6f));
+                        for (const auto& anim : weaponData.animations) {
+                            std::string buttonLabel = std::string(anim.first) + " (" + std::to_string(anim.second) + ")";
+                            if (ImGui::Button(buttonLabel.c_str())) {
+                                // new entry                                                 delay, speed
+                                animationPlaylists[weaponData.name].emplace_back(anim.second, 0.2f, 1.0f);
+                            }
+                        }
+                        ImGui::EndChild();
+                        ImGui::Separator();
+
                         auto& playlist = animationPlaylists[currentWeapon];
                         ImGui::Text("Animation Playlist:");
-
                         for (auto it = playlist.begin(); it != playlist.end(); ) {
                             int i = std::distance(playlist.begin(), it);
                             ImGui::Text("%d: ID %d", i + 1, it->id);
                             ImGui::SameLine(fontSize * 3.0f);
-
                             bool shouldRemove = ImGui::SmallButton(("Remove##" + std::to_string(i)).c_str());
                             ImGui::SameLine();
-
                             ImGui::Text("Delay:");
                             ImGui::SameLine();
                             ImGui::SetNextItemWidth(fontSize * 4.0f);
@@ -58,7 +67,6 @@ void BrainAge::Stuff() {
                             ImGui::SameLine();
                             ImGui::SetNextItemWidth(fontSize * 4.0f);
                             ImGui::SliderFloat(("##SpeedSliderFloat" + std::to_string(i)).c_str(), &it->speed, 0.01f, 10.0f, "%.1f");
-
                             if (shouldRemove) {
                                 it = playlist.erase(it);
                             }
@@ -66,7 +74,6 @@ void BrainAge::Stuff() {
                                 ++it;
                             }
                         }
-
                         if (ImGui::Button("Play All")) {
                             if (!playlist.empty()) {
                                 isPlayingAnimPlaylist = true;
@@ -79,56 +86,14 @@ void BrainAge::Stuff() {
                         if (ImGui::Button("Clear Playlist")) {
                             playlist.clear();
                         }
-
-                        ImGui::Separator();
-                        for (const auto& anim : weaponData.animations) {
-                            std::string buttonLabel = std::string(anim.first) + " (" + std::to_string(anim.second) + ")";
-                            if (ImGui::Button(buttonLabel.c_str())) {
-                                // new entry                                                 delay, speed
-                                animationPlaylists[weaponData.name].emplace_back(anim.second, 0.2f, 1.0f);
-                            }
-                        }
                         ImGui::EndTabItem();
                     }
                 }
                 ImGui::EndTabBar();
             }
-
-            float currentTime = ImGui::GetTime();
-            float deltaTime = currentTime - lastTime;
-            lastTime = currentTime;
-    
-            if (isPlayingAnimPlaylist && currentIndex < animationPlaylists[currentWeapon].size()) {
-                timeSinceLast += deltaTime;
-                if (timeSinceLast >= animationPlaylists[currentWeapon][currentIndex].delay) {
-                    timeSinceLast = 0.0f;
-                    if (auto* player = nmh_sdk::get_mHRPc()) {
-                        const auto& entry = animationPlaylists[currentWeapon][currentIndex];
-                        custom_anim_speed = entry.speed;
-                        nmh_sdk::PlayMotion((pcMotion)entry.id, 0, 0, 1, 0.1f);
-                        lastMotionNo = entry.id;
-                    }
-                    ++currentIndex;
-            
-                    if (currentIndex >= animationPlaylists[currentWeapon].size()) {
-                        motionCheckDelay = 0.1f;
-                    }
-                }
-            }
-
-            if (isPlayingAnimPlaylist && currentIndex >= animationPlaylists[currentWeapon].size()) {
-                motionCheckDelay -= deltaTime;
-                if (motionCheckDelay <= 0.0f) {
-                    int currentMotion = player->mCharaStatus.motionNo;
-                    if (currentMotion != lastMotionNo) {
-                        isPlayingAnimPlaylist = false;
-                        currentIndex = 0;
-                        lastMotionNo = -1;
-                    }
-                }
-            }
         }
     }
+
     if (ImGui::CollapsingHeader("New thing 1")) {
 
     }
@@ -156,12 +121,52 @@ void BrainAge::on_draw_ui() {
 // during save
 //void BrainAge::on_config_save(utility::Config &cfg) {}
 // do something every frame
+
+void BrainAge::anim_player() {
+    mHRPc* player = nmh_sdk::get_mHRPc();
+    if (player) {
+        float currentTime = ImGui::GetTime();
+        float deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
+        timeSinceLast += deltaTime;
+        if (isPlayingAnimPlaylist && currentIndex < animationPlaylists[currentWeapon].size()) {
+            if (timeSinceLast >= animationPlaylists[currentWeapon][currentIndex].delay) {
+                timeSinceLast = 0.0f;
+                if (auto* player = nmh_sdk::get_mHRPc()) {
+                    const auto& entry = animationPlaylists[currentWeapon][currentIndex];
+                    custom_anim_speed = entry.speed;
+                    nmh_sdk::PlayMotion((pcMotion)entry.id, 0, 0, 1, 0.1f);
+                    lastMotionNo = entry.id;
+                }
+                ++currentIndex;
+
+                if (currentIndex >= animationPlaylists[currentWeapon].size()) {
+                    motionCheckDelay = 0.1f;
+                }
+            }
+        }
+
+        if (isPlayingAnimPlaylist && currentIndex >= animationPlaylists[currentWeapon].size()) {
+            motionCheckDelay -= deltaTime;
+            if (motionCheckDelay <= 0.0f) {
+                int currentMotion = player->mCharaStatus.motionNo;
+                if (currentMotion != lastMotionNo) {
+                    isPlayingAnimPlaylist = false;
+                    currentIndex = 0;
+                    lastMotionNo = -1;
+                }
+            }
+        }
+    }
+}
+
 void BrainAge::on_frame() {
     if (imguiPopout) {
         ImGui::Begin("imguiPopout", &imguiPopout);
         Stuff();
         ImGui::End();
     }
+    anim_player();
 }
 
 void BrainAge::toggleCam(bool enable) {

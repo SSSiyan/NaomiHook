@@ -10,6 +10,7 @@ public:
   static bool imguiPopout;
   void toggleCam(bool enable);
   void Stuff();
+  void anim_player();
 
   static float custom_anim_speed;
   static uintptr_t anim_speed_jmp_ret;
