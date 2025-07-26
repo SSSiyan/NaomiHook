@@ -20,7 +20,17 @@ void setBit(T& flags, int bit, bool value) {
     }
 }
 
-void Stuff() {
+void BrainAge::toggleCam(bool enable) {
+    if (enable) {
+        // stops cam being set
+        install_patch_offset(0x3EC616, m_patch1, "\x90\x90\x90\x90\x90\x90", 6); // 
+    }
+    else {
+        install_patch_offset(0x3EC616, m_patch1, "\x89\x0D\xA0\xA4\x7E\x01", 6); // mov [nmh.gHrCamera],ecx
+    }
+}
+
+void BrainAge::Stuff() {
     if (ImGui::CollapsingHeader("Anim Player")) {
         // Simple Animation Playlist UI (No Timeline or Popouts)
         static std::unordered_map<std::string, std::vector<std::pair<int, float>>> animationPlaylists;
@@ -108,6 +118,11 @@ void Stuff() {
     }
     if (ImGui::CollapsingHeader("New thing 2")) {
 
+    }
+
+    static bool disableCamBeingAutoSet = false;
+    if (ImGui::Checkbox("Disable the game setting cam mode", &disableCamBeingAutoSet)) {
+        BrainAge::toggleCam(disableCamBeingAutoSet);
     }
 }
 

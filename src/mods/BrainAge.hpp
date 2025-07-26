@@ -8,6 +8,8 @@ public:
   ModCategory get_category() { return ModCategory::SYSTEM; };
 
   static bool imguiPopout;
+  void toggleCam(bool enable);
+  void Stuff();
 
   // void custom_imgui_window();
 
@@ -32,7 +34,7 @@ public:
   //void on_draw_debug_ui() override;
 private:
 	// std::unique_ptr<FunctionHook> m_hook1;
-	// std::unique_ptr<Patch> m_patch;
+	std::unique_ptr<Patch> m_patch1;
 };
 
 struct WeaponAnimations {

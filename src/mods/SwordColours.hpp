@@ -12,6 +12,9 @@ public:
   void toggleForceTrail(bool enable);
   static bool heart_colours;
 
+  static bool always_sword_blur;
+  void toggleForceSwordBlur(bool enable);
+
   static uintptr_t jmp_ret1;
   static uintptr_t gpBattle;
 
@@ -49,5 +52,5 @@ public:
   void on_d3d_reset() override;
 private:
 	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3;
-	std::unique_ptr<Patch> patch_force_trail;
+	std::unique_ptr<Patch> patch_force_trail, patch_force_sword_blur;
 };

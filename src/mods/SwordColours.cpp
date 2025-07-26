@@ -9,6 +9,8 @@ bool SwordColours::sword_glow_enabled = false;
 bool SwordColours::always_trail = false;
 bool SwordColours::heart_colours = false;
 
+bool SwordColours::always_sword_blur = false;
+
 uintptr_t SwordColours::jmp_ret1 = NULL;
 uintptr_t SwordColours::gpBattle = NULL;
 
@@ -731,6 +733,15 @@ void SwordColours::toggleForceTrail(bool enable) {
     }
 }
 
+void SwordColours::toggleForceSwordBlur(bool enable) {
+    if (enable) {
+        install_patch_offset(0x3C5C9A, patch_force_sword_blur, "\x6A\x01\x90\x90", 4); // push 01 nop 2
+    }
+    else {
+        install_patch_offset(0x3C5C9A, patch_force_sword_blur, "\xFF\x74\x24\x20", 4); // push [esp+20]
+    }
+}
+
 void SwordColours::render_description() const {
     ImGui::TextWrapped(SwordColours::hoveredDescription);
 }
@@ -749,6 +760,11 @@ void SwordColours::on_draw_ui() {
         toggleForceTrail(always_trail);
     }
     if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Force the Beam Katana trails to always display.";
+
+    if (ImGui::Checkbox("Always Sword Speed Blur", &always_sword_blur)) {
+        toggleForceSwordBlur(always_sword_blur);
+    }
+    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Force the Beam Katana speed blur to always display.";
 
     if (ImGui::Checkbox("Heartbeat Color Sync", &heart_colours)) {
         mod_enabled =false;
@@ -821,6 +837,8 @@ void SwordColours::on_config_load(const utility::Config &cfg) {
     always_trail = cfg.get<bool>("always_trail").value_or(false);
     if (always_trail) toggleForceTrail(always_trail);
     heart_colours = cfg.get<bool>("heart_colours").value_or(false);
+    always_sword_blur   = cfg.get<bool>("always_sword_blur").value_or(false);
+    if (always_sword_blur) toggleForceSwordBlur(always_sword_blur);
     {
         size_t i = 0;
         for (const auto& RgbaDefault : cfg_defaults) {
@@ -843,6 +861,7 @@ void SwordColours::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("custom_colours", mod_enabled);
     cfg.set<bool>("always_trail", always_trail);
     cfg.set<bool>("heart_colours", heart_colours);
+    cfg.set<bool>("always_sword_blur", always_sword_blur);
     for (const auto& RgbaDefault : cfg_defaults) {
         cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".r", RgbaDefault.color->r);
         cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".g", RgbaDefault.color->g);
