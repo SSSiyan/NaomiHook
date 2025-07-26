@@ -24,6 +24,19 @@ public:
   static int deathblowTimer;
   static int setDeathblowTimer;
 
+  static uintptr_t jmp_ret4;
+  static bool force_girth;
+  static float force_girth_amount;
+  static float girth_normalizer;
+  static bool disable_girth_randomization;
+  static bool custom_flicker;
+  static float flicker_amount;
+  static bool heart_girth;
+  static float base_heart_girth;
+  static float heartbeat_girth_amount;
+  static float heart_normalizer;
+  static uintptr_t hrScreenStatus;
+
   static float swordGlowAmount;
 
   // mod name string for config
@@ -51,6 +64,6 @@ public:
 
   void on_d3d_reset() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3;
+	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3, m_hook4;
 	std::unique_ptr<Patch> patch_force_trail, patch_force_sword_blur;
 };

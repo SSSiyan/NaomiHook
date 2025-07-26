@@ -21,6 +21,19 @@ int SwordColours::deathblowTimer = 0;
 int SwordColours::setDeathblowTimer = 0;
 float SwordColours::swordGlowAmount = 0.0f;
 
+uintptr_t SwordColours::jmp_ret4 = NULL;
+uintptr_t SwordColours::hrScreenStatus = NULL;
+bool SwordColours::force_girth = false;
+float SwordColours::force_girth_amount = 0.5f;
+float SwordColours::girth_normalizer = 0.5f;
+bool SwordColours::custom_flicker = false;
+float SwordColours::flicker_amount = 1.0f;
+bool SwordColours::disable_girth_randomization = false;
+bool SwordColours::heart_girth = false;
+float SwordColours::base_heart_girth = 0.5f;
+float SwordColours::heartbeat_girth_amount = 2.0f;
+float SwordColours::heart_normalizer = 1.0f;
+
 const char* SwordColours::defaultDescription = "Customize your beam katana colors. You can also set a unique color specifically for Death Blows.";
 const char* SwordColours::hoveredDescription = defaultDescription;
 
@@ -526,6 +539,50 @@ naked void detour3() { // set deathblow timer, player in ebx
             jmp dword ptr [SwordColours::jmp_ret3]
     }
 }
+
+static float detour4_xmm1backup = 0.0f;
+naked void detour4() { // girth randomization
+    __asm {
+        //
+            cmp byte ptr [SwordColours::force_girth], 1
+            je girthCode
+            cmp byte ptr [SwordColours::custom_flicker], 1
+            je flickerCode
+            cmp byte ptr [SwordColours::heart_girth], 1
+            je heartCode
+            jmp originalcode
+
+        girthCode:
+            movss xmm0, [SwordColours::force_girth_amount]
+            subss xmm0, [SwordColours::girth_normalizer]
+            jmp originalcode
+
+        flickerCode:
+            mulss xmm0, [SwordColours::flicker_amount]
+            jmp originalcode
+
+        heartCode:
+            push eax
+            mov eax, [SwordColours::hrScreenStatus]
+            mov eax, [eax]
+            test eax,eax
+            je popeaxcode
+            movss [detour4_xmm1backup], xmm1
+            movss xmm0, [SwordColours::base_heart_girth]
+            subss xmm0, [SwordColours::girth_normalizer]
+            movss xmm1, [eax+0x3a708]
+            subss xmm1, [SwordColours::heart_normalizer]
+            mulss xmm1, [SwordColours::heartbeat_girth_amount]
+            addss xmm0, xmm1
+            movss xmm1, [detour4_xmm1backup]
+        popeaxcode:
+            pop eax
+        originalcode:
+            movss [esi+0x000000A0],xmm0
+        retcode:
+            jmp dword ptr [SwordColours::jmp_ret4]
+    }
+}
  // clang-format on
 
 bool load_texture() {
@@ -748,23 +805,94 @@ void SwordColours::render_description() const {
 
 void SwordColours::on_draw_ui() {
     if (!ImGui::IsAnyItemHovered()) SwordColours::hoveredDescription = defaultDescription;
+    float fontSize = ImGui::GetFontSize();
+
+    ImGui::PushItemWidth(fontSize * 5.0f);
+
+    ImGui::SeparatorText("Misc");
+
     ImGui::Checkbox("Glow", &sword_glow_enabled);
     if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Restores the beam reflections seen in early gameplay footage. This is the same glow that would later be used in NMH2 and Heroes Paradise";
     if (sword_glow_enabled) {
         ImGui::Indent();
         ImGui::SliderFloat("Glow Intensity", &swordGlowAmount, 1.0f, 5.0f, "%.0f");
             if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set how bright the glow from your sword is.";
+
         ImGui::Unindent();
     }
+
     if (ImGui::Checkbox("Always Display Laser Trails", &always_trail)) {
         toggleForceTrail(always_trail);
     }
     if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Force the Beam Katana trails to always display.";
 
-    if (ImGui::Checkbox("Always Sword Speed Blur", &always_sword_blur)) {
+    if (ImGui::Checkbox("Always Display Laser Speed Blur", &always_sword_blur)) {
         toggleForceSwordBlur(always_sword_blur);
     }
     if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Force the Beam Katana speed blur to always display.";
+
+    ImGui::SeparatorText("Width");
+    
+    if (ImGui::Checkbox("Custom Flicker", &custom_flicker)) {
+        force_girth = false;
+        heart_girth = false;
+    }
+    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set how much the beam width flickers.";
+
+    if (custom_flicker) {
+        ImGui::Indent();
+        ImGui::SliderFloat("Flicker Amount", &flicker_amount, 0.0f, 5.0f, "%.1f");
+        if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set flicker amount.";
+        ImGui::SameLine();
+        if (ImGui::Button("Default##Beam Flicker Default")) {
+            flicker_amount = 1.0f;
+        }
+        ImGui::Unindent();
+    }
+
+    if (ImGui::Checkbox("Custom Beam Width", &force_girth)) {
+        heart_girth = false;
+        custom_flicker = false;
+    }
+    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set the width of sword lasers.";
+
+    if (force_girth) {
+        ImGui::Indent();
+        ImGui::SliderFloat("Beam Width", &force_girth_amount, 0.0f, 5.0f, "%.1f");
+        if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set beam width.";
+        ImGui::SameLine();
+        if (ImGui::Button("Default##Beam Width Default")) {
+            force_girth_amount = 0.5f;
+        }
+        ImGui::Unindent();
+    }
+
+    if (ImGui::Checkbox("Heartbeat Beam Width", &heart_girth)) {
+        force_girth = false;
+        custom_flicker = false;
+    }
+    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Use the heart beat to set the girth of the sword.";
+
+    if (heart_girth) {
+        ImGui::Indent();
+        ImGui::SliderFloat("Base Width", &base_heart_girth, 0.0f, 5.0f, "%.1f");
+        if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Base width before the heart beats.";
+        ImGui::SameLine();
+        if (ImGui::Button("Default##Heart Base Default")) {
+            base_heart_girth = 0.5f;
+        }
+        ImGui::SliderFloat("Beat Width", &heartbeat_girth_amount, -5.0f, 5.0f, "%.1f");
+        if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set how much width the heartbeat adds.";
+        ImGui::SameLine();
+        if (ImGui::Button("Default##Heart Beat Default")) {
+            heartbeat_girth_amount = 2.0f;
+        }
+        ImGui::Unindent();
+    }
+
+    ImGui::PopItemWidth();
+
+    ImGui::SeparatorText("Color");
 
     if (ImGui::Checkbox("Heartbeat Color Sync", &heart_colours)) {
         mod_enabled =false;
@@ -810,6 +938,7 @@ void SwordColours::on_d3d_reset() {
 
 std::optional<std::string> SwordColours::on_initialize() {
     SwordColours::gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584; 
+    SwordColours::hrScreenStatus = g_framework->get_module().as<uintptr_t>() + 0x8417F0; 
     if (!install_hook_offset(0x3BF640, m_hook1, &detour1, &SwordColours::jmp_ret1, 5)) { // swords
         spdlog::error("Failed to init SwordColours mod\n");
         return "Failed to init SwordColours mod";
@@ -821,6 +950,11 @@ std::optional<std::string> SwordColours::on_initialize() {
     }
 
     if (!install_hook_offset(0x3C6279, m_hook3, &detour3, &SwordColours::jmp_ret3, 6)) { // speedblur for deathblow timer
+        spdlog::error("Failed to init SwordColours mod\n");
+        return "Failed to init SwordColours mod";
+    }
+
+    if (!install_hook_offset(0x4CAE36, m_hook4, &detour4, &SwordColours::jmp_ret4, 8)) { // girth randomization
         spdlog::error("Failed to init SwordColours mod\n");
         return "Failed to init SwordColours mod";
     }
@@ -853,6 +987,16 @@ void SwordColours::on_config_load(const utility::Config &cfg) {
     setDeathblowTimer = cfg.get<int>("setDeathblowTimer").value_or(50);
 
     swordGlowAmount = cfg.get<float>("swordGlowAmount").value_or(4.0f);
+
+    // width stuff
+    force_girth = cfg.get<bool>("force_girth").value_or(false);
+    force_girth_amount = cfg.get<float>("force_girth_amount").value_or(0.5f);
+    custom_flicker     = cfg.get<bool>("custom_flicker").value_or(false);
+    flicker_amount     = cfg.get<float>("flicker_amount").value_or(1.0f);
+    disable_girth_randomization = cfg.get<bool>("disable_girth_randomization").value_or(false);
+    heart_girth                 = cfg.get<bool>("heart_girth").value_or(false);
+    base_heart_girth            = cfg.get<float>("base_heart_girth").value_or(0.5f);
+    heartbeat_girth_amount      = cfg.get<float>("heartbeat_girth_amount").value_or(2.0f);
 }
 
 // during save
@@ -870,6 +1014,16 @@ void SwordColours::on_config_save(utility::Config &cfg) {
     }
     cfg.set<int>("setDeathblowTimer", setDeathblowTimer);
     cfg.set<float>("swordGlowAmount", swordGlowAmount);
+
+    // width stuff
+    cfg.set<bool>("force_girth", force_girth);
+    cfg.set<float>("force_girth_amount", force_girth_amount);
+    cfg.set<bool>("custom_flicker", custom_flicker);
+    cfg.set<float>("flicker_amount", flicker_amount);
+    cfg.set<bool>("disable_girth_randomization", disable_girth_randomization);
+    cfg.set<bool>("heart_girth", heart_girth);
+    cfg.set<float>("base_heart_girth", base_heart_girth);
+    cfg.set<float>("heartbeat_girth_amount", heartbeat_girth_amount);
 }
 
 // will show up in debug window, dump ImGui widgets you want here
