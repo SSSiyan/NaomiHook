@@ -17,7 +17,6 @@ void AnimPlayer::Stuff() {
     mHRPc* player = nmh_sdk::get_mHRPc();
     if (player) {
         float fontSize = ImGui::GetFontSize();
-        ImVec2 someTextSize = ImGui::CalcTextSize("ID 999Remove:Speed:");
         ImVec2 contentRegionAvail = ImGui::GetContentRegionAvail();
         // ImGui::Text("Current Index: %i", currentIndex);
         // ImGui::Text("Current Motion No: %i", currentMotion);
@@ -37,7 +36,6 @@ void AnimPlayer::Stuff() {
                     ImGui::EndChild();
                     ImGui::Separator();
                     float sliderWidth = contentRegionAvail.x * 0.2f;
-                    if (imguiPopout) { sliderWidth = contentRegionAvail.x * 0.5f - someTextSize.x; }
                     auto& playlist = animationPlaylists[currentWeapon];
                     ImGui::Text("Animation Playlist:");
                     for (auto it = playlist.begin(); it != playlist.end(); ) {
