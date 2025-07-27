@@ -205,14 +205,15 @@ void ShaderEdit::on_draw_ui() {
         shader_created =
             recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
     }
-    if (ImGui::SliderFloat("Midtone Darkening", &g_midtone_darkening, 0.0f, 2.0f, "%.2f")) {
-        shader_created =
-            recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
-    }
-    if (ImGui::SliderFloat("Highlight Darkening", &g_highlight_darkening, 0.0f, 2.0f, "%.2f")) {
-        shader_created =
-            recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
-    }
+    // if (ImGui::SliderFloat("Midtone Darkening", &g_midtone_darkening, 0.0f, 2.0f, "%.2f")) {
+    //     shader_created =
+    //         recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
+    // }
+
+    // if (ImGui::SliderFloat("Highlight Darkening", &g_highlight_darkening, 0.0f, 2.0f, "%.2f")) {
+    //     shader_created =
+    //         recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
+    // }
 
     if (shader_created == 1) {
         ImGui::TextColored(ImColor(0.3f, 1.0f, 0.3f, 1.0f), "Shader created!");

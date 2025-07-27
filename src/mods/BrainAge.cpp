@@ -37,8 +37,9 @@ void BrainAge::Stuff() {
             ImGui::InputFloat3("Enemy Pos", &hrCamera->MAIN.bat2.EPos.x);
             ImGui::Checkbox("Debug Mode", &hrCamera->MAIN.bat2.DebugMode);
             ImGui::InputFloat("Length", &hrCamera->MAIN.bat2.DebugInfo.Length);
-            ImGui::InputFloat3("CameraPos", &hrCamera->MAIN.bat2.DebugInfo.CameraPos.x);
-            ImGui::InputFloat3("TargetPos", &hrCamera->MAIN.bat2.DebugInfo.TargetPos.x);
+            ImGui::SliderFloat3("CameraPos", &hrCamera->MAIN.bat2.DebugInfo.CameraPos.x, -100.0f, 200.0f);
+            ImGui::SliderFloat3("TargetPos", &hrCamera->MAIN.bat2.DebugInfo.TargetPos.x, -100.0f, 200.0f);
+
             ImGui::TreePop();
         }
 
