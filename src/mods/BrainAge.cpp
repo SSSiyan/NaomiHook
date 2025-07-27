@@ -36,6 +36,9 @@ void BrainAge::Stuff() {
             ImGui::InputFloat3("Player Pos Offset", &hrCamera->MAIN.bat2.PPosOffset.x);
             ImGui::InputFloat3("Enemy Pos", &hrCamera->MAIN.bat2.EPos.x);
             ImGui::Checkbox("Debug Mode", &hrCamera->MAIN.bat2.DebugMode);
+            ImGui::InputFloat("Length", &hrCamera->MAIN.bat2.DebugInfo.Length);
+            ImGui::InputFloat3("CameraPos", &hrCamera->MAIN.bat2.DebugInfo.CameraPos.x);
+            ImGui::InputFloat3("TargetPos", &hrCamera->MAIN.bat2.DebugInfo.TargetPos.x);
             ImGui::TreePop();
         }
 
@@ -166,7 +169,7 @@ void BrainAge::toggleCam(bool enable) {
         install_patch_offset(0x3EC616, m_patch1, "\x90\x90\x90\x90\x90\x90", 6); // 
     }
     else {
-        install_patch_offset(0x3EC616, m_patch1, "\x89\x0D\xA0\xA4\x7E\x01", 6); // mov [nmh.gHrCamera],ecx
+        m_patch1.reset();
     }
 }
 

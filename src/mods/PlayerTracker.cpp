@@ -1838,6 +1838,9 @@ void DrawPlayerStats() {
             ImGui::InputFloat3("Player Pos Offset", &hrCamera->MAIN.bat2.PPosOffset.x);
             ImGui::InputFloat3("Enemy Pos", &hrCamera->MAIN.bat2.EPos.x);
             ImGui::Checkbox("Debug Mode", &hrCamera->MAIN.bat2.DebugMode);
+            ImGui::InputFloat("Length", &hrCamera->MAIN.bat2.DebugInfo.Length);
+            ImGui::InputFloat3("CameraPos", &hrCamera->MAIN.bat2.DebugInfo.CameraPos.x);
+            ImGui::InputFloat3("TargetPos", &hrCamera->MAIN.bat2.DebugInfo.TargetPos.x);
             ImGui::TreePop();
         }
         if (ImGui::TreeNodeEx("MOTION", ImGuiTreeNodeFlags_DrawLinesFull)) {
