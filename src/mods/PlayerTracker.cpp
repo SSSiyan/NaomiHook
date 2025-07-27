@@ -1,6 +1,7 @@
 #include "PlayerTracker.hpp"
 #include "GuiFunctions.hpp" // for g_framework
 #include "ClothesSwitcher.hpp"
+#include "Tony.hpp" // for MoveNames
 #if 1
 bool PlayerTracker::imguiPopout = false;
 
@@ -32,6 +33,7 @@ void DrawPlayerStats() {
                 ImGui::SliderFloat("Player HP##Useful", &player->mCharaStatus.hp, 0.0f, player->mCharaStatus.maxHp);
                 ImGui::InputInt("mInputMode##Useful", (int*)&player->mInputMode, 1);
                 ImGui::InputInt("motionNo##Useful", (int*)&player->mCharaStatus.motionNo, 1);
+                ImGui::Text("%s", MoveNames[player->mCharaStatus.motionNo]);
                 ImGui::InputScalar("Roulette Hit Rate##Useful", ImGuiDataType_S8, &player->mPcStatus.rouletteHitRate);
                 ImGui::InputInt("Ikasama Slot##Useful", &player->mPcStatus.ikasamaSlot);
                 ImGui::Checkbox("mOperate##Useful", &player->mOperate);
