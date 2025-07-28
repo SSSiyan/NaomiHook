@@ -166,12 +166,28 @@ std::vector<pcItem> FindMatchingItemsForSlot(WEAPON_SWITCH_DIRECTION slotID) {
 
     pcItem equippedWeapon = static_cast<pcItem>(nmh_sdk::get_mHRPc()->mPcStatus.equip[0].id); // Get the equipped item // mPcStatus // mPcSaveData
 
+    if ((slotID == WS_LEFT && (equippedWeapon == TSUBAKI_MK1 || equippedWeapon == TSUBAKI_MK1_DAMAGE || equippedWeapon == TSUBAKI_MK1_BATTERY || equippedWeapon == TSUBAKI_MK1_BATTERY_DAMAGE)) ||
+        (slotID == WS_DOWN && (equippedWeapon == TSUBAKI_MK2 || equippedWeapon == TSUBAKI_MK2_DAMAGE || equippedWeapon == TSUBAKI_MK2_BATTERY || equippedWeapon == TSUBAKI_MK2_BATTERY_DAMAGE)) ||
+        (slotID == WS_RIGHT && (equippedWeapon == TSUBAKI_MK3 || equippedWeapon == TSUBAKI_MK3_DAMAGE || equippedWeapon == TSUBAKI_MK3_BATTERY || equippedWeapon == TSUBAKI_MK3_BATTERY_DAMAGE)) ||
+        (slotID == WS_UP && (equippedWeapon == BLOOD_BERRY || equippedWeapon == BLOOD_BERRY_DAMAGE || equippedWeapon == BLOOD_BERRY_BATTERY || equippedWeapon == BLOOD_BERRY_BATTERY_DAMAGE))) {
+
+        // see if we've already found it
+        if (std::find(matchingItems.begin(), matchingItems.end(), equippedWeapon) == matchingItems.end()) {
+            matchingItems.push_back(equippedWeapon);
+        }
+    }
+
     for (int i = 0; i < 200; i++) {
         auto lockerItem = nmh_sdk::get_mHRPc()->mPcStatus.locker[i];
         pcItem weapon = static_cast<pcItem>(lockerItem.id);
 
+        // ignore -1 entries
+        if (lockerItem.id == -1) {
+            continue;
+        }
+
         switch (slotID) {
-        case WS_LEFT:
+            case WS_LEFT:
                 if (weapon == TSUBAKI_MK1 || weapon == TSUBAKI_MK1_DAMAGE || weapon == TSUBAKI_MK1_BATTERY || weapon == TSUBAKI_MK1_BATTERY_DAMAGE) {
                     matchingItems.push_back(weapon);
                 }
@@ -193,17 +209,6 @@ std::vector<pcItem> FindMatchingItemsForSlot(WEAPON_SWITCH_DIRECTION slotID) {
                 break;
             default:
                 break;
-        }
-    }
-
-    if ((slotID == WS_LEFT && (equippedWeapon == TSUBAKI_MK1 || equippedWeapon == TSUBAKI_MK1_DAMAGE || equippedWeapon == TSUBAKI_MK1_BATTERY || equippedWeapon == TSUBAKI_MK1_BATTERY_DAMAGE)) ||
-        (slotID == WS_DOWN && (equippedWeapon == TSUBAKI_MK2 || equippedWeapon == TSUBAKI_MK2_DAMAGE || equippedWeapon == TSUBAKI_MK2_BATTERY || equippedWeapon == TSUBAKI_MK2_BATTERY_DAMAGE)) ||
-        (slotID == WS_RIGHT && (equippedWeapon == TSUBAKI_MK3 || equippedWeapon == TSUBAKI_MK3_DAMAGE || equippedWeapon == TSUBAKI_MK3_BATTERY || equippedWeapon == TSUBAKI_MK3_BATTERY_DAMAGE)) ||
-        (slotID == WS_UP && (equippedWeapon == BLOOD_BERRY || equippedWeapon == BLOOD_BERRY_DAMAGE || equippedWeapon == BLOOD_BERRY_BATTERY || equippedWeapon == BLOOD_BERRY_BATTERY_DAMAGE))) {
-
-        // see if we've already found it
-        if (std::find(matchingItems.begin(), matchingItems.end(), equippedWeapon) == matchingItems.end()) {
-            matchingItems.push_back(equippedWeapon);
         }
     }
 
@@ -632,18 +637,18 @@ void WeaponSwitcher::WeaponSwitchTimeline(mHRPc* player, WEAPON_SWITCH_DIRECTION
 
 // Check unlocked weapons when eEqWait1Frame is seen
 void WeaponSwitcher::CheckForWeaponUpdates() {
-    static int cooldown = 0;
+    // static int cooldown = 0;
     if (mod_enabled) {
-        if (cooldown == 0) {
+        // if (cooldown == 0) {
             mHRPc* player = nmh_sdk::get_mHRPc();
             if (!player) { return; }
             if (player->mPcStatus.equip[0].readProc < eEqReadMax) {
-                cooldown = 100;
+                //cooldown = 100;
                 for (int i = 0; i < 4; i++) {
                     std::vector<pcItem> matchingItems = FindMatchingItemsForSlot((WEAPON_SWITCH_DIRECTION)i);
                     for (auto item : matchingItems) {
                         if (item == savedSword[i]) {
-                            selectedSword[i] = savedSword[i];
+                            selectedSword[i] = item;
                             break;
                         }
                     }
@@ -652,10 +657,10 @@ void WeaponSwitcher::CheckForWeaponUpdates() {
                     selectedSword[WS_UP] = BLOOD_BERRY; // default to Blood Berry
                 }
             }
-        }
-        if (cooldown > 0) {
-            cooldown--;
-        }
+        // }
+        // if (cooldown > 0) {
+        //     cooldown--;
+        // }
     }
 }
 
