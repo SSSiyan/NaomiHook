@@ -66,11 +66,11 @@ void HitstopSettings::on_draw_ui() {
     if (mod_enabled) {
         ImGui::Indent();
         ImGui::Text("Custom Hitstop Amount");
-        ImGui::SliderInt("##customBasicHitstopAmountSliderInt", &customBasicHitstopAmount, 0, 20);
+        ImGui::SliderInt("##customBasicHitstopAmountSliderInt", &customBasicHitstopAmount, 0, 8);
         if (ImGui::IsItemHovered()) HitstopSettings::hoveredDescription = "Default 8";
 
         ImGui::Text("Custom Darkstep Hitstop Amount");
-        ImGui::SliderInt("##customDarkHitstopAmountSliderInt", &customDarkHitstopAmount, 0, 20);
+        ImGui::SliderInt("##customDarkHitstopAmountSliderInt", &customDarkHitstopAmount, 0, 8);
         if (ImGui::IsItemHovered()) HitstopSettings::hoveredDescription = "Default 8";
 
         ImGui::Unindent();

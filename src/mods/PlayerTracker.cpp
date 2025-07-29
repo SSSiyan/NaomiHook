@@ -121,109 +121,103 @@ void DrawPlayerStats() {
         }
     }*/
 
-    if (ImGui::TreeNodeEx("HrGameTask", ImGuiTreeNodeFlags_DrawLinesFull)) {
+if (ImGui::TreeNodeEx("HrGameTask", ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (HrGameTask* hrGameTask = nmh_sdk::get_HrGameTask()) {
-            // uintptr_t baseAddress = reinterpret_cast<uintptr_t>(&hrGameTask->Padding_972);
-            // ImGui::Text("Base Address: 0x%08X", baseAddress);
-            // uintptr_t targetAddress = reinterpret_cast<uintptr_t>(&hrGameTask->mGotoTitleRequest); 
-            // ImGui::Text("Target Address: 0x%08X", targetAddress);
-            // uintptr_t offsetDifference = targetAddress - baseAddress;
-            // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
 
             ImGui::InputScalar("mLoadSts", ImGuiDataType_S32, &hrGameTask->mLoadSts);
             ImGui::Text("mpRankingUp: %p", hrGameTask->mpRankingUp);
             ImGui::InputInt("mDebugScenarioID", &hrGameTask->mDebugScenarioID);
+            if (ImGui::Button("Advance Scenario")) {
+                hrGameTask->mDebugScenarioID++;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Reset Scenario")) {
+                hrGameTask->mDebugScenarioID = 0;
+            }
+
             ImGui::InputScalar("mDebugScenarioInputKeta", ImGuiDataType_S8, &hrGameTask->mDebugScenarioInputKeta);
             ImGui::InputScalar("mDebugScenarioMenu", ImGuiDataType_S8, &hrGameTask->mDebugScenarioMenu);
             ImGui::InputScalar("mDebugLogoSkip", ImGuiDataType_S8, &hrGameTask->mDebugLogoSkip);
+            if (ImGui::Button("Skip Logo")) {
+                hrGameTask->mDebugLogoSkip = 1;
+            }
             ImGui::Text("m_pDebug: %p", hrGameTask->m_pDebug);
             ImGui::InputInt("mDebugSubMissionID", &hrGameTask->mDebugSubMissionID);
             ImGui::InputScalar("mDebugSubMissionInputKeta", ImGuiDataType_S8, &hrGameTask->mDebugSubMissionInputKeta);
+
             ImGui::Text("mLoading: %p", &hrGameTask->mLoading);
             ImGui::Text("mpBossResult: %p", hrGameTask->mpBossResult);
             ImGui::Text("mStaffRoll: %p", hrGameTask->mStaffRoll);
             ImGui::Text("mStaffRoll2: %p", hrGameTask->mStaffRoll2);
             ImGui::Text("mpShooting: %p", hrGameTask->mpShooting);
+
             ImGui::InputInt("mLastLogoSndGroupID", &hrGameTask->mLastLogoSndGroupID);
             ImGui::InputInt("mLastSaveSndGroupID", &hrGameTask->mLastSaveSndGroupID);
             ImGui::InputInt("TerminateCnt", &hrGameTask->TerminateCnt);
-            // ImGui::Text("Union");
-            // ImGui::InputScalar("m_TotalStartPlayTime", ImGuiDataType_S64, &hrGameTask->m_TotalStartPlayTime);
-            // ImGui::Checkbox("mNewGameRequestForTitle", &hrGameTask->mNewGameRequestForTitle);
-            // ImGui::Checkbox("mAllClearHikitugi", &hrGameTask->mAllClearHikitugi);
+
             ImGui::Checkbox("mInitStageLoad", &hrGameTask->mInitStageLoad);
             ImGui::Checkbox("mOpeningMovieRequest", &hrGameTask->mOpeningMovieRequest);
             ImGui::Checkbox("mNewGameRequest", &hrGameTask->mNewGameRequest);
+            if (ImGui::Button("Request New Game")) {
+                hrGameTask->mNewGameRequest = true;
+            }
+
             ImGui::Checkbox("mGotoTitleRequest", &hrGameTask->mGotoTitleRequest);
+            if (ImGui::Button("Request Title Screen")) {
+                hrGameTask->mGotoTitleRequest = true;
+            }
+
             ImGui::InputInt("mGameExit", &hrGameTask->mGameExit);
             ImGui::InputInt("mGameExitProcess", &hrGameTask->mGameExitProcess);
             ImGui::Checkbox("mAllClearDataLoadFlag", &hrGameTask->mAllClearDataLoadFlag);
             ImGui::Checkbox("mMainScenarioRun", &hrGameTask->mMainScenarioRun);
             ImGui::Checkbox("mSubMissionRun", &hrGameTask->mSubMissionRun);
             ImGui::InputInt("mSetSubMissionID", &hrGameTask->mSetSubMissionID);
-            help_marker("Part-Time Job and K-Entertainment Job ID");
+
             ImGui::InputInt("mGameLevel", &hrGameTask->mGameLevel);
+            const char* level_names[] = {"Easy", "Normal", "Hard", "Bizarre"};
+            ImGui::Combo("Game Level", &hrGameTask->mGameLevel, level_names, IM_ARRAYSIZE(level_names));
+
             ImGui::Checkbox("mHomeButtonDisEnable", &hrGameTask->mHomeButtonDisEnable);
-            help_marker("Leftover Wii toggle. Prevents player from pressing the Home button on a Wiimote.");
+
             ImGui::InputScalar("m_Process_id", ImGuiDataType_S32, &hrGameTask->m_Process_id);
             ImGui::InputScalar("m_Pro_Sts", ImGuiDataType_S32, &hrGameTask->m_Pro_Sts);
+
             ImGui::Text("mp_SaveData: %p", hrGameTask->mp_SaveData);
-            if (ImGui::TreeNodeEx("mp_SaveData", ImGuiTreeNodeFlags_DrawLinesFull)) { // @Siy
+            if (ImGui::TreeNodeEx("mp_SaveData", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 if (hrGameTask->mp_SaveData) {
                     ImGui::InputInt("mp_SaveData->t_MainScenarioID", &hrGameTask->mp_SaveData->t_MainScenarioID);
-                }
-                else ImGui::Text("mp_SaveData is nullptr");
+                } else
+                    ImGui::Text("mp_SaveData is nullptr");
+
                 if (hrGameTask->mp_CheckPoint) {
                     ImGui::InputInt("mp_CheckPoint->t_MainScenarioID", &hrGameTask->mp_CheckPoint->t_MainScenarioID);
-                }
-                else ImGui::Text("mp_CheckPoint is nullptr");
+                } else
+                    ImGui::Text("mp_CheckPoint is nullptr");
+
                 if (hrGameTask->mp_HikitugiSaveData) {
                     ImGui::InputInt("mp_HikitugiSaveData->t_MainScenarioID", &hrGameTask->mp_HikitugiSaveData->t_MainScenarioID);
-                }
-                else ImGui::Text("mp_HikitugiSaveData is nullptr");
+                } else
+                    ImGui::Text("mp_HikitugiSaveData is nullptr");
+
                 ImGui::TreePop();
             }
-            ImGui::Text("mp_CheckPoint: %p", hrGameTask->mp_CheckPoint);
-            ImGui::Text("mp_HikitugiSaveData: %p", hrGameTask->mp_HikitugiSaveData);
-            for (int i = 0; i < 60; ++i)
-            {
+
+            if (ImGui::Button("Enable All SmRunflags")) {
+                for (int i = 0; i < 60; ++i)
+                    hrGameTask->m_SmRunflag[i] = 1;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Clear All SmRunflags")) {
+                for (int i = 0; i < 60; ++i)
+                    hrGameTask->m_SmRunflag[i] = 0;
+            }
+
+            for (int i = 0; i < 60; ++i) {
                 ImGui::InputInt(("mSmRunflag[" + std::to_string(i) + "]").c_str(), &hrGameTask->m_SmRunflag[i]);
             }
+
             ImGui::Separator();
-            ImGui::Text("mpGameScrTask: %p", hrGameTask->mpGameScrTask);
-            ImGui::Text("m_pDemo: %p", hrGameTask->m_pDemo);
-            ImGui::Text("mpGameOver: %p", hrGameTask->mpGameOver);
-            ImGui::Checkbox("mBossResultRequest", &hrGameTask->mBossResultRequest);
-            ImGui::Checkbox("mRankingUpRequest", &hrGameTask->mRankingUpRequest);
-            ImGui::InputInt("mStageChangeFadeType", &hrGameTask->mStageChangeFadeType);
-            ImGui::Checkbox("mStaffRollRequest", &hrGameTask->mStaffRollRequest);
-            ImGui::Checkbox("mStaffRoll2Request", &hrGameTask->mStaffRoll2Request);
-            ImGui::Checkbox("mShootingRequest", &hrGameTask->mShootingRequest);
-            ImGui::Checkbox("mLastLogoRequest", &hrGameTask->mLastLogoRequest);
-            ImGui::Checkbox("mLastSaveRequest", &hrGameTask->mLastSaveRequest);
-            ImGui::InputInt("mLastSaveProcess", &hrGameTask->mLastSaveProcess);
-            ImGui::Text("mLastSaveResource: %p", &hrGameTask->mLastSaveResource);
-            ImGui::Text("mpLastSave: %p", hrGameTask->mpLastSave);
-            ImGui::InputInt("mLastLogoProcess", &hrGameTask->mLastLogoProcess);
-            for (int i = 0; i < 4; ++i) {
-                ImGui::Text("mLastLogoTex[%d]: %p", i, &hrGameTask->mLastLogoTex[i]);
-            }
-            ImGui::Separator();
-            ImGui::InputInt("mLastLogoTexDispNum", &hrGameTask->mLastLogoTexDispNum);
-            ImGui::Text("mLastLogoAlpha: %p", &hrGameTask->mLastLogoAlpha);
-            ImGui::InputInt("mLastLogoDispTick", &hrGameTask->mLastLogoDispTick);
-            ImGui::Text("mLastLogoMoveX: %p", &hrGameTask->mLastLogoMoveX);
-            ImGui::InputInt("mGameSaveProcess", &hrGameTask->mGameSaveProcess);
-            ImGui::Text("mGameSaveResource: %p", &hrGameTask->mGameSaveResource);
-            ImGui::Text("mpGameSave: %p", hrGameTask->mpGameSave);
-            ImGui::InputInt("mGameSaveSetUpWait", &hrGameTask->mGameSaveSetUpWait);
-            ImGui::InputInt("mGameSaveMode", &hrGameTask->mGameSaveMode);
-            ImGui::Text("mpGameSavePcNode: %p", hrGameTask->mpGameSavePcNode);
-            ImGui::Checkbox("mGameSaveCopyLightFadeOutReq", &hrGameTask->mGameSaveCopyLightFadeOutReq);
-            ImGui::InputInt("mLoadingWallType", &hrGameTask->mLoadingWallType);
-            ImGui::InputInt("mBossResultAfterDemoNo", &hrGameTask->mBossResultAfterDemoNo);
-            ImGui::Checkbox("m_STG_Feed_f", &hrGameTask->m_STG_Feed_f);
-            ImGui::Text("m_pSubTask: %p", hrGameTask->m_pSubTask);
         }
         ImGui::TreePop();
     }
@@ -799,6 +793,32 @@ void DrawPlayerStats() {
                 ImGui::Checkbox("mStageChangeTermEnd", &player->mStageChangeTermEnd);
                 ImGui::Checkbox("mStageChangeMuteki", &player->mStageChangeMuteki);
                 ImGui::Checkbox("mBanStatusScreen", &player->mBanStatusScreen);
+                ImGui::Checkbox("mIkasamaTsuba", &player->mIkasamaTsuba);
+                static bool freezeAtkPauseTime = false;
+
+                ImGui::InputInt("mAtkPauseTime", &player->mAtkPauseTime);
+
+                // Add "Freeze" button on same line
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Freeze = 1")) {
+                    freezeAtkPauseTime = !freezeAtkPauseTime;
+                }
+
+                // Apply freeze behavior
+                if (freezeAtkPauseTime) {
+                    player->mAtkPauseTime = 1;
+                }
+                ImGui::InputInt("mStopRenderFrameNum", &player->mStopRenderFrameNum);
+                ImGui::Checkbox("mSavehitOidashiDisEnable", &player->mSavehitOidashiDisEnable);
+                ImGui::InputInt("mSlowMotionSytemMotNo", &player->mSlowMotionSytemMotNo);
+                ImGui::InputInt("mSlowMotionSytemButton", &player->mSlowMotionSytemButton);
+                ImGui::InputInt("mRuleBit", (int*)&player->mRuleBit);
+                ImGui::InputInt("mDisEnableBtlPoseCalc", &player->mDisEnableBtlPoseCalc);
+                ImGui::InputScalar("mTamePush", ImGuiDataType_U8, &player->mTamePush);
+                ImGui::InputScalar("mTameMax", ImGuiDataType_U8, &player->mTameMax);
+                ImGui::Checkbox("mTameSe", &player->mTameSe);
+                ImGui::InputInt("mDigAction", &player->mDigAction);
+
                 ImGui::TreePop();
             }
             if (ImGui::TreeNodeEx("mHRPC tagMAIN", ImGuiTreeNodeFlags_DrawLinesFull)) {
