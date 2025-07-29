@@ -7,6 +7,7 @@ PAD_UNI* pad = nullptr;
 float FreeCam::sens = 0.0f;
 float FreeCam::modifierSens = 0.0f;
 float FreeCam::deadZone = 0.0f;
+bool FreeCam::toggle_pause_enabled = false;
 
 const char* FreeCam::defaultDescription = "Controls:\n- Left Stick and Right Stick = Movement and Rotation\n- L2 & R2 = Move Up and Down\n- L1 & R1 = Roll Left/Right\n- L3 = Use Modifier Speed\n- R3 = Reset";
 const char* FreeCam::hoveredDescription = defaultDescription;
@@ -23,8 +24,17 @@ void FreeCam::toggle(bool enable) {
         install_patch_offset(0x3B55BA, bike_freecam_patch, "\xEB\x35", 2); // jmp nmh.mHRBattle::mCameraFrameProc+D81
     }
     else {
-        install_patch_offset(0x3B635F, battle_freecam_patch, "\x74\x07", 2); // je nmh.mHRBattle::mFrameProc+208
-        install_patch_offset(0x3B55BA, bike_freecam_patch, "\x74\x35", 2); // je nmh.mHRBattle::mCameraFrameProc+D81
+        battle_freecam_patch.reset(); //  install_patch_offset(0x3B635F, battle_freecam_patch, "\x74\x07", 2); // je nmh.mHRBattle::mFrameProc+208
+        bike_freecam_patch.reset(); // install_patch_offset(0x3B55BA, bike_freecam_patch, "\x74\x35", 2); // je nmh.mHRBattle::mCameraFrameProc+D81
+    }
+}
+
+void FreeCam::togglePause(bool enable) {
+    if (enable) {
+        install_patch_offset(0x3B643B, pause_all_patch, "\xEB", 1); // jmp nmh.exe+3B649F
+    }
+    else {
+        pause_all_patch.reset(); // (0x3B643B, pause_all_patch, "\x74", 1); // je nmh.exe+3B649F
     }
 }
 
@@ -129,6 +139,10 @@ void FreeCam::on_draw_ui() {
     if (!ImGui::IsAnyItemHovered()) FreeCam::hoveredDescription = defaultDescription;
     if (ImGui::Checkbox("Free Cam", &mod_enabled)) {
         toggle(mod_enabled);
+        if (!mod_enabled) {
+            toggle_pause_enabled = false;
+            togglePause(toggle_pause_enabled);
+        }
     }
     if (ImGui::IsItemHovered()) FreeCam::hoveredDescription = defaultDescription;
     ImGui::Text("Sensitivity");
@@ -141,6 +155,11 @@ void FreeCam::on_draw_ui() {
     ImGui::Text("Stick Deadzones");
     ImGui::SliderFloat("##DeadzoneSliderFloat", &deadZone, 0.0f, 0.2f, "%.2f");
     if (ImGui::IsItemHovered()) FreeCam::hoveredDescription = "How far the stick has to move from centre before your input is registered";
+
+    if (ImGui::Checkbox("Pause", &toggle_pause_enabled)) {
+        togglePause(toggle_pause_enabled);
+    }
+    if (ImGui::IsItemHovered()) FreeCam::hoveredDescription = "Pause the player and enemies";
 
     mHRPc* player = nmh_sdk::get_mHRPc();
     if (player) {

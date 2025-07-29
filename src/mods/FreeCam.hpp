@@ -11,6 +11,8 @@ public:
   static float modifierSens;
   static float deadZone;
   void toggle(bool enable);
+  static bool toggle_pause_enabled;
+  void togglePause(bool enable);
 
   // mod name string for config
   std::string get_mod_name() const override { return "FreeCam"; }
@@ -36,5 +38,5 @@ public:
   //void on_draw_debug_ui() override;
 private:
 	// std::unique_ptr<FunctionHook> m_hook1;
-	std::unique_ptr<Patch> battle_freecam_patch, bike_freecam_patch;
+	std::unique_ptr<Patch> battle_freecam_patch, bike_freecam_patch, pause_all_patch;
 };
