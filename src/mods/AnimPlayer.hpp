@@ -18,8 +18,8 @@ public:
 
   // mod name string for config
   std::string get_mod_name() const override { return "AnimPlayer"; }
-  std::string get_human_readable_name() const { return "Animation Player"; }
-  const char* get_description() const override { return R"(Play Animations)"; };
+  std::string get_human_readable_name() const { return "Animation Viewer"; }
+  const char* get_description() const override { return R"(Browse and preview Beam Katana animations. Click to add them to the timeline, where you can adjust delay and speed. Make sure the correct beam katana is equipped or the game will crash. So if you're viewing Blood Berry animations, be sure that Travis is actually on the Blood Berry before hitting play.)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

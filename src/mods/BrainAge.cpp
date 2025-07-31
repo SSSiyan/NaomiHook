@@ -128,12 +128,71 @@ void BrainAge::Stuff() {
         ImGui::Checkbox("Change", &hrCamera->MAIN.Change);
     }
 
-    if (ImGui::CollapsingHeader("New thing 2")) {
+if (ImGui::CollapsingHeader("New thing 2")) {
+        static int justGuardCooldown    = 0;
+        static int justGuardToggleCount = 0;
+        static int guardToggleWindow    = 0;
+        static bool lastGuardState      = false;
 
+        mHRPc* player = nmh_sdk::get_mHRPc();
+        if (player) {
+            bool isGuardingNow = player->mPcStatus.justInputTick > 0;
+
+            // Count toggles
+            if (isGuardingNow != lastGuardState) {
+                justGuardToggleCount++;
+                guardToggleWindow = 30;
+            }
+            lastGuardState = isGuardingNow;
+
+            // Tick down toggle window
+            if (guardToggleWindow > 0) {
+                guardToggleWindow--;
+            } else {
+                justGuardToggleCount = 0;
+            }
+
+            // Apply cooldown if spam detected
+            if (justGuardToggleCount >= 4) {
+                justGuardCooldown    = 20;
+                justGuardToggleCount = 0;
+                guardToggleWindow    = 0;
+            }
+
+            // Disable parry input entirely during cooldown
+            if (justGuardCooldown > 0) {
+                justGuardCooldown--;
+                player->mPcStatus.justGuard     = false;
+                player->mPcStatus.justInputTick = 0; // Prevent parry window
+            }
+
+            // === ImGui Debug & Controls ===
+            ImGui::Checkbox("Just Guard", &player->mPcStatus.justGuard);
+            help_marker("Ticks when a Parry is performed");
+
+            ImGui::Checkbox("Just Attack", &player->mPcStatus.justAttack);
+            help_marker("Parry reprisal");
+
+            ImGui::InputInt("Just Input Tick", &player->mPcStatus.justInputTick);
+            help_marker("Parry window length");
+
+            ImGui::InputInt("Just Atk Input Start Tick", &player->mPcStatus.justAtkInputStartTick);
+            ImGui::InputInt("Just Atk Input End Tick", &player->mPcStatus.justAtkInputEndTick);
+
+            ImGui::Text("JustGuard Cooldown: %d", justGuardCooldown);
+            ImGui::Text("Toggle Count: %d", justGuardToggleCount);
+            ImGui::Text("Toggle Window: %d", guardToggleWindow);
+        } else {
+            ImGui::Text("Player not found.");
+        }
     }
 
-    if (ImGui::CollapsingHeader("New thing 3")) {
 
+    if (ImGui::CollapsingHeader("New thing 3")) {
+        mHRPc* player = nmh_sdk::get_mHRPc();
+        if (player) {
+            // put stuff here
+        }
     }
 
     static bool disableCamBeingAutoSet = false;

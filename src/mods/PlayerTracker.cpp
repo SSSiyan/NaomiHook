@@ -1988,6 +1988,22 @@ if (ImGui::TreeNodeEx("HrGameTask", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 ImGui::InputInt("m_pNextMenuFontMes", (int*)&hrMotel->m_pNextMenuFontMes);
                 ImGui::InputInt("m_pMenuFontMoveAry", (int*)&hrMotel->m_pMenuFontMoveAry);
                 ImGui::InputInt("m_pAllSysMes", (int*)&hrMotel->m_pAllSysMes);
+                ImGui::Checkbox("m_Toilet_SE_f", &hrMotel->m_Toilet_SE_f);
+                ImGui::Checkbox("m_MiniDemo_f", &hrMotel->m_MiniDemo_f);
+                ImGui::Checkbox("m_JaraMove_f", &hrMotel->m_JaraMove_f);
+                ImGui::Checkbox("m_Cat_Alpha_f", &hrMotel->m_Cat_Alpha_f);
+                ImGui::Checkbox("m_Cat_Load_f", &hrMotel->m_Cat_Load_f);
+                ImGui::Checkbox("m_PV_OuickBack_f", &hrMotel->m_PV_OuickBack_f);
+                ImGui::Checkbox("m_Load_Back_f", &hrMotel->m_Load_Back_f);
+
+                ImGui::InputInt("m_Befor_Box_No", &hrMotel->m_Befor_Box_No);
+                ImGui::InputInt("m_After_Box_No", &hrMotel->m_After_Box_No);
+
+                ImGui::Checkbox("m_SaveClassLock_f", &hrMotel->m_SaveClassLock_f);
+                ImGui::Checkbox("m_Shadow_Closet_f", &hrMotel->m_Shadow_Closet_f);
+                ImGui::Checkbox("m_BedStart_f", &hrMotel->m_BedStart_f);
+                ImGui::Checkbox("m_CatControl_f", &hrMotel->m_CatControl_f);
+
                 ImGui::InputInt("m_Guide_Font", (int*)&hrMotel->m_Guide_Font);
                 for (int i = 0; i < 2; ++i) {
                     ImGui::InputInt(("Interactions[" + std::to_string(i) + "]").c_str(), (int*)&hrMotel->Interactions[i]);
