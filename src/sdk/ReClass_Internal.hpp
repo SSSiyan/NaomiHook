@@ -1452,6 +1452,22 @@ struct Vec2D
   /* 0x0004 */ float y;
 }; /* size: 0x0008 */
 
+struct HrSound //::UNION
+{
+  /* 0x0000 */ int FootSound;
+  /* 0x0004 */ unsigned int BGMVolume;
+  /* 0x0008 */ unsigned int SEVolume;
+  /* 0x000c */ unsigned int LocalBGMVolume;
+  /* 0x0010 */ unsigned int LocalSEVolume;
+  /* 0x0014 */ unsigned int ExMenuBGMVolume;
+  /* 0x0018 */ unsigned int ExMenuSEVolume;
+  /* 0x001c */ struct Vec BeamSwordPos;
+  /* 0x0028 */ bool BeamSwordEnable;
+  /* 0x0029 */ char Padding_1298[3];
+  /* 0x002c */ int BeamSwordSEHandle[16];
+  /* 0x006c */ int BeamSwordSENum;
+}; /* size: 0x0070 */
+
 class DolphinConfig
 {
 public:

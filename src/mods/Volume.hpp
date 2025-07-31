@@ -8,12 +8,6 @@ public:
     ModCategory get_category() { return ModCategory::SOUND; };
     static bool mod_enabled;
     static uintptr_t HrSoundBase;
-    static uintptr_t HrSoundMusicVolume;       // nmh.HrSound::uni+4
-    static uintptr_t HrSoundSoundEffectVolume; // nmh.HrSound::uni+8
-    static uintptr_t HrSoundLocalBGMVolume;
-    static uintptr_t HrSoundLocalSEVolume;
-    static uintptr_t HrSoundExMenuBGMVolume;
-    static uintptr_t HrSoundExMenuSEVolume;
 
     // mod name string for config
     std::string get_mod_name() const override { return "Volume"; }
