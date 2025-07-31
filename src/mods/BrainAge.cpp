@@ -2,6 +2,16 @@
 #if 1
 bool BrainAge::imguiPopout = false;
 
+bool BrainAge::forceCameraMode = false;
+int BrainAge::forcedMode = 0;
+
+bool BrainAge::guard_cooldown_enabled = false;
+bool isGuardingNow = false;
+static int justGuardCooldown = 0;
+static int justGuardToggleCount = 0;
+static int guardToggleWindow = 0;
+static bool lastGuardState = false;
+
 template<typename T>
 bool getBit(T flags, int bit) {
     return (flags & (1 << bit)) != 0;
@@ -105,20 +115,9 @@ void BrainAge::Stuff() {
             ImGui::TreePop();
         }
 
-        // === FORCE CAMERA MODE CONTROLS ===
-        static bool forceCameraMode = false;
-        static int forcedMode = 0;
-
         ImGui::Checkbox("Force Camera Mode", &forceCameraMode);
-
-        if (forceCameraMode) {
-            ImGui::Combo("Forced Mode", &forcedMode,
-                "HRCAMERA_MODE_HOMING\0HRCAMERA_MODE_MOTION\0HRCAMERA_MODE_FREE\0HRCAMERA_MODE_MOVE\0HRCAMERA_MODE_BATTLE\0HRCAMERA_MODE_IDLE\0HRCAMERA_MODE_NORMAL\0HRCAMERA_MODE_BATTLE2\0HRCAMERA_MODE_MOVE2\0");
-            hrCamera->MAIN.Mode = static_cast<HRCAMERA_MODE>(forcedMode);
-        } else {
-            ImGui::Combo("Mode", reinterpret_cast<int*>(&hrCamera->MAIN.Mode),
-                "HRCAMERA_MODE_HOMING\0HRCAMERA_MODE_MOTION\0HRCAMERA_MODE_FREE\0HRCAMERA_MODE_MOVE\0HRCAMERA_MODE_BATTLE\0HRCAMERA_MODE_IDLE\0HRCAMERA_MODE_NORMAL\0HRCAMERA_MODE_BATTLE2\0HRCAMERA_MODE_MOVE2\0");
-        }
+        ImGui::Combo("Mode", reinterpret_cast<int*>(&hrCamera->MAIN.Mode),
+            "HRCAMERA_MODE_HOMING\0HRCAMERA_MODE_MOTION\0HRCAMERA_MODE_FREE\0HRCAMERA_MODE_MOVE\0HRCAMERA_MODE_BATTLE\0HRCAMERA_MODE_IDLE\0HRCAMERA_MODE_NORMAL\0HRCAMERA_MODE_BATTLE2\0HRCAMERA_MODE_MOVE2\0");
 
         ImGui::InputFloat3("Position", &hrCamera->MAIN.Pos.x);
         ImGui::InputFloat3("Target", &hrCamera->MAIN.Targ.x);
@@ -128,45 +127,11 @@ void BrainAge::Stuff() {
         ImGui::Checkbox("Change", &hrCamera->MAIN.Change);
     }
 
-if (ImGui::CollapsingHeader("New thing 2")) {
-        static int justGuardCooldown    = 0;
-        static int justGuardToggleCount = 0;
-        static int guardToggleWindow    = 0;
-        static bool lastGuardState      = false;
-
+    if (ImGui::CollapsingHeader("Guard Cooldown##CollapsingHeader")) {
+        ImGui::Checkbox("Guard Cooldown", &guard_cooldown_enabled);
+        ImGui::Text("Debug info:");
         mHRPc* player = nmh_sdk::get_mHRPc();
         if (player) {
-            bool isGuardingNow = player->mPcStatus.justInputTick > 0;
-
-            // Count toggles
-            if (isGuardingNow != lastGuardState) {
-                justGuardToggleCount++;
-                guardToggleWindow = 30;
-            }
-            lastGuardState = isGuardingNow;
-
-            // Tick down toggle window
-            if (guardToggleWindow > 0) {
-                guardToggleWindow--;
-            } else {
-                justGuardToggleCount = 0;
-            }
-
-            // Apply cooldown if spam detected
-            if (justGuardToggleCount >= 4) {
-                justGuardCooldown    = 20;
-                justGuardToggleCount = 0;
-                guardToggleWindow    = 0;
-            }
-
-            // Disable parry input entirely during cooldown
-            if (justGuardCooldown > 0) {
-                justGuardCooldown--;
-                player->mPcStatus.justGuard     = false;
-                player->mPcStatus.justInputTick = 0; // Prevent parry window
-            }
-
-            // === ImGui Debug & Controls ===
             ImGui::Checkbox("Just Guard", &player->mPcStatus.justGuard);
             help_marker("Ticks when a Parry is performed");
 
@@ -182,11 +147,8 @@ if (ImGui::CollapsingHeader("New thing 2")) {
             ImGui::Text("JustGuard Cooldown: %d", justGuardCooldown);
             ImGui::Text("Toggle Count: %d", justGuardToggleCount);
             ImGui::Text("Toggle Window: %d", guardToggleWindow);
-        } else {
-            ImGui::Text("Player not found.");
         }
     }
-
 
     if (ImGui::CollapsingHeader("New thing 3")) {
         mHRPc* player = nmh_sdk::get_mHRPc();
@@ -207,19 +169,59 @@ void BrainAge::on_draw_ui() {
         Stuff();
 }
 
-//void BrainAge::custom_imgui_window() {}
+void BrainAge::GuardCooldown() {
+    mHRPc* player = nmh_sdk::get_mHRPc();
+    if (player) {
+        isGuardingNow = player->mPcStatus.justInputTick > 0;
+        // Count toggles
+        if (isGuardingNow != lastGuardState) {
+            justGuardToggleCount++;
+            guardToggleWindow = 30;
+        }
+        lastGuardState = isGuardingNow;
 
-// during load
-//void BrainAge::on_config_load(const utility::Config &cfg) {}
-// during save
-//void BrainAge::on_config_save(utility::Config &cfg) {}
-// do something every frame
+        // Tick down toggle window
+        if (guardToggleWindow > 0) {
+            guardToggleWindow--;
+        }
+        else {
+            justGuardToggleCount = 0;
+        }
+
+        // Apply cooldown if spam detected
+        if (justGuardToggleCount >= 4) {
+            justGuardCooldown = 20;
+            justGuardToggleCount = 0;
+            guardToggleWindow = 0;
+        }
+
+        // Disable parry input entirely during cooldown
+        if (justGuardCooldown > 0) {
+            justGuardCooldown--;
+            player->mPcStatus.justGuard = false;
+            player->mPcStatus.justInputTick = 0; // Prevent parry window
+        }
+    }
+}
+
+void BrainAge::ForceCameraModes() {
+    if (forceCameraMode) {
+        HrCamera* hrCamera = nmh_sdk::get_HrCamera();
+        hrCamera->MAIN.Mode = static_cast<HRCAMERA_MODE>(forcedMode);
+    }
+}
 
 void BrainAge::on_frame() {
     if (imguiPopout) {
         ImGui::Begin("imguiPopout", &imguiPopout);
         Stuff();
         ImGui::End();
+    }
+    if (forceCameraMode) {
+        ForceCameraModes();
+    }
+    if (guard_cooldown_enabled) {
+        GuardCooldown();
     }
 }
 
@@ -237,7 +239,11 @@ std::optional<std::string> BrainAge::on_initialize() {
     return Mod::on_initialize();
 }
 
-// will show up in debug window, dump ImGui widgets you want here
 //void BrainAge::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here
+// during load
+//void BrainAge::on_config_load(const utility::Config &cfg) {}
+// during save
+//void BrainAge::on_config_save(utility::Config &cfg) {}
+// do something every frame
 #endif

@@ -24,7 +24,7 @@ std::optional<std::string> ClothesSwitcher::on_initialize() {
 static int find_room_index_by_id(int id) {
     auto it = std::find_if(clothing_items.begin(), clothing_items.end(), [id](const Equip_Item& room) { return room.id == id; });
     IM_ASSERT(it != clothing_items.end());
-    return static_cast<int>(std::distance(clothing_items.begin(), it));
+    return (int)std::distance(clothing_items.begin(), it);
 };
 
 void ClothesSwitcher::on_draw_ui() {
