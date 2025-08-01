@@ -73,4 +73,6 @@ namespace nmh_sdk {
 	void SetNoutou(mHRPc* mHRPc, bool inSkipAttach);
 	typedef void(__thiscall* mSetBattouFunc)(mHRPc* mHRPc, bool inSkipAttach);
 	void SetBattou(mHRPc* mHRPc, bool inSkipAttach);
+	typedef int(__thiscall* mGetJustGuardJudgeTickFunc)(mHRPc* mHRPc);
+	int GetJustGuardJudgeTick(mHRPc* mHRPc);
 };

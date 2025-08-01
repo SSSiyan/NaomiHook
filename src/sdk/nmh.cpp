@@ -341,6 +341,15 @@ namespace nmh_sdk {
         }
     }
 
+    int GetJustGuardJudgeTick(mHRPc* mHRPc) {
+        uintptr_t getJustGuardJudgeTickAddr = (g_framework->get_module().as<uintptr_t>() + 0x3BEA20);
+        mGetJustGuardJudgeTickFunc getJustGuardJudgeTick = (mGetJustGuardJudgeTickFunc)getJustGuardJudgeTickAddr;
+        if (mHRPc) {
+            return getJustGuardJudgeTick(mHRPc);
+        }
+        return 0;
+    }
+
     // Spawn enemies
     int setInitNpcDat(int inResNo, enCharaType inChType, int inRepop, const Vec* inPos, const Vec* inRot, enPopReqType inPopType, bool inDisEnableCollision) {
         uintptr_t mSetInitNpcDatAddress = (g_framework->get_module().as<uintptr_t>() + 0x3B6B30);

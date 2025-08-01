@@ -6,7 +6,7 @@ bool BrainAge::forceCameraMode = false;
 int BrainAge::forcedMode = 0;
 
 bool BrainAge::guard_cooldown_enabled = false;
-bool isGuardingNow = false;
+static bool isGuardingNow = false;
 static int justGuardCooldown = 0;
 static int justGuardToggleCount = 0;
 static int guardToggleWindow = 0;
@@ -199,7 +199,7 @@ void BrainAge::GuardCooldown() {
         if (justGuardCooldown > 0) {
             justGuardCooldown--;
             player->mPcStatus.justGuard = false;
-            player->mPcStatus.justInputTick = 0; // Prevent parry window
+            player->mPcStatus.justInputTick = nmh_sdk::GetJustGuardJudgeTick(player); // Prevent parry window
         }
     }
 }
