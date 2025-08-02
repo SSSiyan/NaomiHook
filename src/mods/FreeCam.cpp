@@ -9,7 +9,8 @@ float FreeCam::modifierSens = 0.0f;
 float FreeCam::deadZone = 0.0f;
 bool FreeCam::toggle_pause_enabled = false;
 
-const char* FreeCam::defaultDescription = "Controls:\n- Left Stick and Right Stick = Movement and Rotation\n- L2 & R2 = Move Up and Down\n- L1 & R1 = Roll Left/Right\n- L3 = Use Modifier Speed\n- R3 = Reset";
+const char* FreeCam::defaultDescription = "Controls:\n- Left Stick and Right Stick = Movement and Rotation\n"
+    "- L2 & R2 = Move Up and Down\n- L1 & R1 = Roll Left/Right\n- L3 = Use Modifier Speed\n- R3 = Reset\n- F1 & F2 = Enter Free Cam, Pause";
 const char* FreeCam::hoveredDescription = defaultDescription;
 
 void FreeCam::render_description() const {
@@ -45,8 +46,21 @@ std::optional<std::string> FreeCam::on_initialize() {
 }
 
 void FreeCam::on_frame() {
+
+    if (ImGui::IsKeyPressed(ImGuiKey_F1)) {
+        mod_enabled = !mod_enabled;
+        toggle(mod_enabled);
+        toggle_pause_enabled = mod_enabled;
+        togglePause(toggle_pause_enabled);
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_F2)) {
+        toggle_pause_enabled = !toggle_pause_enabled;
+        togglePause(toggle_pause_enabled);
+    }
+
     if (!mod_enabled) { return; }
-    
+
     HrCamera* cam = nmh_sdk::get_HrCamera();
     if (!cam) { return; }
     
