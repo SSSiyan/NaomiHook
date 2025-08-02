@@ -120,7 +120,7 @@ bool WeaponSwitcher::CanWeaponSwitch(pcItem desiredWeapon) {
         if (desiredWeapon != currentWeapon && 
             desiredWeapon != -1 &&
             canOperate == true &&
-            (currentMode == ePcInputBattleIdle || ePcInputIdle) &&
+            (currentMode == ePcInputBattleIdle || currentMode == ePcInputIdle) &&
             condition == eGood &&
             barActive == false &&
             nmh_sdk::CheckCanAttack() &&
