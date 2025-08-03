@@ -11,7 +11,7 @@ static float timeSinceLast = 0.0f;
 static float lastTime = 0.0f;
 static int lastMotionNo = -1;
 static float motionCheckDelay = 0.0f;
-static std::string currentWeapon = "Blood Berry";
+static std::string currentWeapon = "Berry";
 
 void AnimPlayer::Stuff() {
     mHRPc* player = nmh_sdk::get_mHRPc();

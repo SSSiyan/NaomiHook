@@ -55,7 +55,7 @@ struct WeaponAnimations {
 };
 
 static std::vector<WeaponAnimations> weaponAnimationData = {
-    {"Blood Berry",
+    {"Berry",
         {
             {"ePcMtBt01IdlU", 206},
             {"ePcMtBt01IdlM", 207},
@@ -104,7 +104,7 @@ static std::vector<WeaponAnimations> weaponAnimationData = {
             {"ePcMtBattou01Lp", 250},
         }
     },
-    {"Tsubaki Mk-I",
+    {"Mk-I",
         {
             {"ePcMtBt03IdlU", 302},
             {"ePcMtBt03IdlM", 303},
@@ -154,7 +154,7 @@ static std::vector<WeaponAnimations> weaponAnimationData = {
             {"ePcMtLSNoutou03", 347},
         }
     },
-    {"Tsubaki Mk-II",
+    {"Mk-II",
         {
             {"ePcMtBt04IdlU", 349},
             {"ePcMtBt04IdlM", 350},
@@ -204,7 +204,7 @@ static std::vector<WeaponAnimations> weaponAnimationData = {
             {"ePcMtLSNoutou04", 394},
         }
     },
-    {"Tsubaki Mk-III",
+    {"Mk-III",
         {
             {"ePcMtBt02IdlU", 254},
             {"ePcMtBt02IdlM", 255},
