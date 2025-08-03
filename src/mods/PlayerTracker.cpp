@@ -2154,8 +2154,6 @@ if (ImGui::TreeNodeEx("HrGameTask", ImGuiTreeNodeFlags_DrawLinesFull)) {
 
             ImGui::Separator();
 
-            ImGui::Text("Padding_1017 skipped");
-
             // tagGHMR_TEX Full
             ImGui::Text("Full:");
             ImGui::Indent();
@@ -2170,8 +2168,8 @@ if (ImGui::TreeNodeEx("HrGameTask", ImGuiTreeNodeFlags_DrawLinesFull)) {
             // tagGHMR_TEX Div2
             ImGui::Text("Div2:");
             ImGui::Indent();
-            ImGui::InputScalar("Width##Full", ImGuiDataType_U16, &u.Div2.Width);
-            ImGui::InputScalar("Height##Full", ImGuiDataType_U16, &u.Div2.Height);
+            ImGui::InputScalar("Width##Div2", ImGuiDataType_U16, &u.Div2.Width);
+            ImGui::InputScalar("Height##Div2", ImGuiDataType_U16, &u.Div2.Height);
             // ImGui::Image(u.Div2.ImageBuffer, ImVec2(128.0f, 128.0f));
             ImGui::Unindent();
 
