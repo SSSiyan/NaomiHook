@@ -23,6 +23,7 @@ namespace nmh_sdk {
 	void SetMk3Equip();
 	typedef bool(__thiscall* mCheckCanAttackFunc)(mHRPc* mHRPc); // 0x3D47B0 
 	bool CheckCanAttack();
+	bool CheckIsComboing();
 	typedef bool(__thiscall* mCheckGuardMotionFunc)(mHRPc* mHRPc, bool inDefGuardNoChk); // 0x3E26C0 
 	bool CheckGuardMotion(bool inDefGuardNoChk);
 	typedef bool(__thiscall* mCheckHajikareFunc)(mHRPc* mHRPc); // 0x3D4BA0 

@@ -121,6 +121,15 @@ namespace nmh_sdk {
         return false; // player ptr is invalid, treat as if we can't attack
     }
 
+    // Check if player is comboing
+    bool CheckIsComboing() {
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            auto& pcStatus = mHRPc->mPcStatus;
+            return pcStatus.cmbFlag;
+        }
+        return false; // player ptr is invalid, treat as if we can't attack
+    }
+
     // Check if player is guarding
     bool CheckGuardMotion(bool inDefGuardNoChk) {
         uintptr_t checkGuardMotionAddress = (g_framework->get_module().as<uintptr_t>() + 0x3E26C0);
