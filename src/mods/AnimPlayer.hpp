@@ -254,5 +254,52 @@ static std::vector<WeaponAnimations> weaponAnimationData = {
             {"ePcMtLSBattou022", 299},
             {"ePcMtLSNoutou02", 300},
         }
+    },
+
+    {"Beat",
+        {
+            {"ePcMtBtAtkFghtCmbA", 133},
+            {"ePcMtBtAtkFghtCmbB", 134},
+            {"ePcMtBtAtkFghtCmbC", 135},
+            {"ePcMtBtAtkFghtCmbD", 136},
+            {"ePcMtBtAtkFghtCmbE", 137},
+            {"ePcMtBtAtkFghtCmbF", 138},
+            {"ePcMtBtAtkFghtDsh", 139},
+            {"ePcMtBtAtkFghtRrgSbt", 140},
+            {"ePcMtBtAtkFghtRHKck", 141},
+            {"ePcMtBtAtkFghtRLKck", 142},
+            {"ePcMtBtAtkFghtTbgr", 143},
+            {"ePcMtBtAtkFghtRlt", 144},
+            {"ePcMtBtAtkFghtNlKck", 145},
+            {"ePcMtBtAtkFghtRrgElbw", 146},
+            {"ePcMtBtAtkFghtTrKick", 147},
+            {"ePcMtBtAtkFghtLHk", 148},
+            {"ePcMtBtAtkFghtLUpr", 149},
+            {"ePcMtBtAtkFghtRrgSbt2", 150}
+        }
+    },
+
+    {"Darkside",
+        {
+            {"ePcMtBtLSSonic", 174},
+            {"ePcMtBtLSBombSt", 175},
+            {"ePcMtBtLSBombLp", 176},
+            {"ePcMtBtLSBombEd", 177},
+            {"ePcMtBtDSIdl", 178},
+            {"ePcMtBtDSRn", 179},
+            {"ePcMtBtDSAtkR", 180},
+            {"ePcMtBtDSAtkL", 181},
+            {"ePcMtBtDSAtkB", 182},
+            {"ePcMtBtDSAtkFDwn", 183},
+            {"ePcMtBtDSAtkBDwn", 184},
+            {"ePcMtBtDSAtkMdR", 185},
+            {"ePcMtBtDSAtkMdL", 186},
+            {"ePcMtBtDSAtkMdB", 187},
+            {"ePcMtBtDSAtkMdFDwn", 188},
+            {"ePcMtBtDSAtkMdBDwn", 189},
+            {"ePcMtBtDSAtkLgSt", 190},
+            {"ePcMtBtDSAtkLgLp", 191},
+            {"ePcMtBtDSAtkLgEd", 192}
+        }
     }
 };
