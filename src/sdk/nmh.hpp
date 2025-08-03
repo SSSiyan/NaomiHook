@@ -76,4 +76,6 @@ namespace nmh_sdk {
 	void SetBattou(mHRPc* mHRPc, bool inSkipAttach);
 	typedef int(__thiscall* mGetJustGuardJudgeTickFunc)(mHRPc* mHRPc);
 	int GetJustGuardJudgeTick(mHRPc* mHRPc);
+	typedef TGan*(__thiscall* mGetAtkMotPtrFunc)(mHRPc* mHRPc, int inMotNo);
+	TGan* GetAtkMotPtr(mHRPc* mHRPc, int inMotNo);
 };

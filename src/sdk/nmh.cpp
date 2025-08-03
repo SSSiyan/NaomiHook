@@ -359,6 +359,15 @@ namespace nmh_sdk {
         return 0;
     }
 
+    TGan* GetAtkMotPtr(mHRPc* mHRPc, int inMotNo) {
+        uintptr_t getAtkMotPtrAddr = (g_framework->get_module().as<uintptr_t>() + 0x3D8390);
+        mGetAtkMotPtrFunc getAtkMot = (mGetAtkMotPtrFunc)getAtkMotPtrAddr;
+        if (mHRPc) {
+            return getAtkMot(mHRPc, inMotNo);
+        }
+        return nullptr;
+    }
+
     // Spawn enemies
     int setInitNpcDat(int inResNo, enCharaType inChType, int inRepop, const Vec* inPos, const Vec* inRot, enPopReqType inPopType, bool inDisEnableCollision) {
         uintptr_t mSetInitNpcDatAddress = (g_framework->get_module().as<uintptr_t>() + 0x3B6B30);
