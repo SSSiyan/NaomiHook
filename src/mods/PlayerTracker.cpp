@@ -69,14 +69,20 @@ void DrawPlayerStats() {
             if (ImGui::Button("Play Move", ImVec2(itemWidth, NULL))) {
                 nmh_sdk::PlayMotion(motionID, 0, 0, 0, 0.1f);
             }
+
             static pcItem equipID = SHIRT1;
             ImGui::InputInt("Equip ID", (int*)&equipID);
             if (ImGui::Button("Set Equip", ImVec2(itemWidth, NULL))) {
                 nmh_sdk::SetEquip(equipID, false);
             }
+
+            ImGui::SeparatorText("Observed Attack Motion");
+            ImGui::Text("Current atkMot: %d", player->mCharaStatus.dmgInfo.atkMot);
+
         }
         ImGui::TreePop();
     }
+
     /*if (mHRPc* player = nmh_sdk::get_mHRPc()) {
         if (ImGui::TreeNodeEx("Cancel timings", ImGuiTreeNodeFlags_DrawLinesFull)) {
             // MEMORY_BASIC_INFORMATION mbi;
@@ -1222,8 +1228,8 @@ if (ImGui::TreeNodeEx("HrGameTask", ImGuiTreeNodeFlags_DrawLinesFull)) {
                 help_marker("Displays MotionID for current damage animation");
                 ImGui::InputInt("Guard Motion", &player->mCharaStatus.dmgInfo.grdMot);
                 help_marker("Displays MotionID for current guard animation");
-                ImGui::InputInt("Attack Motion", &player->mCharaStatus.dmgInfo.atkMot);
-                help_marker("Displays MotionID for current attack animation");
+                ImGui::Text("Attack Motion: %d", player->mCharaStatus.dmgInfo.atkMot);
+                help_marker("MotionID of incoming attack and this changes when hit or guarded by it.");
                 ImGui::SliderFloat("Damage Direction", &player->mCharaStatus.dmgInfo.dmgDirec, -360.0f, 360.0f);
                 help_marker("Displays the direction that the object or pawn is pushed towards when attacked.");
                 ImGui::SliderFloat("Knockback Distance", &player->mCharaStatus.dmgInfo.nockBackDst, 0.0f, 100.0f);

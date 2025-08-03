@@ -10,7 +10,7 @@ public:
     // mod name string for config
     std::string get_mod_name() const override { return "ShaderEdit"; }
     std::string get_human_readable_name() const { return "Shader Edits"; }
-    const char* get_description() const override { return R"(Adjust the contrast, shadows, midtones and highlights. This is identical to our file edit for Wii shaders except you can customize the settings yourself..)"; };
+    const char* get_description() const override { return R"(Adjust the contrast, shadows, midtones and highlights. This is identical to our file edit for Wii shaders except you can customize the settings yourself.)"; };
 
     // called by m_mods->init() you'd want to override this
     std::optional<std::string> on_initialize() override;
