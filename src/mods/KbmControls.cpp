@@ -505,8 +505,7 @@ std::optional<std::string> KbmControls::on_initialize() {
         ext->cl.hold |= KEY_LT; ext->cl.ltrigger = 255.0f; 
 
         mHRPc* pc = nmh_sdk::get_mHRPc();
-        // TODO(): dont want to bother cheking each ugly case, seems to fix deathblows and tsubazerings
-        bool null_rstick = nmh_sdk::CheckCanAttack() || nmh_sdk::CheckIsComboing();//!nmh_sdk::CheckTsubazering(-1);
+        bool null_rstick = nmh_sdk::CheckCanAttack() || pc->mPcStatus.hitNormalDashAttack; //!nmh_sdk::CheckTsubazering(-1);
 
         //if (!nmh_sdk::CheckTsubazering(-1) /* clashing */ ) {
         if(!g_kbm) {return;}
