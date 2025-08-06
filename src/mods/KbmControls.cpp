@@ -505,12 +505,12 @@ std::optional<std::string> KbmControls::on_initialize() {
         ext->cl.hold |= KEY_LT; ext->cl.ltrigger = 255.0f; 
 
         mHRPc* pc = nmh_sdk::get_mHRPc();
-        bool null_rstick = nmh_sdk::CheckCanAttack() || pc->mPcStatus.hitNormalDashAttack; //!nmh_sdk::CheckTsubazering(-1);
+        bool null_rstick = nmh_sdk::CheckCanAttack() || (!nmh_sdk::CheckThrowAttack()); //!nmh_sdk::CheckTsubazering(-1);
 
         //if (!nmh_sdk::CheckTsubazering(-1) /* clashing */ ) {
         if(!g_kbm) {return;}
         if (g_kbm->m_block_lockon->value() == true) {
-            if (null_rstick && (!nmh_sdk::CheckTsubazering(-1))) {
+            if (null_rstick && (!nmh_sdk::CheckTsubazering(-1)) && (pc->mPcStatus.finishMotNo <= 0)) {
                 ext->cl.rstick.x = 0;
                 ext->cl.rstick.y = 0;
             }
