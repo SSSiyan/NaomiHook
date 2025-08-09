@@ -1,6 +1,8 @@
 #include "ShaderEdit.hpp"
 #include <d3dcompiler.h>
 
+const ModToggle::Ptr g_mod_enabled{ModToggle::create("shader_edit_swap_shader_toggle", false)};
+
 static float g_shader_contrast[3]  = {1.09f, 1.09f, 1.09f};
 static float g_shader_saturation   = 1.0f;
 static float g_shadow_darkening    = 1.0f;
@@ -110,9 +112,34 @@ naked void set_rt_detour() {
 
 ID3DBlob* pBlob      = nullptr;
 ID3DBlob* pErrorBlob = nullptr;
+
+// original game shader with broken cc
+ID3D11PixelShader* g_game_ps_original = nullptr;
+// need to keep track of our edited shader for freeing later if the user changes some constants in ui
+ID3D11PixelShader* g_our_ps_edited = nullptr;
+
 static int recreate_shader(float* contrast, float saturation, float shadow, float midtone, float highlight) {
     EEShaderResourceSomething* ours = g_our_edited_shader_ptr;
     ID3D11PixelShader* new_ps{nullptr};
+
+    // only do this once to capture original untouched pixel shader pointer
+    static bool initialized = [](EEShaderResourceSomething* eesr) {
+        g_game_ps_original = eesr->d3d11_ps;
+        return true;
+    }(ours);
+
+    // restore original and return early
+    // ugly case when user clicks the imgoo checkbox
+    if (!g_mod_enabled->value()) {
+
+        if (ours->d3d11_ps == g_game_ps_original) {
+            return 1;
+        }
+
+        ID3D11PixelShader** game_ps_loc = &(ours->d3d11_ps);
+        InterlockedCompareExchange((LONG*)game_ps_loc, (LONG)(g_game_ps_original), (LONG)(ours->d3d11_ps));
+        return 1;
+    }
 
     auto device = g_framework->d3d11()->get_device();
 
@@ -132,7 +159,15 @@ static int recreate_shader(float* contrast, float saturation, float shadow, floa
         return -1;
     }
 
-    ours->d3d11_ps->Release();
+    //ours->d3d11_ps->Release();
+
+    // we dont want to release original games pixel shader
+    // but we need to release our edits or it will crash later
+    if (ours->d3d11_ps == g_our_ps_edited) {
+        ours->d3d11_ps->Release();
+        g_our_ps_edited = new_ps;
+    }
+
     ID3D11PixelShader** game_ps_loc = &(ours->d3d11_ps);
     InterlockedCompareExchange((LONG*)game_ps_loc, (LONG)new_ps, (LONG)(ours->d3d11_ps));
     return 1;
@@ -161,7 +196,10 @@ void ShaderEdit::on_config_load(const utility::Config& cfg) {
     g_midtone_darkening   = cfg.get<float>("midtoneDarkening").value_or(1.0f);
     g_highlight_darkening = cfg.get<float>("highlightDarkening").value_or(1.0f);
 
-    recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
+    g_mod_enabled->config_load(cfg);
+    if(g_mod_enabled->value()) {
+        recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
+    }
 }
 
 void ShaderEdit::on_config_save(utility::Config& cfg) {
@@ -172,9 +210,17 @@ void ShaderEdit::on_config_save(utility::Config& cfg) {
     cfg.set<float>("shadowDarkening", g_shadow_darkening);
     cfg.set<float>("midtoneDarkening", g_midtone_darkening);
     cfg.set<float>("highlightDarkening", g_highlight_darkening);
+    g_mod_enabled->config_save(cfg);
 }
 
 void ShaderEdit::on_draw_ui() {
+    if(g_mod_enabled->draw("Enable shader replacement?")) {
+        recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
+    }
+    if (!g_mod_enabled->value()) {
+        return;
+    }
+
     int shader_created = 0;
 
     float average_contrast           = (g_shader_contrast[0] + g_shader_contrast[1] + g_shader_contrast[2]) / 3.0f;
