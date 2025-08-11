@@ -4,6 +4,7 @@
 #include <shlobj.h> // for ShellExecuteA
 #include "ClothesSwitcher.hpp" // for pcItem names
 #include "PlayerTracker.hpp" // for throw names
+#include "WeaponSwitcher.hpp" // for giving weapons safely
 
 const char* ArcadeMode::defaultDescription = "Play through the entire game in one sitting while skipping all the stuff in between. Nothing but gameplay in this mode.";
 const char* ArcadeMode::hoveredDescription = defaultDescription;
@@ -197,7 +198,13 @@ bool RenderShopLockerItem(pcItem itemID, int price) {
     
     if (ImGui::Button(buttonText)) {
         if (BuyThing(price)) {
-            nmh_sdk::AddLocker(itemID);
+            // is this a sword?
+            if ((int)itemID <= 15) {
+                WeaponSwitcher::ReplaceAllSwordVariants(itemID); // don't let the player buy multiple versions of one sword
+            }
+            else {
+                nmh_sdk::AddLocker(itemID);
+            }
         }
     }
     
@@ -303,29 +310,22 @@ void DisplayShop(mHRPc* player, bool toggle) {
     ImGui::SetWindowPos(ImVec2(windowSize.x * 0.535f, windowSize.y * 0.029f));
     ImGui::SetWindowSize(ImVec2(windowSize.x * 0.3f, windowSize.y * 0.7475f));
     if (ImGui::TreeNodeEx("Inventory", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
-        if (RenderShopLockerItem(BLOOD_BERRY, 100)) {
-            if (RenderShopLockerItem(BLOOD_BERRY_DAMAGE, 35000)) {
-                RenderShopLockerItem(BLOOD_BERRY_BATTERY_DAMAGE, 95000);
-            }
-        }
 
-        if (RenderShopLockerItem(TSUBAKI_MK1, 98000)) {
-            if (RenderShopLockerItem(TSUBAKI_MK1_DAMAGE, 129800)) {
-                RenderShopLockerItem(TSUBAKI_MK1_BATTERY_DAMAGE, 129800);
-            }
-        }
+        RenderShopLockerItem(BLOOD_BERRY, 100);
+        RenderShopLockerItem(BLOOD_BERRY_DAMAGE, 35000);
+        RenderShopLockerItem(BLOOD_BERRY_BATTERY_DAMAGE, 95000);
 
-        if (RenderShopLockerItem(TSUBAKI_MK2, 148000)) {
-            if (RenderShopLockerItem(TSUBAKI_MK2_DAMAGE, 150000)) {
-                RenderShopLockerItem(TSUBAKI_MK2_BATTERY_DAMAGE, 150000);
-            }
-        }
+        RenderShopLockerItem(TSUBAKI_MK1, 98000);
+        RenderShopLockerItem(TSUBAKI_MK1_DAMAGE, 129800);
+        RenderShopLockerItem(TSUBAKI_MK1_BATTERY_DAMAGE, 129800);
 
-        if (RenderShopLockerItem(TSUBAKI_MK3, 498000)) {
-            if (RenderShopLockerItem(TSUBAKI_MK3_DAMAGE, 200000)) {
-                RenderShopLockerItem(TSUBAKI_MK3_BATTERY_DAMAGE, 999999);
-            }
-        }
+        RenderShopLockerItem(TSUBAKI_MK2, 148000);
+        RenderShopLockerItem(TSUBAKI_MK2_DAMAGE, 150000);
+        RenderShopLockerItem(TSUBAKI_MK2_BATTERY_DAMAGE, 150000);
+
+        RenderShopLockerItem(TSUBAKI_MK3, 498000);
+        RenderShopLockerItem(TSUBAKI_MK3_DAMAGE, 200000);
+        RenderShopLockerItem(TSUBAKI_MK3_BATTERY_DAMAGE, 999999);
 
         ImGui::TreePop();
     }

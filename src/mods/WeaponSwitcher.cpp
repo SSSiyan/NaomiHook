@@ -88,154 +88,6 @@ static WEAPON_SWITCH_DIRECTION directionPressed = WS_LEFT;
 static int selectedSword[WS_COUNT]{ -1, -1, -1, -1 }; // pcItem
 static int savedSword[WS_COUNT]{ -1, -1, -1, -1 }; // pcItem
 
-static int wsProcess0 = 0;
-static int wsProcess1 = 10;
-static int wsProcess2 = 80;
-static int wsProcess3 = 100;
-static int wsProcess4 = 120;
-static int wsProcess5 = 300;
-
-// bool WeaponSwitcher::weapon_switcher_ui = false;
-
-// Disable toggling the map while Weapon Switcher is active
-void WeaponSwitcher::toggleForceMap(bool enable) {
-    if (enable) {
-        install_patch_offset(0x3DC204, m_patch, "\xEB", 1); // jmp nmh.exe+3DC21A
-    }
-    else {
-        install_patch_offset(0x3DC204, m_patch, "\x75", 1); // jne nmh.exe+3DC21A
-    }
-}
-
-// check a weapon switch ban list of states and animations
-bool WeaponSwitcher::CanWeaponSwitch(pcItem desiredWeapon) {
-    // return true;
-    if (mHRPc* playerPtr = nmh_sdk::get_mHRPc()) {
-        enPcInputMode currentMode = playerPtr->mInputMode;
-        pcItem currentWeapon = playerPtr->mPcStatus.equip[0].id;
-        pcMotion currentMoveID = playerPtr->mCharaStatus.motionNo;
-        enCharaCondition condition = playerPtr->mCharaStatus.condition;
-        auto canOperate = playerPtr->mOperate;
-        bool barActive = playerPtr->mPcStatus.heroesMeterTick > 0;
-        if (desiredWeapon != currentWeapon && 
-            desiredWeapon != -1 &&
-            canOperate == true &&
-            (currentMode == ePcInputBattleIdle || currentMode == ePcInputIdle) &&
-            condition == eGood &&
-            barActive == false &&
-            nmh_sdk::CheckCanAttack() &&
-            !nmh_sdk::CheckGuardMotion(false) && 
-            //!nmh_sdk::CheckHajikare() && // eating a hit @siy this is bad
-            !nmh_sdk::CheckTsubazering(-1) && // clashing
-            !nmh_sdk::CheckSideStep(-1) && // dodging back or left or right
-            currentMoveID != ePcMtBtryChrgSt &&
-            currentMoveID != ePcMtBtryChrgLp &&
-            currentMoveID != ePcMtStpF &&
-            currentMoveID != ePcMtAvdR &&
-            currentMoveID != ePcMtAvdL) {
-            return true;
-        }
-    }
-    return false;
-}
-
-const char* pcItemToString(pcItem item) {
-    switch (item) {
-        case BLOOD_BERRY: return "Blood Berry";
-        case TSUBAKI_MK3: return "Tsubaki Mk3";
-        case TSUBAKI_MK1: return "Tsubaki Mk1";
-        case TSUBAKI_MK2: return "Tsubaki Mk2";
-        case BLOOD_BERRY_DAMAGE: return "Blood Berry +Damage";
-        case TSUBAKI_MK3_DAMAGE: return "Tsubaki Mk3 +Damage";
-        case TSUBAKI_MK1_DAMAGE: return "Tsubaki Mk1 +Damage";
-        case TSUBAKI_MK2_DAMAGE: return "Tsubaki Mk2 +Damage";
-        case BLOOD_BERRY_BATTERY: return "Blood Berry +Battery";
-        case TSUBAKI_MK3_BATTERY: return "Tsubaki Mk3 +Battery";
-        case TSUBAKI_MK1_BATTERY: return "Tsubaki Mk1 +Battery";
-        case TSUBAKI_MK2_BATTERY: return "Tsubaki Mk2 +Battery";
-        case BLOOD_BERRY_BATTERY_DAMAGE: return "Blood Berry +Battery +Damage";
-        case TSUBAKI_MK3_BATTERY_DAMAGE: return "Tsubaki Mk3 +Battery +Damage";
-        case TSUBAKI_MK1_BATTERY_DAMAGE: return "Tsubaki Mk1 +Battery +Damage";
-        case TSUBAKI_MK2_BATTERY_DAMAGE: return "Tsubaki Mk2 +Battery +Damage";
-        default: return "Unknown";
-    }
-}
-
-std::vector<pcItem> FindMatchingItemsForSlot(WEAPON_SWITCH_DIRECTION slotID) {
-    std::vector<pcItem> matchingItems;
-
-    pcItem equippedWeapon = static_cast<pcItem>(nmh_sdk::get_mHRPc()->mPcStatus.equip[0].id); // Get the equipped item // mPcStatus // mPcSaveData
-
-    if ((slotID == WS_LEFT && (equippedWeapon == TSUBAKI_MK1 || equippedWeapon == TSUBAKI_MK1_DAMAGE || equippedWeapon == TSUBAKI_MK1_BATTERY || equippedWeapon == TSUBAKI_MK1_BATTERY_DAMAGE)) ||
-        (slotID == WS_DOWN && (equippedWeapon == TSUBAKI_MK2 || equippedWeapon == TSUBAKI_MK2_DAMAGE || equippedWeapon == TSUBAKI_MK2_BATTERY || equippedWeapon == TSUBAKI_MK2_BATTERY_DAMAGE)) ||
-        (slotID == WS_RIGHT && (equippedWeapon == TSUBAKI_MK3 || equippedWeapon == TSUBAKI_MK3_DAMAGE || equippedWeapon == TSUBAKI_MK3_BATTERY || equippedWeapon == TSUBAKI_MK3_BATTERY_DAMAGE)) ||
-        (slotID == WS_UP && (equippedWeapon == BLOOD_BERRY || equippedWeapon == BLOOD_BERRY_DAMAGE || equippedWeapon == BLOOD_BERRY_BATTERY || equippedWeapon == BLOOD_BERRY_BATTERY_DAMAGE))) {
-
-        // see if we've already found it
-        if (std::find(matchingItems.begin(), matchingItems.end(), equippedWeapon) == matchingItems.end()) {
-            matchingItems.push_back(equippedWeapon);
-        }
-    }
-
-    for (int i = 0; i < 200; i++) {
-        auto lockerItem = nmh_sdk::get_mHRPc()->mPcStatus.locker[i];
-        pcItem weapon = static_cast<pcItem>(lockerItem.id);
-
-        // ignore -1 entries
-        if (lockerItem.id == -1) {
-            continue;
-        }
-
-        switch (slotID) {
-            case WS_LEFT:
-                if (weapon == TSUBAKI_MK1 || weapon == TSUBAKI_MK1_DAMAGE || weapon == TSUBAKI_MK1_BATTERY || weapon == TSUBAKI_MK1_BATTERY_DAMAGE) {
-                    matchingItems.push_back(weapon);
-                }
-                break;
-            case WS_DOWN:
-                if (weapon == TSUBAKI_MK2 || weapon == TSUBAKI_MK2_DAMAGE || weapon == TSUBAKI_MK2_BATTERY || weapon == TSUBAKI_MK2_BATTERY_DAMAGE) {
-                    matchingItems.push_back(weapon);
-                }
-                break;
-            case WS_RIGHT:
-                if (weapon == TSUBAKI_MK3 || weapon == TSUBAKI_MK3_DAMAGE || weapon == TSUBAKI_MK3_BATTERY || weapon == TSUBAKI_MK3_BATTERY_DAMAGE) {
-                    matchingItems.push_back(weapon);
-                }
-                break;
-            case WS_UP:
-                if (weapon == BLOOD_BERRY || weapon == BLOOD_BERRY_DAMAGE || weapon == BLOOD_BERRY_BATTERY || weapon == BLOOD_BERRY_BATTERY_DAMAGE) {
-                    matchingItems.push_back(weapon);
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    return matchingItems;
-}
-
-void FillComboBoxWithImGui(WEAPON_SWITCH_DIRECTION slotID, const char* comboBoxLabel) {
-    std::vector<pcItem> matchingItems = FindMatchingItemsForSlot(slotID);
-
-    std::vector<const char*> itemNames;
-    for (const auto& item : matchingItems) {
-        itemNames.push_back(pcItemToString(item));
-    }
-    int selectedIndex = -1;
-    
-    for (int i = 0; i < matchingItems.size(); ++i) {
-        if (matchingItems[i] == selectedSword[slotID]) {
-            selectedIndex = i;
-            break;
-        }
-    }
-
-    if (ImGui::Combo(comboBoxLabel, &selectedIndex, itemNames.data(), itemNames.size())) {
-        selectedSword[slotID] = matchingItems[selectedIndex];
-    }
-}
-
 // clang-format off
 naked void detour1() { // play weapon anims // player in ecx // called last
     __asm {
@@ -389,6 +241,215 @@ naked void detour3() { // add tsubaki mk1 weapon swap to canAttack ban list
 }
  // clang-format on
 
+static int wsProcess0 = 0;
+static int wsProcess1 = 10;
+static int wsProcess2 = 80;
+static int wsProcess3 = 100;
+static int wsProcess4 = 120;
+static int wsProcess5 = 300;
+
+// bool WeaponSwitcher::weapon_switcher_ui = false;
+
+// Disable toggling the map while Weapon Switcher is active
+void WeaponSwitcher::toggleForceMap(bool enable) {
+    if (enable) {
+        install_patch_offset(0x3DC204, m_patch, "\xEB", 1); // jmp nmh.exe+3DC21A
+    }
+    else {
+        install_patch_offset(0x3DC204, m_patch, "\x75", 1); // jne nmh.exe+3DC21A
+    }
+}
+
+// check a weapon switch ban list of states and animations
+bool WeaponSwitcher::CanWeaponSwitch(pcItem desiredWeapon) {
+    // return true;
+    if (mHRPc* playerPtr = nmh_sdk::get_mHRPc()) {
+        enPcInputMode currentMode = playerPtr->mInputMode;
+        pcItem currentWeapon = playerPtr->mPcStatus.equip[0].id;
+        pcMotion currentMoveID = playerPtr->mCharaStatus.motionNo;
+        enCharaCondition condition = playerPtr->mCharaStatus.condition;
+        auto canOperate = playerPtr->mOperate;
+        bool barActive = playerPtr->mPcStatus.heroesMeterTick > 0;
+        if (desiredWeapon != currentWeapon && 
+            desiredWeapon != -1 &&
+            canOperate == true &&
+            (currentMode == ePcInputBattleIdle || currentMode == ePcInputIdle) &&
+            condition == eGood &&
+            barActive == false &&
+            nmh_sdk::CheckCanAttack() &&
+            !nmh_sdk::CheckGuardMotion(false) && 
+            //!nmh_sdk::CheckHajikare() && // eating a hit @siy this is bad
+            !nmh_sdk::CheckTsubazering(-1) && // clashing
+            !nmh_sdk::CheckSideStep(-1) && // dodging back or left or right
+            currentMoveID != ePcMtBtryChrgSt &&
+            currentMoveID != ePcMtBtryChrgLp &&
+            currentMoveID != ePcMtStpF &&
+            currentMoveID != ePcMtAvdR &&
+            currentMoveID != ePcMtAvdL) {
+            return true;
+        }
+    }
+    return false;
+}
+
+const char* pcItemToString(pcItem item) {
+    switch (item) {
+        case BLOOD_BERRY: return "Blood Berry";
+        case TSUBAKI_MK3: return "Tsubaki Mk3";
+        case TSUBAKI_MK1: return "Tsubaki Mk1";
+        case TSUBAKI_MK2: return "Tsubaki Mk2";
+        case BLOOD_BERRY_DAMAGE: return "Blood Berry +Damage";
+        case TSUBAKI_MK3_DAMAGE: return "Tsubaki Mk3 +Damage";
+        case TSUBAKI_MK1_DAMAGE: return "Tsubaki Mk1 +Damage";
+        case TSUBAKI_MK2_DAMAGE: return "Tsubaki Mk2 +Damage";
+        case BLOOD_BERRY_BATTERY: return "Blood Berry +Battery";
+        case TSUBAKI_MK3_BATTERY: return "Tsubaki Mk3 +Battery";
+        case TSUBAKI_MK1_BATTERY: return "Tsubaki Mk1 +Battery";
+        case TSUBAKI_MK2_BATTERY: return "Tsubaki Mk2 +Battery";
+        case BLOOD_BERRY_BATTERY_DAMAGE: return "Blood Berry +Battery +Damage";
+        case TSUBAKI_MK3_BATTERY_DAMAGE: return "Tsubaki Mk3 +Battery +Damage";
+        case TSUBAKI_MK1_BATTERY_DAMAGE: return "Tsubaki Mk1 +Battery +Damage";
+        case TSUBAKI_MK2_BATTERY_DAMAGE: return "Tsubaki Mk2 +Battery +Damage";
+        default: return "Unknown";
+    }
+}
+
+// remove every sword from the player's inventory so they can add only what they want manually
+void WeaponSwitcher::CleanSwordInventory() {
+    // equip BB
+    nmh_sdk::SetEquip(BLOOD_BERRY, -1);
+    // remove all other swords
+    for (int i = 1; i < 15; i++) {
+        nmh_sdk::DelLocker((pcItem)i);
+    }
+}
+
+void WeaponSwitcher::ReplaceAllSwordVariants(pcItem newItemId) {
+    std::vector<int> variantsToRemove;
+
+    // check which weapon type is being replaced
+    if (newItemId == TSUBAKI_MK2 || newItemId == TSUBAKI_MK2_DAMAGE || 
+        newItemId == TSUBAKI_MK2_BATTERY || newItemId == TSUBAKI_MK2_BATTERY_DAMAGE) {
+        variantsToRemove = {TSUBAKI_MK2, TSUBAKI_MK2_DAMAGE, TSUBAKI_MK2_BATTERY, TSUBAKI_MK2_BATTERY_DAMAGE};
+    }
+    else if (newItemId == TSUBAKI_MK1 || newItemId == TSUBAKI_MK1_DAMAGE || 
+             newItemId == TSUBAKI_MK1_BATTERY || newItemId == TSUBAKI_MK1_BATTERY_DAMAGE) {
+        variantsToRemove = {TSUBAKI_MK1, TSUBAKI_MK1_DAMAGE, TSUBAKI_MK1_BATTERY, TSUBAKI_MK1_BATTERY_DAMAGE};
+    }
+    else if (newItemId == TSUBAKI_MK3 || newItemId == TSUBAKI_MK3_DAMAGE || 
+             newItemId == TSUBAKI_MK3_BATTERY || newItemId == TSUBAKI_MK3_BATTERY_DAMAGE) {
+        variantsToRemove = {TSUBAKI_MK3, TSUBAKI_MK3_DAMAGE, TSUBAKI_MK3_BATTERY, TSUBAKI_MK3_BATTERY_DAMAGE};
+    }
+    else if (newItemId == BLOOD_BERRY || newItemId == BLOOD_BERRY_DAMAGE || 
+             newItemId == BLOOD_BERRY_BATTERY || newItemId == BLOOD_BERRY_BATTERY_DAMAGE) {
+        variantsToRemove = {BLOOD_BERRY, BLOOD_BERRY_DAMAGE, BLOOD_BERRY_BATTERY, BLOOD_BERRY_BATTERY_DAMAGE};
+    }
+    else {
+        return;
+    }
+    
+    // check current equip
+    int heldItemId = nmh_sdk::get_mHRPc()->mPcStatus.equip[0].id;
+    bool wasHoldingSameType = false;
+    
+    for (int variantId : variantsToRemove) {
+        if (heldItemId == variantId) {
+            wasHoldingSameType = true;
+            break;
+        }
+    }
+    
+    // Check inventory
+    for (int variantId : variantsToRemove) {
+        while (nmh_sdk::CheckLocker((pcItem)variantId)) {
+            nmh_sdk::DelLocker((pcItem)variantId);
+        }
+    }
+    
+    // If player was already holding a variant of this weapon type, equip the new one
+    if (wasHoldingSameType) {
+        nmh_sdk::SetEquip((pcItem)newItemId, -1);
+    }
+    else { // If not, just add the new item to the locker
+        nmh_sdk::AddLocker((pcItem)newItemId);
+    }
+}
+
+std::vector<pcItem> FindMatchingItemsForSlot(WEAPON_SWITCH_DIRECTION slotID) {
+    std::vector<pcItem> matchingItems;
+
+    pcItem equippedWeapon = pcItem(nmh_sdk::get_mHRPc()->mPcStatus.equip[0].id); // Get the equipped item // mPcStatus // mPcSaveData
+
+    if ((slotID == WS_LEFT && (equippedWeapon == TSUBAKI_MK1 || equippedWeapon == TSUBAKI_MK1_DAMAGE || equippedWeapon == TSUBAKI_MK1_BATTERY || equippedWeapon == TSUBAKI_MK1_BATTERY_DAMAGE)) ||
+        (slotID == WS_DOWN && (equippedWeapon == TSUBAKI_MK2 || equippedWeapon == TSUBAKI_MK2_DAMAGE || equippedWeapon == TSUBAKI_MK2_BATTERY || equippedWeapon == TSUBAKI_MK2_BATTERY_DAMAGE)) ||
+        (slotID == WS_RIGHT && (equippedWeapon == TSUBAKI_MK3 || equippedWeapon == TSUBAKI_MK3_DAMAGE || equippedWeapon == TSUBAKI_MK3_BATTERY || equippedWeapon == TSUBAKI_MK3_BATTERY_DAMAGE)) ||
+        (slotID == WS_UP && (equippedWeapon == BLOOD_BERRY || equippedWeapon == BLOOD_BERRY_DAMAGE || equippedWeapon == BLOOD_BERRY_BATTERY || equippedWeapon == BLOOD_BERRY_BATTERY_DAMAGE))) {
+
+        // see if we've already found it
+        if (std::find(matchingItems.begin(), matchingItems.end(), equippedWeapon) == matchingItems.end()) {
+            matchingItems.push_back(equippedWeapon);
+        }
+    }
+
+    for (int i = 0; i < 200; i++) {
+        auto lockerItem = nmh_sdk::get_mHRPc()->mPcStatus.locker[i];
+        pcItem weapon = static_cast<pcItem>(lockerItem.id);
+
+        // ignore -1 entries
+        if (lockerItem.id == -1) {
+            continue;
+        }
+
+        switch (slotID) {
+            case WS_LEFT:
+                if (weapon == TSUBAKI_MK1 || weapon == TSUBAKI_MK1_DAMAGE || weapon == TSUBAKI_MK1_BATTERY || weapon == TSUBAKI_MK1_BATTERY_DAMAGE) {
+                    matchingItems.push_back(weapon);
+                }
+                break;
+            case WS_DOWN:
+                if (weapon == TSUBAKI_MK2 || weapon == TSUBAKI_MK2_DAMAGE || weapon == TSUBAKI_MK2_BATTERY || weapon == TSUBAKI_MK2_BATTERY_DAMAGE) {
+                    matchingItems.push_back(weapon);
+                }
+                break;
+            case WS_RIGHT:
+                if (weapon == TSUBAKI_MK3 || weapon == TSUBAKI_MK3_DAMAGE || weapon == TSUBAKI_MK3_BATTERY || weapon == TSUBAKI_MK3_BATTERY_DAMAGE) {
+                    matchingItems.push_back(weapon);
+                }
+                break;
+            case WS_UP:
+                if (weapon == BLOOD_BERRY || weapon == BLOOD_BERRY_DAMAGE || weapon == BLOOD_BERRY_BATTERY || weapon == BLOOD_BERRY_BATTERY_DAMAGE) {
+                    matchingItems.push_back(weapon);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    return matchingItems;
+}
+
+void FillComboBoxWithImGui(WEAPON_SWITCH_DIRECTION slotID, const char* comboBoxLabel) {
+    std::vector<pcItem> matchingItems = FindMatchingItemsForSlot(slotID);
+
+    std::vector<const char*> itemNames;
+    for (const auto& item : matchingItems) {
+        itemNames.push_back(pcItemToString(item));
+    }
+    int selectedIndex = -1;
+    
+    for (int i = 0; i < matchingItems.size(); ++i) {
+        if (matchingItems[i] == selectedSword[slotID]) {
+            selectedIndex = i;
+            break;
+        }
+    }
+
+    if (ImGui::Combo(comboBoxLabel, &selectedIndex, itemNames.data(), itemNames.size())) {
+        selectedSword[slotID] = matchingItems[selectedIndex];
+    }
+}
+
 static bool load_weapon_switcher_texture() {
     auto [data, size] = utility::decompress_file_from_memory_with_size(sword_switch_compressed_data, sword_switch_compressed_size);
     if (!data) {
@@ -444,6 +505,83 @@ void WeaponSwitcher::on_draw_ui() {
             ImGui::Checkbox("Enable Experimental Animations", &animations_enabled);
             if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = "This enables the battle intro animations for unsheathing a beam katana. They are currently, very likely to cause crashes.";
 
+            if (ImGui::CollapsingHeader("Debug")) {
+                ImGui::Indent();
+                if (ImGui::Button("Fix Inventory")) {
+                    CleanSwordInventory();
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = "If you own more than 4 swords, the game will crash when opening the sword drawer. This button Removes all swords from your inventory.";
+                ImGui::Spacing();
+                if (ImGui::Button("Give Blood Berry")) {
+                    ReplaceAllSwordVariants(BLOOD_BERRY);
+                }
+                static const char* giveButtonText = "These buttons will remove duplicates of the sword from your inventory, so you can add only the variants you want.";
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                if (ImGui::Button("Give Blood Berry BATTERY")) {
+                    ReplaceAllSwordVariants(BLOOD_BERRY_BATTERY);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                if (ImGui::Button("Give Blood Berry DAMAGE")) {
+                    ReplaceAllSwordVariants(BLOOD_BERRY_DAMAGE);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                if (ImGui::Button("Give Blood Berry BATTERY + DAMAGE")) {
+                    ReplaceAllSwordVariants(BLOOD_BERRY_BATTERY_DAMAGE);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                ImGui::Spacing();
+                if (ImGui::Button("Give TSUBAKI Mk1")) {
+                    ReplaceAllSwordVariants(TSUBAKI_MK1);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                if (ImGui::Button("Give TSUBAKI Mk1 BATTERY")) {
+                    ReplaceAllSwordVariants(TSUBAKI_MK1_BATTERY);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                if (ImGui::Button("Give TSUBAKI Mk1 DAMAGE")) {
+                    ReplaceAllSwordVariants(TSUBAKI_MK1_DAMAGE);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                if (ImGui::Button("Give TSUBAKI Mk1 BATTERY + DAMAGE")) {
+                    ReplaceAllSwordVariants(TSUBAKI_MK1_BATTERY_DAMAGE);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                ImGui::Spacing();
+                if (ImGui::Button("Give TSUBAKI Mk2")) {
+                    ReplaceAllSwordVariants(TSUBAKI_MK2);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                if (ImGui::Button("Give TSUBAKI Mk2 BATTERY")) {
+                    ReplaceAllSwordVariants(TSUBAKI_MK2_BATTERY);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                if (ImGui::Button("Give TSUBAKI Mk2 DAMAGE")) {
+                    ReplaceAllSwordVariants(TSUBAKI_MK2_DAMAGE);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                if (ImGui::Button("Give TSUBAKI Mk2 BATTERY + DAMAGE")) {
+                    ReplaceAllSwordVariants(TSUBAKI_MK2_BATTERY_DAMAGE);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                ImGui::Spacing();
+                if (ImGui::Button("Give TSUBAKI Mk3")) {
+                    ReplaceAllSwordVariants(TSUBAKI_MK3);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                if (ImGui::Button("Give TSUBAKI Mk3 BATTERY")) {
+                    ReplaceAllSwordVariants(TSUBAKI_MK3_BATTERY);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                if (ImGui::Button("Give TSUBAKI Mk3 DAMAGE")) {
+                    ReplaceAllSwordVariants(TSUBAKI_MK3_DAMAGE);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                if (ImGui::Button("Give TSUBAKI Mk3 BATTERY + DAMAGE")) {
+                    ReplaceAllSwordVariants(TSUBAKI_MK3_BATTERY_DAMAGE);
+                }
+                if (ImGui::IsItemHovered()) WeaponSwitcher::hoveredDescription = giveButtonText;
+                ImGui::Unindent();
+            }
             // if (ImGui::Button("Battle Idle")) {
             //     nmh_sdk::SetInputMode(player, ePcInputBattleIdle);
             // }

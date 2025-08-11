@@ -292,6 +292,16 @@ namespace nmh_sdk {
         return true; // player ptr invalid
     }
 
+    // idk what it returns tbh
+    bool DelLocker(pcItem itemID) {
+        uintptr_t delLockerAddr = (g_framework->get_module().as<uintptr_t>() + 0x3C1030);
+        mDelLockerFunc delLocker = (mDelLockerFunc)delLockerAddr;
+        if (mHRPc* mHRPc = get_mHRPc()) {
+            return delLocker(mHRPc, itemID);
+        }
+        return false; // player ptr invalid
+    }
+
     void SetInputMode(mHRPc* mHRPc, enPcInputMode inMode) {
         uintptr_t setInputModeAddr = (g_framework->get_module().as<uintptr_t>() + 0x3E28B0);
         mSetInputModeFunc setInputMode = (mSetInputModeFunc)setInputModeAddr;

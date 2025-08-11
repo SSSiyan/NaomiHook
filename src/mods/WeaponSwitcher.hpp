@@ -29,6 +29,8 @@ public:
   void toggleForceMap(bool enable);
   static bool CanWeaponSwitch(pcItem desiredWeapon);
   void Display_UI();
+  static void CleanSwordInventory();
+  static void ReplaceAllSwordVariants(pcItem newItemId);
 
   // mod name string for config
   std::string get_mod_name() const override { return "WeaponSwitcher"; }
