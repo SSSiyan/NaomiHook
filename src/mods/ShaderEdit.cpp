@@ -2,6 +2,7 @@
 #include <d3dcompiler.h>
 
 const ModToggle::Ptr g_mod_enabled{ModToggle::create("shader_edit_swap_shader_toggle", false)};
+const ModToggle::Ptr g_gamma_enabled{ModToggle::create("shader_edit_gamma_toggle", false)}; // gamma correction toggle
 
 static float g_shader_contrast[3]  = {1.09f, 1.09f, 1.09f};
 static float g_shader_saturation   = 1.0f;
@@ -9,34 +10,43 @@ static float g_shadow_darkening    = 1.0f;
 static float g_midtone_darkening   = 1.0f;
 static float g_highlight_darkening = 1.0f;
 
+static float g_gamma_amount = 1.0f; // 0.10..3.00
+
 const char* shader_fmt = R"(
-// ---- Custom Shader with Contrast, Saturation, Shadows, Midtones, Highlights
+// ---- Custom Shader with Contrast, Saturation, Shadows, Midtones, Highlights (+ optional Gamma)
 
 SamplerState BaseTextureSampler_s : register(s0);
 Texture2D<float4> BaseTexture : register(t0);
 
+// Host-injected constants
+static const float3 kContrast    = float3(%f, %f, %f);
+static const float  kSaturation  = %f;
+static const float  kShadow      = %f;
+static const float  kMidtone     = %f;
+static const float  kHighlight   = %f;
+
+// Gamma controls
+static const float  kGammaOn     = %f; // 0 or 1
+static const float  kGamma       = %f; // 0.1..3.0 (1.0 = no change)
+
+// --- utilities ---
 float luminance(float3 color) {
+    // 601 weights
     return dot(color, float3(0.299, 0.587, 0.114));
 }
-
 float3 adjustLevels(float3 color, float shadow, float midtone, float highlight) {
     float lum = luminance(color);
     float3 result = color;
 
-    // Shadows
     if (lum < 0.333) {
         float factor = smoothstep(0.0, 0.333, lum);
         factor = lerp(shadow, 1.0, factor);
         result *= factor;
-    }
-    // Midtones
-    else if (lum < 0.666) {
+    } else if (lum < 0.666) {
         float factor = smoothstep(0.333, 0.666, lum);
         factor = lerp(midtone, 1.0, factor);
         result *= factor;
-    }
-    // Highlights
-    else {
+    } else {
         float factor = smoothstep(0.666, 1.0, lum);
         factor = lerp(highlight, 1.0, factor);
         result *= factor;
@@ -50,18 +60,24 @@ void main(
     float2 v2 : TEXCOORD0,
     out float4 o0 : SV_TARGET0)
 {
-    float4 col = BaseTexture.Sample(BaseTextureSampler_s, v2.xy);
+    float2 uv = v2.xy;
+    float4 col = BaseTexture.Sample(BaseTextureSampler_s, uv);
 
-    // Apply per-channel contrast
-    float3 contrast = float3(%f, %f, %f);
-    col.rgb = (col.rgb - 0.5) * contrast + 0.5;
+    // Per-channel contrast
+    col.rgb = (col.rgb - 0.5) * kContrast + 0.5;
 
-    // Apply saturation
+    // Saturation
     float gray = luminance(col.rgb);
-    col.rgb = lerp(float3(gray, gray, gray), col.rgb, %f);
+    col.rgb = lerp(float3(gray, gray, gray), col.rgb, kSaturation);
 
-    // Apply shadows, midtones, highlights darkening
-    col.rgb = adjustLevels(col.rgb, %f, %f, %f);
+    // Shadows / Midtones / Highlights
+    col.rgb = adjustLevels(col.rgb, kShadow, kMidtone, kHighlight);
+
+    // Gamma (apply in grading chain)
+    if (kGammaOn > 0.5) {
+        float g = max(kGamma, 1e-3);
+        col.rgb = pow(saturate(col.rgb), 1.0 / g);
+    }
 
     o0 = v0 * col;
     return;
@@ -70,18 +86,18 @@ void main(
 
 class EEShaderResourceSomething {
 public:
-    char pad_0000[28];                     // 0x0000
-    ID3D11PixelShader* d3d11_ps;           // 0x001C
-    char pad_0020[4];                      // 0x0020
-    class ShaderBytecode* shader_bytecode; // 0x0024
-    uint32_t size_maybe;                   // 0x0028
+    char pad_0000[28];
+    ID3D11PixelShader* d3d11_ps;
+    char pad_0020[4];
+    class ShaderBytecode* shader_bytecode;
+    uint32_t size_maybe;
 };
 
 class ShaderBytecode {
 public:
-    char pad_0000[596];  // 0x0000
-    glm::vec3 contrast;  // 0x0254
-    char pad_0260[3492]; // 0x0260
+    char pad_0000[596];
+    glm::vec3 contrast;
+    char pad_0260[3492];
 };
 
 EEShaderResourceSomething* g_our_edited_shader_ptr{nullptr};
@@ -115,27 +131,25 @@ ID3DBlob* pErrorBlob = nullptr;
 
 // original game shader with broken cc
 ID3D11PixelShader* g_game_ps_original = nullptr;
-// need to keep track of our edited shader for freeing later if the user changes some constants in ui
+// keep track of our edited shader for freeing later
 ID3D11PixelShader* g_our_ps_edited = nullptr;
 
-static int recreate_shader(float* contrast, float saturation, float shadow, float midtone, float highlight) {
+static int recreate_shader(
+    float* contrast, float saturation, float shadow, float midtone, float highlight, bool gamma_on, float gamma_amount) {
     EEShaderResourceSomething* ours = g_our_edited_shader_ptr;
+    if (!ours)
+        return -1;
+
     ID3D11PixelShader* new_ps{nullptr};
 
-    // only do this once to capture original untouched pixel shader pointer
     static bool initialized = [](EEShaderResourceSomething* eesr) {
         g_game_ps_original = eesr->d3d11_ps;
         return true;
     }(ours);
 
-    // restore original and return early
-    // ugly case when user clicks the imgoo checkbox
     if (!g_mod_enabled->value()) {
-
-        if (ours->d3d11_ps == g_game_ps_original) {
+        if (ours->d3d11_ps == g_game_ps_original)
             return 1;
-        }
-
         ID3D11PixelShader** game_ps_loc = &(ours->d3d11_ps);
         InterlockedCompareExchange((LONG*)game_ps_loc, (LONG)(g_game_ps_original), (LONG)(ours->d3d11_ps));
         return 1;
@@ -143,33 +157,56 @@ static int recreate_shader(float* contrast, float saturation, float shadow, floa
 
     auto device = g_framework->d3d11()->get_device();
 
-    char buffer[2048] = {0};
-    sprintf(buffer, shader_fmt, contrast[0], contrast[1], contrast[2], saturation, shadow, midtone, highlight);
+    char buffer[16384] = {0};
+    sprintf(buffer, shader_fmt, contrast[0], contrast[1], contrast[2], saturation, shadow, midtone, highlight, gamma_on ? 1.0f : 0.0f,
+        gamma_amount);
 
-    HRESULT hr = D3DCompile(buffer, strlen(buffer), nullptr, nullptr, nullptr, "main", "ps_5_0", 0, 0, &pBlob, &pErrorBlob);
+    if (pErrorBlob) {
+        pErrorBlob->Release();
+        pErrorBlob = nullptr;
+    }
+    if (pBlob) {
+        pBlob->Release();
+        pBlob = nullptr;
+    }
+
+    HRESULT hr = D3DCompile(buffer, (UINT)strlen(buffer), nullptr, nullptr, nullptr, "main", "ps_5_0", 0, 0, &pBlob, &pErrorBlob);
     if (FAILED(hr)) {
         if (pErrorBlob) {
             OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
             pErrorBlob->Release();
+            pErrorBlob = nullptr;
         }
         return -1;
     }
 
     if (FAILED(device->CreatePixelShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &new_ps))) {
+        if (pBlob) {
+            pBlob->Release();
+            pBlob = nullptr;
+        }
         return -1;
     }
 
-    //ours->d3d11_ps->Release();
-
-    // we dont want to release original games pixel shader
-    // but we need to release our edits or it will crash later
-    if (ours->d3d11_ps == g_our_ps_edited) {
+    if (ours->d3d11_ps == g_our_ps_edited && ours->d3d11_ps) {
         ours->d3d11_ps->Release();
+        g_our_ps_edited = new_ps;
+    } else {
         g_our_ps_edited = new_ps;
     }
 
     ID3D11PixelShader** game_ps_loc = &(ours->d3d11_ps);
     InterlockedCompareExchange((LONG*)game_ps_loc, (LONG)new_ps, (LONG)(ours->d3d11_ps));
+
+    if (pBlob) {
+        pBlob->Release();
+        pBlob = nullptr;
+    }
+    if (pErrorBlob) {
+        pErrorBlob->Release();
+        pErrorBlob = nullptr;
+    }
+
     return 1;
 }
 
@@ -196,9 +233,14 @@ void ShaderEdit::on_config_load(const utility::Config& cfg) {
     g_midtone_darkening   = cfg.get<float>("midtoneDarkening").value_or(1.0f);
     g_highlight_darkening = cfg.get<float>("highlightDarkening").value_or(1.0f);
 
+    g_gamma_amount = cfg.get<float>("shaderGammaAmount").value_or(1.0f);
+
     g_mod_enabled->config_load(cfg);
-    if(g_mod_enabled->value()) {
-        recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
+    g_gamma_enabled->config_load(cfg);
+
+    if (g_mod_enabled->value()) {
+        recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening,
+            g_gamma_enabled->value(), g_gamma_amount);
     }
 }
 
@@ -210,16 +252,20 @@ void ShaderEdit::on_config_save(utility::Config& cfg) {
     cfg.set<float>("shadowDarkening", g_shadow_darkening);
     cfg.set<float>("midtoneDarkening", g_midtone_darkening);
     cfg.set<float>("highlightDarkening", g_highlight_darkening);
+
+    cfg.set<float>("shaderGammaAmount", g_gamma_amount);
+
     g_mod_enabled->config_save(cfg);
+    g_gamma_enabled->config_save(cfg);
 }
 
 void ShaderEdit::on_draw_ui() {
-    if(g_mod_enabled->draw("Enable shader replacement?")) {
-        recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
+    if (g_mod_enabled->draw("Enable shader replacement?")) {
+        recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening,
+            g_gamma_enabled->value(), g_gamma_amount);
     }
-    if (!g_mod_enabled->value()) {
+    if (!g_mod_enabled->value())
         return;
-    }
 
     int shader_created = 0;
 
@@ -228,38 +274,37 @@ void ShaderEdit::on_draw_ui() {
 
     ImGui::Checkbox("Use uniform contrast", &use_uniform_contrast);
 
+    bool need_recreate = false;
+
     if (use_uniform_contrast) {
         if (ImGui::SliderFloat("Adjust contrast", &average_contrast, 0.0f, 3.0f, "%.2f")) {
-            g_shader_contrast[0] = average_contrast;
-            g_shader_contrast[1] = average_contrast;
-            g_shader_contrast[2] = average_contrast;
-            shader_created =
-                recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
+            g_shader_contrast[0] = g_shader_contrast[1] = g_shader_contrast[2] = average_contrast;
+            need_recreate                                                      = true;
         }
     } else {
         if (ImGui::DragFloat3("Adjust contrast (RGB)", g_shader_contrast, 0.1f, 0.0f, 3.0f)) {
-            shader_created =
-                recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
+            need_recreate = true;
         }
     }
 
     if (ImGui::SliderFloat("Saturation", &g_shader_saturation, 0.0f, 3.0f, "%.2f")) {
-        shader_created =
-            recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
+        need_recreate = true;
     }
     if (ImGui::SliderFloat("Shadow Darkening", &g_shadow_darkening, 0.0f, 2.0f, "%.2f")) {
-        shader_created =
-            recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
+        need_recreate = true;
     }
-    // if (ImGui::SliderFloat("Midtone Darkening", &g_midtone_darkening, 0.0f, 2.0f, "%.2f")) {
-    //     shader_created =
-    //         recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
-    // }
 
-    // if (ImGui::SliderFloat("Highlight Darkening", &g_highlight_darkening, 0.0f, 2.0f, "%.2f")) {
-    //     shader_created =
-    //         recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening, g_highlight_darkening);
-    // }
+    // Gamma
+    if (g_gamma_enabled->draw("Gamma Correction"))
+        need_recreate = true;
+    if (g_gamma_enabled->value()) {
+        need_recreate |= ImGui::SliderFloat("Gamma", &g_gamma_amount, 0.10f, 3.00f, "%.2f");
+    }
+
+    if (need_recreate) {
+        shader_created = recreate_shader(g_shader_contrast, g_shader_saturation, g_shadow_darkening, g_midtone_darkening,
+            g_highlight_darkening, g_gamma_enabled->value(), g_gamma_amount);
+    }
 
     if (shader_created == 1) {
         ImGui::TextColored(ImColor(0.3f, 1.0f, 0.3f, 1.0f), "Shader created!");

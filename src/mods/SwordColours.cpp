@@ -1,42 +1,20 @@
 #include "SwordColours.hpp"
-#include "utility/Compressed.hpp"
-#include "intrin.h"
-#include "fw-imgui/Texture2DD3D11.hpp"
 #include "fw-imgui/SwordsTextureAtlas.cpp"
+#include "fw-imgui/Texture2DD3D11.hpp"
+#include "intrin.h"
+#include "utility/Compressed.hpp"
+#include <cmath> // fmodf, floorf
 
-bool SwordColours::mod_enabled = false;
-bool SwordColours::sword_glow_enabled = false;
-bool SwordColours::always_trail = false;
-bool SwordColours::heart_colours = false;
+// --- NEW: picker layout toggle (file-scope, no header change required)
+static bool g_use_color_wheel = true;
 
-bool SwordColours::always_sword_blur = false;
+// --- NEW: RGB cycle controls (file-scope, no header change required)
+static bool g_rgb_cycle        = false;
+static float g_rgb_cycle_speed = 1.00f; // cycles per second
 
-uintptr_t SwordColours::jmp_ret1 = NULL;
-uintptr_t SwordColours::gpBattle = NULL;
-
-uintptr_t SwordColours::jmp_ret2 = NULL;
-
-uintptr_t SwordColours::jmp_ret3 = NULL;
-int SwordColours::deathblowTimer = 0;
-int SwordColours::setDeathblowTimer = 0;
-float SwordColours::swordGlowAmount = 0.0f;
-
-uintptr_t SwordColours::jmp_ret4 = NULL;
-uintptr_t SwordColours::hrScreenStatus = NULL;
-bool SwordColours::force_girth = false;
-float SwordColours::force_girth_amount = 0.5f;
-float SwordColours::girth_normalizer = 0.5f;
-bool SwordColours::custom_flicker = false;
-float SwordColours::flicker_amount = 1.0f;
-bool SwordColours::disable_girth_randomization = false;
-bool SwordColours::heart_girth = false;
-float SwordColours::base_heart_girth = 0.5f;
-float SwordColours::heartbeat_girth_amount = 2.0f;
-float SwordColours::heart_normalizer = 1.0f;
-
-const char* SwordColours::defaultDescription = "Customize your beam katana colors. You can also set a unique color specifically for Death Blows.";
-const char* SwordColours::hoveredDescription = defaultDescription;
-
+// --------------------------------------------------------------------------------------
+// Make sure IntColor and the existing color arrays are declared BEFORE any new references
+// --------------------------------------------------------------------------------------
 struct IntColor {
     int r;
     int g;
@@ -48,8 +26,125 @@ static ImColor colours_picked_rgba[5];
 static IntColor colours_picked_rgbaInt[5];
 
 static IntColor heart_colour_rgbaInt{};
-static float lastHpScale = 1.0f;
+static float lastHpScale    = 1.0f;
 static IntColor frozenColor = {255, 255, 255, 255};
+
+// --- NEW: non-destructive backup of user picks while RGB cycle is active
+static bool g_rgb_saved_valid = false;
+static ImColor g_saved_colours_rgba[5];
+static IntColor g_saved_colours_rgbaInt[5];
+
+// --- NEW: HSV->RGB helper (file-scope)
+static inline void hsv_to_rgb(float h, float s, float v, float& r, float& g, float& b) {
+    // h,s,v in [0,1]
+    if (s <= 0.0f) {
+        r = v;
+        g = v;
+        b = v;
+        return;
+    }
+    h       = std::fmod(std::fmod(h, 1.0f) + 1.0f, 1.0f) * 6.0f;
+    int i   = (int)std::floor(h);
+    float f = h - (float)i;
+    float p = v * (1.0f - s);
+    float q = v * (1.0f - s * f);
+    float t = v * (1.0f - s * (1.0f - f));
+    switch (i % 6) {
+    case 0:
+        r = v;
+        g = t;
+        b = p;
+        break;
+    case 1:
+        r = q;
+        g = v;
+        b = p;
+        break;
+    case 2:
+        r = p;
+        g = v;
+        b = t;
+        break;
+    case 3:
+        r = p;
+        g = q;
+        b = v;
+        break;
+    case 4:
+        r = t;
+        g = p;
+        b = v;
+        break;
+    case 5:
+        r = v;
+        g = p;
+        b = q;
+        break;
+    }
+}
+
+// --- NEW: update preview + detour sources from one RGB (temporary use)
+static inline void set_all_colors_from_rgb_255(int R, int G, int B, int A = 255) {
+    for (int i = 0; i < 5; ++i) {
+        colours_picked_rgbaInt[i].r = R;
+        colours_picked_rgbaInt[i].g = G;
+        colours_picked_rgbaInt[i].b = B;
+        colours_picked_rgbaInt[i].a = A;
+        colours_picked_rgba[i]      = ImColor(R, G, B, A);
+    }
+}
+
+// --- NEW: helpers to back up and restore user selections
+static inline void backup_user_colors() {
+    for (int i = 0; i < 5; ++i) {
+        g_saved_colours_rgba[i]    = colours_picked_rgba[i];
+        g_saved_colours_rgbaInt[i] = colours_picked_rgbaInt[i];
+    }
+    g_rgb_saved_valid = true;
+}
+static inline void restore_user_colors() {
+    if (!g_rgb_saved_valid)
+        return;
+    for (int i = 0; i < 5; ++i) {
+        colours_picked_rgba[i]    = g_saved_colours_rgba[i];
+        colours_picked_rgbaInt[i] = g_saved_colours_rgbaInt[i];
+    }
+    g_rgb_saved_valid = false;
+}
+
+bool SwordColours::mod_enabled        = false;
+bool SwordColours::sword_glow_enabled = false;
+bool SwordColours::always_trail       = false;
+bool SwordColours::heart_colours      = false;
+
+bool SwordColours::always_sword_blur = false;
+
+uintptr_t SwordColours::jmp_ret1 = NULL;
+uintptr_t SwordColours::gpBattle = NULL;
+
+uintptr_t SwordColours::jmp_ret2 = NULL;
+
+uintptr_t SwordColours::jmp_ret3    = NULL;
+int SwordColours::deathblowTimer    = 0;
+int SwordColours::setDeathblowTimer = 0;
+float SwordColours::swordGlowAmount = 0.0f;
+
+uintptr_t SwordColours::jmp_ret4               = NULL;
+uintptr_t SwordColours::hrScreenStatus         = NULL;
+bool SwordColours::force_girth                 = false;
+float SwordColours::force_girth_amount         = 0.5f;
+float SwordColours::girth_normalizer           = 0.5f;
+bool SwordColours::custom_flicker              = false;
+float SwordColours::flicker_amount             = 1.0f;
+bool SwordColours::disable_girth_randomization = false;
+bool SwordColours::heart_girth                 = false;
+float SwordColours::base_heart_girth           = 0.5f;
+float SwordColours::heartbeat_girth_amount     = 2.0f;
+float SwordColours::heart_normalizer           = 1.0f;
+
+const char* SwordColours::defaultDescription =
+    "Customize your beam katana colors. You can also set a unique color specifically for Death Blows.";
+const char* SwordColours::hoveredDescription = defaultDescription;
 
 // directx stuff
 static std::unique_ptr<Texture2DD3D11> g_sword_texture_atlas{};
@@ -57,87 +152,49 @@ static std::unique_ptr<Texture2DD3D11> g_sword_texture_atlas{};
 #pragma region TextureAtlasDefinitions
 
 struct Frame {
-    ImVec2 pos,size;
+    ImVec2 pos, size;
     ImVec2 uv0, uv1;
 };
 
 struct TextureAtlas {
     static constexpr auto Empty() {
-        return Frame{
-            ImVec2 { 555.0f, 650.0f },  
-            ImVec2 { 2.0f, 2.0f },
-            ImVec2 { 555.0f / 1024.0f, 650.0f / 1024.0f },
-            ImVec2 { ( 555.0f + 2.0f ) / 1024.0f, ( 650.0f + 2.0f ) / 1024.0f }
-        }; // Empty
+        return Frame{ImVec2{555.0f, 650.0f}, ImVec2{2.0f, 2.0f}, ImVec2{555.0f / 1024.0f, 650.0f / 1024.0f},
+            ImVec2{(555.0f + 2.0f) / 1024.0f, (650.0f + 2.0f) / 1024.0f}}; // Empty
     }
     static constexpr auto Berry_Blade() {
-        return Frame {
-            ImVec2 { 5.0f, 5.0f },  
-            ImVec2 { 200.0f, 264.0f },
-            ImVec2 { 5.0f / 1024.0f, 5.0f / 1024.0f },
-            ImVec2 { ( 5.0f + 200.0f ) / 1024.0f, ( 5.0f + 264.0f ) / 1024.0f }
-        }; //Berry_Blade
+        return Frame{ImVec2{5.0f, 5.0f}, ImVec2{200.0f, 264.0f}, ImVec2{5.0f / 1024.0f, 5.0f / 1024.0f},
+            ImVec2{(5.0f + 200.0f) / 1024.0f, (5.0f + 264.0f) / 1024.0f}}; // Berry_Blade
     };
     static constexpr auto Berry_Hilt() {
-        return Frame {
-            ImVec2 { 215.0f, 5.0f },  
-            ImVec2 { 200.0f, 264.0f },
-            ImVec2 { 215.0f / 1024.0f, 5.0f / 1024.0f },
-            ImVec2 { ( 215.0f + 200.0f ) / 1024.0f, ( 5.0f + 264.0f ) / 1024.0f }
-        }; //Berry_Hilt
+        return Frame{ImVec2{215.0f, 5.0f}, ImVec2{200.0f, 264.0f}, ImVec2{215.0f / 1024.0f, 5.0f / 1024.0f},
+            ImVec2{(215.0f + 200.0f) / 1024.0f, (5.0f + 264.0f) / 1024.0f}}; // Berry_Hilt
     };
     static constexpr auto Tsubaki_1_Blade() {
-        return Frame {
-            ImVec2 { 5.0f, 279.0f },  
-            ImVec2 { 200.0f, 264.0f },
-            ImVec2 { 5.0f / 1024.0f, 279.0f / 1024.0f },
-            ImVec2 { ( 5.0f + 200.0f ) / 1024.0f, ( 279.0f + 264.0f ) / 1024.0f }
-        }; //Tsubaki_1_Blade
+        return Frame{ImVec2{5.0f, 279.0f}, ImVec2{200.0f, 264.0f}, ImVec2{5.0f / 1024.0f, 279.0f / 1024.0f},
+            ImVec2{(5.0f + 200.0f) / 1024.0f, (279.0f + 264.0f) / 1024.0f}}; // Tsubaki_1_Blade
     };
     static constexpr auto Tsubaki_1_Hilt() {
-        return Frame {
-            ImVec2 { 215.0f, 279.0f },  
-            ImVec2 { 200.0f, 264.0f },
-            ImVec2 { 215.0f / 1024.0f, 279.0f / 1024.0f },
-            ImVec2 { ( 215.0f + 200.0f ) / 1024.0f, ( 279.0f + 264.0f ) / 1024.0f }
-        }; //Tsubaki_1_Hilt
+        return Frame{ImVec2{215.0f, 279.0f}, ImVec2{200.0f, 264.0f}, ImVec2{215.0f / 1024.0f, 279.0f / 1024.0f},
+            ImVec2{(215.0f + 200.0f) / 1024.0f, (279.0f + 264.0f) / 1024.0f}}; // Tsubaki_1_Hilt
     };
     static constexpr auto Tsubaki_2_Blade() {
-        return Frame {
-            ImVec2 { 425.0f, 5.0f },  
-            ImVec2 { 200.0f, 264.0f },
-            ImVec2 { 425.0f / 1024.0f, 5.0f / 1024.0f },
-            ImVec2 { ( 425.0f + 200.0f ) / 1024.0f, ( 5.0f + 264.0f ) / 1024.0f }
-        }; //Tsubaki_2_Blade
+        return Frame{ImVec2{425.0f, 5.0f}, ImVec2{200.0f, 264.0f}, ImVec2{425.0f / 1024.0f, 5.0f / 1024.0f},
+            ImVec2{(425.0f + 200.0f) / 1024.0f, (5.0f + 264.0f) / 1024.0f}}; // Tsubaki_2_Blade
     };
     static constexpr auto Tsubaki_2_Hilt() {
-        return Frame {
-            ImVec2 { 425.0f, 279.0f },  
-            ImVec2 { 200.0f, 264.0f },
-            ImVec2 { 425.0f / 1024.0f, 279.0f / 1024.0f },
-            ImVec2 { ( 425.0f + 200.0f ) / 1024.0f, ( 279.0f + 264.0f ) / 1024.0f }
-        }; //Tsubaki_2_Hilt
+        return Frame{ImVec2{425.0f, 279.0f}, ImVec2{200.0f, 264.0f}, ImVec2{425.0f / 1024.0f, 279.0f / 1024.0f},
+            ImVec2{(425.0f + 200.0f) / 1024.0f, (279.0f + 264.0f) / 1024.0f}}; // Tsubaki_2_Hilt
     };
     static constexpr auto Tsubaki_3_Blade() {
-        return Frame {
-            ImVec2 { 5.0f, 553.0f },  
-            ImVec2 { 200.0f, 264.0f },
-            ImVec2 { 5.0f / 1024.0f, 553.0f / 1024.0f },
-            ImVec2 { ( 5.0f + 200.0f ) / 1024.0f, ( 553.0f + 264.0f ) / 1024.0f }
-        }; //Tsubaki_3_Blade
+        return Frame{ImVec2{5.0f, 553.0f}, ImVec2{200.0f, 264.0f}, ImVec2{5.0f / 1024.0f, 553.0f / 1024.0f},
+            ImVec2{(5.0f + 200.0f) / 1024.0f, (553.0f + 264.0f) / 1024.0f}}; // Tsubaki_3_Blade
     };
     static constexpr auto Tsubaki_3_Hilt() {
-        return Frame {
-            ImVec2 { 215.0f, 553.0f },  
-            ImVec2 { 200.0f, 264.0f },
-            ImVec2 { 215.0f / 1024.0f, 553.0f / 1024.0f },
-            ImVec2 { ( 215.0f + 200.0f ) / 1024.0f, ( 553.0f + 264.0f ) / 1024.0f }
-        }; //Tsubaki_3_Hilt
+        return Frame{ImVec2{215.0f, 553.0f}, ImVec2{200.0f, 264.0f}, ImVec2{215.0f / 1024.0f, 553.0f / 1024.0f},
+            ImVec2{(215.0f + 200.0f) / 1024.0f, (553.0f + 264.0f) / 1024.0f}}; // Tsubaki_3_Hilt
     };
 
-    static constexpr auto meta_size() {
-        return ImVec2{ 1024.0f, 1024.0f  };
-    };
+    static constexpr auto meta_size() { return ImVec2{1024.0f, 1024.0f}; };
 };
 
 static constexpr TextureAtlas g_atlas{};
@@ -145,21 +202,14 @@ static constexpr TextureAtlas g_atlas{};
 
 /*
 static constexpr float frameTime = 0.0125;
-
-static constexpr float lowJustCharge = 1.250f;
-static constexpr float lowJustChargeEnd = lowJustCharge + (frameTime * 2.0f);
-static constexpr float lowHalfCharge = lowJustChargeEnd + (frameTime * 2.0f);
-
-static constexpr float highJustCharge = 0.875f;
-static constexpr float highJustChargeEnd = highJustCharge + (frameTime);
-static constexpr float highHalfCharge = highJustChargeEnd + (frameTime);
+// ...
 */
 // clang-format off
 naked void detour1() { // swords, player in ebx
     __asm {
             push eax
             mov al, [SwordColours::heart_colours]
-            or al, [SwordColours::mod_enabled]
+            or  al, [SwordColours::mod_enabled]
             cmp eax, 0
             pop eax
             je originalcode
@@ -180,67 +230,9 @@ naked void detour1() { // swords, player in ebx
             jbe deathblowColour
             jmp getSwordID
         // CheckCharges:
-            // cmp dword ptr [ebx+0x18C], ePcMtBtAtkChgUp
-            // je high_charge
         /*
-        // low_charge:
-            movss xmm4, [ebx+0x28F0+0x4C+0x4] // player->mSnd.pitchCharge.mCurValue
-            comiss xmm4, [lowJustCharge]
-            jb getSwordID
-            comiss xmm4, [lowJustChargeEnd]
-            jae check_half_low_charge
-            push eax // 4
-            mov eax,[colours_picked_rgbaInt+0x50]
-            mov [esp+0x4+0x4],eax
-            mov eax,[colours_picked_rgbaInt+0x50+0x4]
-            mov [esp+0x4+0x8],eax
-            mov eax,[colours_picked_rgbaInt+0x50+0x8]
-            mov [esp+0x4+0xC],eax
-            pop eax
-            jmp originalcode
-            
-        check_half_low_charge:
-            comiss xmm4, [lowHalfCharge]
-            ja getSwordID // default, divide battery by 0.25
-            push eax // 4
-            mov eax,[colours_picked_rgbaInt+0x60]
-            mov [esp+0x4+0x4],eax
-            mov eax,[colours_picked_rgbaInt+0x60+0x4]
-            mov [esp+0x4+0x8],eax
-            mov eax,[colours_picked_rgbaInt+0x60+0x8]
-            mov [esp+0x4+0xC],eax
-            pop eax
-            jmp originalcode
-
-        high_charge:
-            movss xmm4, [ebx+0x28F0+0x4C+0x4] // player->mSnd.pitchCharge.mCurValue
-            comiss xmm4, [highJustCharge]
-            jb getSwordID
-            comiss xmm4, [highJustChargeEnd]
-            jae check_half_high_charge
-            push eax // 4
-            mov eax,[colours_picked_rgbaInt+0x50]
-            mov [esp+0x4+0x4],eax
-            mov eax,[colours_picked_rgbaInt+0x50+0x4]
-            mov [esp+0x4+0x8],eax
-            mov eax,[colours_picked_rgbaInt+0x50+0x8]
-            mov [esp+0x4+0xC],eax
-            pop eax
-            jmp originalcode
-            
-        check_half_high_charge:
-            comiss xmm4, [highHalfCharge]
-            ja getSwordID // default, divide battery by 0.25
-            push eax // 4
-            mov eax,[colours_picked_rgbaInt+0x60]
-            mov [esp+0x4+0x4],eax
-            mov eax,[colours_picked_rgbaInt+0x60+0x4]
-            mov [esp+0x4+0x8],eax
-            mov eax,[colours_picked_rgbaInt+0x60+0x8]
-            mov [esp+0x4+0xC],eax
-            pop eax
-            jmp originalcode
-            */
+            ...
+        */
 
         heartColours:
             push eax // 4
@@ -363,7 +355,7 @@ naked void detour2() { // trails, player in ebx
     __asm {
             push eax
             mov al, [SwordColours::sword_glow_enabled]
-            or al, [SwordColours::mod_enabled]
+            or  al, [SwordColours::mod_enabled]
             cmp eax, 0
             pop eax
             je originalcode
@@ -522,11 +514,6 @@ naked void detour3() { // set deathblow timer, player in ebx
             je originalcode
             cmp dword ptr [ebx+0x18c], ePcMtBtChgWlkR // 40 Walk Charge Right
             je originalcode
-            // enum pcMotion {
-            // ePcMtBtChgStrt = 167,
-            // ePcMtBtChgLp = 168,
-            // ePcMtBtAtkChg = 169,
-            // ePcMtBtAtkChgUp = 170,
 
         // set deathblow timer
             push eax
@@ -583,7 +570,7 @@ naked void detour4() { // girth randomization
             jmp dword ptr [SwordColours::jmp_ret4]
     }
 }
- // clang-format on
+// clang-format on
 
 bool load_texture() {
 
@@ -602,14 +589,14 @@ bool load_texture() {
 
 struct SwordDef {
     const char* name;
-    Frame blade,hilt;
+    Frame blade, hilt;
 };
 
 std::array swords = {
-    SwordDef { "Blood Berry", g_atlas.Berry_Blade(),     g_atlas.Berry_Hilt()     },
-    SwordDef { "Tsubaki Mk3", g_atlas.Tsubaki_3_Blade(), g_atlas.Tsubaki_3_Hilt() },
-    SwordDef { "Tsubaki Mk1", g_atlas.Tsubaki_1_Blade(), g_atlas.Tsubaki_1_Hilt() },
-    SwordDef { "Tsubaki Mk2", g_atlas.Tsubaki_2_Blade(), g_atlas.Tsubaki_2_Hilt() },
+    SwordDef{"Blood Berry", g_atlas.Berry_Blade(), g_atlas.Berry_Hilt()},
+    SwordDef{"Tsubaki Mk3", g_atlas.Tsubaki_3_Blade(), g_atlas.Tsubaki_3_Hilt()},
+    SwordDef{"Tsubaki Mk1", g_atlas.Tsubaki_1_Blade(), g_atlas.Tsubaki_1_Hilt()},
+    SwordDef{"Tsubaki Mk2", g_atlas.Tsubaki_2_Blade(), g_atlas.Tsubaki_2_Hilt()},
 };
 
 #if 0
@@ -626,14 +613,15 @@ struct RgbaDefaults {
 };
 
 static constexpr std::array cfg_defaults = {
-    RgbaDefaults { "colors_picked[0]", &colours_picked_rgbaInt[0], {0x64, 0x64, 0xFF, 0xFF}}, // BB
-    RgbaDefaults { "colors_picked[1]", &colours_picked_rgbaInt[1], {0x64, 0xFF, 0x74, 0xFF}}, // MK3
-    RgbaDefaults { "colors_picked[2]", &colours_picked_rgbaInt[2], {0x64, 0x64, 0xFF, 0xFF}}, // MK1
-    RgbaDefaults { "colors_picked[3]", &colours_picked_rgbaInt[3], {0x64, 0x64, 0xFF, 0xFF}}, // MK2
-    RgbaDefaults { "colors_picked[4]", &colours_picked_rgbaInt[4], {0xFF, 0x00, 0x00, 0xFF}}, // DB
+    RgbaDefaults{"colors_picked[0]", &colours_picked_rgbaInt[0], {0x64, 0x64, 0xFF, 0xFF}}, // BB
+    RgbaDefaults{"colors_picked[1]", &colours_picked_rgbaInt[1], {0x64, 0xFF, 0x74, 0xFF}}, // MK3
+    RgbaDefaults{"colors_picked[2]", &colours_picked_rgbaInt[2], {0x64, 0x64, 0xFF, 0xFF}}, // MK1
+    RgbaDefaults{"colors_picked[3]", &colours_picked_rgbaInt[3], {0x64, 0x64, 0xFF, 0xFF}}, // MK2
+    RgbaDefaults{"colors_picked[4]", &colours_picked_rgbaInt[4], {0xFF, 0x00, 0x00, 0xFF}}, // DB
 };
 
-static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImColor& rgba, IntColor& rgbaInt, const RgbaDefaults& color_default) {
+static void draw_sword_behavior(
+    const char* name, Frame blade, Frame hilt, ImColor& rgba, IntColor& rgbaInt, const RgbaDefaults& color_default) {
 
 #if 0   
     ImVec2 spos = ImGui::GetCursorScreenPos();
@@ -644,88 +632,81 @@ static void draw_sword_behavior(const char* name, Frame blade, Frame hilt, ImCol
     const float inner_width = 150.0f;
     char buffer[MAX_PATH];
     sprintf(buffer, "%s_invisible_table", name);
-    ImGui::BeginTable(buffer, 2, /*ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Hideable | ImGuiTableFlags_NoBordersInBody*/0, ImVec2(-1.0f, 0.0f));
+    ImGui::BeginTable(buffer, 2, 0, ImVec2(-1.0f, 0.0f));
 
     // Add first row
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(0);
 
     ImVec2 pos = ImGui::GetCursorPos();
-    auto& io = ImGui::GetIO();
+    auto& io   = ImGui::GetIO();
     // similar size for all textures so grab whatever
-    ImGui::ImageWithBg((ImTextureID)g_sword_texture_atlas->GetTexture(), 
-        (ImVec2(blade.size.x * (io.DisplaySize.y / 1080.0f), blade.size.y * (io.DisplaySize.y / 1080.0f))), blade.uv0, blade.uv1, ImColor(0.0f, 0.0f, 0.0f, 0.0f), rgba);
+    ImGui::ImageWithBg((ImTextureID)g_sword_texture_atlas->GetTexture(),
+        (ImVec2(blade.size.x * (io.DisplaySize.y / 1080.0f), blade.size.y * (io.DisplaySize.y / 1080.0f))), blade.uv0, blade.uv1,
+        ImColor(0.0f, 0.0f, 0.0f, 0.0f), rgba);
 
     ImGui::SetCursorPos(pos);
 
-    ImGui::ImageWithBg((ImTextureID)g_sword_texture_atlas->GetTexture(), 
-        (ImVec2(hilt.size.x * (io.DisplaySize.y / 1080.0f), hilt.size.y * (io.DisplaySize.y / 1080.0f))), hilt.uv0, hilt.uv1, ImColor(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::ImageWithBg((ImTextureID)g_sword_texture_atlas->GetTexture(),
+        (ImVec2(hilt.size.x * (io.DisplaySize.y / 1080.0f), hilt.size.y * (io.DisplaySize.y / 1080.0f))), hilt.uv0, hilt.uv1,
+        ImColor(0.0f, 0.0f, 0.0f, 0.0f));
 
     // Add second row
     ImGui::TableSetColumnIndex(1);
 
-    if (ImGui::ColorPicker4(name, (float*)&rgba.Value, 
-        ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview)) {
+    // --- CHANGED: picker layout selection ---
+    ImGuiColorEditFlags pickerFlags = ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview |
+                                      (g_use_color_wheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar) |
+                                      ImGuiColorEditFlags_AlphaBar;
+
+    if (ImGui::ColorPicker4(name, (float*)&rgba.Value, pickerFlags)) {
         rgbaInt = IntColor(
-            (int)(rgba.Value.x * 255.0f),
-            (int)(rgba.Value.y * 255.0f),
-            (int)(rgba.Value.z * 255.0f),
-            (int)(rgba.Value.w * 255.0f));
+            (int)(rgba.Value.x * 255.0f), (int)(rgba.Value.y * 255.0f), (int)(rgba.Value.z * 255.0f), (int)(rgba.Value.w * 255.0f));
     }
 
     if (ImGui::Button(("Reset ##" + std::string(name)).c_str(), ImVec2(ImGui::CalcItemWidth(), NULL))) {
-        rgba.Value = ImVec4(
-            color_default.default_value.r / 255.0f,
-            color_default.default_value.g / 255.0f,
-            color_default.default_value.b / 255.0f,
-            color_default.default_value.a / 255.0f
-        );
+        rgba.Value           = ImVec4(color_default.default_value.r / 255.0f, color_default.default_value.g / 255.0f,
+                      color_default.default_value.b / 255.0f, color_default.default_value.a / 255.0f);
         *color_default.color = color_default.default_value;
     }
 
     ImGui::TableNextRow();
 
     ImGui::EndTable();
-
-#if 0
-    ImColor col{};
-    if(ImGui::IsItemHovered()) {
-        col = ImColor::HSV(sin_pulse(0.2), 1.0f, 1.0f, 1.0f);
-    }
-    else {
-        col = ImColor::ImColor(0xffbfe6ff);
-    }
-
-    pos = ImGui::GetCursorPos();
-    auto dl = ImGui::GetForegroundDrawList();
-    ImVec2 p0 = ImGui::GetItemRectMin();
-    ImVec2 p1 = ImGui::GetItemRectMax();
-
-    ImGui::SetCursorScreenPos(ImVec2((p0.x + p1.x) / 2.0f - (text_size.x / 2.0f), p0.y - ImGui::GetTextLineHeight()));
-    ImGui::TextColored(col, name);
-    ImGui::SetCursorPos(pos);
-    ImGui::Dummy(text_size);
-#endif
-
-#if 0
-    dl->AddText(
-        ImVec2((p0.x + p1.x) / 2.0f - (text_size.x / 2.0f), p0.y - ImGui::GetTextLineHeight()),
-        0xffbfe6ff, name);
-
-    dl->AddRectFilled(
-        ImVec2(p0.x + (textsize.x * 2.0f), p1.y - textsize.y),
-        ImVec2(p1.x - (textsize.x * 2.0f), p0.y),
-        IM_COL32(48, 48, 48, 222));
-#endif
-
 }
 
 void SwordColours::on_frame() {
+    // --- NEW: RGB cycle driver (non-destructive, like Heartbeat)
+    if (g_rgb_cycle) {
+        if (!g_rgb_saved_valid) {
+            backup_user_colors();
+        }
+
+        const float t   = (float)ImGui::GetTime();
+        const float hue = std::fmod(t * g_rgb_cycle_speed, 1.0f); // cycles per second
+        float rf, gf, bf;
+        hsv_to_rgb(hue, 1.0f, 1.0f, rf, gf, bf);
+        const int R = (int)(rf * 255.0f);
+        const int G = (int)(gf * 255.0f);
+        const int B = (int)(bf * 255.0f);
+
+        // Temporarily feed the detours the live color
+        set_all_colors_from_rgb_255(R, G, B, 255);
+
+        // Ensure detours use custom-colour path (heartbeat is exclusive)
+        mod_enabled   = true;
+        heart_colours = false;
+    } else {
+        if (g_rgb_saved_valid) {
+            restore_user_colors();
+        }
+    }
+
     if (sword_glow_enabled) {
         mHRPc* player = nmh_sdk::get_mHRPc();
         if (player) {
             if (player->mCharaStatus.visibleWepEffect) {
-                int currentSword = player->mPcStatus.equip[0].id;
+                int currentSword    = player->mPcStatus.equip[0].id;
                 uint32_t currentCol = nmh_sdk::GetLaserColor();
                 nmh_sdk::SetLightReflect(player, swordGlowAmount, &player->mPcEffect.posHitSlash, currentCol, 0);
             }
@@ -733,49 +714,53 @@ void SwordColours::on_frame() {
     }
     if (heart_colours) {
         mHRPc* player = nmh_sdk::get_mHRPc();
-        if (!player) { return; }
+        if (!player) {
+            return;
+        }
         mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle();
-        if (!mHRBattle) { return; }
+        if (!mHRBattle) {
+            return;
+        }
         HrScreenStatus* screenStatus = mHRBattle->mBtEffect.pScreenStatus;
         if (screenStatus) {
             static float colorPhase = 0.0f;
             if (screenStatus->m_HpScale > 1.0f) {
                 float beatIntensity = (screenStatus->m_HpScale - 1.0f) / 0.2f;
-                beatIntensity = std::min(beatIntensity, 1.0f);
-        
+                beatIntensity       = std::min(beatIntensity, 1.0f);
+
                 if (lastHpScale <= 1.0f && screenStatus->m_HpScale > 1.0f) {
                     colorPhase += screenStatus->m_HpScale;
                 }
-        
+
                 float r = sin(colorPhase * 1.3f) * 0.3f + 0.7f;
                 float g = sin(colorPhase * 0.8f + 2.0f) * 0.3f + 0.5f;
                 float b = sin(colorPhase * 1.1f + 4.0f) * 0.3f + 0.6f;
-        
+
                 r += beatIntensity * 0.2f;
                 g += beatIntensity * 0.1f;
                 b += beatIntensity * 0.1f;
-        
+
                 r = std::min(r, 1.0f);
                 g = std::min(g, 1.0f);
                 b = std::min(b, 1.0f);
-        
+
                 heart_colour_rgbaInt.r = (int)(r * 255.0f);
                 heart_colour_rgbaInt.g = (int)(g * 255.0f);
                 heart_colour_rgbaInt.b = (int)(b * 255.0f);
                 heart_colour_rgbaInt.a = 255;
-        
+
                 frozenColor.r = heart_colour_rgbaInt.r;
                 frozenColor.g = heart_colour_rgbaInt.g;
                 frozenColor.b = heart_colour_rgbaInt.b;
                 frozenColor.a = heart_colour_rgbaInt.a;
-        
+
             } else if (screenStatus->m_HpScale == 1.0f) {
                 heart_colour_rgbaInt.r = frozenColor.r;
                 heart_colour_rgbaInt.g = frozenColor.g;
                 heart_colour_rgbaInt.b = frozenColor.b;
                 heart_colour_rgbaInt.a = frozenColor.a;
             }
-    
+
             lastHpScale = screenStatus->m_HpScale;
         }
     }
@@ -783,9 +768,8 @@ void SwordColours::on_frame() {
 
 void SwordColours::toggleForceTrail(bool enable) {
     if (enable) {
-        install_patch_offset(0x3BF53A, patch_force_trail, "\x90\x90\x90", 3); // 
-    }
-    else {
+        install_patch_offset(0x3BF53A, patch_force_trail, "\x90\x90\x90", 3); //
+    } else {
         install_patch_offset(0x3BF53A, patch_force_trail, "\x8A\x55\x08", 3); // mov dl,[ebp+08]
     }
 }
@@ -793,8 +777,7 @@ void SwordColours::toggleForceTrail(bool enable) {
 void SwordColours::toggleForceSwordBlur(bool enable) {
     if (enable) {
         install_patch_offset(0x3C5C9A, patch_force_sword_blur, "\x6A\x01\x90\x90", 4); // push 01 nop 2
-    }
-    else {
+    } else {
         install_patch_offset(0x3C5C9A, patch_force_sword_blur, "\xFF\x74\x24\x20", 4); // push [esp+20]
     }
 }
@@ -804,7 +787,8 @@ void SwordColours::render_description() const {
 }
 
 void SwordColours::on_draw_ui() {
-    if (!ImGui::IsAnyItemHovered()) SwordColours::hoveredDescription = defaultDescription;
+    if (!ImGui::IsAnyItemHovered())
+        SwordColours::hoveredDescription = defaultDescription;
     float fontSize = ImGui::GetFontSize();
 
     ImGui::PushItemWidth(fontSize * 5.0f);
@@ -812,11 +796,14 @@ void SwordColours::on_draw_ui() {
     ImGui::SeparatorText("Misc");
 
     ImGui::Checkbox("Glow", &sword_glow_enabled);
-    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Restores the beam reflections seen in early gameplay footage. This is the same glow that would later be used in NMH2 and Heroes Paradise";
+    if (ImGui::IsItemHovered())
+        SwordColours::hoveredDescription = "Restores the beam reflections seen in early gameplay footage. This is the same glow that would "
+                                           "later be used in NMH2 and Heroes Paradise";
     if (sword_glow_enabled) {
         ImGui::Indent();
         ImGui::SliderFloat("Glow Intensity", &swordGlowAmount, 1.0f, 5.0f, "%.0f");
-            if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set how bright the glow from your sword is.";
+        if (ImGui::IsItemHovered())
+            SwordColours::hoveredDescription = "Set how bright the glow from your sword is.";
 
         ImGui::Unindent();
     }
@@ -824,25 +811,29 @@ void SwordColours::on_draw_ui() {
     if (ImGui::Checkbox("Always Display Laser Trails", &always_trail)) {
         toggleForceTrail(always_trail);
     }
-    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Force the Beam Katana trails to always display.";
+    if (ImGui::IsItemHovered())
+        SwordColours::hoveredDescription = "Force the Beam Katana trails to always display.";
 
     if (ImGui::Checkbox("Always Display Laser Speed Blur", &always_sword_blur)) {
         toggleForceSwordBlur(always_sword_blur);
     }
-    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Force the Beam Katana speed blur to always display.";
+    if (ImGui::IsItemHovered())
+        SwordColours::hoveredDescription = "Force the Beam Katana speed blur to always display.";
 
     ImGui::SeparatorText("Width");
-    
+
     if (ImGui::Checkbox("Custom Flicker", &custom_flicker)) {
         force_girth = false;
         heart_girth = false;
     }
-    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set how much the beam width flickers.";
+    if (ImGui::IsItemHovered())
+        SwordColours::hoveredDescription = "Set how much the beam width flickers.";
 
     if (custom_flicker) {
         ImGui::Indent();
         ImGui::SliderFloat("Flicker Amount", &flicker_amount, 0.0f, 5.0f, "%.1f");
-        if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set flicker amount.";
+        if (ImGui::IsItemHovered())
+            SwordColours::hoveredDescription = "Set flicker amount.";
         ImGui::SameLine();
         if (ImGui::Button("Default##Beam Flicker Default")) {
             flicker_amount = 1.0f;
@@ -851,15 +842,17 @@ void SwordColours::on_draw_ui() {
     }
 
     if (ImGui::Checkbox("Custom Beam Width", &force_girth)) {
-        heart_girth = false;
+        heart_girth    = false;
         custom_flicker = false;
     }
-    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set the width of sword lasers.";
+    if (ImGui::IsItemHovered())
+        SwordColours::hoveredDescription = "Set the width of sword lasers.";
 
     if (force_girth) {
         ImGui::Indent();
         ImGui::SliderFloat("Beam Width", &force_girth_amount, 0.0f, 5.0f, "%.1f");
-        if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set beam width.";
+        if (ImGui::IsItemHovered())
+            SwordColours::hoveredDescription = "Set beam width.";
         ImGui::SameLine();
         if (ImGui::Button("Default##Beam Width Default")) {
             force_girth_amount = 0.5f;
@@ -868,21 +861,24 @@ void SwordColours::on_draw_ui() {
     }
 
     if (ImGui::Checkbox("Heartbeat Beam Width", &heart_girth)) {
-        force_girth = false;
+        force_girth    = false;
         custom_flicker = false;
     }
-    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Use the heart beat to set the girth of the sword.";
+    if (ImGui::IsItemHovered())
+        SwordColours::hoveredDescription = "Use the heart beat to set the girth of the sword.";
 
     if (heart_girth) {
         ImGui::Indent();
         ImGui::SliderFloat("Base Width", &base_heart_girth, 0.0f, 5.0f, "%.1f");
-        if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Base width before the heart beats.";
+        if (ImGui::IsItemHovered())
+            SwordColours::hoveredDescription = "Base width before the heart beats.";
         ImGui::SameLine();
         if (ImGui::Button("Default##Heart Base Default")) {
             base_heart_girth = 0.5f;
         }
         ImGui::SliderFloat("Beat Width", &heartbeat_girth_amount, -5.0f, 5.0f, "%.1f");
-        if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Set how much width the heartbeat adds.";
+        if (ImGui::IsItemHovered())
+            SwordColours::hoveredDescription = "Set how much width the heartbeat adds.";
         ImGui::SameLine();
         if (ImGui::Button("Default##Heart Beat Default")) {
             heartbeat_girth_amount = 2.0f;
@@ -894,39 +890,79 @@ void SwordColours::on_draw_ui() {
 
     ImGui::SeparatorText("Color");
 
+    // --- NEW: layout toggle ---
+    ImGui::Checkbox("Use Wheel Picker", &g_use_color_wheel);
+    if (ImGui::IsItemHovered())
+        SwordColours::hoveredDescription = "Switch between the Hue Wheel picker and the classic Hue Bar picker.";
+
     if (ImGui::Checkbox("Heartbeat Color Sync", &heart_colours)) {
-        mod_enabled =false;
+        mod_enabled = false;
+        g_rgb_cycle = false; // exclusive
+        if (g_rgb_saved_valid) {
+            restore_user_colors(); // safety: if switching while cycling
+        }
     }
-    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Randomly cycles through beam colors and pulses with each color switch. This is synced to the HP's heart beat.";
+    if (ImGui::IsItemHovered())
+        SwordColours::hoveredDescription =
+            "Randomly cycles through beam colors and pulses with each color switch. This is synced to the HP's heart beat.";
 
     if (ImGui::Checkbox("Custom Colours", &mod_enabled)) {
         heart_colours = false;
+        // RGB Cycle can still be toggled independently; it will force detours to use custom path while active
     }
-    if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = defaultDescription;
+    if (ImGui::IsItemHovered())
+        SwordColours::hoveredDescription = defaultDescription;
+
+    // --- NEW: RGB Cycle UI (non-destructive)
+    if (ImGui::Checkbox("RGB Cycle (Keyboard Mode)", &g_rgb_cycle)) {
+        if (g_rgb_cycle) {
+            heart_colours = false;
+            if (!g_rgb_saved_valid)
+                backup_user_colors();
+            mod_enabled = true; // ensure detours use picked array path
+        } else {
+            restore_user_colors();
+        }
+    }
+    if (ImGui::IsItemHovered())
+        SwordColours::hoveredDescription = "Smooth hue rotation. Your saved per-sword picks are preserved and restored when turned off.";
+
+    if (g_rgb_cycle) {
+        ImGui::Indent();
+        ImGui::SliderFloat("Cycle Speed", &g_rgb_cycle_speed, 0.10f, 5.00f, "%.2f x");
+        if (ImGui::IsItemHovered())
+            SwordColours::hoveredDescription = "How many full hue cycles per second.";
+        ImGui::Unindent();
+    }
 
     if (mod_enabled) {
         ImGui::Indent();
 
-        for (size_t i = 0; i < swords.size(); i++) {
-            draw_sword_behavior(swords[i].name, swords[i].blade, swords[i].hilt,
-                colours_picked_rgba[i], colours_picked_rgbaInt[i], cfg_defaults[i]);
+        if (!g_rgb_cycle) {
+            for (size_t i = 0; i < swords.size(); i++) {
+                draw_sword_behavior(
+                    swords[i].name, swords[i].blade, swords[i].hilt, colours_picked_rgba[i], colours_picked_rgbaInt[i], cfg_defaults[i]);
+            }
+
+            static int i = 0;
+            int frame    = ImGui::GetFrameCount();
+            if (frame % 40 == 0) {
+                i = (i + 1) % 4;
+            }
+
+            draw_sword_behavior(
+                "Deathblow", swords[i].blade, swords[i].hilt, colours_picked_rgba[4], colours_picked_rgbaInt[4], cfg_defaults[4]);
+        } else {
+            ImGui::TextDisabled("Per-sword color pickers are hidden while RGB Cycle is active (your picks are preserved).");
         }
 
-        static int i = 0;
-        int frame = ImGui::GetFrameCount();
-        if (frame % 40 == 0) {
-            i = (i + 1) % 4;
-        }
-
-        draw_sword_behavior("Deathblow", swords[i].blade, swords[i].hilt, colours_picked_rgba[4], colours_picked_rgbaInt[4], cfg_defaults[4]);
         ImGui::Text("Deathblow Timer");
         ImGui::InputInt("##DeathblowTimerInputInt", &setDeathblowTimer);
-        if (ImGui::IsItemHovered()) SwordColours::hoveredDescription = "Turn the Beam Katana the color of your choice during a Death Blow."
-            "A feature inspired by NMH3, this timer controls how long the colour will stay applied when initiating a Deathblow";
+        if (ImGui::IsItemHovered())
+            SwordColours::hoveredDescription =
+                "Turn the Beam Katana the color of your choice during a Death Blow."
+                "A feature inspired by NMH3, this timer controls how long the colour will stay applied when initiating a Deathblow";
         ImGui::Unindent();
-
-        // draw_sword_behavior("Just Charge", swords[1].blade, swords[1].hilt, colours_picked_rgba[5], colours_picked_rgbaInt[5], cfg_defaults[4]);
-        // draw_sword_behavior("Late Charge", swords[1].blade, swords[1].hilt, colours_picked_rgba[6], colours_picked_rgbaInt[6], cfg_defaults[4]);
     }
 }
 
@@ -937,8 +973,8 @@ void SwordColours::on_d3d_reset() {
 }
 
 std::optional<std::string> SwordColours::on_initialize() {
-    SwordColours::gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584; 
-    SwordColours::hrScreenStatus = g_framework->get_module().as<uintptr_t>() + 0x8417F0; 
+    SwordColours::gpBattle       = g_framework->get_module().as<uintptr_t>() + 0x843584;
+    SwordColours::hrScreenStatus = g_framework->get_module().as<uintptr_t>() + 0x8417F0;
     if (!install_hook_offset(0x3BF640, m_hook1, &detour1, &SwordColours::jmp_ret1, 5)) { // swords
         spdlog::error("Failed to init SwordColours mod\n");
         return "Failed to init SwordColours mod";
@@ -965,21 +1001,23 @@ std::optional<std::string> SwordColours::on_initialize() {
 }
 
 // during load
-void SwordColours::on_config_load(const utility::Config &cfg) {
+void SwordColours::on_config_load(const utility::Config& cfg) {
     sword_glow_enabled = cfg.get<bool>("sword_glow_enabled").value_or(false);
-    mod_enabled = cfg.get<bool>("custom_colours").value_or(false);
-    always_trail = cfg.get<bool>("always_trail").value_or(false);
-    if (always_trail) toggleForceTrail(always_trail);
-    heart_colours = cfg.get<bool>("heart_colours").value_or(false);
-    always_sword_blur   = cfg.get<bool>("always_sword_blur").value_or(false);
-    if (always_sword_blur) toggleForceSwordBlur(always_sword_blur);
+    mod_enabled        = cfg.get<bool>("custom_colours").value_or(false);
+    always_trail       = cfg.get<bool>("always_trail").value_or(false);
+    if (always_trail)
+        toggleForceTrail(always_trail);
+    heart_colours     = cfg.get<bool>("heart_colours").value_or(false);
+    always_sword_blur = cfg.get<bool>("always_sword_blur").value_or(false);
+    if (always_sword_blur)
+        toggleForceSwordBlur(always_sword_blur);
     {
         size_t i = 0;
         for (const auto& RgbaDefault : cfg_defaults) {
-            RgbaDefault.color->r = cfg.get<int>(std::string(RgbaDefault.cfg_name) + ".r").value_or(RgbaDefault.default_value.r);
-            RgbaDefault.color->g = cfg.get<int>(std::string(RgbaDefault.cfg_name) + ".g").value_or(RgbaDefault.default_value.g);
-            RgbaDefault.color->b = cfg.get<int>(std::string(RgbaDefault.cfg_name) + ".b").value_or(RgbaDefault.default_value.b);
-            RgbaDefault.color->a = cfg.get<int>(std::string(RgbaDefault.cfg_name) + ".a").value_or(RgbaDefault.default_value.a);
+            RgbaDefault.color->r   = cfg.get<int>(std::string(RgbaDefault.cfg_name) + ".r").value_or(RgbaDefault.default_value.r);
+            RgbaDefault.color->g   = cfg.get<int>(std::string(RgbaDefault.cfg_name) + ".g").value_or(RgbaDefault.default_value.g);
+            RgbaDefault.color->b   = cfg.get<int>(std::string(RgbaDefault.cfg_name) + ".b").value_or(RgbaDefault.default_value.b);
+            RgbaDefault.color->a   = cfg.get<int>(std::string(RgbaDefault.cfg_name) + ".a").value_or(RgbaDefault.default_value.a);
             colours_picked_rgba[i] = ImColor(RgbaDefault.color->r, RgbaDefault.color->g, RgbaDefault.color->b, RgbaDefault.color->a);
             i += 1;
         }
@@ -989,28 +1027,55 @@ void SwordColours::on_config_load(const utility::Config &cfg) {
     swordGlowAmount = cfg.get<float>("swordGlowAmount").value_or(4.0f);
 
     // width stuff
-    force_girth = cfg.get<bool>("force_girth").value_or(false);
-    force_girth_amount = cfg.get<float>("force_girth_amount").value_or(0.5f);
-    custom_flicker     = cfg.get<bool>("custom_flicker").value_or(false);
-    flicker_amount     = cfg.get<float>("flicker_amount").value_or(1.0f);
+    force_girth                 = cfg.get<bool>("force_girth").value_or(false);
+    force_girth_amount          = cfg.get<float>("force_girth_amount").value_or(0.5f);
+    custom_flicker              = cfg.get<bool>("custom_flicker").value_or(false);
+    flicker_amount              = cfg.get<float>("flicker_amount").value_or(1.0f);
     disable_girth_randomization = cfg.get<bool>("disable_girth_randomization").value_or(false);
     heart_girth                 = cfg.get<bool>("heart_girth").value_or(false);
     base_heart_girth            = cfg.get<float>("base_heart_girth").value_or(0.5f);
     heartbeat_girth_amount      = cfg.get<float>("heartbeat_girth_amount").value_or(2.0f);
+
+    // --- NEW: picker layout preference
+    g_use_color_wheel = cfg.get<bool>("use_color_wheel").value_or(true);
+
+    // --- NEW: RGB cycle prefs
+    g_rgb_cycle       = cfg.get<bool>("rgb_cycle").value_or(false);
+    g_rgb_cycle_speed = cfg.get<float>("rgb_cycle_speed").value_or(1.0f);
+
+    // If starting with RGB cycle on, back up the loaded picks once
+    if (g_rgb_cycle && !g_rgb_saved_valid) {
+        backup_user_colors();
+        mod_enabled   = true;
+        heart_colours = false;
+    }
 }
 
 // during save
-void SwordColours::on_config_save(utility::Config &cfg) {
+void SwordColours::on_config_save(utility::Config& cfg) {
     cfg.set<bool>("sword_glow_enabled", sword_glow_enabled);
     cfg.set<bool>("custom_colours", mod_enabled);
     cfg.set<bool>("always_trail", always_trail);
     cfg.set<bool>("heart_colours", heart_colours);
     cfg.set<bool>("always_sword_blur", always_sword_blur);
-    for (const auto& RgbaDefault : cfg_defaults) {
-        cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".r", RgbaDefault.color->r);
-        cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".g", RgbaDefault.color->g);
-        cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".b", RgbaDefault.color->b);
-        cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".a", RgbaDefault.color->a);
+
+    // Save user's original picks if RGB Cycle is active
+    if (g_rgb_cycle && g_rgb_saved_valid) {
+        for (size_t i = 0; i < cfg_defaults.size(); ++i) {
+            const char* key     = cfg_defaults[i].cfg_name;
+            const IntColor& src = g_saved_colours_rgbaInt[i];
+            cfg.set<int>(std::string(key) + ".r", src.r);
+            cfg.set<int>(std::string(key) + ".g", src.g);
+            cfg.set<int>(std::string(key) + ".b", src.b);
+            cfg.set<int>(std::string(key) + ".a", src.a);
+        }
+    } else {
+        for (const auto& RgbaDefault : cfg_defaults) {
+            cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".r", RgbaDefault.color->r);
+            cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".g", RgbaDefault.color->g);
+            cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".b", RgbaDefault.color->b);
+            cfg.set<int>(std::string(RgbaDefault.cfg_name) + ".a", RgbaDefault.color->a);
+        }
     }
     cfg.set<int>("setDeathblowTimer", setDeathblowTimer);
     cfg.set<float>("swordGlowAmount", swordGlowAmount);
@@ -1024,8 +1089,15 @@ void SwordColours::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("heart_girth", heart_girth);
     cfg.set<float>("base_heart_girth", base_heart_girth);
     cfg.set<float>("heartbeat_girth_amount", heartbeat_girth_amount);
+
+    // --- NEW: picker layout preference
+    cfg.set<bool>("use_color_wheel", g_use_color_wheel);
+
+    // --- NEW: RGB cycle prefs
+    cfg.set<bool>("rgb_cycle", g_rgb_cycle);
+    cfg.set<float>("rgb_cycle_speed", g_rgb_cycle_speed);
 }
 
 // will show up in debug window, dump ImGui widgets you want here
-//void SwordColours::on_draw_debug_ui() {}
+// void SwordColours::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here

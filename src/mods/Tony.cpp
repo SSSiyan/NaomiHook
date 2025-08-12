@@ -1,7 +1,7 @@
 #include "Tony.hpp"
 #include "GuiFunctions.hpp"
 #include <algorithm>
-#include <cmath> // for sinf
+#include <cmath> // sinf
 #if 1
 
 static constexpr float DISPLAY_DURATION           = 2.0f;
@@ -16,18 +16,42 @@ static constexpr float TEXT_SPACING_RATIO         = 0.5f;
 static constexpr float SCREEN_MARGIN_RATIO        = 0.01f;
 static constexpr float LINE_HEIGHT_MULTIPLIER     = 2.0f;
 
-// score pop tuning (base amplitude; scaled per-amount below)
-static constexpr float SCORE_POP_DURATION  = 0.30f; // seconds
-static constexpr float SCORE_POP_AMPLITUDE = 0.25f; // base 25% bump, multiplied by amt factor
+// score pop tuning (tricks only)
+static constexpr float SCORE_POP_DURATION  = 0.15f; // seconds
+static constexpr float SCORE_POP_AMPLITUDE = 0.35f; // base bump
 
-// chromatic aberration (CA) tuning (applies on increment, tricks only)
-static constexpr float CA_DURATION     = 0.18f;
-static constexpr float CA_MAX_OFFSET_F = 0.4f; // fraction of font size used for max horizontal offset
+// chromatic aberration (tricks only)
+static constexpr float CA_DURATION     = 0.0090f;
+static constexpr float CA_MAX_OFFSET_F = 0.6f; // fraction of font size for horiz offset
 static constexpr float CA_BASE_ALPHA   = 0.75f;
 
-// shared amount scaling (used for both CA and pulse). 0..1 factor from money (clamped to 100)
-static constexpr float AMT_MIN_MULT = 0.35f; // at very low amounts
-static constexpr float AMT_MAX_MULT = 3.00f; // at 100+
+// trailer-style CA punch
+static constexpr bool CA_TRAILER_STYLE            = true;
+static constexpr float CA_TRAILER_OFFSET_MULT     = 1.75f;
+static constexpr float CA_TRAILER_ALPHA_MULT      = 1.35f;
+static constexpr int CA_TRAILER_EXTRA_PASSES      = 1;
+static constexpr float CA_TRAILER_PASS_OFFSET_PX  = 0.5f;
+static constexpr float CA_TRAILER_CENTER_NUDGE_PX = 0.6f;
+
+// amount scaling (tricks only)
+static constexpr float AMT_MIN_MULT = 0.35f;
+static constexpr float AMT_MAX_MULT = 3.00f;
+
+// simple reward count-up tuning
+static constexpr float COUNT_RATE_PER_SEC = 200.0f; // numbers per second
+static constexpr float COUNT_MIN_DURATION = 0.18f;
+static constexpr float COUNT_MAX_DURATION = 0.90f;
+
+// tiny deterministic hash helpers
+static inline float sc_fract(float x) {
+    return x - std::floor(x);
+}
+static inline float sc_hash11(float x) {
+    return sc_fract(std::sin(x) * 43758.5453f);
+}
+static inline float sc_hash21(float x, float y) {
+    return sc_fract(std::sin(x * 12.9898f + y * 78.233f) * 43758.5453f);
+}
 
 bool Tony::mod_enabled    = false;
 uintptr_t Tony::jmp_ret1  = NULL;
@@ -43,9 +67,8 @@ static bool wasGamePaused                                 = false;
 
 static float getGameTimeSeconds() {
     mHRPc* player = nmh_sdk::get_mHRPc();
-    if (!player) {
+    if (!player)
         return accumulatedGameTime.count();
-    }
 
     bool isPaused        = player->mInputMode == 6;
     auto currentRealTime = std::chrono::steady_clock::now();
@@ -61,7 +84,6 @@ static float getGameTimeSeconds() {
     } else {
         wasGamePaused = true;
     }
-
     return accumulatedGameTime.count();
 }
 
@@ -78,8 +100,13 @@ struct TrickGroup {
     bool wasSlideOutActive;
     float slideOutProgressWhenPaused;
 
-    // score-pop timestamp (set whenever money increases)
+    // tricks: score-pop timestamp
     float scorePopStartTime;
+
+    // reward: simple count-up state
+    int rewardStartValue;
+    int rewardEndValue;
+    float rewardCountStartTime;
 
     TrickGroup() = default;
 
@@ -95,7 +122,10 @@ struct TrickGroup {
         , animationTimeRemainingWhenPaused(ANIMATION_DURATION)
         , wasSlideOutActive(false)
         , slideOutProgressWhenPaused(0.0f)
-        , scorePopStartTime(-1.0f) {}
+        , scorePopStartTime(-1.0f)
+        , rewardStartValue(reward ? 0 : 0)
+        , rewardEndValue(reward ? moneyAmount : 0)
+        , rewardCountStartTime(reward ? currentTime : -1.0f) {}
 };
 
 static std::vector<TrickGroup> trickGroups;
@@ -125,7 +155,7 @@ static void UpdateTimestampsOnUnpause() {
             float desiredAnimationRemainingTime = group.animationTimeRemainingWhenPaused;
             group.firstAppearanceTime           = now - (ANIMATION_DURATION - desiredAnimationRemainingTime);
         }
-        // scorePopStartTime intentionally not adjusted; pop/CA are short-lived and can expire while paused.
+        // reward count continues while paused (same as pop/CA)
     }
 }
 
@@ -154,12 +184,10 @@ static void StoreRemainingTimeOnPause() {
 }
 
 static void CleanupExpiredGroups() {
-    if (IsGamePaused()) {
+    if (IsGamePaused())
         return;
-    }
 
     float now = getGameTimeSeconds();
-
     trickGroups.erase(std::remove_if(trickGroups.begin(), trickGroups.end(),
                           [now](const TrickGroup& group) {
                               float elapsed = now - group.mostRecentTime;
@@ -175,7 +203,7 @@ static float CalculateAnimationOffset(const TrickGroup& group, float now, float 
     if (group.isNew) {
         float timeSinceFirstAppearance = now - group.firstAppearanceTime;
         float t                        = std::max(0.0f, std::min(1.0f, timeSinceFirstAppearance / ANIMATION_DURATION));
-        const float c1                 = 0.7f; // gentler overshoot
+        const float c1                 = 0.7f;
         const float c3                 = c1 + 1.0f;
         float t1                       = t - 1.0f;
         float eased                    = 1.0f + c3 * (t1 * t1 * t1) + c1 * (t1 * t1);
@@ -185,21 +213,44 @@ static float CalculateAnimationOffset(const TrickGroup& group, float now, float 
         slideOutProgress       = slideOutProgress * slideOutProgress * slideOutProgress;
         return -screenWidth * slideOutProgress;
     }
-
     return 0.0f;
 }
 
 static void MarkAnimationComplete(TrickGroup& group, float now) {
     if (group.isNew) {
         float timeSinceFirstAppearance = now - group.firstAppearanceTime;
-        if (timeSinceFirstAppearance >= ANIMATION_DURATION) {
+        if (timeSinceFirstAppearance >= ANIMATION_DURATION)
             group.isNew = false;
-        }
     }
 }
 
+static int RewardDisplayValue(const TrickGroup& group, float now) {
+    if (!group.isReward)
+        return group.money;
+
+    int start = group.rewardStartValue;
+    int end   = group.rewardEndValue;
+    float t0  = group.rewardCountStartTime;
+
+    if (t0 < 0.0f || start == end)
+        return end;
+
+    int delta      = std::abs(end - start);
+    float durByVel = delta / COUNT_RATE_PER_SEC;
+    float dur      = std::min(COUNT_MAX_DURATION, std::max(COUNT_MIN_DURATION, durByVel));
+    float t        = std::min(1.0f, std::max(0.0f, (now - t0) / dur));
+    float e        = 1.0f - (1.0f - t) * (1.0f - t); // ease-out
+
+    int value = start + static_cast<int>(std::round((end - start) * e));
+    if ((end - start) > 0)
+        value = std::min(value, end);
+    else
+        value = std::max(value, end);
+    return value;
+}
+
 static void RenderGroupText(TrickGroup& group, float animationOffset, float yPos, float fontSize, float screenWidth, bool isRewardGroup) {
-    // Baseline palette (fixed)
+    // Baseline palette
     ImColor orangeCol = ImColor(0.970f, 0.803f, 0.165f, 1.00f); // money + reward label
     ImColor whiteCol  = ImColor(1.0f, 1.0f, 1.0f, 1.0f);        // trick label
     ImVec4 textColor  = isRewardGroup ? (ImVec4)orangeCol : (ImVec4)whiteCol;
@@ -210,9 +261,9 @@ static void RenderGroupText(TrickGroup& group, float animationOffset, float yPos
     float shadowOffsetY = 2.0f;
 
     std::string displayText = group.trickName;
+    float now               = getGameTimeSeconds();
 
     // "New" pop highlight
-    float now      = getGameTimeSeconds();
     float popAlpha = 0.0f;
     if (group.isNew) {
         float t  = std::max(0.0f, std::min(1.0f, (now - group.firstAppearanceTime) / ANIMATION_DURATION));
@@ -225,13 +276,13 @@ static void RenderGroupText(TrickGroup& group, float animationOffset, float yPos
     float leftAlignX    = targetX + animationOffset;
     float scoreX        = targetX + textWidth + customSpacing + animationOffset;
 
-    // text shadow
+    // shadow for label
     ImGui::SetCursorPos(ImVec2(leftAlignX + shadowOffsetX, yPos + shadowOffsetY));
     ImGui::PushStyleColor(ImGuiCol_Text, shadowColor);
     ImGui::Text("%s", displayText.c_str());
     ImGui::PopStyleColor();
 
-    // base text
+    // main label
     ImGui::SetCursorPos(ImVec2(leftAlignX, yPos));
     ImGui::PushStyleColor(ImGuiCol_Text, textColor);
     ImGui::Text("%s", displayText.c_str());
@@ -245,92 +296,175 @@ static void RenderGroupText(TrickGroup& group, float animationOffset, float yPos
         ImGui::PopStyleColor();
     }
 
-    // --- Score with "pop on increment" + chromatic aberration (draw-list) ---
-    {
-        ImDrawList* dl = ImGui::GetWindowDrawList();
-        ImFont* font   = ImGui::GetFont();
-        ImVec2 win     = ImGui::GetWindowPos();
+    // Score draw
+    ImDrawList* dl = ImGui::GetWindowDrawList();
+    ImFont* font   = ImGui::GetFont();
+    ImVec2 win     = ImGui::GetWindowPos();
 
-        // compute per-amount multiplier (clamped at 100)
-        int amt      = std::max(0, std::min(group.money, 100));
-        float amt01  = amt / 100.0f; // 0..1
+    // tricks: pop scale; reward: fixed scale (no pop)
+    float popScale = 1.0f;
+    ImVec2 popOffset(0.0f, 0.0f); // randomized pop direction offset
+
+    if (!isRewardGroup) {
+        // amount scaling for tricks: clamp to 50
+        int amt      = std::max(0, std::min(group.money, 50));
+        float amt01  = amt / 50.0f; // 0..1 after clamp
         float amtMul = AMT_MIN_MULT + (AMT_MAX_MULT - AMT_MIN_MULT) * amt01;
 
-        // compute pop scale (amplitude scales by amtMul)
-        float popScale = 1.0f;
-        float dtPop    = -1.0f;
         if (group.scorePopStartTime >= 0.0f) {
-            dtPop = now - group.scorePopStartTime;
+            float dtPop = now - group.scorePopStartTime;
             if (dtPop >= 0.0f && dtPop <= SCORE_POP_DURATION) {
-                float t     = dtPop / SCORE_POP_DURATION; // 0..1
+                float t     = dtPop / SCORE_POP_DURATION;
                 float decay = (1.0f - t);
-                float amp   = SCORE_POP_AMPLITUDE * amtMul; // <-- scaled amplitude
-                popScale    = 1.0f + amp * decay * decay;   // smooth falloff
+                float amp   = SCORE_POP_AMPLITUDE * amtMul;
+                popScale    = 1.0f + amp * decay * decay;
+
+                // New: random burst direction so growth is not only to the right
+                char previewBuf[64];
+                snprintf(previewBuf, sizeof(previewBuf), " +%d", group.money);
+                ImVec2 scoreSize = ImGui::CalcTextSize(previewBuf);
+
+                float seed = (float)((uintptr_t)&group & 0xFFFF);
+                float ang  = sc_hash21(seed + 33.0f, group.scorePopStartTime + 77.0f) * 6.2831853f;
+                float dirx = std::cos(ang);
+                float diry = std::sin(ang);
+
+                // Shift top-left opposite the direction so the scaled text "pushes" in that direction.
+                popOffset.x = -(popScale - 1.0f) * 0.5f * scoreSize.x * dirx;
+                popOffset.y = -(popScale - 1.0f) * 0.5f * fontSize * diry;
             }
         }
+    }
 
-        // formatted score text
-        char buf[64];
-        const char* scorePrefix = isRewardGroup ? " =" : " +";
-        snprintf(buf, sizeof(buf), "%s%d", scorePrefix, group.money);
+    // formatted score text
+    char buf[64];
+    if (isRewardGroup) {
+        int disp = RewardDisplayValue(group, now);
+        snprintf(buf, sizeof(buf), " =%d", disp);
+    } else {
+        snprintf(buf, sizeof(buf), " +%d", group.money);
+    }
 
-        // positions in screen space
-        ImVec2 posShadow(win.x + scoreX + shadowOffsetX, win.y + yPos + shadowOffsetY);
-        ImVec2 posMain(win.x + scoreX, win.y + yPos);
+    // positions in screen space (apply popOffset so scaling expands in a random direction)
+    ImVec2 posShadow(win.x + scoreX + shadowOffsetX + popOffset.x, win.y + yPos + shadowOffsetY + popOffset.y);
+    ImVec2 posMain(win.x + scoreX + popOffset.x, win.y + yPos + popOffset.y);
 
-        // shadow
-        dl->AddText(font, fontSize * popScale, posShadow, ImGui::GetColorU32(shadowColor), buf);
+    // shadow
+    dl->AddText(font, fontSize * popScale, posShadow, ImGui::GetColorU32(shadowColor), buf);
 
-        // main
-        dl->AddText(font, fontSize * popScale, posMain, ImGui::GetColorU32(scoreColor), buf);
+    // main value
+    dl->AddText(font, fontSize * popScale, posMain, ImGui::GetColorU32(scoreColor), buf);
 
-        // chromatic aberration fringe (tricks only, short window after increment)
-        if (!isRewardGroup && group.scorePopStartTime >= 0.0f && dtPop >= 0.0f && dtPop <= CA_DURATION) {
+    // chromatic aberration fringe (tricks only, short window after increment)
+    if (!isRewardGroup && group.scorePopStartTime >= 0.0f) {
+        float dtPop = now - group.scorePopStartTime;
+        if (dtPop >= 0.0f && dtPop <= CA_DURATION) {
+            // amount scaling again with 50 clamp
+            int amt      = std::max(0, std::min(group.money, 50));
+            float amt01  = amt / 50.0f; // 0..1
+            float amtMul = AMT_MIN_MULT + (AMT_MAX_MULT - AMT_MIN_MULT) * amt01;
+
             float t         = dtPop / CA_DURATION; // 0..1
             float intensity = (1.0f - t);
             intensity       = intensity * intensity;
 
             float basePx = fontSize * CA_MAX_OFFSET_F * amtMul;
 
-            // subtle wobble
-            float wobble = 1.0f + 0.15f * std::sin(dtPop * 20.0f);
-            float px     = basePx * wobble;
+            if (CA_TRAILER_STYLE) {
+                float px = basePx * CA_TRAILER_OFFSET_MULT * intensity;
 
-            float dx = px * intensity;
-            float dy = 0.0f;
+                float dx = px;
+                float dy = 0.0f;
 
-            // cyan to the left, red to the right
-            ImVec4 cyan(0.25f, 0.95f, 1.0f, CA_BASE_ALPHA * intensity);
-            ImVec4 red(1.00f, 0.25f, 0.25f, CA_BASE_ALPHA * intensity);
+                float alpha   = std::min(1.0f, CA_BASE_ALPHA * CA_TRAILER_ALPHA_MULT * intensity);
+                ImU32 cR      = ImGui::GetColorU32(ImVec4(1.00f, 0.05f, 0.05f, alpha));
+                ImU32 cG      = ImGui::GetColorU32(ImVec4(0.05f, 1.00f, 0.05f, alpha));
+                ImU32 cB      = ImGui::GetColorU32(ImVec4(0.10f, 0.40f, 1.00f, alpha));
+                ImU32 cols[3] = {cR, cG, cB};
 
-            ImVec2 posCyan(posMain.x - dx, posMain.y + dy);
-            ImVec2 posRed(posMain.x + dx, posMain.y - dy);
+                float seedF = (float)((uintptr_t)&group & 0xFFFF);
+                float cxN   = (sc_hash21(seedF + 12.3f, group.scorePopStartTime + 19.7f) - 0.5f) * 2.0f * CA_TRAILER_CENTER_NUDGE_PX;
+                float cyN   = (sc_hash21(seedF + 21.1f, group.scorePopStartTime + 7.3f) - 0.5f) * 2.0f * CA_TRAILER_CENTER_NUDGE_PX;
 
-            dl->AddText(font, fontSize * popScale, posCyan, ImGui::GetColorU32(cyan), buf);
-            dl->AddText(font, fontSize * popScale, posRed, ImGui::GetColorU32(red), buf);
+                ImVec2 offs[3] = {ImVec2(-dx, 0.0f), ImVec2(cxN, cyN), ImVec2(+dx, 0.0f)};
+
+                int permPick         = (int)(sc_hash21(seedF + 6.0f, group.scorePopStartTime + 17.0f) * 6.0f) % 6;
+                const int maps[6][3] = {{0, 1, 2}, {0, 2, 1}, {1, 0, 2}, {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
+
+                for (int i = 0; i < 3; ++i) {
+                    int cIdx = maps[permPick][i];
+                    ImVec2 p = ImVec2(posMain.x + offs[i].x, posMain.y + offs[i].y);
+                    dl->AddText(font, fontSize * popScale, p, cols[cIdx], buf);
+
+                    for (int pidx = 0; pidx < CA_TRAILER_EXTRA_PASSES; ++pidx) {
+                        float o  = (pidx + 1) * CA_TRAILER_PASS_OFFSET_PX;
+                        float nx = p.x + (i == 0 ? -o : (i == 2 ? +o : 0.0f));
+                        dl->AddText(font, fontSize * popScale, ImVec2(nx, p.y), cols[cIdx], buf);
+                    }
+                }
+            } else {
+                // fallback randomized CA (unused when trailer style is true)
+                float seed     = (float)((uintptr_t)&group & 0xFFFF);
+                float baseRand = sc_hash21(seed, group.scorePopStartTime);
+                float angle0   = baseRand * 6.2831853f;
+
+                float freqRand = sc_hash21(seed + 1.0f, group.scorePopStartTime + 3.0f);
+                float freq     = 10.0f + 30.0f * freqRand;
+                float angle    = angle0 + now * freq;
+
+                float ampRand = sc_hash21(seed + 2.0f, group.scorePopStartTime + 7.0f);
+                float ampMul2 = 0.6f + 1.8f * ampRand;
+                float jigRand = sc_hash21(seed + 4.0f, group.scorePopStartTime + 11.0f);
+                float jigFreq = 6.0f + 14.0f * jigRand;
+                float jigMul  = 0.75f + 0.25f * std::sin(now * jigFreq);
+
+                float px = basePx * ampMul2 * jigMul * intensity;
+
+                float dx = px * std::cos(angle);
+                float dy = px * std::sin(angle);
+
+                int palIndex = (int)(sc_hash21(seed + 5.0f, group.scorePopStartTime + 13.0f) * 3.0f);
+                if (palIndex == 0) {
+                    ImVec4 cA(0.25f, 0.95f, 1.00f, CA_BASE_ALPHA * intensity); // cyan
+                    ImVec4 cB(1.00f, 0.25f, 0.25f, CA_BASE_ALPHA * intensity); // red
+                    ImVec2 posA(posMain.x - dx, posMain.y - dy);
+                    ImVec2 posB(posMain.x + dx, posMain.y + dy);
+                    dl->AddText(font, fontSize * popScale, posA, ImGui::GetColorU32(cA), buf);
+                    dl->AddText(font, fontSize * popScale, posB, ImGui::GetColorU32(cB), buf);
+                } else if (palIndex == 1) {
+                    ImVec4 cA(1.00f, 0.25f, 0.80f, CA_BASE_ALPHA * intensity); // magenta
+                    ImVec4 cB(0.25f, 1.00f, 0.35f, CA_BASE_ALPHA * intensity); // green
+                    ImVec2 posA(posMain.x - dx, posMain.y - dy);
+                    ImVec2 posB(posMain.x + dx, posMain.y + dy);
+                    dl->AddText(font, fontSize * popScale, posA, ImGui::GetColorU32(cA), buf);
+                    dl->AddText(font, fontSize * popScale, posB, ImGui::GetColorU32(cB), buf);
+                } else {
+                    ImVec4 cA(1.00f, 0.95f, 0.25f, CA_BASE_ALPHA * intensity); // yellow
+                    ImVec4 cB(0.25f, 0.45f, 1.00f, CA_BASE_ALPHA * intensity); // blue
+                    ImVec2 posA(posMain.x - dx, posMain.y - dy);
+                    ImVec2 posB(posMain.x + dx, posMain.y + dy);
+                    dl->AddText(font, fontSize * popScale, posA, ImGui::GetColorU32(cA), buf);
+                    dl->AddText(font, fontSize * popScale, posB, ImGui::GetColorU32(cB), buf);
+                }
+            }
         }
     }
-    // --- end score pop + CA ---
 }
 
 static void DisplayGroups(
     const ImVec2& screenSize, float fontSize, float startY, bool isRewardGroup, const char* windowName, float windowHeightRatio) {
-    if (IsGamePaused()) {
+    if (IsGamePaused())
         return;
-    }
 
     float now = getGameTimeSeconds();
 
     std::vector<std::reference_wrapper<TrickGroup>> activeGroups;
     for (auto& group : trickGroups) {
-        if (group.isReward == isRewardGroup) {
+        if (group.isReward == isRewardGroup)
             activeGroups.emplace_back(group);
-        }
     }
-
-    if (activeGroups.empty()) {
+    if (activeGroups.empty())
         return;
-    }
 
     std::sort(activeGroups.begin(), activeGroups.end(),
         [](const TrickGroup& a, const TrickGroup& b) { return a.firstAppearanceTime > b.firstAppearanceTime; });
@@ -343,8 +477,7 @@ static void DisplayGroups(
 
     float lineHeight = fontSize * LINE_HEIGHT_MULTIPLIER;
     for (size_t groupIndex = 0; groupIndex < activeGroups.size(); ++groupIndex) {
-        TrickGroup& group = activeGroups[groupIndex].get();
-
+        TrickGroup& group     = activeGroups[groupIndex].get();
         float animationOffset = CalculateAnimationOffset(group, now, screenSize.x);
         float yPos            = lineHeight * groupIndex;
 
@@ -356,10 +489,16 @@ static void DisplayGroups(
     ImGui::End();
 }
 
+static void StartOrRestartRewardCount(TrickGroup& g, float now) {
+    int currentDisplay     = RewardDisplayValue(g, now);
+    g.rewardStartValue     = currentDisplay;
+    g.rewardEndValue       = g.money;
+    g.rewardCountStartTime = now;
+}
+
 static void AddTrickScore(int id, int money, bool isReward) {
-    if (IsGamePaused()) {
+    if (IsGamePaused())
         return;
-    }
 
     std::string trickName = isReward ? "Kill Reward" : MoveNames[id];
     float now             = getGameTimeSeconds();
@@ -370,10 +509,15 @@ static void AddTrickScore(int id, int money, bool isReward) {
             if (it->isReward == isReward && it->trickName == trickName) {
                 it->count++;
                 it->money += money;
-                it->mostRecentTime    = now;
-                it->isNew             = false;
-                it->scorePopStartTime = now; // trigger pop + CA on increment (CA shown only for tricks)
-                foundExisting         = true;
+                it->mostRecentTime = now;
+                it->isNew          = false;
+
+                if (!isReward)
+                    it->scorePopStartTime = now;
+                else
+                    StartOrRestartRewardCount(*it, now);
+
+                foundExisting = true;
                 break;
             }
         }
@@ -381,9 +525,10 @@ static void AddTrickScore(int id, int money, bool isReward) {
 
     if (!foundExisting) {
         TrickGroup newGroup(trickName, money, isReward, now);
-        // no pop/CA on first appearance (only on increments)
-
         if (isReward) {
+            newGroup.rewardStartValue     = 0;
+            newGroup.rewardEndValue       = money;
+            newGroup.rewardCountStartTime = now;
             trickGroups.push_back(newGroup);
         } else {
             trickGroups.insert(trickGroups.begin(), newGroup);
@@ -392,9 +537,8 @@ static void AddTrickScore(int id, int money, bool isReward) {
 }
 
 static void AddTrickScore2(const char* trickName, int money, bool isReward) {
-    if (IsGamePaused()) {
+    if (IsGamePaused())
         return;
-    }
 
     std::string trickNameStr = trickName;
     float now                = getGameTimeSeconds();
@@ -405,10 +549,15 @@ static void AddTrickScore2(const char* trickName, int money, bool isReward) {
             if (it->isReward == isReward && it->trickName == trickNameStr) {
                 it->count++;
                 it->money += money;
-                it->mostRecentTime    = now;
-                it->isNew             = false;
-                it->scorePopStartTime = now; // trigger pop + CA on increment (CA shown only for tricks)
-                foundExisting         = true;
+                it->mostRecentTime = now;
+                it->isNew          = false;
+
+                if (!isReward)
+                    it->scorePopStartTime = now;
+                else
+                    StartOrRestartRewardCount(*it, now);
+
+                foundExisting = true;
                 break;
             }
         }
@@ -417,6 +566,9 @@ static void AddTrickScore2(const char* trickName, int money, bool isReward) {
     if (!foundExisting) {
         TrickGroup newGroup(trickNameStr, money, isReward, now);
         if (isReward) {
+            newGroup.rewardStartValue     = 0;
+            newGroup.rewardEndValue       = money;
+            newGroup.rewardCountStartTime = now;
             trickGroups.push_back(newGroup);
         } else {
             trickGroups.insert(trickGroups.begin(), newGroup);
@@ -425,14 +577,12 @@ static void AddTrickScore2(const char* trickName, int money, bool isReward) {
 }
 
 void Tony::on_frame() {
-    if (!mod_enabled) {
+    if (!mod_enabled)
         return;
-    }
 
     mHRPc* player = nmh_sdk::get_mHRPc();
-    if (!player) {
+    if (!player)
         return;
-    }
 
     bool isPaused               = IsGamePaused();
     static bool lastFramePaused = false;
@@ -444,41 +594,33 @@ void Tony::on_frame() {
     }
     lastFramePaused = isPaused;
 
-    if (!isPaused) {
+    if (!isPaused)
         CleanupExpiredGroups();
-    }
 
-    bool hasRewards = false;
-    bool hasTricks  = false;
+    bool hasRewards = false, hasTricks = false;
     for (const auto& group : trickGroups) {
-        if (group.isReward) {
+        if (group.isReward)
             hasRewards = true;
-        } else {
+        else
             hasTricks = true;
-        }
         if (hasRewards && hasTricks)
             break;
     }
-
-    if (!hasRewards && !hasTricks) {
+    if (!hasRewards && !hasTricks)
         return;
-    }
 
     ImVec2 screenSize = ImGui::GetIO().DisplaySize;
     float fontSize    = 14.0f * (screenSize.y / 1080.0f);
-    if (fontSize <= 0.0f) {
+    if (fontSize <= 0.0f)
         fontSize = 14.0f;
-    }
+
     float rewardStartY = screenSize.y * REWARD_START_Y_RATIO;
     float trickStartY  = screenSize.y * TRICK_START_Y_RATIO;
 
-    if (hasRewards) {
+    if (hasRewards)
         DisplayGroups(screenSize, fontSize, rewardStartY, true, "RewardWindow", REWARD_WINDOW_HEIGHT_RATIO);
-    }
-
-    if (hasTricks) {
+    if (hasTricks)
         DisplayGroups(screenSize, fontSize, trickStartY, false, "TrickWindow", TRICK_WINDOW_HEIGHT_RATIO);
-    }
 }
 
 // clang-format off
