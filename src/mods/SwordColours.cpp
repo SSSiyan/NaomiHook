@@ -3,6 +3,7 @@
 #include "fw-imgui/Texture2DD3D11.hpp"
 #include "intrin.h"
 #include "utility/Compressed.hpp"
+#include <array> // for swords array
 #include <cmath> // fmodf, floorf
 
 // --- NEW: picker layout toggle (file-scope, no header change required)
@@ -11,6 +12,16 @@ static bool g_use_color_wheel = true;
 // --- NEW: RGB cycle controls (file-scope, no header change required)
 static bool g_rgb_cycle        = false;
 static float g_rgb_cycle_speed = 1.00f; // cycles per second
+
+// --- NEW: limit glow to specific attack motions
+// Blood Berry: 223-247
+// MK-III:      271-293
+// MK-I:        319-341
+// MK-II:       366-387
+static bool g_glow_only_on_attack_mots = false;
+static inline bool is_attack_motion_for_glow(int mot) {
+    return (mot >= 223 && mot <= 247) || (mot >= 271 && mot <= 293) || (mot >= 319 && mot <= 341) || (mot >= 366 && mot <= 387);
+}
 
 // --------------------------------------------------------------------------------------
 // Make sure IntColor and the existing color arrays are declared BEFORE any new references
@@ -705,7 +716,12 @@ void SwordColours::on_frame() {
     if (sword_glow_enabled) {
         mHRPc* player = nmh_sdk::get_mHRPc();
         if (player) {
-            if (player->mCharaStatus.visibleWepEffect) {
+            // Only apply glow if:
+            //  - weapon effect is visible
+            //  - AND either the checkbox is off, or the current motion is in the allowed list
+            const int mot        = player->mCharaStatus.motionNo;
+            const bool allow_now = !g_glow_only_on_attack_mots || is_attack_motion_for_glow(mot);
+            if (allow_now && player->mCharaStatus.visibleWepEffect) {
                 int currentSword    = player->mPcStatus.equip[0].id;
                 uint32_t currentCol = nmh_sdk::GetLaserColor();
                 nmh_sdk::SetLightReflect(player, swordGlowAmount, &player->mPcEffect.posHitSlash, currentCol, 0);
@@ -804,6 +820,11 @@ void SwordColours::on_draw_ui() {
         ImGui::SliderFloat("Glow Intensity", &swordGlowAmount, 1.0f, 5.0f, "%.0f");
         if (ImGui::IsItemHovered())
             SwordColours::hoveredDescription = "Set how bright the glow from your sword is.";
+
+        // NEW: gate glow by current motion ID ranges for attacks/executions
+        ImGui::Checkbox("NMH2 Glow", &g_glow_only_on_attack_mots);
+        if (ImGui::IsItemHovered())
+            SwordColours::hoveredDescription = "When enabled, glow applies only while attacking";
 
         ImGui::Unindent();
     }
@@ -953,7 +974,6 @@ void SwordColours::on_draw_ui() {
             draw_sword_behavior(
                 "Deathblow", swords[i].blade, swords[i].hilt, colours_picked_rgba[4], colours_picked_rgbaInt[4], cfg_defaults[4]);
         } else {
-            ImGui::TextDisabled("Per-sword color pickers are hidden while RGB Cycle is active (your picks are preserved).");
         }
 
         ImGui::Text("Deathblow Timer");
@@ -1036,12 +1056,15 @@ void SwordColours::on_config_load(const utility::Config& cfg) {
     base_heart_girth            = cfg.get<float>("base_heart_girth").value_or(0.5f);
     heartbeat_girth_amount      = cfg.get<float>("heartbeat_girth_amount").value_or(2.0f);
 
-    // --- NEW: picker layout preference
+    // picker layout preference
     g_use_color_wheel = cfg.get<bool>("use_color_wheel").value_or(true);
 
-    // --- NEW: RGB cycle prefs
+    // RGB cycle prefs
     g_rgb_cycle       = cfg.get<bool>("rgb_cycle").value_or(false);
     g_rgb_cycle_speed = cfg.get<float>("rgb_cycle_speed").value_or(1.0f);
+
+    // NEW: glow gating preference
+    g_glow_only_on_attack_mots = cfg.get<bool>("glow_only_on_attack_mots").value_or(false);
 
     // If starting with RGB cycle on, back up the loaded picks once
     if (g_rgb_cycle && !g_rgb_saved_valid) {
@@ -1090,12 +1113,15 @@ void SwordColours::on_config_save(utility::Config& cfg) {
     cfg.set<float>("base_heart_girth", base_heart_girth);
     cfg.set<float>("heartbeat_girth_amount", heartbeat_girth_amount);
 
-    // --- NEW: picker layout preference
+    // picker layout preference
     cfg.set<bool>("use_color_wheel", g_use_color_wheel);
 
-    // --- NEW: RGB cycle prefs
+    // RGB cycle prefs
     cfg.set<bool>("rgb_cycle", g_rgb_cycle);
     cfg.set<float>("rgb_cycle_speed", g_rgb_cycle_speed);
+
+    // NEW: glow gating preference
+    cfg.set<bool>("glow_only_on_attack_mots", g_glow_only_on_attack_mots);
 }
 
 // will show up in debug window, dump ImGui widgets you want here
