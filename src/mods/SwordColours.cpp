@@ -4,16 +4,16 @@
 #include "intrin.h"
 #include "utility/Compressed.hpp"
 #include <array> // for swords array
-#include <cmath> // fmodf, floorf
+#include <cmath> // fmodf, floorf, exp
 
-// --- NEW: picker layout toggle (file-scope, no header change required)
+// --- picker layout toggle 
 static bool g_use_color_wheel = true;
 
-// --- NEW: RGB cycle controls (file-scope, no header change required)
+// --- Caramelldansen cycle controls 
 static bool g_rgb_cycle        = false;
 static float g_rgb_cycle_speed = 1.00f; // cycles per second
 
-// --- NEW: limit glow to specific attack motions
+// --- limit glow to specific attack motions
 // Blood Berry: 223-247
 // MK-III:      271-293
 // MK-I:        319-341
@@ -22,6 +22,11 @@ static bool g_glow_only_on_attack_mots = false;
 static inline bool is_attack_motion_for_glow(int mot) {
     return (mot >= 223 && mot <= 247) || (mot >= 271 && mot <= 293) || (mot >= 319 && mot <= 341) || (mot >= 366 && mot <= 387);
 }
+
+// --- smooth glow in/out (ms controls + current value)
+static float g_glow_ease_in_ms  = 120.0f; // 0 = instant
+static float g_glow_ease_out_ms = 160.0f; // 0 = instant
+static float g_glow_current     = 0.0f;
 
 // --------------------------------------------------------------------------------------
 // Make sure IntColor and the existing color arrays are declared BEFORE any new references
@@ -40,12 +45,12 @@ static IntColor heart_colour_rgbaInt{};
 static float lastHpScale    = 1.0f;
 static IntColor frozenColor = {255, 255, 255, 255};
 
-// --- NEW: non-destructive backup of user picks while RGB cycle is active
+// --- non-destructive backup of user picks while Caramelldansen is active
 static bool g_rgb_saved_valid = false;
 static ImColor g_saved_colours_rgba[5];
 static IntColor g_saved_colours_rgbaInt[5];
 
-// --- NEW: HSV->RGB helper (file-scope)
+// --- HSV->RGB helper 
 static inline void hsv_to_rgb(float h, float s, float v, float& r, float& g, float& b) {
     // h,s,v in [0,1]
     if (s <= 0.0f) {
@@ -94,7 +99,7 @@ static inline void hsv_to_rgb(float h, float s, float v, float& r, float& g, flo
     }
 }
 
-// --- NEW: update preview + detour sources from one RGB (temporary use)
+// --- update preview + detour sources from one RGB (temporary use)
 static inline void set_all_colors_from_rgb_255(int R, int G, int B, int A = 255) {
     for (int i = 0; i < 5; ++i) {
         colours_picked_rgbaInt[i].r = R;
@@ -105,7 +110,7 @@ static inline void set_all_colors_from_rgb_255(int R, int G, int B, int A = 255)
     }
 }
 
-// --- NEW: helpers to back up and restore user selections
+// --- helpers to back up and restore user selections
 static inline void backup_user_colors() {
     for (int i = 0; i < 5; ++i) {
         g_saved_colours_rgba[i]    = colours_picked_rgba[i];
@@ -154,7 +159,7 @@ float SwordColours::heartbeat_girth_amount     = 2.0f;
 float SwordColours::heart_normalizer           = 1.0f;
 
 const char* SwordColours::defaultDescription =
-    "Customize your beam katana colors. You can also set a unique color specifically for Death Blows.";
+    "Customize your Beam Katana with selectable colors, adjustable width, heartbeat-synced pulsing, restored light reflections or even persisting trails.";
 const char* SwordColours::hoveredDescription = defaultDescription;
 
 // directx stuff
@@ -240,10 +245,6 @@ naked void detour1() { // swords, player in ebx
             cmp dword ptr [SwordColours::deathblowTimer], 100
             jbe deathblowColour
             jmp getSwordID
-        // CheckCharges:
-        /*
-            ...
-        */
 
         heartColours:
             push eax // 4
@@ -506,7 +507,6 @@ naked void detour2() { // trails, player in ebx
 
 naked void detour3() { // set deathblow timer, player in ebx
     __asm {
-        //
             cmp byte ptr [SwordColours::mod_enabled], 0
             je originalcode
             cmp dword ptr [ebx+0x198], eGood // condition // 0 = not taking damage
@@ -541,7 +541,6 @@ naked void detour3() { // set deathblow timer, player in ebx
 static float detour4_xmm1backup = 0.0f;
 naked void detour4() { // girth randomization
     __asm {
-        //
             cmp byte ptr [SwordColours::force_girth], 1
             je girthCode
             cmp byte ptr [SwordColours::custom_flicker], 1
@@ -634,10 +633,6 @@ static constexpr std::array cfg_defaults = {
 static void draw_sword_behavior(
     const char* name, Frame blade, Frame hilt, ImColor& rgba, IntColor& rgbaInt, const RgbaDefaults& color_default) {
 
-#if 0   
-    ImVec2 spos = ImGui::GetCursorScreenPos();
-    ImVec2 text_size = ImGui::CalcTextSize(name);
-#endif
     ImGui::Text(name);
 
     const float inner_width = 150.0f;
@@ -665,7 +660,7 @@ static void draw_sword_behavior(
     // Add second row
     ImGui::TableSetColumnIndex(1);
 
-    // --- CHANGED: picker layout selection ---
+    // picker layout selection
     ImGuiColorEditFlags pickerFlags = ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview |
                                       (g_use_color_wheel ? ImGuiColorEditFlags_PickerHueWheel : ImGuiColorEditFlags_PickerHueBar) |
                                       ImGuiColorEditFlags_AlphaBar;
@@ -687,7 +682,7 @@ static void draw_sword_behavior(
 }
 
 void SwordColours::on_frame() {
-    // --- NEW: RGB cycle driver (non-destructive, like Heartbeat)
+    // Caramelldansen cycle driver 
     if (g_rgb_cycle) {
         if (!g_rgb_saved_valid) {
             backup_user_colors();
@@ -713,21 +708,53 @@ void SwordColours::on_frame() {
         }
     }
 
-    if (sword_glow_enabled) {
-        mHRPc* player = nmh_sdk::get_mHRPc();
+    // Smoothed glow with Finish Bonus multiplier
+    {
+        mHRPc* player = sword_glow_enabled ? nmh_sdk::get_mHRPc() : nullptr;
         if (player) {
-            // Only apply glow if:
-            //  - weapon effect is visible
-            //  - AND either the checkbox is off, or the current motion is in the allowed list
-            const int mot        = player->mCharaStatus.motionNo;
-            const bool allow_now = !g_glow_only_on_attack_mots || is_attack_motion_for_glow(mot);
-            if (allow_now && player->mCharaStatus.visibleWepEffect) {
-                int currentSword    = player->mPcStatus.equip[0].id;
+            const int mot = player->mCharaStatus.motionNo;
+
+            const bool allow_now = player->mCharaStatus.visibleWepEffect && (!g_glow_only_on_attack_mots || is_attack_motion_for_glow(mot));
+
+            // If strong deathblow is active (Finish Bonus checkbox from Player Tracker),
+            // temporarily double the glow target. This does NOT save; once the flag clears,
+            // we ease back to normal.
+            float base_target = swordGlowAmount;
+            if (allow_now && player->mPcStatus.finishBonus) {
+                base_target *= 3.0f;
+            }
+
+            const float target = allow_now ? base_target : 0.0f;
+
+            // Exponential smoothing, framerate independent.
+            const float dt  = ImGui::GetIO().DeltaTime;
+            const float tau = (target > g_glow_current ? g_glow_ease_in_ms : g_glow_ease_out_ms) * 0.001f;
+            const float a   = (tau <= 0.0f) ? 1.0f : (1.0f - std::exp(-dt / tau));
+
+            g_glow_current += (target - g_glow_current) * a;
+
+            // Snap tiny values to zero to avoid lingering
+            if (g_glow_current < 0.001f)
+                g_glow_current = 0.0f;
+
+            // Drive the effect while we are fading in OR out
+            if (g_glow_current > 0.0f) {
                 uint32_t currentCol = nmh_sdk::GetLaserColor();
-                nmh_sdk::SetLightReflect(player, swordGlowAmount, &player->mPcEffect.posHitSlash, currentCol, 0);
+                nmh_sdk::SetLightReflect(player, g_glow_current, &player->mPcEffect.posHitSlash, currentCol, 0);
+            }
+        } else {
+            // If glow is toggled off, clear any residual smoothly
+            if (g_glow_current > 0.0f) {
+                const float dt  = ImGui::GetIO().DeltaTime;
+                const float tau = g_glow_ease_out_ms * 0.001f;
+                const float a   = (tau <= 0.0f) ? 1.0f : (1.0f - std::exp(-dt / tau));
+                g_glow_current += (0.0f - g_glow_current) * a;
+                if (g_glow_current < 0.001f)
+                    g_glow_current = 0.0f;
             }
         }
     }
+
     if (heart_colours) {
         mHRPc* player = nmh_sdk::get_mHRPc();
         if (!player) {
@@ -784,7 +811,7 @@ void SwordColours::on_frame() {
 
 void SwordColours::toggleForceTrail(bool enable) {
     if (enable) {
-        install_patch_offset(0x3BF53A, patch_force_trail, "\x90\x90\x90", 3); //
+        install_patch_offset(0x3BF53A, patch_force_trail, "\x90\x90\x90", 3);
     } else {
         install_patch_offset(0x3BF53A, patch_force_trail, "\x8A\x55\x08", 3); // mov dl,[ebp+08]
     }
@@ -821,10 +848,22 @@ void SwordColours::on_draw_ui() {
         if (ImGui::IsItemHovered())
             SwordColours::hoveredDescription = "Set how bright the glow from your sword is.";
 
-        // NEW: gate glow by current motion ID ranges for attacks/executions
+        // easing controls
+        ImGui::SliderFloat("Ease In (ms)", &g_glow_ease_in_ms, 0.0f, 1000.0f, "%.0f");
+        if (ImGui::IsItemHovered())
+            SwordColours::hoveredDescription = "How quickly the glow ramps up. 0 = instant.";
+        ImGui::SliderFloat("Ease Out (ms)", &g_glow_ease_out_ms, 0.0f, 1000.0f, "%.0f");
+        if (ImGui::IsItemHovered())
+            SwordColours::hoveredDescription = "How quickly the glow fades after the attack ends. 0 = instant.";
+        if (ImGui::Button("Default##GlowEaseDefaults")) {
+            g_glow_ease_in_ms  = 120.0f;
+            g_glow_ease_out_ms = 160.0f;
+        }
+
+        // Gate glow by current motion ID ranges for attacks/executions
         ImGui::Checkbox("NMH2 Glow", &g_glow_only_on_attack_mots);
         if (ImGui::IsItemHovered())
-            SwordColours::hoveredDescription = "When enabled, glow applies only while attacking";
+            SwordColours::hoveredDescription = "When enabled, glow applies only while performing Slash attacks. Max strength Death Blows have triple the intensity you assign.";
 
         ImGui::Unindent();
     }
@@ -835,11 +874,11 @@ void SwordColours::on_draw_ui() {
     if (ImGui::IsItemHovered())
         SwordColours::hoveredDescription = "Force the Beam Katana trails to always display.";
 
-    if (ImGui::Checkbox("Always Display Laser Speed Blur", &always_sword_blur)) {
+    if (ImGui::Checkbox("Always Display Attack Trails", &always_sword_blur)) {
         toggleForceSwordBlur(always_sword_blur);
     }
     if (ImGui::IsItemHovered())
-        SwordColours::hoveredDescription = "Force the Beam Katana speed blur to always display.";
+        SwordColours::hoveredDescription = "Force the Beam Katana attack trail to always display.";
 
     ImGui::SeparatorText("Width");
 
@@ -911,7 +950,7 @@ void SwordColours::on_draw_ui() {
 
     ImGui::SeparatorText("Color");
 
-    // --- NEW: layout toggle ---
+    // layout toggle
     ImGui::Checkbox("Use Wheel Picker", &g_use_color_wheel);
     if (ImGui::IsItemHovered())
         SwordColours::hoveredDescription = "Switch between the Hue Wheel picker and the classic Hue Bar picker.";
@@ -934,8 +973,8 @@ void SwordColours::on_draw_ui() {
     if (ImGui::IsItemHovered())
         SwordColours::hoveredDescription = defaultDescription;
 
-    // --- NEW: RGB Cycle UI (non-destructive)
-    if (ImGui::Checkbox("RGB Cycle (Keyboard Mode)", &g_rgb_cycle)) {
+    // Caramelldansen UI 
+    if (ImGui::Checkbox("Caramelldansen", &g_rgb_cycle)) {
         if (g_rgb_cycle) {
             heart_colours = false;
             if (!g_rgb_saved_valid)
@@ -946,7 +985,7 @@ void SwordColours::on_draw_ui() {
         }
     }
     if (ImGui::IsItemHovered())
-        SwordColours::hoveredDescription = "Smooth hue rotation. Your saved per-sword picks are preserved and restored when turned off.";
+        SwordColours::hoveredDescription = "Missa inte chansen Nu ar vi har med Caramelldansen";
 
     if (g_rgb_cycle) {
         ImGui::Indent();
@@ -980,8 +1019,8 @@ void SwordColours::on_draw_ui() {
         ImGui::InputInt("##DeathblowTimerInputInt", &setDeathblowTimer);
         if (ImGui::IsItemHovered())
             SwordColours::hoveredDescription =
-                "Turn the Beam Katana the color of your choice during a Death Blow."
-                "A feature inspired by NMH3, this timer controls how long the colour will stay applied when initiating a Deathblow";
+                "Turn the Beam Katana the color of your choice during a Death Blow. A feature inspired by NMH3, this timer controls how "
+                "long the colour will stay applied when initiating a Deathblow";
         ImGui::Unindent();
     }
 }
@@ -1059,14 +1098,18 @@ void SwordColours::on_config_load(const utility::Config& cfg) {
     // picker layout preference
     g_use_color_wheel = cfg.get<bool>("use_color_wheel").value_or(true);
 
-    // RGB cycle prefs
+    // Caramelldansen prefs
     g_rgb_cycle       = cfg.get<bool>("rgb_cycle").value_or(false);
     g_rgb_cycle_speed = cfg.get<float>("rgb_cycle_speed").value_or(1.0f);
 
-    // NEW: glow gating preference
+    // glow gating preference
     g_glow_only_on_attack_mots = cfg.get<bool>("glow_only_on_attack_mots").value_or(false);
 
-    // If starting with RGB cycle on, back up the loaded picks once
+    // easing prefs
+    g_glow_ease_in_ms  = cfg.get<float>("glow_ease_in_ms").value_or(120.0f);
+    g_glow_ease_out_ms = cfg.get<float>("glow_ease_out_ms").value_or(160.0f);
+
+    // If starting with Caramelldansen on, back up the loaded picks once
     if (g_rgb_cycle && !g_rgb_saved_valid) {
         backup_user_colors();
         mod_enabled   = true;
@@ -1082,7 +1125,7 @@ void SwordColours::on_config_save(utility::Config& cfg) {
     cfg.set<bool>("heart_colours", heart_colours);
     cfg.set<bool>("always_sword_blur", always_sword_blur);
 
-    // Save user's original picks if RGB Cycle is active
+    // Save user's original picks if Caramelldansen is active
     if (g_rgb_cycle && g_rgb_saved_valid) {
         for (size_t i = 0; i < cfg_defaults.size(); ++i) {
             const char* key     = cfg_defaults[i].cfg_name;
@@ -1116,12 +1159,16 @@ void SwordColours::on_config_save(utility::Config& cfg) {
     // picker layout preference
     cfg.set<bool>("use_color_wheel", g_use_color_wheel);
 
-    // RGB cycle prefs
+    // Caramelldansen prefs
     cfg.set<bool>("rgb_cycle", g_rgb_cycle);
     cfg.set<float>("rgb_cycle_speed", g_rgb_cycle_speed);
 
-    // NEW: glow gating preference
+    // glow gating preference
     cfg.set<bool>("glow_only_on_attack_mots", g_glow_only_on_attack_mots);
+
+    // easing prefs
+    cfg.set<float>("glow_ease_in_ms", g_glow_ease_in_ms);
+    cfg.set<float>("glow_ease_out_ms", g_glow_ease_out_ms);
 }
 
 // will show up in debug window, dump ImGui widgets you want here
