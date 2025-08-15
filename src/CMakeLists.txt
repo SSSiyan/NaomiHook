@@ -1,4 +1,6 @@
 set(MODS_SRC
+    mods/SoundEffects.hpp
+    mods/SoundEffects.cpp
     mods/AnimPlayer.hpp
     mods/AnimPlayer.cpp
     mods/BrainAge.hpp
