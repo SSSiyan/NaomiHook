@@ -18,6 +18,9 @@ public:
   static uintptr_t baseball_power_fix_jmp_ret2;
   static constexpr float baseball_power_fix_original_value = 0.4f;
 
+  static bool disable_idle_taunts;
+  void DisableIdleTaunts(bool enable);
+
   // mod name string for config
   std::string get_mod_name() const override { return "GameplayFixes"; }
   std::string get_human_readable_name() const { return "Gameplay Fixes"; }
@@ -43,5 +46,5 @@ public:
 private:
 	std::unique_ptr<FunctionHook> money_on_kill_fix_hook1, money_on_kill_fix_hook2, money_on_kill_fix_hook3;
 	std::unique_ptr<FunctionHook> baseball_power_fix_hook1, baseball_power_fix_hook2;
-	// std::unique_ptr<Patch> patch0;
+	std::unique_ptr<Patch> m_patch1;
 };

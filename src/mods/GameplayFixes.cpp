@@ -14,6 +14,8 @@ uintptr_t GameplayFixes::baseball_power_fix_jmp_ret2 = NULL;
 const char* GameplayFixes::defaultDescription = "Here you'll find various fixes for gameplay bugs.";
 const char* GameplayFixes::hoveredDescription = defaultDescription;
 
+bool GameplayFixes::disable_idle_taunts = false;
+
 void GameplayFixes::render_description() const {
     ImGui::TextWrapped(GameplayFixes::hoveredDescription);
 }
@@ -99,6 +101,15 @@ naked void baseball_power_fix_detour2() { // Other stages
 }
  // clang-format on
 
+void GameplayFixes::DisableIdleTaunts(bool enable) {
+    if (enable) {
+        install_patch_offset(0x3DB065, m_patch1, "\xEB", 1); // je to jmp nmh.mHRPc::mFrameProc+164C
+    }
+    else {
+        m_patch1.reset();
+    }
+}
+
 std::optional<std::string> GameplayFixes::on_initialize() {
     // MONEY ON KILL FIX
     if (!install_hook_offset(0x43640E, money_on_kill_fix_hook1, &money_on_kill_fix_detour1, &GameplayFixes::money_on_kill_fix_jmp_ret1, 7)) {
@@ -135,18 +146,26 @@ void GameplayFixes::on_draw_ui() {
 
     ImGui::Checkbox("Baseball Power Fix", &baseball_power_fix_enabled);
     if (ImGui::IsItemHovered()) GameplayFixes::hoveredDescription = "Changes the strength of your swing during baseball sequences, making the mini-game based entirely on timing.";
+
+    if (ImGui::Checkbox("Disable Idle Taunts", &disable_idle_taunts)) {
+        DisableIdleTaunts(disable_idle_taunts);
+    }
+    if (ImGui::IsItemHovered()) GameplayFixes::hoveredDescription = "Disable the taunts that play when idle. Mostly for dev so we aren't driven insane by them. It might be too late for that.";
 }
 
 // during load
 void GameplayFixes::on_config_load(const utility::Config &cfg) {
     money_on_kill_fix_enabled = cfg.get<bool>("money_on_kill_fix").value_or(false);
     baseball_power_fix_enabled = cfg.get<bool>("baseball_power_fix").value_or(false);
+    disable_idle_taunts = cfg.get<bool>("disable_idle_taunts").value_or(false);
+    if (disable_idle_taunts) { DisableIdleTaunts(disable_idle_taunts); }
 }
 
 // during save
 void GameplayFixes::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("money_on_kill_fix", money_on_kill_fix_enabled);
     cfg.set<bool>("baseball_power_fix", baseball_power_fix_enabled);
+    cfg.set<bool>("disable_idle_taunts", disable_idle_taunts);
 }
 
 // do something every frame
