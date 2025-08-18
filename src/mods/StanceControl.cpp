@@ -205,11 +205,11 @@ float StanceControl::SetSmoothStance(mHRPc* player) {
         static float target = 0.0f;
         if (moveID == ePcMtGrdDfltLp) {
             target = guardTargets[currentPose];
-            blendTick = blendTickNotLockedOn;
+            blendTick = blendTickLockedOn;
         }
         else {
             target = targets[currentPose];
-            blendTick = blendTickLockedOn;
+            blendTick = blendTickNotLockedOn;
         }
         //if (verySmooth) {
             newTilt = glm::mix(newTilt, target, blendTick);
