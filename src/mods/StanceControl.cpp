@@ -548,17 +548,17 @@ naked void detour5() { // stance guards
             jmp originalcode // don't care about stance for other anims
 
             HighAttack:
-            cmp dword ptr [esi+1350], 0
+            cmp dword ptr [esi+0x1350], 0
             je originalcode
             jmp jecode
 
             MidAttack:
-            cmp dword ptr [esi+1350], 2
+            cmp dword ptr [esi+0x1350], 2
             je originalcode
             jmp jecode
 
             LowAttack:
-            cmp dword ptr [esi+1350], 1
+            cmp dword ptr [esi+0x1350], 1
             je originalcode
             jmp jecode
 
