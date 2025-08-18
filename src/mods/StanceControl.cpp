@@ -50,6 +50,10 @@ static uintptr_t mCheckNormalAttack = NULL;
 bool StanceControl::mod_enabled_gear_system = false;
 bool StanceControl::gear_system_holds = false;
 
+bool StanceControl::mod_enabled_stance_guards = false;
+uintptr_t StanceControl::jmp_ret5 = NULL;
+uintptr_t StanceControl::jmp5je = NULL;
+
 // directx stuff
 static std::unique_ptr<Texture2DD3D11> g_kanae_texture_atlas{};
 #pragma region TextureAtlasDefinitions
@@ -176,7 +180,9 @@ static constexpr float midStanceBlend = 0.0f;
 static constexpr float lowGuardBlend = 0.0f;
 static constexpr float midGuardBlend = 0.5f;
 static constexpr float highGuardBlend = 1.0f;
-static constexpr float blendTick = 0.1f;
+static float blendTick = 0.1f;
+static float blendTickNotLockedOn = 0.1f;
+static float blendTickLockedOn = 0.6f;
 static float newTilt = 0.0f;
 // static bool verySmooth = true;
 
@@ -197,10 +203,14 @@ float StanceControl::SetSmoothStance(mHRPc* player) {
     
     if (currentPose >= 0 && currentPose <= 2) {
         static float target = 0.0f;
-        if (moveID == ePcMtGrdDfltLp)
+        if (moveID == ePcMtGrdDfltLp) {
             target = guardTargets[currentPose];
-        else
+            blendTick = blendTickNotLockedOn;
+        }
+        else {
             target = targets[currentPose];
+            blendTick = blendTickLockedOn;
+        }
         //if (verySmooth) {
             newTilt = glm::mix(newTilt, target, blendTick);
         //}
@@ -480,6 +490,88 @@ naked void detour4() { // faster nu lows if combo extend
     }
 }
 
+naked void detour5() { // stance guards
+    __asm {
+        //
+            cmp byte ptr [StanceControl::mod_enabled_stance_guards], 0
+            je originalcode
+
+            cmp edi, 57
+            je HighAttack
+            cmp edi, 58
+            je HighAttack
+            cmp edi, 61
+            je HighAttack
+            cmp edi, 79
+            je HighAttack
+            cmp edi, 82
+            je HighAttack
+            cmp edi, 84
+            je HighAttack
+            cmp edi, 89
+            je HighAttack
+
+            cmp edi, 48
+            je MidAttack
+            cmp edi, 50
+            je MidAttack
+            cmp edi, 65
+            je MidAttack
+            cmp edi, 66
+            je MidAttack
+            cmp edi, 77
+            je MidAttack
+            cmp edi, 86
+            je MidAttack
+            cmp edi, 99 // bullet
+            je MidAttack
+            cmp edi, 100 // bullet
+            je MidAttack
+            cmp edi, 101 // bullet
+            je MidAttack
+
+            cmp edi, 71
+            je LowAttack
+            cmp edi, 72
+            je LowAttack
+            cmp edi, 73
+            je LowAttack
+            cmp edi, 92
+            je LowAttack
+            cmp edi, 93
+            je LowAttack
+            cmp edi, 94
+            je LowAttack
+            cmp edi, 95
+            je LowAttack
+
+            jmp originalcode // don't care about stance for other anims
+
+            HighAttack:
+            cmp dword ptr [esi+1350], 0
+            je originalcode
+            jmp jecode
+
+            MidAttack:
+            cmp dword ptr [esi+1350], 2
+            je originalcode
+            jmp jecode
+
+            LowAttack:
+            cmp dword ptr [esi+1350], 1
+            je originalcode
+            jmp jecode
+
+
+        originalcode:
+            mov eax, [esi+0x0000018C]
+        retcode:
+            jmp dword ptr [StanceControl::jmp_ret5]
+        jecode:
+            jmp dword ptr [StanceControl::jmp5je]
+    }
+}
+
 static bool g_kanae_drawcall { false };
 
 static uintptr_t g_kanae_himitsu_skip       { NULL };
@@ -597,6 +689,11 @@ void StanceControl::on_draw_ui() {
         toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
     }
     if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";
+
+    ImGui::SliderFloat("blendTickNotLockedOn", &blendTickNotLockedOn, 0.01f, 1.0f, "%.1f");
+    ImGui::SliderFloat("blendTickLockedOn", &blendTickLockedOn, 0.01f, 1.0f, "%.1f");
+    ImGui::Checkbox("Stance Guards", &mod_enabled_stance_guards);
+    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "@DHMalice";
 }
 
 void TextCentered(std::string text) {
@@ -908,6 +1005,12 @@ std::optional<std::string> StanceControl::on_initialize() {
         return "Failed to init StanceControl mod 4";
     }
 
+    jmp5je = g_framework->get_module().as<uintptr_t>() + 0x3D5C1E;
+    if (!install_hook_offset(0x3D5C29, m_hook5, &detour5, &StanceControl::jmp_ret5, 6)) {
+        spdlog::error("Failed to init StanceControl mod 5\n");
+        return "Failed to init StanceControl mod 5";
+    }
+
     if (!install_hook_offset(0x409A8D, g_kanae_himitsu, &kanae_himitsu_detour, &g_kanae_himitsu_return, 5)) {
         spdlog::error("Failed to init StanceControl kanae detour\n");
         return "Failed to init StanceControl kanae detour\n";
@@ -949,6 +1052,8 @@ void StanceControl::on_config_load(const utility::Config& cfg) {
         toggle(mod_enabled_gear_system); // disable stance switching when pressing face buttons
         disable_cam_reset(mod_enabled_gear_system); // disable cam reset, we need the button
     }
+
+    mod_enabled_stance_guards = cfg.get<bool>("stance_guards").value_or(false);
 }
 // during save
 void StanceControl::on_config_save(utility::Config &cfg) {
@@ -968,6 +1073,8 @@ void StanceControl::on_config_save(utility::Config &cfg) {
 
     cfg.set<bool>("gear_system", mod_enabled_gear_system);
     cfg.set<bool>("gear_system_holds", gear_system_holds);
+
+    cfg.set<bool>("stance_guards", mod_enabled_stance_guards);
 }
 
 // will show up in debug window, dump ImGui widgets you want here

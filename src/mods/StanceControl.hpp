@@ -51,6 +51,10 @@ public:
   static bool mod_enabled_faster_nu_lows;
   static uintptr_t jmp_ret4;
 
+  static bool mod_enabled_stance_guards;
+  static uintptr_t jmp_ret5;
+  static uintptr_t jmp5je;
+
   static const char* defaultDescription;
   static const char* hoveredDescription;
 
@@ -76,7 +80,7 @@ public:
   //void on_draw_debug_ui() override;
   void on_d3d_reset() override;
 private:
-	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3, m_hook4;
+	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3, m_hook4, m_hook5;
 	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3, m_patch4;
 	std::unique_ptr<Patch> patch_swap_idle_stance1, patch_swap_idle_stance2;
 	std::unique_ptr<Patch> patch_disable_combo_extend_speedup;
