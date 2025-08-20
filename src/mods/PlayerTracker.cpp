@@ -181,8 +181,6 @@ if (ImGui::TreeNodeEx("HrGameTask", ImGuiTreeNodeFlags_DrawLinesFull)) {
             ImGui::InputInt("mSetSubMissionID", &hrGameTask->mSetSubMissionID);
 
             ImGui::InputInt("mGameLevel", &hrGameTask->mGameLevel);
-            const char* level_names[] = {"Easy", "Normal", "Hard", "Bizarre"};
-            ImGui::Combo("Game Level", &hrGameTask->mGameLevel, level_names, IM_ARRAYSIZE(level_names));
 
             ImGui::Checkbox("mHomeButtonDisEnable", &hrGameTask->mHomeButtonDisEnable);
 

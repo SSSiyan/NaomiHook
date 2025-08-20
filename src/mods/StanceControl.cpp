@@ -182,7 +182,7 @@ static constexpr float midGuardBlend = 0.5f;
 static constexpr float highGuardBlend = 1.0f;
 static float blendTick = 0.1f;
 static float blendTickNotLockedOn = 0.1f;
-static float blendTickLockedOn = 0.6f;
+static float blendTickLockedOn = 0.4f;
 static float newTilt = 0.0f;
 // static bool verySmooth = true;
 
@@ -502,7 +502,11 @@ naked void detour5() { // stance guards
             je HighAttack
             cmp edi, 61
             je HighAttack
+            cmp edi, 68
+            je HighAttack
             cmp edi, 79
+            je HighAttack
+            cmp edi, 81
             je HighAttack
             cmp edi, 82
             je HighAttack
@@ -526,8 +530,6 @@ naked void detour5() { // stance guards
             cmp edi, 99 // bullet
             je MidAttack
             cmp edi, 100 // bullet
-            je MidAttack
-            cmp edi, 101 // bullet
             je MidAttack
 
             cmp edi, 71
@@ -692,8 +694,8 @@ void StanceControl::on_draw_ui() {
 
     ImGui::SliderFloat("blendTickNotLockedOn", &blendTickNotLockedOn, 0.01f, 1.0f, "%.1f");
     ImGui::SliderFloat("blendTickLockedOn", &blendTickLockedOn, 0.01f, 1.0f, "%.1f");
-    ImGui::Checkbox("Stance Guards", &mod_enabled_stance_guards);
-    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "@DHMalice";
+    ImGui::Checkbox("Manual Guarding", &mod_enabled_stance_guards);
+    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Completely disables auto guarding in favor of manual, stance-dependent guarding.";
 }
 
 void TextCentered(std::string text) {
