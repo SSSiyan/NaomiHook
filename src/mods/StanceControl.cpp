@@ -8,7 +8,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/noise.hpp"
 #include <filesystem>
-
+#include "EnemySpawn.hpp" // for chara type strings
 
 #if 1
 bool StanceControl::mod_enabled = false;
@@ -490,11 +490,17 @@ naked void detour4() { // faster nu lows if combo extend
     }
 }
 
+static uintptr_t last_enemy_attacked_you = NULL;
 naked void detour5() { // stance guards
     __asm {
         //
             cmp byte ptr [StanceControl::mod_enabled_stance_guards], 0
             je originalcode
+
+            push eax
+            mov eax, [esp+0x4+0x6C] // probably not reliable
+            mov [last_enemy_attacked_you], eax
+            pop eax
 
             cmp edi, 57
             je HighAttack
@@ -787,6 +793,14 @@ std::array g_textures_debug = {
 
 #endif
 void StanceControl::on_frame() {
+    if (mod_enabled_stance_guards) {
+        ImGui::Begin("Last Enemy Attacking Your Guard", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        if (last_enemy_attacked_you) {
+            mHRChara* enemy = (mHRChara*)last_enemy_attacked_you;
+            ImGui::Text("Character Type: %s", charaTypeStrings[enemy->mStatus.charaType]);
+        }
+        ImGui::End();
+    }
     if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
         // if (mod_enabled_gear_system) GearControls(mHRPc);
         auto mode = mHRPc->mInputMode;
