@@ -6,10 +6,10 @@
 #include <array> // for swords array
 #include <cmath> // fmodf, floorf, exp
 
-// --- picker layout toggle 
+// --- picker layout toggle
 static bool g_use_color_wheel = true;
 
-// --- Caramelldansen cycle controls 
+// --- Caramelldansen cycle controls
 static bool g_rgb_cycle        = false;
 static float g_rgb_cycle_speed = 1.00f; // cycles per second
 
@@ -18,9 +18,79 @@ static float g_rgb_cycle_speed = 1.00f; // cycles per second
 // MK-III:      271-293
 // MK-I:        319-341
 // MK-II:       366-387
+// Extra guarded / charge / battery anims: 41-101
 static bool g_glow_only_on_attack_mots = false;
 static inline bool is_attack_motion_for_glow(int mot) {
-    return (mot >= 223 && mot <= 247) || (mot >= 271 && mot <= 293) || (mot >= 319 && mot <= 341) || (mot >= 366 && mot <= 387);
+    // existing attack ranges
+    if ((mot >= 223 && mot <= 247) || (mot >= 271 && mot <= 293) || (mot >= 319 && mot <= 341) || (mot >= 366 && mot <= 387)) {
+        return true;
+    }
+
+    // new glow-eligible anims (briefly apply glow)
+    switch (mot) {
+    case 41:  // ePcMtTbLpGd
+    case 42:  // ePcMtTbLp
+    case 43:  // ePcMtTbLpBd
+    case 44:  // ePcMtBtryChrgSt
+    case 45:  // ePcMtBtryChrgLp
+    case 46:  // ePcMtBtryChrgEnd
+    case 47:  // ePcMtBtryChrgQkLp
+    case 50:  // ePcMtGrdDfltDmg
+    case 51:  // ePcMtGrdDflt2RU
+    case 52:  // ePcMtGrdDflt2R
+    case 53:  // ePcMtGrdDflt2RD
+    case 54:  // ePcMtGrdDflt2LU
+    case 55:  // ePcMtGrdDflt2L
+    case 56:  // ePcMtGrdDflt2LD
+    case 57:  // ePcMtGrdRULp
+    case 58:  // ePcMtGrdRUDmg
+    case 59:  // ePcMtGrdRU2R
+    case 60:  // ePcMtGrdRU2RD
+    case 61:  // ePcMtGrdRU2LU
+    case 62:  // ePcMtGrdRU2L
+    case 63:  // ePcMtGrdRU2LD
+    case 64:  // ePcMtGrdRLp
+    case 65:  // ePcMtGrdRDmg
+    case 66:  // ePcMtGrdR2RU
+    case 67:  // ePcMtGrdR2RD
+    case 68:  // ePcMtGrdR2LU
+    case 69:  // ePcMtGrdR2L
+    case 70:  // ePcMtGrdR2LD
+    case 71:  // ePcMtGrdRDLp
+    case 72:  // ePcMtGrdRDDmg
+    case 73:  // ePcMtGrdRD2RU
+    case 74:  // ePcMtGrdRD2R
+    case 75:  // ePcMtGrdRD2LU
+    case 76:  // ePcMtGrdRD2L
+    case 77:  // ePcMtGrdRD2LD
+    case 78:  // ePcMtGrdLULp
+    case 79:  // ePcMtGrdLUDmg
+    case 80:  // ePcMtGrdLU2RU
+    case 81:  // ePcMtGrdLU2R
+    case 82:  // ePcMtGrdLU2RD
+    case 83:  // ePcMtGrdLU2L
+    case 84:  // ePcMtGrdLU2LD
+    case 85:  // ePcMtGrdLLp
+    case 86:  // ePcMtGrdLDmg
+    case 87:  // ePcMtGrdL2RU
+    case 88:  // ePcMtGrdL2R
+    case 89:  // ePcMtGrdL2RD
+    case 90:  // ePcMtGrdL2LU
+    case 91:  // ePcMtGrdL2LD
+    case 92:  // ePcMtGrdLDLp
+    case 93:  // ePcMtGrdLDDmg
+    case 94:  // ePcMtGrdLD2RU
+    case 95:  // ePcMtGrdLD2R
+    case 96:  // ePcMtGrdLD2RD
+    case 97:  // ePcMtGrdLD2LU
+    case 98:  // ePcMtGrdLD2L
+    case 99:  // ePcMtGrdRngR
+    case 100: // ePcMtGrdRngL
+    case 101: // ePcMtGrdRngBck
+        return true;
+    default:
+        return false;
+    }
 }
 
 // --- smooth glow in/out (ms controls + current value)
@@ -50,7 +120,7 @@ static bool g_rgb_saved_valid = false;
 static ImColor g_saved_colours_rgba[5];
 static IntColor g_saved_colours_rgbaInt[5];
 
-// --- HSV->RGB helper 
+// --- HSV->RGB helper
 static inline void hsv_to_rgb(float h, float s, float v, float& r, float& g, float& b) {
     // h,s,v in [0,1]
     if (s <= 0.0f) {
@@ -158,8 +228,8 @@ float SwordColours::base_heart_girth           = 0.5f;
 float SwordColours::heartbeat_girth_amount     = 2.0f;
 float SwordColours::heart_normalizer           = 1.0f;
 
-const char* SwordColours::defaultDescription =
-    "Customize your Beam Katana with selectable colors, adjustable width, heartbeat-synced pulsing, restored light reflections or even persisting trails.";
+const char* SwordColours::defaultDescription = "Customize your Beam Katana with selectable colors, adjustable width, heartbeat-synced "
+                                               "pulsing, restored light reflections or even persisting trails.";
 const char* SwordColours::hoveredDescription = defaultDescription;
 
 // directx stuff
@@ -538,9 +608,171 @@ naked void detour3() { // set deathblow timer, player in ebx
     }
 }
 
+// ============================================================================
+// Per-motion mapping for combo motions (Berry, MK1, MK2, MK3)
+// Used ONLY for Per-Motion Flicker multiplier
+// ============================================================================
+
+static bool  g_per_motion_flicker    = false; // UI toggle (flicker multiplier)
+static bool  g_per_motion_active     = false; // set true when current motion matches
+static float g_per_motion_value      = 0.5f;  // value from tables
+static float g_pm_flicker_current    = 1.0f;  // smoothed flicker multiplier (runtime)
+
+struct MotWidthEntry {
+    int mot;
+    const char* label;
+    float width; // reused as flicker multiplier too (0..5)
+};
+
+// ---- Blood Berry ----
+static MotWidthEntry g_bb_widths[] = {
+    // Up
+    {223, "UpA",  0.8f},
+    {224, "UpB",  0.9f},
+    {225, "UpC",  1.0f},
+    {226, "UpD",  1.1f},
+
+    // Mid
+    {228, "MidA", 0.9f},
+    {229, "MidB", 1.0f},
+    {230, "MidC", 1.2f},
+    {231, "MidD", 1.1f},
+    {232, "MidE", 1.0f},
+    {233, "MidF", 1.0f},
+    {234, "MidG", 0.9f},
+    {235, "MidH", 1.4f},
+
+    // Bottom
+    {237, "BtmA", 1.2f},
+    {238, "BtmB", 1.0f},
+    {239, "BtmC", 1.2f},
+    {240, "BtmD", 1.0f},
+    {241, "BtmE", 1.0f},
+    {242, "BtmF", 0.9f},
+    {243, "BtmG", 1.3f},
+};
+static constexpr int g_bb_widths_count = (int)(sizeof(g_bb_widths)/sizeof(g_bb_widths[0]));
+
+// ---- MK1 ----
+static MotWidthEntry g_mk1_widths[] = {
+    {319, "UpA",  1.0f},
+    {320, "UpB",  1.0f},
+    {321, "UpC",  1.0f},
+    {322, "UpD",  1.3f},
+    {323, "UpE",  1.0f},
+
+    {325, "MidA", 0.5f},
+    {326, "MidB", 0.5f},
+    {327, "MidC", 1.1f},
+    {328, "MidD", 0.5f},
+    {329, "MidE", 1.2f},
+    {330, "MidF", 1.0f},
+    {331, "MidG", 1.0f},
+    {332, "MidH", 1.3f},
+
+    {334, "BtmA", 1.2f},
+    {335, "BtmB", 1.0f},
+    {336, "BtmC", 1.1f},
+    {337, "BtmD", 1.3f},
+};
+static constexpr int g_mk1_widths_count = (int)(sizeof(g_mk1_widths)/sizeof(g_mk1_widths[0]));
+
+// ---- MK2 ----
+static MotWidthEntry g_mk2_widths[] = {
+    // Up
+    {366, "UpA",  1.0f},
+    {367, "UpB",  1.0f},
+    {368, "UpC",  1.1f},
+    {369, "UpD",  1.3f},
+
+    // Mid
+    {371, "MidA", 1.0f},
+    {372, "MidB", 1.1f},
+    {373, "MidC", 1.0f},
+    {374, "MidD", 1.0f},
+    {375, "MidE", 1.1f},
+    {376, "MidF", 1.1f},
+
+    // Bottom
+    {379, "BtmA", 1.0f},
+    {380, "BtmB", 1.0f},
+    {381, "BtmC", 1.1f},
+    {382, "BtmD", 1.2f},
+    {383, "BtmE", 1.3f},
+};
+static constexpr int g_mk2_widths_count = (int)(sizeof(g_mk2_widths)/sizeof(g_mk2_widths[0]));
+
+// ---- MK3 ----
+static MotWidthEntry g_mk3_widths[] = {
+    // Up
+    {271, "UpA",  1.1f},
+    {272, "UpB",  1.2f},
+    {273, "UpC",  1.1f},
+    {274, "UpD",  1.2f},
+    {275, "UpE",  1.0f},
+    {276, "UpF",  1.1f},
+    {277, "UpG",  1.8f},
+
+    // Bottom
+    {279, "BtmA", 1.1f},
+    {280, "BtmB", 1.2f},
+    {281, "BtmC", 1.4f},
+    {282, "BtmD", 1.1f},
+    {283, "BtmE", 1.0f},
+    {284, "BtmF", 1.2f},
+    {285, "BtmG", 1.2f},
+    {286, "BtmH", 1.6f},
+};
+static constexpr int g_mk3_widths_count = (int)(sizeof(g_mk3_widths)/sizeof(g_mk3_widths[0]));
+
+// Helper: search one table
+static inline bool find_width_in_table(const MotWidthEntry* tbl, int count, int mot, float& out_width) {
+    for (int i = 0; i < count; ++i) {
+        if (tbl[i].mot == mot) {
+            out_width = tbl[i].width;
+            return true;
+        }
+    }
+    return false;
+}
+
+// Update the active per-motion target each frame (sets g_per_motion_active/value)
+static inline void update_per_motion_target() {
+    g_per_motion_active = false;
+
+    // Only used by per-motion flicker now
+    if (!g_per_motion_flicker) {
+        return;
+    }
+
+    mHRPc* player = nmh_sdk::get_mHRPc();
+    if (!player) {
+        return;
+    }
+
+    const int mot = player->mCharaStatus.motionNo;
+
+    float w = 1.0f;
+    // Blood Berry first (per request), then MK1, MK2, MK3
+    if (find_width_in_table(g_bb_widths,  g_bb_widths_count,  mot, w) ||
+        find_width_in_table(g_mk1_widths, g_mk1_widths_count, mot, w) ||
+        find_width_in_table(g_mk2_widths, g_mk2_widths_count, mot, w) ||
+        find_width_in_table(g_mk3_widths, g_mk3_widths_count, mot, w)) {
+        g_per_motion_value  = w;
+        g_per_motion_active = true;
+    }
+}
+
 static float detour4_xmm1backup = 0.0f;
 naked void detour4() { // girth randomization
     __asm {
+            // Per-motion FLICKER has highest priority (multiplies base randomization)
+            cmp byte ptr [g_per_motion_flicker], 1
+            jne checkOtherModes
+            mulss xmm0, [g_pm_flicker_current]
+            jmp originalcode
+
+        checkOtherModes:
             cmp byte ptr [SwordColours::force_girth], 1
             je girthCode
             cmp byte ptr [SwordColours::custom_flicker], 1
@@ -682,7 +914,37 @@ static void draw_sword_behavior(
 }
 
 void SwordColours::on_frame() {
-    // Caramelldansen cycle driver 
+    // Per-motion target detection (used by flicker)
+    update_per_motion_target();
+
+    // Per-motion FLICKER smoothing with same timings as glow.
+    // Uses table value as a multiplier for the game's base flicker randomization.
+    {
+        if (g_per_motion_flicker) {
+            float desired = g_per_motion_active ? g_per_motion_value : 1.0f;
+
+            const bool wants_boost     = (desired > 1.0f);
+            const bool is_boosting_now = (g_pm_flicker_current > 1.0f);
+            const bool use_smoothing   = wants_boost || is_boosting_now;
+
+            if (use_smoothing) {
+                const float dt  = ImGui::GetIO().DeltaTime;
+                const float tau = (desired > g_pm_flicker_current ? g_glow_ease_in_ms : g_glow_ease_out_ms) * 0.001f;
+                const float a   = (tau <= 0.0f) ? 1.0f : (1.0f - std::exp(-dt / tau));
+                g_pm_flicker_current += (desired - g_pm_flicker_current) * a;
+
+                if (desired <= 1.0f && g_pm_flicker_current < 1.001f) {
+                    g_pm_flicker_current = 1.0f; // snap to baseline
+                }
+            } else {
+                g_pm_flicker_current = desired;
+            }
+        } else {
+            g_pm_flicker_current = 1.0f;
+        }
+    }
+
+    // Caramelldansen cycle driver
     if (g_rgb_cycle) {
         if (!g_rgb_saved_valid) {
             backup_user_colors();
@@ -716,9 +978,6 @@ void SwordColours::on_frame() {
 
             const bool allow_now = player->mCharaStatus.visibleWepEffect && (!g_glow_only_on_attack_mots || is_attack_motion_for_glow(mot));
 
-            // If strong deathblow is active (Finish Bonus checkbox from Player Tracker),
-            // temporarily double the glow target. This does NOT save; once the flag clears,
-            // we ease back to normal.
             float base_target = swordGlowAmount;
             if (allow_now && player->mPcStatus.finishBonus) {
                 base_target *= 3.0f;
@@ -726,24 +985,20 @@ void SwordColours::on_frame() {
 
             const float target = allow_now ? base_target : 0.0f;
 
-            // Exponential smoothing, framerate independent.
             const float dt  = ImGui::GetIO().DeltaTime;
             const float tau = (target > g_glow_current ? g_glow_ease_in_ms : g_glow_ease_out_ms) * 0.001f;
             const float a   = (tau <= 0.0f) ? 1.0f : (1.0f - std::exp(-dt / tau));
 
             g_glow_current += (target - g_glow_current) * a;
 
-            // Snap tiny values to zero to avoid lingering
             if (g_glow_current < 0.001f)
                 g_glow_current = 0.0f;
 
-            // Drive the effect while we are fading in OR out
             if (g_glow_current > 0.0f) {
                 uint32_t currentCol = nmh_sdk::GetLaserColor();
                 nmh_sdk::SetLightReflect(player, g_glow_current, &player->mPcEffect.posHitSlash, currentCol, 0);
             }
         } else {
-            // If glow is toggled off, clear any residual smoothly
             if (g_glow_current > 0.0f) {
                 const float dt  = ImGui::GetIO().DeltaTime;
                 const float tau = g_glow_ease_out_ms * 0.001f;
@@ -863,7 +1118,8 @@ void SwordColours::on_draw_ui() {
         // Gate glow by current motion ID ranges for attacks/executions
         ImGui::Checkbox("NMH2 Glow", &g_glow_only_on_attack_mots);
         if (ImGui::IsItemHovered())
-            SwordColours::hoveredDescription = "When enabled, glow applies only while performing Slash attacks. Max strength Death Blows have triple the intensity you assign.";
+            SwordColours::hoveredDescription = "When enabled, glow applies only while performing Slash attacks. Max strength Death Blows "
+                                               "have triple the intensity you assign.";
 
         ImGui::Unindent();
     }
@@ -880,11 +1136,14 @@ void SwordColours::on_draw_ui() {
     if (ImGui::IsItemHovered())
         SwordColours::hoveredDescription = "Force the Beam Katana attack trail to always display.";
 
-    ImGui::SeparatorText("Width");
+    ImGui::SeparatorText("Width / Flicker");
 
     if (ImGui::Checkbox("Custom Flicker", &custom_flicker)) {
         force_girth = false;
         heart_girth = false;
+        if (custom_flicker) {
+            g_per_motion_flicker = false; // avoid double-multiplying
+        }
     }
     if (ImGui::IsItemHovered())
         SwordColours::hoveredDescription = "Set how much the beam width flickers.";
@@ -904,6 +1163,9 @@ void SwordColours::on_draw_ui() {
     if (ImGui::Checkbox("Custom Beam Width", &force_girth)) {
         heart_girth    = false;
         custom_flicker = false;
+        if (force_girth) {
+            g_per_motion_flicker = false;
+        }
     }
     if (ImGui::IsItemHovered())
         SwordColours::hoveredDescription = "Set the width of sword lasers.";
@@ -923,6 +1185,9 @@ void SwordColours::on_draw_ui() {
     if (ImGui::Checkbox("Heartbeat Beam Width", &heart_girth)) {
         force_girth    = false;
         custom_flicker = false;
+        if (heart_girth) {
+            g_per_motion_flicker = false;
+        }
     }
     if (ImGui::IsItemHovered())
         SwordColours::hoveredDescription = "Use the heart beat to set the girth of the sword.";
@@ -943,6 +1208,150 @@ void SwordColours::on_draw_ui() {
         if (ImGui::Button("Default##Heart Beat Default")) {
             heartbeat_girth_amount = 2.0f;
         }
+        ImGui::Unindent();
+    }
+
+    // Per-motion FLICKER (reuses the per-motion tables as multipliers)
+    if (ImGui::Checkbox("Per-Motion Flicker (Combo IDs)", &g_per_motion_flicker)) {
+        if (g_per_motion_flicker) {
+            SwordColours::force_girth    = false;
+            SwordColours::custom_flicker = false;
+            SwordColours::heart_girth    = false;
+        }
+    }
+    if (ImGui::IsItemHovered())
+        SwordColours::hoveredDescription = "Use the per-motion values as a flicker multiplier. 1.0 = normal; >1.0 = stronger flicker; <1.0 "
+                                           "= calmer. Ramps/fizzles with Glow easing.";
+
+    // Shared editor for per-motion values (shown only when Flicker is enabled)
+    if (g_per_motion_flicker) {
+        ImGui::Indent();
+
+        if (ImGui::TreeNode("Edit Per-Motion Values")) {
+            // -------- Blood Berry --------
+            ImGui::SeparatorText("Blood Berry");
+            ImGui::TextUnformatted("Up");
+            for (int i = 0; i < g_bb_widths_count; ++i) {
+                const int id = g_bb_widths[i].mot;
+                if (id >= 223 && id <= 226) {
+                    char lbl[64];
+                    sprintf(lbl, "%d %s", id, g_bb_widths[i].label);
+                    ImGui::SliderFloat(lbl, &g_bb_widths[i].width, 0.0f, 5.0f, "%.1f");
+                }
+            }
+            ImGui::TextUnformatted("Mid");
+            for (int i = 0; i < g_bb_widths_count; ++i) {
+                const int id = g_bb_widths[i].mot;
+                if (id >= 228 && id <= 235) {
+                    char lbl[64];
+                    sprintf(lbl, "%d %s", id, g_bb_widths[i].label);
+                    ImGui::SliderFloat(lbl, &g_bb_widths[i].width, 0.0f, 5.0f, "%.1f");
+                }
+            }
+            ImGui::TextUnformatted("Bottom");
+            for (int i = 0; i < g_bb_widths_count; ++i) {
+                const int id = g_bb_widths[i].mot;
+                if (id >= 237 && id <= 243) {
+                    char lbl[64];
+                    sprintf(lbl, "%d %s", id, g_bb_widths[i].label);
+                    ImGui::SliderFloat(lbl, &g_bb_widths[i].width, 0.0f, 5.0f, "%.1f");
+                }
+            }
+
+            // -------- Tsubaki Mk1 --------
+            ImGui::SeparatorText("Tsubaki Mk1");
+            ImGui::TextUnformatted("Up");
+            for (int i = 0; i < g_mk1_widths_count; ++i) {
+                const int id = g_mk1_widths[i].mot;
+                if (id >= 319 && id <= 323) {
+                    char lbl[64];
+                    sprintf(lbl, "%d %s", id, g_mk1_widths[i].label);
+                    ImGui::SliderFloat(lbl, &g_mk1_widths[i].width, 0.0f, 5.0f, "%.1f");
+                }
+            }
+            ImGui::TextUnformatted("Mid");
+            for (int i = 0; i < g_mk1_widths_count; ++i) {
+                const int id = g_mk1_widths[i].mot;
+                if (id >= 325 && id <= 332) {
+                    char lbl[64];
+                    sprintf(lbl, "%d %s", id, g_mk1_widths[i].label);
+                    ImGui::SliderFloat(lbl, &g_mk1_widths[i].width, 0.0f, 5.0f, "%.1f");
+                }
+            }
+            ImGui::TextUnformatted("Bottom");
+            for (int i = 0; i < g_mk1_widths_count; ++i) {
+                const int id = g_mk1_widths[i].mot;
+                if (id >= 334 && id <= 337) {
+                    char lbl[64];
+                    sprintf(lbl, "%d %s", id, g_mk1_widths[i].label);
+                    ImGui::SliderFloat(lbl, &g_mk1_widths[i].width, 0.0f, 5.0f, "%.1f");
+                }
+            }
+
+            // -------- Tsubaki Mk2 --------
+            ImGui::SeparatorText("Tsubaki Mk2");
+            ImGui::TextUnformatted("Up");
+            for (int i = 0; i < g_mk2_widths_count; ++i) {
+                const int id = g_mk2_widths[i].mot;
+                if (id >= 366 && id <= 369) {
+                    char lbl[64];
+                    sprintf(lbl, "%d %s", id, g_mk2_widths[i].label);
+                    ImGui::SliderFloat(lbl, &g_mk2_widths[i].width, 0.0f, 5.0f, "%.1f");
+                }
+            }
+            ImGui::TextUnformatted("Mid");
+            for (int i = 0; i < g_mk2_widths_count; ++i) {
+                const int id = g_mk2_widths[i].mot;
+                if (id >= 371 && id <= 376) {
+                    char lbl[64];
+                    sprintf(lbl, "%d %s", id, g_mk2_widths[i].label);
+                    ImGui::SliderFloat(lbl, &g_mk2_widths[i].width, 0.0f, 5.0f, "%.1f");
+                }
+            }
+            ImGui::TextUnformatted("Bottom");
+            for (int i = 0; i < g_mk2_widths_count; ++i) {
+                const int id = g_mk2_widths[i].mot;
+                if (id >= 379 && id <= 383) {
+                    char lbl[64];
+                    sprintf(lbl, "%d %s", id, g_mk2_widths[i].label);
+                    ImGui::SliderFloat(lbl, &g_mk2_widths[i].width, 0.0f, 5.0f, "%.1f");
+                }
+            }
+
+            // -------- Tsubaki Mk3 --------
+            ImGui::SeparatorText("Tsubaki Mk3");
+            ImGui::TextUnformatted("Up");
+            for (int i = 0; i < g_mk3_widths_count; ++i) {
+                const int id = g_mk3_widths[i].mot;
+                if (id >= 271 && id <= 277) {
+                    char lbl[64];
+                    sprintf(lbl, "%d %s", id, g_mk3_widths[i].label);
+                    ImGui::SliderFloat(lbl, &g_mk3_widths[i].width, 0.0f, 5.0f, "%.1f");
+                }
+            }
+            ImGui::TextUnformatted("Bottom");
+            for (int i = 0; i < g_mk3_widths_count; ++i) {
+                const int id = g_mk3_widths[i].mot;
+                if (id >= 279 && id <= 286) {
+                    char lbl[64];
+                    sprintf(lbl, "%d %s", id, g_mk3_widths[i].label);
+                    ImGui::SliderFloat(lbl, &g_mk3_widths[i].width, 0.0f, 5.0f, "%.1f");
+                }
+            }
+
+            if (ImGui::Button("Defaults##PerMotionValuesDefaults")) {
+                for (int i = 0; i < g_bb_widths_count; ++i)
+                    g_bb_widths[i].width = 0.5f;
+                for (int i = 0; i < g_mk1_widths_count; ++i)
+                    g_mk1_widths[i].width = 0.5f;
+                for (int i = 0; i < g_mk2_widths_count; ++i)
+                    g_mk2_widths[i].width = 0.5f;
+                for (int i = 0; i < g_mk3_widths_count; ++i)
+                    g_mk3_widths[i].width = 0.5f;
+            }
+            ImGui::TreePop();
+        }
+
         ImGui::Unindent();
     }
 
@@ -973,7 +1382,7 @@ void SwordColours::on_draw_ui() {
     if (ImGui::IsItemHovered())
         SwordColours::hoveredDescription = defaultDescription;
 
-    // Caramelldansen UI 
+    // Caramelldansen UI
     if (ImGui::Checkbox("Caramelldansen", &g_rgb_cycle)) {
         if (g_rgb_cycle) {
             heart_colours = false;
@@ -1085,7 +1494,7 @@ void SwordColours::on_config_load(const utility::Config& cfg) {
 
     swordGlowAmount = cfg.get<float>("swordGlowAmount").value_or(4.0f);
 
-    // width stuff
+    // width/flicker stuff
     force_girth                 = cfg.get<bool>("force_girth").value_or(false);
     force_girth_amount          = cfg.get<float>("force_girth_amount").value_or(0.5f);
     custom_flicker              = cfg.get<bool>("custom_flicker").value_or(false);
@@ -1094,6 +1503,31 @@ void SwordColours::on_config_load(const utility::Config& cfg) {
     heart_girth                 = cfg.get<bool>("heart_girth").value_or(false);
     base_heart_girth            = cfg.get<float>("base_heart_girth").value_or(0.5f);
     heartbeat_girth_amount      = cfg.get<float>("heartbeat_girth_amount").value_or(2.0f);
+
+    // per-motion toggle
+    g_per_motion_flicker = cfg.get<bool>("per_motion_flicker").value_or(false);
+
+    // per-motion values
+    for (int j = 0; j < g_bb_widths_count; ++j) {
+        char key[64];
+        sprintf(key, "per_mot_width_%d", g_bb_widths[j].mot);
+        g_bb_widths[j].width = cfg.get<float>(key).value_or(0.5f);
+    }
+    for (int j = 0; j < g_mk1_widths_count; ++j) {
+        char key[64];
+        sprintf(key, "per_mot_width_%d", g_mk1_widths[j].mot);
+        g_mk1_widths[j].width = cfg.get<float>(key).value_or(0.5f);
+    }
+    for (int j = 0; j < g_mk2_widths_count; ++j) {
+        char key[64];
+        sprintf(key, "per_mot_width_%d", g_mk2_widths[j].mot);
+        g_mk2_widths[j].width = cfg.get<float>(key).value_or(0.5f);
+    }
+    for (int j = 0; j < g_mk3_widths_count; ++j) {
+        char key[64];
+        sprintf(key, "per_mot_width_%d", g_mk3_widths[j].mot);
+        g_mk3_widths[j].width = cfg.get<float>(key).value_or(0.5f);
+    }
 
     // picker layout preference
     g_use_color_wheel = cfg.get<bool>("use_color_wheel").value_or(true);
@@ -1146,7 +1580,7 @@ void SwordColours::on_config_save(utility::Config& cfg) {
     cfg.set<int>("setDeathblowTimer", setDeathblowTimer);
     cfg.set<float>("swordGlowAmount", swordGlowAmount);
 
-    // width stuff
+    // width/flicker stuff
     cfg.set<bool>("force_girth", force_girth);
     cfg.set<float>("force_girth_amount", force_girth_amount);
     cfg.set<bool>("custom_flicker", custom_flicker);
@@ -1155,6 +1589,31 @@ void SwordColours::on_config_save(utility::Config& cfg) {
     cfg.set<bool>("heart_girth", heart_girth);
     cfg.set<float>("base_heart_girth", base_heart_girth);
     cfg.set<float>("heartbeat_girth_amount", heartbeat_girth_amount);
+
+    // per-motion toggle
+    cfg.set<bool>("per_motion_flicker", g_per_motion_flicker);
+
+    // per-motion values
+    for (int j = 0; j < g_bb_widths_count; ++j) {
+        char key[64];
+        sprintf(key, "per_mot_width_%d", g_bb_widths[j].mot);
+        cfg.set<float>(key, g_bb_widths[j].width);
+    }
+    for (int j = 0; j < g_mk1_widths_count; ++j) {
+        char key[64];
+        sprintf(key, "per_mot_width_%d", g_mk1_widths[j].mot);
+        cfg.set<float>(key, g_mk1_widths[j].width);
+    }
+    for (int j = 0; j < g_mk2_widths_count; ++j) {
+        char key[64];
+        sprintf(key, "per_mot_width_%d", g_mk2_widths[j].mot);
+        cfg.set<float>(key, g_mk2_widths[j].width);
+    }
+    for (int j = 0; j < g_mk3_widths_count; ++j) {
+        char key[64];
+        sprintf(key, "per_mot_width_%d", g_mk3_widths[j].mot);
+        cfg.set<float>(key, g_mk3_widths[j].width);
+    }
 
     // picker layout preference
     cfg.set<bool>("use_color_wheel", g_use_color_wheel);

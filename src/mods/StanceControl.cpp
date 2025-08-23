@@ -182,7 +182,7 @@ static constexpr float midGuardBlend = 0.5f;
 static constexpr float highGuardBlend = 1.0f;
 static float blendTick = 0.1f;
 static float blendTickNotLockedOn = 0.1f;
-static float blendTickLockedOn = 0.4f;
+static float blendTickLockedOn = 0.3f;
 static float newTilt = 0.0f;
 // static bool verySmooth = true;
 
@@ -509,6 +509,8 @@ naked void detour5() { // stance guards
             cmp edi, 61
             je HighAttack
             cmp edi, 68
+            je HighAttack
+            cmp edi, 78
             je HighAttack
             cmp edi, 79
             je HighAttack
