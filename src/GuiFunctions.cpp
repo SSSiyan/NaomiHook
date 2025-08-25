@@ -3,7 +3,7 @@
 #include "LicenseStrings.hpp"
 #include "mods/KbmControls.hpp"
 #include "utility/Hash.hpp"
-#include <cmath> // expf, fabsf
+#include <cmath> // expf, fabsf, powf
 #include <string>
 #include <unordered_map>
 
@@ -28,7 +28,15 @@
 static bool g_save_hold_tracking     = false;
 static bool g_save_hold_done         = false;
 static double g_save_hold_t0         = 0.0;
-static const float SAVE_HOLD_SECONDS = 1.5f;
+static const float SAVE_HOLD_SECONDS = 1.0f;
+
+// --- SAVE PULSE ---
+// Color sampled from the provided green swatch (RGB 40, 254, 32)
+#define SAVE_PULSE_COLOR IM_COL32(40, 254, 32, 255)
+static bool g_save_pulse_active   = false;
+static double g_save_pulse_t0     = 0.0;
+static const float kSavePulseSec  = 0.55f;
+static bool g_save_btn_was_active = false; // to detect release of the save button
 
 // --- folder slide animation state ---
 static const float kFolderSlideSec = 0.12f; // seconds
@@ -56,6 +64,7 @@ static const float kInfoFadeSec   = 0.10f; // quick fade (seconds)
 static ImGuiID g_info_last_mod_id = 0;
 static double g_info_fade_t0      = 0.0;
 
+// --- helper eases ---
 static inline float ease_smoothstep(float t) {
     if (t < 0.0f)
         t = 0.0f;
@@ -117,6 +126,34 @@ static void apply_smooth_scroll_for_current_window(float lines_per_notch = 6.0f,
 
     S.last = ImGui::GetScrollY();
 }
+
+// ============================================================================
+// Row FX: Hover fade -> lime, and "Sticker-Slap" click burst overlays
+// ============================================================================
+static const float kRow_HoverFadeSec = 0.11f; // quick but visible
+static const ImU32 kRow_BaseTextCol  = IM_COL32(240, 240, 240, 255);
+static const ImU32 kRow_LimeTextCol  = IM_COL32(40, 255, 33, 255);
+
+// Sticker-Slap (misregistered lime + white pop with a tiny overshoot)
+static const float kSS_DurSec      = 0.16f;
+static const float kSS_MaxOffsetPx = 2.5f;  // starting offset magnitude
+static const float kSS_MaxAlpha    = 0.85f; // overlay alpha peak (multiplied by decay)
+
+struct RowFxState {
+    float hover_mix   = 0.0f; // 0..1 (toward lime)
+    bool click_active = false;
+    double click_t0   = 0.0;
+};
+static std::unordered_map<ImGuiID, RowFxState> g_rowFx;
+
+static inline ImU32 col_lerp_u32(ImU32 a, ImU32 b, float t) {
+    ImVec4 A = ImGui::ColorConvertU32ToFloat4(a);
+    ImVec4 B = ImGui::ColorConvertU32ToFloat4(b);
+    ImVec4 C = ImLerp(A, B, ImClamp(t, 0.0f, 1.0f));
+    return ImGui::ColorConvertFloat4ToU32(C);
+}
+
+// ============================================================================
 
 namespace gui {
 void dark_theme(unsigned int dpi) {
@@ -471,22 +508,72 @@ void imgui_right_window_proc(OurImGuiContext* ctx, Mods* pmods) {
 }
 
 // Animated draw_category: quick slide open/close (header nudges on open AND collapse)
+// Also has per-row hover fade + Sticker-Slap click burst (no layout shift)
 static void draw_category(OurImGuiContext* ctx, const char* category_name, ModCategory category_enum) {
 
     static constexpr auto entry_func = [](OurImGuiContext* ctx, Mod* mod) {
-        ImColor color        = ImColor(240, 240, 240);
-        ImVec2 pos           = ImGui::GetCursorPos();
-        std::string btn_name = mod->get_mod_name();
-        btn_name += "_btn";
-        ImVec2 sz = ImVec2(-FLT_MIN, ImGui::GetTextLineHeight());
-        if (ImGui::InvisibleButton(btn_name.c_str(), sz)) {
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+        auto& io       = ImGui::GetIO();
+
+        const std::string label = mod->get_human_readable_name();
+
+        // Keep layout stable: use an InvisibleButton as the row hit area, then draw text manually on top.
+        ImVec2 row_pos_local = ImGui::GetCursorPos();
+        ImVec2 row_size      = ImVec2(-FLT_MIN, ImGui::GetTextLineHeight());
+        if (ImGui::InvisibleButton((mod->get_mod_name() + "_btn").c_str(), row_size)) {
+            // Click: select the mod and trigger Sticker-Slap for this row
             ctx->selected_mod = mod;
         }
-        ImGui::SetCursorPos(pos);
-        if (ImGui::IsItemHovered()) {
-            color = ImColor(40, 255, 33);
+
+        // Resolve state by row ID
+        ImGuiID row_id = ImGui::GetItemID();
+        RowFxState& FX = g_rowFx[row_id];
+
+        // Hover mix toward lime (fade in/out)
+        const bool hovered = ImGui::IsItemHovered();
+        float target       = hovered ? 1.0f : 0.0f;
+        float step         = (io.DeltaTime > 0.0f ? (io.DeltaTime / kRow_HoverFadeSec) : 1.0f);
+        if (target > FX.hover_mix)
+            FX.hover_mix = ImMin(1.0f, FX.hover_mix + step);
+        else
+            FX.hover_mix = ImMax(0.0f, FX.hover_mix - step);
+
+        // Click trigger for Sticker-Slap (start a short-lived overlay)
+        if (ImGui::IsItemClicked()) {
+            FX.click_active = true;
+            FX.click_t0     = ImGui::GetTime();
         }
-        ImGui::TextColored(color, mod->get_human_readable_name().c_str());
+
+        // Compute text color with hover fade
+        ImU32 base_col = col_lerp_u32(kRow_BaseTextCol, kRow_LimeTextCol, FX.hover_mix);
+
+        // Draw the baseline text exactly at the row's original position (no layout shift)
+        ImVec2 win_pos = ImGui::GetWindowPos();
+        ImVec2 text_p  = ImVec2(win_pos.x + row_pos_local.x, win_pos.y + row_pos_local.y);
+        dl->AddText(text_p, base_col, label.c_str());
+
+        // Sticker-Slap overlay: two misregistered copies that quickly snap back
+        if (FX.click_active) {
+            float t = (float)((ImGui::GetTime() - FX.click_t0) / kSS_DurSec);
+            if (t >= 1.0f) {
+                FX.click_active = false;
+            } else {
+                // Ease-out with tiny overshoot scale
+                float e     = ease_smoothstep(t);         // 0..1
+                float inv   = 1.0f - e;                   // 1..0
+                float scale = inv * (1.0f + 0.35f * inv); // overshoot early, collapse to 0
+                float dx    = kSS_MaxOffsetPx * scale;
+                float dy    = 0.6f * dx;
+
+                int a       = (int)(kSS_MaxAlpha * inv * 255.0f);
+                ImU32 limeA = IM_COL32(40, 254, 32, a); // bright lime overlay
+                ImU32 whtA  = IM_COL32(255, 255, 255, a);
+
+                // Draw lime slightly up-left, white slightly down-right
+                dl->AddText(ImVec2(text_p.x - dx, text_p.y - dy), limeA, label.c_str());
+                dl->AddText(ImVec2(text_p.x + dx, text_p.y + dy), whtA, label.c_str());
+            }
+        }
     };
 
     // Per-category slide-in offset if just selected/opened or collapsing
@@ -582,18 +669,20 @@ static void draw_category(OurImGuiContext* ctx, const char* category_name, ModCa
     float fade = ImClamp(reveal_h / ImMax(1.0f, full_height_guess), 0.0f, 1.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * (0.25f + 0.75f * fade));
 
-    // --- body contents (original list) ---
+    // --- body contents (list of mods) ---
     {
         auto& io = ImGui::GetIO();
         ImGui::PushFont(ctx->tony_font, 12.0f * (io.DisplaySize.y / 1080.0f));
         ImVec2 currentSpacing = ImGui::GetStyle().ItemSpacing;
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(currentSpacing.x, 10.0f * (io.DisplaySize.y / 1080.0f)));
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f * (io.DisplaySize.y / 1080.0f));
+
         for (auto& mod : g_framework->get_mods()->m_mods) {
             if (mod->get_category() != category_enum)
                 continue;
             entry_func(ctx, mod.get());
         }
+
         ImGui::PopStyleVar(); // ItemSpacing
         ImGui::PopFont();
     }
@@ -645,6 +734,30 @@ void imgui_main_window_proc(OurImGuiContext* ctx, Mods* pmods, bool* window_open
         ImGuiWindowFlags main_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollWithMouse;
         ImGui::Begin(PROJECT_NAME " " GUI_VERSION, window_open, main_flags);
         {
+            // --- Save Pulse: draw FIRST so it sits only on the menu backdrop
+            if (g_save_pulse_active) {
+                float t = (float)((ImGui::GetTime() - g_save_pulse_t0) / kSavePulseSec);
+                if (t >= 1.0f) {
+                    g_save_pulse_active = false;
+                } else {
+                    // Ease-out alpha and draw a soft overlay constrained to this window only
+                    float a        = 1.0f - t;
+                    a              = a * a; // quadratic falloff
+                    ImDrawList* dl = ImGui::GetWindowDrawList();
+                    ImVec2 wp      = ImGui::GetWindowPos();
+                    ImVec2 ws      = ImGui::GetWindowSize();
+                    float round    = ImGui::GetStyle().WindowRounding;
+
+                    // Filled backdrop wash
+                    ImU32 col_fill = IM_COL32(40, 254, 32, (int)(120.0f * a));
+                    dl->AddRectFilled(wp, ImVec2(wp.x + ws.x, wp.y + ws.y), col_fill, round);
+
+                    // Subtle bright edge
+                    ImU32 col_edge = IM_COL32(40, 254, 32, (int)(180.0f * a));
+                    dl->AddRect(wp, ImVec2(wp.x + ws.x, wp.y + ws.y), col_edge, round, 0, 2.0f);
+                }
+            }
+
             apply_smooth_scroll_for_current_window();
 
             // Top gradient strip (subtle)
@@ -657,11 +770,15 @@ void imgui_main_window_proc(OurImGuiContext* ctx, Mods* pmods, bool* window_open
                 dl->AddRectFilledMultiColor(ImVec2(wp.x, wp.y), ImVec2(wp.x + ws.x, wp.y + 6.0f), c0, c0, c1, c1);
             }
 
-            // Hold-to-save button: 1.5s hold, fires at full bar; label switches to "Saved!"
+            // Hold-to-save button: 1.5s hold, fires at full bar; pulse plays on RELEASE
             ImVec2 btn_sz = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetFontSize() * 1.2f);
 
             // Draw a label-less button for full control over text
             ImGui::Button("##SaveConfig", btn_sz);
+
+            // Release detection for this specific item
+            bool now_active    = ImGui::IsItemActive();
+            bool just_released = (g_save_btn_was_active && !now_active && !ImGui::IsMouseDown(ImGuiMouseButton_Left));
 
             // Geometry for overlay
             ImVec2 btn_min = ImGui::GetItemRectMin();
@@ -670,7 +787,7 @@ void imgui_main_window_proc(OurImGuiContext* ctx, Mods* pmods, bool* window_open
             ImDrawList* dl = ImGui::GetWindowDrawList();
             float rounding = ImGui::GetStyle().FrameRounding;
 
-            if (ImGui::IsItemActive()) {
+            if (now_active) {
                 // Start tracking on initial press
                 if (!g_save_hold_tracking) {
                     g_save_hold_tracking = true;
@@ -710,12 +827,21 @@ void imgui_main_window_proc(OurImGuiContext* ctx, Mods* pmods, bool* window_open
                 ImVec2 txt_pos(btn_rect.GetCenter().x - txt_sz.x * 0.5f, btn_rect.GetCenter().y - txt_sz.y * 0.5f);
                 dl->AddText(txt_pos, ImGui::GetColorU32(ImGuiCol_Text), idle_txt);
 
-                // Reset when the press is fully released/cancelled
+                // If we just released the button and a save completed, fire the green backdrop pulse
+                if (just_released && g_save_hold_done) {
+                    g_save_pulse_active = true;
+                    g_save_pulse_t0     = ImGui::GetTime();
+                }
+
+                // Reset tracking when the press is fully released/cancelled
                 if (!ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
                     g_save_hold_tracking = false;
                     g_save_hold_done     = false;
                 }
             }
+
+            // Update last-active state for release detection next frame
+            g_save_btn_was_active = now_active;
 
             ImGui::PushFont(ctx->fancy_font, 48.0f * (io.DisplaySize.y / 1080.0f));
 

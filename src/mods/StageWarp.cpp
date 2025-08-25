@@ -1,8 +1,8 @@
 #include "StageWarp.hpp"
-#include "utility/Compressed.hpp"
-#include "intrin.h"
-#include "fw-imgui/Texture2DD3D11.hpp"
 #include "fw-imgui/StageWarpAtlas.cpp"
+#include "fw-imgui/Texture2DD3D11.hpp"
+#include "intrin.h"
+#include "utility/Compressed.hpp"
 #if 1
 
 struct ExtraSetStageArgs {
@@ -17,22 +17,47 @@ struct ExtraSetStageArgs {
 };
 
 static ExtraSetStageArgs setStageArgs{
-     0, // int _StageAdd;
+    0,  // int _StageAdd;
     -1, // int _Arg1;
     -1, // int _Arg2;
-     0, // bool inBossInfoDisp;
-     0, // int inFadeType;
-     0, // int inSetVolRate;
-     0, // bool inPause;
-     0, // unsigned int a10;
+    0,  // bool inBossInfoDisp;
+    0,  // int inFadeType;
+    0,  // int inSetVolRate;
+    0,  // bool inPause;
+    0,  // unsigned int a10;
 };
 
-static ImVec4 stageNameColor{ 1.00f, 0.79f, 0.45f, 1.0f };
-static ImVec4 stageInfoColor{ 0.81f, 0.40f, 0.38f, 1.0f };
-static ImVec4 stageHoveredColor{ 0.37f, 0.71f, 0.34f, 1.0f };
+static ImVec4 stageNameColor{1.00f, 0.79f, 0.45f, 1.0f};
+static ImVec4 stageInfoColor{0.81f, 0.40f, 0.38f, 1.0f};
+static ImVec4 stageHoveredColor{0.37f, 0.71f, 0.34f, 1.0f};
 
 // directx stuff
 static std::unique_ptr<Texture2DD3D11> g_stage_warp_texture_atlas{};
+
+// ---------------------------------------------------------------------------------------------------
+// Hover one-shot tape jitter + chromatic aberration for preview image.
+// Triggers once per stage hover, then fades out to clean image.
+// It's tuned for stronger jitter and a slightly longer tail but we can tweak it further if needed.
+// ---------------------------------------------------------------------------------------------------
+static const int kHJ_Bands            = 8;     // horizontal micro-bands
+static const float kHJ_BaseAmpPx      = 2.2f;  // stronger base amplitude
+static const float kHJ_SpeedBase      = 22.0f; // base oscillation speed (rad/s)
+static const float kHJ_SpeedVar       = 4.0f;  // extra speed per band index
+static const float kHJ_Duration       = 0.24f; // slightly longer play time
+static const float kHJ_CA_MaxOffsetPx = 1.9f;  // stronger CA offset
+static const float kHJ_CA_Alpha       = 0.65f; // bolder CA overlay
+
+// UV padding to reduce atlas bleeding (matches 4096x2048 atlas)
+static const float kUVPadU = 1.0f / 4096.0f;
+static const float kUVPadV = 1.0f / 2048.0f;
+
+// Animation state (keyed by stage index so it does not retrigger every frame)
+static int g_last_stage_index = -1;    // last hovered stage index (>=0), or -1
+static double g_hj_start_time = -1.0;  // ImGui::GetTime() at trigger
+static bool g_hj_active       = false; // running this frame?
+
+// Per-frame hover flag (so we only revert to default AFTER all rows are drawn)
+static bool g_any_stage_hovered_this_frame = false;
 
 #pragma region TextureAtlasDefinitions
 
@@ -44,17 +69,12 @@ struct Frame {
 struct TextureAtlas {
     static constexpr auto getCoordinates(int index) {
         if (index < 0 || index > 78) {
-            return Frame{
-                ImVec2{ 3584.0f, 1024.0f },
-                ImVec2{ 3840.0f, 1280.0f },
-                ImVec2{ 0.875f, 0.5f },
-                ImVec2{ 0.9375f, 0.625f }
-            }; // 78, "none"
+            return Frame{ImVec2{3584.0f, 1024.0f}, ImVec2{3840.0f, 1280.0f}, ImVec2{0.875f, 0.5f}, ImVec2{0.9375f, 0.625f}}; // 78, "none"
         }
 
-        constexpr float atlasWidth = 4096.0f;
+        constexpr float atlasWidth  = 4096.0f;
         constexpr float atlasHeight = 2048.0f;
-        constexpr float imageSize = 256.0f;
+        constexpr float imageSize   = 256.0f;
 
         int row = index / 16;
         int col = index % 16;
@@ -65,32 +85,139 @@ struct TextureAtlas {
         float xEnd = xStart + imageSize;
         float yEnd = yStart + imageSize;
 
-        return Frame{
-            ImVec2{ xStart, yStart },
-            ImVec2{ xEnd, yEnd },
-            ImVec2{ xStart / atlasWidth, yStart / atlasHeight },
-            ImVec2{ xEnd / atlasWidth, yEnd / atlasHeight }
-        };
+        return Frame{ImVec2{xStart, yStart}, ImVec2{xEnd, yEnd}, ImVec2{xStart / atlasWidth, yStart / atlasHeight},
+            ImVec2{xEnd / atlasWidth, yEnd / atlasHeight}};
     }
 
-    static constexpr auto meta_size() {
-        return ImVec2{ 4096.0f, 2048.0f };
-    }
+    static constexpr auto meta_size() { return ImVec2{4096.0f, 2048.0f}; }
 };
 
 #pragma endregion
 
-// yeah all this is needed to update the bottom panel
-const char* StageWarp::defaultDescription = "Teleport to any stage in the game. 'Wii/Unused' contains warps to stages which aren't included with the Steam release of NMH1, so to make use of these, you'll need to have the files from the Wii version.";
+// bottom panel text
+const char* StageWarp::defaultDescription =
+    "Teleport to any stage in the game. 'Wii/Unused' contains warps to stages which aren't included with the Steam release of NMH1, so to "
+    "make use of these, you'll need to have the files from the Wii version.";
 const char* StageWarp::hoveredDescription = defaultDescription;
-const char* StageWarp::defaultStageName = "Hover over a stage to see details.";
-const char* StageWarp::stageName = defaultStageName;
+const char* StageWarp::defaultStageName   = "Hover over a stage to see details.";
+const char* StageWarp::stageName          = defaultStageName;
 Frame stageImage;
-//
+
+// Helper: simple check if it is one of the STG entries
+static inline bool is_stage_code(const char* name) {
+    return (name && name[0] == 'S' && name[1] == 'T' && name[2] == 'G');
+}
+
+// Trigger one-shot animation when a NEW stage row is hovered.
+// Pass stageIndex >=0 for real stages, or -1 for non-stage updates.
+void update_description(const char* name, const char* info, Frame image, int stageIndex) {
+    StageWarp::stageName          = name;
+    StageWarp::hoveredDescription = info;
+    stageImage                    = image;
+
+    if (stageIndex >= 0 && is_stage_code(name)) {
+        if (stageIndex != g_last_stage_index) {
+            g_last_stage_index = stageIndex;
+            g_hj_start_time    = ImGui::GetTime();
+            g_hj_active        = true;
+        }
+    } else {
+        // non-stage hover: stop and reset so re-hovering a stage will retrigger
+        g_hj_active        = false;
+        g_last_stage_index = -1;
+    }
+}
 
 void StageWarp::render_description() const {
     ImVec2 availableSpace = ImGui::GetContentRegionAvail();
-    ImGui::ImageWithBg((ImTextureID)g_stage_warp_texture_atlas->GetTexture(), ImVec2(availableSpace.y, availableSpace.y), stageImage.uv0, stageImage.uv1, ImVec4(1,1,1,1));
+    float side            = availableSpace.y; // keep preview square
+    if (side <= 0.0f)
+        side = 1.0f;
+
+    ImDrawList* dl = ImGui::GetWindowDrawList();
+    ImVec2 p0      = ImGui::GetCursorScreenPos();
+    ImVec2 p1      = ImVec2(p0.x + side, p0.y + side);
+
+    // Reserve the preview area
+    ImGui::Dummy(ImVec2(side, side));
+
+    // Background (solid black, sharp corners)
+    dl->AddRectFilled(p0, p1, IM_COL32(0, 0, 0, 255));
+
+    // Texture + padded UVs
+    ImTextureID tex = (ImTextureID)g_stage_warp_texture_atlas->GetTexture();
+    ImVec2 uv0      = stageImage.uv0;
+    ImVec2 uv1      = stageImage.uv1;
+    uv0.x += kUVPadU;
+    uv0.y += kUVPadV;
+    uv1.x -= kUVPadU;
+    uv1.y -= kUVPadV;
+
+    // Decide whether to animate this frame
+    double now   = ImGui::GetTime();
+    bool do_anim = false;
+    float anim_u = 1.0f; // 0..1
+    if (g_hj_active && g_hj_start_time >= 0.0) {
+        double dt = now - g_hj_start_time;
+        if (dt < kHJ_Duration) {
+            anim_u  = (float)(dt / kHJ_Duration);
+            do_anim = true;
+        } else {
+            g_hj_active = false; // finished
+        }
+    }
+
+    if (!do_anim) {
+        // Static draw
+        dl->AddImage(tex, p0, p1, uv0, uv1, IM_COL32(255, 255, 255, 255));
+    } else {
+        // One-shot banded jitter + CA that quickly damps to 0 (fades out).
+        // Gentle quadratic ease-out: s = 1 - (1 - u)^2 ; scale = 1 - s
+        float s     = 1.0f - (1.0f - anim_u) * (1.0f - anim_u);
+        float scale = 1.0f - s;
+
+        const float band_h = (p1.y - p0.y) / (float)kHJ_Bands;
+        const float w      = (p1.x - p0.x);
+
+        float tb = (float)now;
+
+        // Fade CA both in offset and opacity
+        float ca_px    = kHJ_CA_MaxOffsetPx * scale;
+        int ca_alpha   = (int)(kHJ_CA_Alpha * scale * 255.0f);
+        ImU32 col_red  = IM_COL32(255, 64, 64, ca_alpha);
+        ImU32 col_cyan = IM_COL32(64, 255, 255, ca_alpha);
+
+        for (int i = 0; i < kHJ_Bands; ++i) {
+            float y0 = p0.y + band_h * (float)i;
+            float y1 = y0 + band_h;
+
+            // Map vertical UVs for this band
+            float v0 = ImLerp(uv0.y, uv1.y, (float)i / (float)kHJ_Bands);
+            float v1 = ImLerp(uv0.y, uv1.y, (float)(i + 1) / (float)kHJ_Bands);
+
+            // Per-band oscillation (damps with scale)
+            float speed = kHJ_SpeedBase + kHJ_SpeedVar * (float)i;
+            float phase = (float)i * 0.85f;
+            float dx    = ImSin(tb * speed + phase) * (kHJ_BaseAmpPx * (1.0f + 0.10f * (float)((i & 1) ? 1 : -1))) * scale;
+
+            // Pixel snapping keeps edges sharp
+            float x0 = ImFloor(p0.x + dx + 0.5f);
+            float x1 = ImFloor(p0.x + w + dx + 0.5f);
+            y0       = ImFloor(y0 + 0.5f);
+            y1       = ImFloor(y1 + 0.5f);
+
+            // Base band (full color)
+            dl->AddImage(tex, ImVec2(x0, y0), ImVec2(x1, y1), ImVec2(uv0.x, v0), ImVec2(uv1.x, v1), IM_COL32(255, 255, 255, 255));
+
+            // CA overlays: slight horizontal offsets left/right that fade out
+            if (ca_px > 0.01f && ca_alpha > 0) {
+                dl->AddImage(tex, ImVec2(x0 - ca_px, y0), ImVec2(x1 - ca_px, y1), ImVec2(uv0.x, v0), ImVec2(uv1.x, v1), col_red);
+                dl->AddImage(tex, ImVec2(x0 + ca_px, y0), ImVec2(x1 + ca_px, y1), ImVec2(uv0.x, v0), ImVec2(uv1.x, v1), col_cyan);
+            }
+        }
+    }
+
+    // Right-hand text block
     ImGui::SameLine();
     ImGui::BeginGroup();
     ImGui::TextColored(stageNameColor, stageName);
@@ -98,91 +225,85 @@ void StageWarp::render_description() const {
     ImGui::EndGroup();
 }
 
-void update_description(const char* name, const char* info, Frame image) {
-    StageWarp::stageName = name;
-    StageWarp::hoveredDescription = info;
-    stageImage = image;
-}
-
-std::array<StageWarp::Stage, 78> StageWarp::stage_items = { 
-    Stage {"STG000",    0, "Santa Destroy Overworld", ""},                //  0
-    Stage {"STG0001",   1, "Holly Summers Fight", ""},                    //  1
-    Stage {"STG0002",   2, "Holly Summers Zako", ""},                     //  2
-    Stage {"STG0003",   3, "Henry Fight True Ending", ""},                //  3
-    Stage {"STG0004",   4, "Free Fight 3", ""},                           //  4
-    Stage {"STG0007",   5, "Bar Plastic Model Lovikov", ""},              //  5
-    Stage {"STG0008",   6, "Cut Bike Race?", ""},                         //  6
-    Stage {"STG0009",   7, "Cut Bike Race? 2", ""},                       //  7
-    Stage {"STG00010",  8, "Cut Bike Race? 3", ""},                       //  8
-    Stage {"STG010",    9, "Shinobu Zako 1", ""},                         //  9
-    Stage {"STG00011", 10, "Motel Exterior", ""},                         // 10
-    Stage {"STG011",   11, "Shinobu Zako 2", ""},                         // 11
-    Stage {"STG012",   12, "Shinobu Zako 3", ""},                         // 12
-    Stage {"STG00013", 13, "City Street", ""},                            // 13
-    Stage {"STG013",   14, "Shinobu Fight", ""},                          // 14
-    Stage {"STG00014", 15, "Speedbuster Zako", ""},                       // 15
-    Stage {"STG00015", 16, "Beach Spawn", ""},                            // 16
-    Stage {"STG00016", 17, "Homes Near Beach", ""},                       // 17
-    Stage {"STG00017", 18, "Northern Island Spawn", ""},                  // 18
-    Stage {"STG00018", 19, "Free Fight Basketball", ""},                  // 19
-    Stage {"STG00019", 20, "Northern Island Spawn", ""},                  // 20
-    Stage {"STG00020", 21, "Free Fight 5", ""},                           // 21
-    Stage {"STG020",   22, "Bad Girl Fight", ""},                         // 22
-    Stage {"STG020J",  23, "Bad Girl Fight JP", ""},                      // 23
-    Stage {"STG00021", 24, "Beach Spawn", ""},                            // 24
-    Stage {"STG021",   25, "Bad Girl Zako", ""},                          // 25
-    Stage {"STG021J",  26, "Bad Girl Zako JP", ""},                       // 26
-    Stage {"STG022",   27, "Bad Girl Hall", ""},                          // 27
-    Stage {"STG023",   28, "Bad Girl ZAKO DEBUG", ""},                    // 28
-    Stage {"STG023J",  29, "Bad Girl ZAKO DEBUG JP", ""},                 // 29
-    Stage {"STG024",   30, "Bad Girl ZAKO DEBUG 2", ""},                  // 30
-    Stage {"STG024J",  31, "Bad Girl ZAKO DEBUG 2 JP", ""},               // 31
-    Stage {"STG030",   32, "Destroyman Zako 2", ""},                      // 32
-    Stage {"STG030T",  33, "Destroyman TGS Zako", ""},                    // 33
-    Stage {"STG031",   34, "Destroyman Fight", ""},                       // 34
-    Stage {"STG031T",  35, "Destroyman TGS Fight", ""},                   // 35
-    Stage {"STG041",   36, "Dr.Peace Zako 1", ""},                        // 36
-    Stage {"STG042",   37, "Dr.Peace Fight", ""},                         // 37
-    Stage {"STG051",   38, "Letz Shake Zako", ""},                        // 38
-    Stage {"STG060",   39, "SpeedBuster", ""},                            // 39
-    Stage {"STG080",   40, "Deathmetal Zako 2", ""},                      // 40
-    Stage {"STG081",   41, "Deathmetal Fight", ""},                       // 41
-    Stage {"STG083",   42, "Deathmetal Zako 1", ""},                      // 42
-    Stage {"STG084",   43, "Deathmetal Sylvia Call", ""},                 // 43
-    Stage {"STG090",   44, "Harvey Fight", ""},                           // 44
-    Stage {"STG100",   45, "Darkstar Bike Zako", ""},                     // 45
-    Stage {"STG101",   46, "Darkstar Zako", ""},                          // 46
-    Stage {"STG103",   47, "Darkstar/Jeane Fight", ""},                   // 47
-    Stage {"STG170",   48, "Destroyman Zako 1", ""},                      // 48
-    Stage {"STG0411",  49, "Dr.Peace Zako 3", ""},                        // 49
-    Stage {"STG0412",  50, "Dr.Peace Zako 2", ""},                        // 50
-    Stage {"STG0421",  51, "Stadium Free Fight", ""},                     // 51
-    Stage {"STG0422",  52, "???", ""},                                    // 52
-    Stage {"STG500",   53, "Motel", ""},                                  // 53
-    Stage {"STG500US", 54, "Motel Wii", ""},                              // 54
-    Stage {"STG510",   55, "Beefhead Videos", ""},                        // 55
-    Stage {"STG520",   56, "K-Entertainment", ""},                        // 56
-    Stage {"STG540",   57, "Job Center", ""},                             // 57
-    Stage {"STG550",   58, "Evolution Gym", ""},                          // 58
-    Stage {"STG560",   59, "Naomi's Lab", ""},                            // 59
-    Stage {"STG570",   60, "Area51", ""},                                 // 60
-    Stage {"STG580",   61, "??? 2", ""},                                  // 61
-    Stage {"STG1702",  62, "Train", ""},                                  // 62
-    Stage {"STG1703",  63, "Train Station (Boarding)", ""},               // 63
-    Stage {"STG1707",  64, "Train Station Exit", ""},                     // 64
-    Stage {"STG1708",  65, "Harvey Zako", ""},                            // 65
-    Stage {"STG1709",  66, "Train Station Harvey (Exit)", ""},            // 66
-    Stage {"STG9000",  67, "DeathMetal Toilet", ""},                      // 67
-    Stage {"STG9001",  68, "Darkstar Toilet", ""},                        // 68
-    Stage {"STG9002",  69, "Badgirl Toilet Stadium Basement", ""},        // 69
-    Stage {"STG9003",  70, "Speedbuster Toilet Speed City", ""},          // 70
-    Stage {"STG9004",  71, "Harvey Toilet", ""},                          // 71
-    Stage {"STG9005",  72, "Letz Shake Toilet Senton Splash Tunnel", ""}, // 72
-    Stage {"STG9006",  73, "Holly Toilet Beach", ""},                     // 73
-    Stage {"STG9007",  74, "Destroyman Toilet Bear Hug", ""},             // 74
-    Stage {"STG9007T", 75, "Destroyman Toilet TGS", ""},                  // 75
-    Stage {"STG9008",  76, "Shinobu Toilet High School", ""},             // 76
-    Stage {"STG9009",  77, "Dr.Peace Toilet Stadium", ""},                // 77
+std::array<StageWarp::Stage, 78> StageWarp::stage_items = {
+    Stage{"STG000", 0, "Santa Destroy Overworld", ""},                  //  0
+    Stage{"STG0001", 1, "Holly Summers Fight", ""},                     //  1
+    Stage{"STG0002", 2, "Holly Summers Zako", ""},                      //  2
+    Stage{"STG0003", 3, "Henry Fight True Ending", ""},                 //  3
+    Stage{"STG0004", 4, "Free Fight 3", ""},                            //  4
+    Stage{"STG0007", 5, "Bar Plastic Model Lovikov", ""},               //  5
+    Stage{"STG0008", 6, "Cut Bike Race?", ""},                          //  6
+    Stage{"STG0009", 7, "Cut Bike Race? 2", ""},                        //  7
+    Stage{"STG00010", 8, "Cut Bike Race? 3", ""},                       //  8
+    Stage{"STG010", 9, "Shinobu Zako 1", ""},                           //  9
+    Stage{"STG00011", 10, "Motel Exterior", ""},                        // 10
+    Stage{"STG011", 11, "Shinobu Zako 2", ""},                          // 11
+    Stage{"STG012", 12, "Shinobu Zako 3", ""},                          // 12
+    Stage{"STG00013", 13, "City Street", ""},                           // 13
+    Stage{"STG013", 14, "Shinobu Fight", ""},                           // 14
+    Stage{"STG00014", 15, "Speedbuster Zako", ""},                      // 15
+    Stage{"STG00015", 16, "Beach Spawn", ""},                           // 16
+    Stage{"STG00016", 17, "Homes Near Beach", ""},                      // 17
+    Stage{"STG00017", 18, "Northern Island Spawn", ""},                 // 18
+    Stage{"STG00018", 19, "Free Fight Basketball", ""},                 // 19
+    Stage{"STG00019", 20, "Northern Island Spawn", ""},                 // 20
+    Stage{"STG00020", 21, "Free Fight 5", ""},                          // 21
+    Stage{"STG020", 22, "Bad Girl Fight", ""},                          // 22
+    Stage{"STG020J", 23, "Bad Girl Fight JP", ""},                      // 23
+    Stage{"STG00021", 24, "Beach Spawn", ""},                           // 24
+    Stage{"STG021", 25, "Bad Girl Zako", ""},                           // 25
+    Stage{"STG021J", 26, "Bad Girl Zako JP", ""},                       // 26
+    Stage{"STG022", 27, "Bad Girl Hall", ""},                           // 27
+    Stage{"STG023", 28, "Bad Girl ZAKO DEBUG", ""},                     // 28
+    Stage{"STG023J", 29, "Bad Girl ZAKO DEBUG JP", ""},                 // 29
+    Stage{"STG024", 30, "Bad Girl ZAKO DEBUG 2", ""},                   // 30
+    Stage{"STG024J", 31, "Bad Girl ZAKO DEBUG 2 JP", ""},               // 31
+    Stage{"STG030", 32, "Destroyman Zako 2", ""},                       // 32
+    Stage{"STG030T", 33, "Destroyman TGS Zako", ""},                    // 33
+    Stage{"STG031", 34, "Destroyman Fight", ""},                        // 34
+    Stage{"STG031T", 35, "Destroyman TGS Fight", ""},                   // 35
+    Stage{"STG041", 36, "Dr.Peace Zako 1", ""},                         // 36
+    Stage{"STG042", 37, "Dr.Peace Fight", ""},                          // 37
+    Stage{"STG051", 38, "Letz Shake Zako", ""},                         // 38
+    Stage{"STG060", 39, "SpeedBuster", ""},                             // 39
+    Stage{"STG080", 40, "Deathmetal Zako 2", ""},                       // 40
+    Stage{"STG081", 41, "Deathmetal Fight", ""},                        // 41
+    Stage{"STG083", 42, "Deathmetal Zako 1", ""},                       // 42
+    Stage{"STG084", 43, "Deathmetal Sylvia Call", ""},                  // 43
+    Stage{"STG090", 44, "Harvey Fight", ""},                            // 44
+    Stage{"STG100", 45, "Darkstar Bike Zako", ""},                      // 45
+    Stage{"STG101", 46, "Darkstar Zako", ""},                           // 46
+    Stage{"STG103", 47, "Darkstar/Jeane Fight", ""},                    // 47
+    Stage{"STG170", 48, "Destroyman Zako 1", ""},                       // 48
+    Stage{"STG0411", 49, "Dr.Peace Zako 3", ""},                        // 49
+    Stage{"STG0412", 50, "Dr.Peace Zako 2", ""},                        // 50
+    Stage{"STG0421", 51, "Stadium Free Fight", ""},                     // 51
+    Stage{"STG0422", 52, "???", ""},                                    // 52
+    Stage{"STG500", 53, "Motel", ""},                                   // 53
+    Stage{"STG500US", 54, "Motel Wii", ""},                             // 54
+    Stage{"STG510", 55, "Beefhead Videos", ""},                         // 55
+    Stage{"STG520", 56, "K-Entertainment", ""},                         // 56
+    Stage{"STG540", 57, "Job Center", ""},                              // 57
+    Stage{"STG550", 58, "Evolution Gym", ""},                           // 58
+    Stage{"STG560", 59, "Naomi's Lab", ""},                             // 59
+    Stage{"STG570", 60, "Area51", ""},                                  // 60
+    Stage{"STG580", 61, "??? 2", ""},                                   // 61
+    Stage{"STG1702", 62, "Train", ""},                                  // 62
+    Stage{"STG1703", 63, "Train Station (Boarding)", ""},               // 63
+    Stage{"STG1707", 64, "Train Station Exit", ""},                     // 64
+    Stage{"STG1708", 65, "Harvey Zako", ""},                            // 65
+    Stage{"STG1709", 66, "Train Station Harvey (Exit)", ""},            // 66
+    Stage{"STG9000", 67, "DeathMetal Toilet", ""},                      // 67
+    Stage{"STG9001", 68, "Darkstar Toilet", ""},                        // 68
+    Stage{"STG9002", 69, "Badgirl Toilet Stadium Basement", ""},        // 69
+    Stage{"STG9003", 70, "Speedbuster Toilet Speed City", ""},          // 70
+    Stage{"STG9004", 71, "Harvey Toilet", ""},                          // 71
+    Stage{"STG9005", 72, "Letz Shake Toilet Senton Splash Tunnel", ""}, // 72
+    Stage{"STG9006", 73, "Holly Toilet Beach", ""},                     // 73
+    Stage{"STG9007", 74, "Destroyman Toilet Bear Hug", ""},             // 74
+    Stage{"STG9007T", 75, "Destroyman Toilet TGS", ""},                 // 75
+    Stage{"STG9008", 76, "Shinobu Toilet High School", ""},             // 76
+    Stage{"STG9009", 77, "Dr.Peace Toilet Stadium", ""},                // 77
 };
 
 std::array<std::reference_wrapper<StageWarp::Stage>, 78> all_stages = {
@@ -228,7 +349,7 @@ std::array<std::reference_wrapper<StageWarp::Stage>, 78> all_stages = {
     StageWarp::stage_items[39], // SpeedBuster
     StageWarp::stage_items[40], // Deathmetal Zako 2
     StageWarp::stage_items[41], // Deathmetal Fight
-    StageWarp::stage_items[42], // Deathmetal Zako 1
+    StageWarp::stage_items[42], // Deathmetal ZAKO 1
     StageWarp::stage_items[43], // Deathmetal Sylvia Call
     StageWarp::stage_items[44], // Harvey Fight
     StageWarp::stage_items[45], // Darkstar Bike Zako
@@ -267,99 +388,99 @@ std::array<std::reference_wrapper<StageWarp::Stage>, 78> all_stages = {
 };
 
 std::array<std::reference_wrapper<StageWarp::Stage>, 10> boss_stages = {
-    StageWarp::stage_items[41],  // Deathmetal
-    StageWarp::stage_items[37],  // Dr.Peace
-    StageWarp::stage_items[14],  // Shinobu
-    StageWarp::stage_items[34],  // Destroyman
-    StageWarp::stage_items[1],   // Holly Summers
-    StageWarp::stage_items[44],  // Harvey
-    StageWarp::stage_items[39],  // SpeedBuster
-    StageWarp::stage_items[22],  // Bad Girl
-    StageWarp::stage_items[47],  // Darkstar/Jeane
-    StageWarp::stage_items[3]    // Henry
+    StageWarp::stage_items[41], // Deathmetal
+    StageWarp::stage_items[37], // Dr.Peace
+    StageWarp::stage_items[14], // Shinobu
+    StageWarp::stage_items[34], // Destroyman
+    StageWarp::stage_items[1],  // Holly Summers
+    StageWarp::stage_items[44], // Harvey
+    StageWarp::stage_items[39], // SpeedBuster
+    StageWarp::stage_items[22], // Bad Girl
+    StageWarp::stage_items[47], // Darkstar/Jeane
+    StageWarp::stage_items[3]   // Henry
 };
 
 std::array<std::reference_wrapper<StageWarp::Stage>, 17> zako_stages = {
-    StageWarp::stage_items[42],  // Deathmetal Zako 1
-    StageWarp::stage_items[40],  // Deathmetal Zako 2
-    StageWarp::stage_items[36],  // Dr.Peace Zako 1
-    StageWarp::stage_items[50],  // Dr.Peace Zako 2
-    StageWarp::stage_items[49],  // Dr.Peace Zako 3
-    StageWarp::stage_items[9],   // Shinobu Zako 1
-    StageWarp::stage_items[11],  // Shinobu Zako 2
-    StageWarp::stage_items[12],  // Shinobu Zako 3
-    StageWarp::stage_items[48],  // Destroyman Zako 1
-    StageWarp::stage_items[32],  // Destroyman Zako 2
-    StageWarp::stage_items[2],   // Holly Summers Zako
-    StageWarp::stage_items[38],  // Letz Shake Zako
-    StageWarp::stage_items[65],  // Train Station Harvey (Boarding)
-    StageWarp::stage_items[15],  // Speedbuster Zako
-    StageWarp::stage_items[25],  // Bad Girl Zako
-    StageWarp::stage_items[45],  // Darkstar Bike Zako
-    StageWarp::stage_items[46]   // Darkstar Zako
+    StageWarp::stage_items[42], // Deathmetal Zako 1
+    StageWarp::stage_items[40], // Deathmetal Zako 2
+    StageWarp::stage_items[36], // Dr.Peace Zako 1
+    StageWarp::stage_items[50], // Dr.Peace Zako 2
+    StageWarp::stage_items[49], // Dr.Peace Zako 3
+    StageWarp::stage_items[9],  // Shinobu Zako 1
+    StageWarp::stage_items[11], // Shinobu Zako 2
+    StageWarp::stage_items[12], // Shinobu Zako 3
+    StageWarp::stage_items[48], // Destroyman Zako 1
+    StageWarp::stage_items[32], // Destroyman Zako 2
+    StageWarp::stage_items[2],  // Holly Summers Zako
+    StageWarp::stage_items[38], // Letz Shake Zako
+    StageWarp::stage_items[65], // Train Station Harvey (Boarding)
+    StageWarp::stage_items[15], // Speedbuster Zako
+    StageWarp::stage_items[25], // Bad Girl Zako
+    StageWarp::stage_items[45], // Darkstar Bike Zako
+    StageWarp::stage_items[46]  // Darkstar Zako
 };
 
 std::array<std::reference_wrapper<StageWarp::Stage>, 8> city_stages = {
-    StageWarp::stage_items[53],  // Motel
-    StageWarp::stage_items[55],  // Beefhead Videos
-    StageWarp::stage_items[56],  // K-Entertainment
-    StageWarp::stage_items[57],  // Job Center
-    StageWarp::stage_items[5],   // Bar Plastic Model Lovikov
-    StageWarp::stage_items[58],  // Evolution Gym
-    StageWarp::stage_items[59],  // Naomi's Lab
-    StageWarp::stage_items[60]   // Area51
+    StageWarp::stage_items[53], // Motel
+    StageWarp::stage_items[55], // Beefhead Videos
+    StageWarp::stage_items[56], // K-Entertainment
+    StageWarp::stage_items[57], // Job Center
+    StageWarp::stage_items[5],  // Bar Plastic Model Lovikov
+    StageWarp::stage_items[58], // Evolution Gym
+    StageWarp::stage_items[59], // Naomi's Lab
+    StageWarp::stage_items[60]  // Area51
 };
 
 std::array<std::reference_wrapper<StageWarp::Stage>, 15> wii_stages = {
-    StageWarp::stage_items[6],   // Cut Bike Race?
-    StageWarp::stage_items[7],   // Cut Bike Race? 2
-    StageWarp::stage_items[8],   // Cut Bike Race? 3
-    StageWarp::stage_items[23],  // Bad Girl Fight JP
-    StageWarp::stage_items[26],  // Bad Girl Zako JP
-    StageWarp::stage_items[28],  // Bad Girl ZAKO DEBUG
-    StageWarp::stage_items[29],  // Bad Girl ZAKO DEBUG JP
-    StageWarp::stage_items[30],  // Bad Girl ZAKO DEBUG 2
-    StageWarp::stage_items[31],  // Bad Girl ZAKO DEBUG 2 JP
-    StageWarp::stage_items[33],  // Destroyman TGS Zako
-    StageWarp::stage_items[35],  // Destroyman TGS Fight
-    StageWarp::stage_items[75],  // Destroyman Toilet TGS
-    StageWarp::stage_items[54],  // Motel Wii
-    StageWarp::stage_items[52],  // ???
-    StageWarp::stage_items[61],  // ??? 2
+    StageWarp::stage_items[6],  // Cut Bike Race?
+    StageWarp::stage_items[7],  // Cut Bike Race? 2
+    StageWarp::stage_items[8],  // Cut Bike Race? 3
+    StageWarp::stage_items[23], // Bad Girl Fight JP
+    StageWarp::stage_items[26], // Bad Girl Zako JP
+    StageWarp::stage_items[28], // Bad Girl ZAKO DEBUG
+    StageWarp::stage_items[29], // Bad Girl ZAKO DEBUG JP
+    StageWarp::stage_items[30], // Bad Girl ZAKO DEBUG 2
+    StageWarp::stage_items[31], // Bad Girl ZAKO DEBUG 2 JP
+    StageWarp::stage_items[33], // Destroyman TGS Zako
+    StageWarp::stage_items[35], // Destroyman TGS Fight
+    StageWarp::stage_items[75], // Destroyman Toilet TGS
+    StageWarp::stage_items[54], // Motel Wii
+    StageWarp::stage_items[52], // ???
+    StageWarp::stage_items[61], // ??? 2
 };
 
 std::array<std::reference_wrapper<StageWarp::Stage>, 18> misc_stages = {
-    StageWarp::stage_items[0],   // Santa Destroy Overworld
-    StageWarp::stage_items[4],   // Free Fight 3
-    StageWarp::stage_items[10],  // Motel Exterior
-    StageWarp::stage_items[13],  // City Street
-    StageWarp::stage_items[16],  // Free Fight Beach Spawn
-    StageWarp::stage_items[17],  // Homes Near Beach
-    StageWarp::stage_items[18],  // Northern Island Spawn
-    StageWarp::stage_items[19],  // Free Fight Basketball
-    StageWarp::stage_items[20],  // Northern Island Spawn
-    StageWarp::stage_items[21],  // Free Fight 5
-    StageWarp::stage_items[24],  // Beach Spawn
-    StageWarp::stage_items[27],  // Bad Girl Hall
-    StageWarp::stage_items[43],  // Deathmetal Sylvia Call
-    StageWarp::stage_items[51],  // Stadium Free Fight
-    StageWarp::stage_items[62],  // Train
-    StageWarp::stage_items[63],  // Train Station (Boarding)
-    StageWarp::stage_items[64],  // Train Station Exit
-    StageWarp::stage_items[66]   // Train Station Harvey (Exit)
+    StageWarp::stage_items[0],  // Santa Destroy Overworld
+    StageWarp::stage_items[4],  // Free Fight 3
+    StageWarp::stage_items[10], // Motel Exterior
+    StageWarp::stage_items[13], // City Street
+    StageWarp::stage_items[16], // Free Fight Beach Spawn
+    StageWarp::stage_items[17], // Homes Near Beach
+    StageWarp::stage_items[18], // Northern Island Spawn
+    StageWarp::stage_items[19], // Free Fight Basketball
+    StageWarp::stage_items[20], // Northern Island Spawn
+    StageWarp::stage_items[21], // Free Fight 5
+    StageWarp::stage_items[24], // Beach Spawn
+    StageWarp::stage_items[27], // Bad Girl Hall
+    StageWarp::stage_items[43], // Deathmetal Sylvia Call
+    StageWarp::stage_items[51], // Stadium Free Fight
+    StageWarp::stage_items[62], // Train
+    StageWarp::stage_items[63], // Train Station (Boarding)
+    StageWarp::stage_items[64], // Train Station Exit
+    StageWarp::stage_items[66]  // Train Station Harvey (Exit)
 };
 
 std::array<std::reference_wrapper<StageWarp::Stage>, 10> save_stages = {
-    StageWarp::stage_items[67],  // DeathMetal Toilet
-    StageWarp::stage_items[77],  // Dr.Peace Toilet
-    StageWarp::stage_items[76],  // Shinobu Toilet
-    StageWarp::stage_items[74],  // Destroyman Toilet
-    StageWarp::stage_items[73],  // Holly Toilet
-    StageWarp::stage_items[72],  // Letz Shake Toilet
-    StageWarp::stage_items[71],  // Harvey Toilet
-    StageWarp::stage_items[70],  // Speedbuster Toilet
-    StageWarp::stage_items[69],  // Bad Girl Toilet
-    StageWarp::stage_items[68]   // Darkstar Toilet
+    StageWarp::stage_items[67], // DeathMetal Toilet
+    StageWarp::stage_items[77], // Dr.Peace Toilet
+    StageWarp::stage_items[76], // Shinobu Toilet
+    StageWarp::stage_items[74], // Destroyman Toilet
+    StageWarp::stage_items[73], // Holly Toilet
+    StageWarp::stage_items[72], // Letz Shake Toilet
+    StageWarp::stage_items[71], // Harvey Toilet
+    StageWarp::stage_items[70], // Speedbuster Toilet
+    StageWarp::stage_items[69], // Bad Girl Toilet
+    StageWarp::stage_items[68]  // Darkstar Toilet
 };
 
 bool load_stage_warp_texture() {
@@ -378,34 +499,35 @@ bool load_stage_warp_texture() {
 
 std::optional<std::string> StageWarp::on_initialize() {
     load_stage_warp_texture();
-    update_description(defaultStageName, defaultDescription, TextureAtlas::getCoordinates(78));
+    update_description(defaultStageName, defaultDescription, TextureAtlas::getCoordinates(78), -1);
     return Mod::on_initialize();
 }
 
-template <typename T>
-void DisplayStageSection(const char* headerName, const T& stages) {
+template <typename T> void DisplayStageSection(const char* headerName, const T& stages) {
     if (ImGui::CollapsingHeader(headerName)) {
         for (size_t i = 0; i < stages.size(); ++i) {
             char buttonLabel[64];
             char buttonInfo[64];
-            auto& stage = stages[i].get();  // actual Stage object
+            auto& stage = stages[i].get(); // actual Stage object
             snprintf(buttonLabel, sizeof(buttonLabel), "%s", stage.name);
             snprintf(buttonInfo, sizeof(buttonInfo), "%s", stage.info);
 
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0)); 
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
             ImGui::TextColored(stageNameColor, buttonLabel);
             if (ImGui::IsItemHovered()) {
-                update_description(stage.name, stage.info, TextureAtlas::getCoordinates(stage.arrayItem));
+                g_any_stage_hovered_this_frame = true;
+                update_description(stage.name, stage.info, TextureAtlas::getCoordinates(stage.arrayItem), stage.arrayItem);
             }
 
             if (ImGui::IsItemClicked()) {
                 nmh_sdk::SetStage(stage.name, setStageArgs._StageAdd, setStageArgs._Arg1, setStageArgs._Arg2, setStageArgs.inBossInfoDisp,
                     setStageArgs.inFadeType, setStageArgs.inSetVolRate, setStageArgs.inPause, setStageArgs.a10);
             }
-            ImGui::SameLine(ImGui::GetFontSize()*5.0f);
+            ImGui::SameLine(ImGui::GetFontSize() * 5.0f);
             ImGui::TextColored(stageInfoColor, buttonInfo);
             if (ImGui::IsItemHovered()) {
-                update_description(stage.name, stage.info, TextureAtlas::getCoordinates(stage.arrayItem));
+                g_any_stage_hovered_this_frame = true;
+                update_description(stage.name, stage.info, TextureAtlas::getCoordinates(stage.arrayItem), stage.arrayItem);
             }
 
             if (ImGui::IsItemClicked()) {
@@ -418,8 +540,10 @@ void DisplayStageSection(const char* headerName, const T& stages) {
 }
 
 void StageWarp::on_draw_ui() {
-    if (!ImGui::IsAnyItemHovered())
-        update_description(defaultStageName, defaultDescription, TextureAtlas::getCoordinates(78));
+    // Do not reset to default here; rows have not been submitted yet.
+    // We defer resetting to default until AFTER all sections draw, and only if nothing was hovered.
+    g_any_stage_hovered_this_frame = false;
+
     if (nmh_sdk::get_CBgCtrl()) {
         char* currentStage = nmh_sdk::get_CBgCtrl()->m_NowStageName;
         if (currentStage && (strlen(currentStage) < 20)) {
@@ -428,14 +552,12 @@ void StageWarp::on_draw_ui() {
             ImGui::Text("Current Stage: ?");
         }
 
-        // float available_width = ImGui::GetContentRegionAvail().x;
-        // float combo_width = ImGui::CalcItemWidth();
-        // ImGui::SetCursorPosX((available_width - combo_width) * 0.5f);
         ImGui::Text("Fade Type: ");
         ImGui::SameLine();
         ImGui::Combo("##inFadeType", &setStageArgs.inFadeType, "Punk\0Fade\0Grey\0Stamps\0Instant (Soft Lock)\0");
         if (ImGui::IsItemHovered()) {
-            update_description("Fade Type", "Set the transition that plays when you teleport", TextureAtlas::getCoordinates(78));
+            // Hovering a non-stage item: stop any running effect and clear stage selection
+            update_description("Fade Type", "Set the transition that plays when you teleport", TextureAtlas::getCoordinates(78), -1);
         }
 
         DisplayStageSection("All", all_stages);
@@ -446,7 +568,8 @@ void StageWarp::on_draw_ui() {
         DisplayStageSection("Miscellaneous", misc_stages);
         DisplayStageSection("Toilets", save_stages);
 
-        static const char* argsHelpMarker("These args are exposed so we can figure out if there's a way to make more warps possible without crashing.\n");
+        static const char* argsHelpMarker(
+            "These args are exposed so we can figure out if there is a way to make more warps possible without crashing.\n");
         if (ImGui::CollapsingHeader("SetStage args")) {
             help_marker(argsHelpMarker);
             ImGui::InputInt("AddedStages", &setStageArgs._StageAdd);
@@ -457,24 +580,28 @@ void StageWarp::on_draw_ui() {
             help_marker("Motel>Overworld sets this to -1");
             ImGui::Checkbox("inBossInfoDisp", &setStageArgs.inBossInfoDisp);
             help_marker("Shows the boss popup");
-            
+
             ImGui::InputInt("inSetVolRate", &setStageArgs.inSetVolRate);
             ImGui::Checkbox("inPause", &setStageArgs.inPause);
             ImGui::InputInt("a10", &setStageArgs.a10);
-        }
-        else {
+        } else {
             help_marker(argsHelpMarker);
+        }
+
+        // After all items: if no stage was hovered this frame, fall back to default preview.
+        if (!g_any_stage_hovered_this_frame) {
+            update_description(defaultStageName, defaultDescription, TextureAtlas::getCoordinates(78), -1);
         }
     }
 }
 
 // during load
-//void StageWarp::on_config_load(const utility::Config &cfg) {}
+// void StageWarp::on_config_load(const utility::Config &cfg) {}
 // during save
-//void StageWarp::on_config_save(utility::Config &cfg) {}
+// void StageWarp::on_config_save(utility::Config &cfg) {}
 // do something every frame
-//void StageWarp::on_frame() {}
+// void StageWarp::on_frame() {}
 // will show up in debug window, dump ImGui widgets you want here
-//void StageWarp::on_draw_debug_ui() {}
+// void StageWarp::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here
 #endif
