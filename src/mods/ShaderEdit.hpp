@@ -28,4 +28,5 @@ public:
     // void on_draw_debug_ui() override;
 private:
     std::unique_ptr<FunctionHook> m_hook;
+    std::unique_ptr<FunctionHook> m_set_ps_hook;
 };

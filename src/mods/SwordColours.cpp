@@ -227,6 +227,7 @@ bool SwordColours::heart_girth                 = false;
 float SwordColours::base_heart_girth           = 0.5f;
 float SwordColours::heartbeat_girth_amount     = 2.0f;
 float SwordColours::heart_normalizer           = 1.0f;
+glm::vec3 SwordColours::current_s_word_color { };
 
 const char* SwordColours::defaultDescription = "Customize your Beam Katana with selectable colors, adjustable width, heartbeat-synced "
                                                "pulsing, restored light reflections or even persisting trails.";
@@ -994,8 +995,12 @@ void SwordColours::on_frame() {
             if (g_glow_current < 0.001f)
                 g_glow_current = 0.0f;
 
+            uint32_t currentCol = nmh_sdk::GetLaserColor();
+            current_s_word_color.r = ((float)(((uint32_t)currentCol & 0xFF000000) >> 24)) / 255.0f;
+            current_s_word_color.g = ((float)(((uint32_t)currentCol & 0x00FF0000) >> 16)) / 255.0f;
+            current_s_word_color.b = ((float)(((uint32_t)currentCol & 0x0000FF00) >> 8 )) / 255.0f;
+
             if (g_glow_current > 0.0f) {
-                uint32_t currentCol = nmh_sdk::GetLaserColor();
                 nmh_sdk::SetLightReflect(player, g_glow_current, &player->mPcEffect.posHitSlash, currentCol, 0);
             }
         } else {
