@@ -1,37 +1,37 @@
 #include "StanceControl.hpp"
 #include "KbmControls.hpp"
-#include "fw-imgui/Texture2DD3D11.hpp"
 #include "fw-imgui/KanaeTextureAtlas.cpp"
-#include "utility/Compressed.hpp"
+#include "fw-imgui/Texture2DD3D11.hpp"
 #include "imgui_internal.h"
+#include "utility/Compressed.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/glm.hpp"
 #include "glm/gtc/noise.hpp"
 #include <filesystem>
-#include "EnemySpawn.hpp" // for chara type strings
+// #include "EnemySpawn.hpp" // for chara type strings  // [REMOVED: Last Enemy Attacking Your Guard]
 
 #if 1
-bool StanceControl::mod_enabled = false;
-bool StanceControl::invert_input = false;
-bool StanceControl::invert_mid = false;
-bool StanceControl::show_new_ui = false;
-bool StanceControl::edit_old_ui = false;
-uintptr_t StanceControl::gpPad = NULL;
+bool StanceControl::mod_enabled   = false;
+bool StanceControl::invert_input  = false;
+bool StanceControl::invert_mid    = false;
+bool StanceControl::show_new_ui   = false;
+bool StanceControl::edit_old_ui   = false;
+uintptr_t StanceControl::gpPad    = NULL;
 uintptr_t StanceControl::jmp_ret1 = NULL;
 
-float StanceControl::r2Mult = 127.5f;
-float StanceControl::r2Sub = 1.0f;
+float StanceControl::r2Mult    = 127.5f;
+float StanceControl::r2Sub     = 1.0f;
 float StanceControl::highBound = 0.0f;
-float StanceControl::lowBound = 0.0f;
-float StanceControl::invert = -1.0f;
+float StanceControl::lowBound  = 0.0f;
+float StanceControl::invert    = -1.0f;
 
-float StanceControl::r2MultGuard = 255.0f;
+float StanceControl::r2MultGuard    = 255.0f;
 float StanceControl::highBoundGuard = 0.0f;
-float StanceControl::lowBoundGuard = 0.0f;
-float StanceControl::invertGuard = 1.0f;
+float StanceControl::lowBoundGuard  = 0.0f;
+float StanceControl::invertGuard    = 1.0f;
 
-uintptr_t StanceControl::jmp_ret2 = NULL;
-uintptr_t StanceControl::jmp2je = NULL;
+uintptr_t StanceControl::jmp_ret2         = NULL;
+uintptr_t StanceControl::jmp2je           = NULL;
 bool StanceControl::wasL3PressedLastFrame = false;
 
 uintptr_t StanceControl::jmp_ret3 = NULL;
@@ -48,11 +48,11 @@ uintptr_t StanceControl::jmp_ret4;
 static uintptr_t mCheckNormalAttack = NULL;
 
 bool StanceControl::mod_enabled_gear_system = false;
-bool StanceControl::gear_system_holds = false;
+bool StanceControl::gear_system_holds       = false;
 
 bool StanceControl::mod_enabled_stance_guards = false;
-uintptr_t StanceControl::jmp_ret5 = NULL;
-uintptr_t StanceControl::jmp5je = NULL;
+uintptr_t StanceControl::jmp_ret5             = NULL;
+uintptr_t StanceControl::jmp5je               = NULL;
 
 // directx stuff
 static std::unique_ptr<Texture2DD3D11> g_kanae_texture_atlas{};
@@ -61,67 +61,40 @@ static std::unique_ptr<Texture2DD3D11> g_kanae_texture_atlas{};
 // https://github.com/odrick/free-tex-packer
 
 struct Frame {
-    ImVec2 pos,size;
+    ImVec2 pos, size;
     ImVec2 uv0, uv1;
 };
 
 struct TextureAtlas {
     static constexpr auto BACK_HIGH() {
-        return Frame {
-            ImVec2 { 4.0f, 4.0f },  
-            ImVec2 { 1920.0f, 1080.0f },
-            ImVec2 { 4.0f / 4096.0f, 4.0f / 4096.0f },
-            ImVec2 { ( 4.0f + 1920.0f ) / 4096.0f, ( 4.0f + 1080.0f ) / 4096.0f }
-        }; //BACK_HIGH
+        return Frame{ImVec2{4.0f, 4.0f}, ImVec2{1920.0f, 1080.0f}, ImVec2{4.0f / 4096.0f, 4.0f / 4096.0f},
+            ImVec2{(4.0f + 1920.0f) / 4096.0f, (4.0f + 1080.0f) / 4096.0f}}; // BACK_HIGH
     };
     static constexpr auto BACK_LOW() {
-        return Frame {
-            ImVec2 { 1932.0f, 4.0f },  
-            ImVec2 { 1920.0f, 1080.0f },
-            ImVec2 { 1932.0f / 4096.0f, 4.0f / 4096.0f },
-            ImVec2 { ( 1932.0f + 1920.0f ) / 4096.0f, ( 4.0f + 1080.0f ) / 4096.0f }
-        }; //BACK_LOW
+        return Frame{ImVec2{1932.0f, 4.0f}, ImVec2{1920.0f, 1080.0f}, ImVec2{1932.0f / 4096.0f, 4.0f / 4096.0f},
+            ImVec2{(1932.0f + 1920.0f) / 4096.0f, (4.0f + 1080.0f) / 4096.0f}}; // BACK_LOW
     };
     static constexpr auto BACK_MID() {
-        return Frame {
-            ImVec2 { 4.0f, 1092.0f },  
-            ImVec2 { 1920.0f, 1080.0f },
-            ImVec2 { 4.0f / 4096.0f, 1092.0f / 4096.0f },
-            ImVec2 { ( 4.0f + 1920.0f ) / 4096.0f, ( 1092.0f + 1080.0f ) / 4096.0f }
-        }; //BACK_MID
+        return Frame{ImVec2{4.0f, 1092.0f}, ImVec2{1920.0f, 1080.0f}, ImVec2{4.0f / 4096.0f, 1092.0f / 4096.0f},
+            ImVec2{(4.0f + 1920.0f) / 4096.0f, (1092.0f + 1080.0f) / 4096.0f}}; // BACK_MID
     };
     static constexpr auto HIGH_GLOW() {
-        return Frame {
-            ImVec2 { 1932.0f, 1092.0f },  
-            ImVec2 { 1920.0f, 1080.0f },
-            ImVec2 { 1932.0f / 4096.0f, 1092.0f / 4096.0f },
-            ImVec2 { ( 1932.0f + 1920.0f ) / 4096.0f, ( 1092.0f + 1080.0f ) / 4096.0f }
-        }; //HIGH_GLOW
+        return Frame{ImVec2{1932.0f, 1092.0f}, ImVec2{1920.0f, 1080.0f}, ImVec2{1932.0f / 4096.0f, 1092.0f / 4096.0f},
+            ImVec2{(1932.0f + 1920.0f) / 4096.0f, (1092.0f + 1080.0f) / 4096.0f}}; // HIGH_GLOW
     };
     static constexpr auto LOW_GLOW() {
-        return Frame {
-            ImVec2 { 4.0f, 2180.0f },  
-            ImVec2 { 1920.0f, 1080.0f },
-            ImVec2 { 4.0f / 4096.0f, 2180.0f / 4096.0f },
-            ImVec2 { ( 4.0f + 1920.0f ) / 4096.0f, ( 2180.0f + 1080.0f ) / 4096.0f }
-        }; //LOW_GLOW
+        return Frame{ImVec2{4.0f, 2180.0f}, ImVec2{1920.0f, 1080.0f}, ImVec2{4.0f / 4096.0f, 2180.0f / 4096.0f},
+            ImVec2{(4.0f + 1920.0f) / 4096.0f, (2180.0f + 1080.0f) / 4096.0f}}; // LOW_GLOW
     };
     static constexpr auto MID_GLOW() {
-        return Frame {
-            ImVec2 { 1932.0f, 2180.0f },  
-            ImVec2 { 1920.0f, 1080.0f },
-            ImVec2 { 1932.0f / 4096.0f, 2180.0f / 4096.0f },
-            ImVec2 { ( 1932.0f + 1920.0f ) / 4096.0f, ( 2180.0f + 1080.0f ) / 4096.0f }
-        }; //MID_GLOW
+        return Frame{ImVec2{1932.0f, 2180.0f}, ImVec2{1920.0f, 1080.0f}, ImVec2{1932.0f / 4096.0f, 2180.0f / 4096.0f},
+            ImVec2{(1932.0f + 1920.0f) / 4096.0f, (2180.0f + 1080.0f) / 4096.0f}}; // MID_GLOW
     };
 
-    static constexpr auto meta_size() {
-        return ImVec2{ 4096.0f, 4096.0f  };
-    };
+    static constexpr auto meta_size() { return ImVec2{4096.0f, 4096.0f}; };
 };
 
 #pragma endregion
-
 
 static std::unique_ptr<FunctionHook> g_kanae_himitsu;
 
@@ -129,8 +102,7 @@ void StanceControl::toggleSwapIdleStances(bool enable) {
     if (enable) {
         install_patch_offset(0x3D7D4A, patch_swap_idle_stance1, "\x75", 1); // jne nmh.exe+3D7D5B
         install_patch_offset(0x3D7D4F, patch_swap_idle_stance2, "\x75", 1); // jne nmh.exe+3D7D56
-    }
-    else {
+    } else {
         install_patch_offset(0x3D7D4A, patch_swap_idle_stance1, "\x74", 1); // je nmh.exe+3D7D5B
         install_patch_offset(0x3D7D4F, patch_swap_idle_stance2, "\x74", 1); // je nmh.exe+3D7D56
     }
@@ -138,52 +110,48 @@ void StanceControl::toggleSwapIdleStances(bool enable) {
 
 void StanceControl::toggle(bool enable) {
     if (enable) {
-        install_patch_offset(0x3DE09F, m_patch1, "\xEB\x10", 2); // jmp nmh.exe+3DE0B1 // disable low stance set
-        install_patch_offset(0x3DE067, m_patch2, "\xEB\x0A", 2); // jmp nmh.exe+3DE073 // disable high stance set
+        install_patch_offset(0x3DE09F, m_patch1, "\xEB\x10", 2);                     // jmp nmh.exe+3DE0B1 // disable low stance set
+        install_patch_offset(0x3DE067, m_patch2, "\xEB\x0A", 2);                     // jmp nmh.exe+3DE073 // disable high stance set
         install_patch_offset(0x3D7E48, m_patch3, "\x80\xBE\x50\x13\x00\x00\x01", 7); // cmp byte ptr [esi+00001350],01 // force mid stance
+    } else {
+        m_patch1.reset();
+        m_patch2.reset();
+        m_patch3.reset();
     }
-    else {
-         m_patch1.reset();
-         m_patch2.reset();
-         m_patch3.reset();
-    }
-} 
+}
 
 void StanceControl::toggle_display_edit(bool enable) {
     if (enable) {
         install_patch_offset(0x409B70, m_patch4, "\x83\xE8\x01", 3); // sub eax,01
-    }
-    else {
+    } else {
         install_patch_offset(0x409B70, m_patch4, "\x83\xE8\x02", 3); // sub eax,02
     }
 }
 
-void StanceControl::toggle_disable_combo_extend_speedup (bool enable) {
+void StanceControl::toggle_disable_combo_extend_speedup(bool enable) {
     if (enable) {
-        install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup, "\xEB\x2A", 2); // 
-    }
-    else {
-        install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup, "\x75\x2A", 2); // 
+        install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup, "\xEB\x2A", 2); //
+    } else {
+        install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup, "\x75\x2A", 2); //
     }
 }
 
 void StanceControl::disable_cam_reset(bool enable) {
     if (enable) {
         install_patch_offset(0x3D711D, patch_disable_cam_reset, "\xE9\xB8\x00\x00\x00\x00", 6); // jmp nmh.exe+3D71DA
-    }
-    else {
+    } else {
         install_patch_offset(0x3D711D, patch_disable_cam_reset, "\x0F\x84\xB7\x00\x00\x00", 6); // je nmh.exe+3D71DA
     }
 }
 
 static constexpr float midStanceBlend = 0.0f;
-static constexpr float lowGuardBlend = 0.0f;
-static constexpr float midGuardBlend = 0.5f;
+static constexpr float lowGuardBlend  = 0.0f;
+static constexpr float midGuardBlend  = 0.5f;
 static constexpr float highGuardBlend = 1.0f;
-static float blendTick = 0.1f;
-static float blendTickNotLockedOn = 0.1f;
-static float blendTickLockedOn = 0.3f;
-static float newTilt = 0.0f;
+static float blendTick                = 0.1f;
+static float blendTickNotLockedOn     = 0.1f;
+static float blendTickLockedOn        = 0.3f;
+static float newTilt                  = 0.0f;
 // static bool verySmooth = true;
 
 static float gearSysXmm0backup = 0.0f;
@@ -196,23 +164,22 @@ static float gearSysXmm5backup = 0.0f;
 // 2 is mid, 0 is high, 1 is low
 float StanceControl::SetSmoothStance(mHRPc* player) {
     auto currentPose = player->mPcStatus.pose;
-    auto moveID = player->mCharaStatus.motionNo;
-    
-    float targets[] = {1.0f, -1.0f, 0.0f}; // high, low, mid
-    float guardTargets[] = {1.0f, 0.0f, 0.5f}; // high, low, mid
-    
+    auto moveID      = player->mCharaStatus.motionNo;
+
+    float targets[]      = {1.0f, -1.0f, 0.0f}; // high, low, mid
+    float guardTargets[] = {1.0f, 0.0f, 0.5f};  // high, low, mid
+
     if (currentPose >= 0 && currentPose <= 2) {
         static float target = 0.0f;
         if (moveID == ePcMtGrdDfltLp) {
-            target = guardTargets[currentPose];
+            target    = guardTargets[currentPose];
             blendTick = blendTickLockedOn;
-        }
-        else {
-            target = targets[currentPose];
+        } else {
+            target    = targets[currentPose];
             blendTick = blendTickNotLockedOn;
         }
-        //if (verySmooth) {
-            newTilt = glm::mix(newTilt, target, blendTick);
+        // if (verySmooth) {
+        newTilt = glm::mix(newTilt, target, blendTick);
         //}
         /*else {
             if (newTilt < target) {
@@ -490,17 +457,18 @@ naked void detour4() { // faster nu lows if combo extend
     }
 }
 
-static uintptr_t last_enemy_attacked_you = NULL;
+// static uintptr_t last_enemy_attacked_you = NULL;  // [REMOVED: Last Enemy Attacking Your Guard]
 naked void detour5() { // stance guards
     __asm {
         //
             cmp byte ptr [StanceControl::mod_enabled_stance_guards], 0
             je originalcode
 
-            push eax
-            mov eax, [esp+0x4+0x6C] // probably not reliable
-            mov [last_enemy_attacked_you], eax
-            pop eax
+            // [REMOVED: Last Enemy Attacking Your Guard]
+            // push eax
+            // mov eax, [esp+0x4+0x6C] // probably not reliable
+            // mov [last_enemy_attacked_you], eax
+            // pop eax
 
             cmp edi, 57
             je HighAttack
@@ -609,10 +577,11 @@ naked void kanae_himitsu_detour() {
     }
 }
 
- // clang-format on
+// clang-format on
 
-const char* StanceControl::defaultDescription = "Manually adjust the current stance using R2/RT like you can with motion controls. "
-                                                "Our version of this also restores the original and unused Low stance for all beam katanas except the MK3.";
+const char* StanceControl::defaultDescription =
+    "Manually adjust the current stance using R2/RT like you can with motion controls. "
+    "Our version of this also restores the original and unused Low stance for all beam katanas except the MK3.";
 const char* StanceControl::hoveredDescription = defaultDescription;
 //
 
@@ -621,7 +590,8 @@ void StanceControl::render_description() const {
 }
 
 void StanceControl::on_draw_ui() {
-    if (!ImGui::IsAnyItemHovered()) StanceControl::hoveredDescription = defaultDescription;
+    if (!ImGui::IsAnyItemHovered())
+        StanceControl::hoveredDescription = defaultDescription;
 
     if (ImGui::Checkbox("Gradual", &mod_enabled)) {
         toggle(mod_enabled);
@@ -630,7 +600,9 @@ void StanceControl::on_draw_ui() {
             disable_cam_reset(mod_enabled_gear_system); // re-enable cam reset
         }
     }
-    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Remaps lock on cycle to R3. This is needed to avoid switching targets with every press of R2 when using this feature.";
+    if (ImGui::IsItemHovered())
+        StanceControl::hoveredDescription =
+            "Remaps lock on cycle to R3. This is needed to avoid switching targets with every press of R2 when using this feature.";
     if (mod_enabled) {
         ImGui::Indent();
 
@@ -638,46 +610,56 @@ void StanceControl::on_draw_ui() {
         if (ImGui::SliderFloat("## highBound sliderfloat", &StanceControl::highBound, 0.0f, 1.0f, "%.2f")) {
             highBoundGuard = (highBound + 1.0f) / 2.0f;
         }
-        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "How far should r2 be pushed to enter high stance\n0.9 default";
+        if (ImGui::IsItemHovered())
+            StanceControl::hoveredDescription = "How far should r2 be pushed to enter high stance\n0.9 default";
 
         ImGui::Text("Low Bound");
         if (ImGui::SliderFloat("## lowBound sliderfloat", &StanceControl::lowBound, -1.0f, 0.0f, "%.2f")) {
             lowBoundGuard = (lowBound + 1.0f) / 2.0f;
         }
-        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "How little should r2 be pushed to enter low stance\n-0.9 default";
+        if (ImGui::IsItemHovered())
+            StanceControl::hoveredDescription = "How little should r2 be pushed to enter low stance\n-0.9 default";
 
         // ImGui::Checkbox("Invert", &StanceControl::invert_input);
         // if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Swap Low and High";
-        // 
+        //
         // ImGui::Checkbox("Invert Mid", &StanceControl::invert_mid);
-        // if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Swap Mid and Low. The unused combos assigned to Mid stance are actually the original Low attacks. "
+        // if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Swap Mid and Low. The unused combos assigned to Mid stance are
+        // actually the original Low attacks. "
         //     "For this feature to make more sense, you can tick this to reorganize the stance order.";
 
         // ImGui::Checkbox("Show Custom Stance UI", &StanceControl::show_new_ui);
 
         ImGui::Checkbox("Combo Speed Upgrade On Low Attacks", &mod_enabled_faster_nu_lows);
-        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "The unused Low stance attacks don't utilize the speed buff that comes with the combo extension upgrades. Tick this to apply it.";
+        if (ImGui::IsItemHovered())
+            StanceControl::hoveredDescription = "The unused Low stance attacks don't utilize the speed buff that comes with the combo "
+                                                "extension upgrades. Tick this to apply it.";
 
         ImGui::Unindent();
     }
 
     if (ImGui::Checkbox("Toggle Mode", &mod_enabled_gear_system)) {
-        toggle(mod_enabled_gear_system); // disable stance switching when pressing face buttons
+        toggle(mod_enabled_gear_system);            // disable stance switching when pressing face buttons
         disable_cam_reset(mod_enabled_gear_system); // disable cam reset, we need the button
         mod_enabled = false;
     }
-    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Pressing R1 moves up a stance, pressing R2 moves down a stance";
+    if (ImGui::IsItemHovered())
+        StanceControl::hoveredDescription = "Pressing R1 moves up a stance, pressing R2 moves down a stance";
 
     if (mod_enabled_gear_system) {
         ImGui::Indent();
         ImGui::Checkbox("Hold Mode", &gear_system_holds);
-        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Instead of toggling stances, access them with hold inputs. Hold R1 for High, R2 for low";
+        if (ImGui::IsItemHovered())
+            StanceControl::hoveredDescription = "Instead of toggling stances, access them with hold inputs. Hold R1 for High, R2 for low";
 
         ImGui::Checkbox("Combo Extend Speedup On Low Attacks", &mod_enabled_faster_nu_lows);
-        if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks. This still requires you to purchase the upgrade.";
+        if (ImGui::IsItemHovered())
+            StanceControl::hoveredDescription = "Apply the default combo extension speed upgrade to modded low stance attacks. This still "
+                                                "requires you to purchase the upgrade.";
 
         // ImGui::Checkbox("Very Smooth", &verySmooth);
-        // if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "DEV ONLY. How smooth do you want going between stances to look? Untick for linear. Imo it's cool but too dmc5 for this game";
+        // if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "DEV ONLY. How smooth do you want going between stances to look?
+        // Untick for linear. Imo it's cool but too dmc5 for this game";
 
         ImGui::Unindent();
     }
@@ -687,23 +669,28 @@ void StanceControl::on_draw_ui() {
     // if (ImGui::Checkbox("Swap Vanilla Mid and Low UI", &StanceControl::edit_old_ui)) {
     //     toggle_display_edit(edit_old_ui);
     // }
-    // if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Makes the vanilla stance display consider the default low stance as mid stance.";
+    // if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Makes the vanilla stance display consider the default low stance as
+    // mid stance.";
 
     if (ImGui::Checkbox("Swap Idle Stances", &swapIdleStances)) {
         toggleSwapIdleStances(swapIdleStances);
     }
-    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "The High/Low stances are mistakenly inverted by default, forcing Travis to take on the incorrect stance. This setting "
-                "corrects that issue. This is purely cosmetic.";
+    if (ImGui::IsItemHovered())
+        StanceControl::hoveredDescription =
+            "The High/Low stances are mistakenly inverted by default, forcing Travis to take on the incorrect stance. This setting "
+            "corrects that issue. This is purely cosmetic.";
 
     if (ImGui::Checkbox("Disable Combo Speed Upgrade", &mod_enabled_disable_combo_extend_speedup)) {
         toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
     }
-    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";
+    if (ImGui::IsItemHovered())
+        StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";
 
     ImGui::SliderFloat("blendTickNotLockedOn", &blendTickNotLockedOn, 0.01f, 1.0f, "%.1f");
     ImGui::SliderFloat("blendTickLockedOn", &blendTickLockedOn, 0.01f, 1.0f, "%.1f");
     ImGui::Checkbox("Manual Guarding", &mod_enabled_stance_guards);
-    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Completely disables auto guarding in favor of manual, stance-dependent guarding.";
+    if (ImGui::IsItemHovered())
+        StanceControl::hoveredDescription = "Completely disables auto guarding in favor of manual, stance-dependent guarding.";
 }
 
 void TextCentered(std::string text) {
@@ -714,29 +701,709 @@ void TextCentered(std::string text) {
     ImGui::Text(text.c_str());
 }
 
-static constexpr size_t    templeos_hymn_risen_range  = 677;
-static constexpr uint8_t   templeos_hymn_risen_values[] = {
-    217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 187, 187, 187, 187, 187, 187, 187, 307, 307, 307, 307, 187, 307, 307, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 187, 187, 187, 187, 187, 187, 187, 307, 307, 307, 307, 307, 307, 307, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 217, 217, 217, 217, 217, 217, 217, 307, 307, 307, 307, 307, 307, 307, 174, 174, 174, 174, 174, 174, 174, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 187, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 217, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 268, 268, 268, 268, 268, 268, 268, 250, 250, 250, 250, 250, 250, 250, 217, 217, 217, 217, 217, 217, 217, 307, 307, 307, 307, 307, 307, 307, 174, 174, 174, 174, 174, 174, 174, 217, 217, 217, 217, 217, 217, 217, 187, 187, 187, 187, 187, 187, 187, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 268, 217, };
- 
-void StanceControl::GearControls(mHRPc* player) { 
-    if (!player || !gpPad) return;
-    
-    static uintptr_t base = g_framework->get_module().as<uintptr_t>();
-    int8_t* r1Press = (int8_t*)(base+0x84B930);  
-    float* r2Press = (float*)(gpPad + 0x64);
-    int8_t* stance = (int8_t*)&(player->mPcStatus.pose);
+static constexpr size_t templeos_hymn_risen_range     = 677;
+static constexpr uint8_t templeos_hymn_risen_values[] = {
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    307,
+    307,
+    307,
+    307,
+    187,
+    307,
+    307,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    307,
+    307,
+    307,
+    307,
+    307,
+    307,
+    307,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    307,
+    307,
+    307,
+    307,
+    307,
+    307,
+    307,
+    174,
+    174,
+    174,
+    174,
+    174,
+    174,
+    174,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    149,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    250,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    307,
+    307,
+    307,
+    307,
+    307,
+    307,
+    307,
+    174,
+    174,
+    174,
+    174,
+    174,
+    174,
+    174,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    217,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    187,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    268,
+    217,
+};
+
+void StanceControl::GearControls(mHRPc* player) {
+    if (!player || !gpPad)
+        return;
+
+    static uintptr_t base                   = g_framework->get_module().as<uintptr_t>();
+    int8_t* r1Press                         = (int8_t*)(base + 0x84B930);
+    float* r2Press                          = (float*)(gpPad + 0x64);
+    int8_t* stance                          = (int8_t*)&(player->mPcStatus.pose);
     static constexpr float r2PressThreshold = 20.0f; // 20/255
-    
-    if (!r1Press || !stance) return;
-    
+
+    if (!r1Press || !stance)
+        return;
+
     if (!gear_system_holds) {
-        static bool r1WasPressed = false;
-        static bool r2WasPressed = false;
+        static bool r1WasPressed  = false;
+        static bool r2WasPressed  = false;
         static int previousStance = *stance;
-        
+
         bool r1JustPressed = (*r1Press && !r1WasPressed);
         bool r2JustPressed = (*r2Press > r2PressThreshold && !r2WasPressed);
-        
+
         if (r1JustPressed) {
             if (previousStance == 2) {
                 previousStance = 0;
@@ -754,13 +1421,13 @@ void StanceControl::GearControls(mHRPc* player) {
         } else {
             *stance = previousStance;
         }
-        
+
         r1WasPressed = *r1Press;
         r2WasPressed = (*r2Press > r2PressThreshold);
     } else {
         bool r1Held = *r1Press;
         bool r2Held = (*r2Press > r2PressThreshold);
-        
+
         if (r1Held) {
             *stance = 0;
         } else if (r2Held) {
@@ -783,63 +1450,64 @@ struct DebugTexture {
 
 std::array g_textures_debug = {
     // backdrop
-    DebugTexture { "BACK_HIGH.png", nullptr },
-    DebugTexture { "BACK_LOW.png",  nullptr },
-    DebugTexture { "BACK_MID.png",  nullptr },
+    DebugTexture{"BACK_HIGH.png", nullptr},
+    DebugTexture{"BACK_LOW.png", nullptr},
+    DebugTexture{"BACK_MID.png", nullptr},
     // glows
-    DebugTexture { "HIGH_GLOW.PNG", nullptr },
-    DebugTexture { "LOW_GLOW.PNG",  nullptr },
-    DebugTexture { "MID_GLOW.PNG",  nullptr },
+    DebugTexture{"HIGH_GLOW.PNG", nullptr},
+    DebugTexture{"LOW_GLOW.PNG", nullptr},
+    DebugTexture{"MID_GLOW.PNG", nullptr},
 
 };
 
 #endif
 void StanceControl::on_frame() {
-    if (mod_enabled_stance_guards) {
-        ImGui::Begin("Last Enemy Attacking Your Guard", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-        if (last_enemy_attacked_you) {
-            mHRChara* enemy = (mHRChara*)last_enemy_attacked_you;
-            ImGui::Text("Character Type: %s", charaTypeStrings[enemy->mStatus.charaType]);
-        }
-        ImGui::End();
-    }
+    // [REMOVED: Last Enemy Attacking Your Guard]
+    // if (mod_enabled_stance_guards) {
+    //     ImGui::Begin("Last Enemy Attacking Your Guard", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+    //     if (last_enemy_attacked_you) {
+    //         mHRChara* enemy = (mHRChara*)last_enemy_attacked_you;
+    //         ImGui::Text("Character Type: %s", charaTypeStrings[enemy->mStatus.charaType]);
+    //     }
+    //     ImGui::End();
+    // }
     if (mHRPc* mHRPc = nmh_sdk::get_mHRPc()) {
         // if (mod_enabled_gear_system) GearControls(mHRPc);
-        auto mode = mHRPc->mInputMode;
-        uintptr_t baseAddress = g_framework->get_module().as<uintptr_t>();
-        HrCamera* hrCamera = reinterpret_cast<HrCamera*>(baseAddress + 0x82A4A0);
-        mHRBattle* mHRBattle = nmh_sdk::get_mHRBattle();
+        auto mode                      = mHRPc->mInputMode;
+        uintptr_t baseAddress          = g_framework->get_module().as<uintptr_t>();
+        HrCamera* hrCamera             = reinterpret_cast<HrCamera*>(baseAddress + 0x82A4A0);
+        mHRBattle* mHRBattle           = nmh_sdk::get_mHRBattle();
         HrScreenStatus* hrScreenStatus = mHRBattle->mBtEffect.pScreenStatus;
-        if (!mHRBattle || !hrCamera || !hrScreenStatus) { return; }
+        if (!mHRBattle || !hrCamera || !hrScreenStatus) {
+            return;
+        }
         bool showStanceUIThisFrame = false;
-        showStanceUIThisFrame = (hrScreenStatus->flag & (1 << 2)) != 0; // drawbattery bit
-        int camMode = hrCamera->MAIN.Mode;
-        if (mode == ePcInputMenu) { return; }
-        if (/*mHRPc->mOperate && */showStanceUIThisFrame && ((StanceControl::mod_enabled && show_new_ui) || mod_enabled_gear_system)) {
+        showStanceUIThisFrame      = (hrScreenStatus->flag & (1 << 2)) != 0; // drawbattery bit
+        int camMode                = hrCamera->MAIN.Mode;
+        if (mode == ePcInputMenu) {
+            return;
+        }
+        if (/*mHRPc->mOperate && */ showStanceUIThisFrame && ((StanceControl::mod_enabled && show_new_ui) || mod_enabled_gear_system)) {
 
             static constexpr TextureAtlas atlas{};
             struct KanaeDisp {
                 std::array<Frame, 3> f;
             };
 
-            static constexpr KanaeDisp kanae {
-                { atlas.BACK_HIGH(), atlas.BACK_LOW(), atlas.BACK_MID() } 
-            };
-            static constexpr KanaeDisp kanae_glow {
-                { atlas.HIGH_GLOW(), atlas.LOW_GLOW(), atlas.MID_GLOW() }
-            };
+            static constexpr KanaeDisp kanae{{atlas.BACK_HIGH(), atlas.BACK_LOW(), atlas.BACK_MID()}};
+            static constexpr KanaeDisp kanae_glow{{atlas.HIGH_GLOW(), atlas.LOW_GLOW(), atlas.MID_GLOW()}};
 
             int pose = mHRPc->mPcStatus.pose;
 
-            const auto& io = ImGui::GetIO();
+            const auto& io  = ImGui::GetIO();
             const auto& tex = g_kanae_texture_atlas->GetTexture();
-            ImDrawList* dl = ImGui::GetForegroundDrawList();
+            ImDrawList* dl  = ImGui::GetForegroundDrawList();
 
             DolphinGame* scinfo = nmh_sdk::get_DolphinApp()->game;
             assert(scinfo);
 
             ImVec2 points[] = {
-                ImVec2(scinfo->screenRect.left,  scinfo->screenRect.top),
+                ImVec2(scinfo->screenRect.left, scinfo->screenRect.top),
                 ImVec2(scinfo->screenRect.right, scinfo->screenRect.bottom),
 
             };
@@ -852,7 +1520,7 @@ void StanceControl::on_frame() {
                 ImVec2(kanae_glow.f[pose].uv1),
             };
 
-#ifdef HOT_RELOAD 
+#ifdef HOT_RELOAD
             DebugTexture* textures[] = {
                 &g_textures_debug[0],
                 &g_textures_debug[1],
@@ -862,15 +1530,15 @@ void StanceControl::on_frame() {
 #else
             dl->AddImage((ImTextureID)tex, points[0], points[1], kanae_uvs[0], kanae_uvs[1]);
 #endif
-            //dl->AddImageQuad(tex, points[0], points[1], points[2], points[3], kanae_uvs[0], kanae_uvs[1], kanae_uvs[2], kanae_uvs[3]);
-            
+            // dl->AddImageQuad(tex, points[0], points[1], points[2], points[3], kanae_uvs[0], kanae_uvs[1], kanae_uvs[2], kanae_uvs[3]);
+
 #if 1
             float meme = (float)templeos_hymn_risen_values[g_frame_counter % templeos_hymn_risen_range];
             float glow = glm::clamp(meme, 179.0f, 255.0f);
 #else // game logic i think
 
             HrScreenStatus* v4 = nmh_sdk::get_mHRBattle()->mBtEffect.pScreenStatus;
-            float glow = (((float)v4->m_GearRandCounter[1] / (float)v4->m_GearRandCounter[0]) * 255.0);
+            float glow         = (((float)v4->m_GearRandCounter[1] / (float)v4->m_GearRandCounter[0]) * 255.0);
 #endif
             ImU32 oppacity = IM_COL32(255, 255, 255, (char)(glow));
 #ifdef HOT_RELOAD
@@ -879,13 +1547,14 @@ void StanceControl::on_frame() {
                 &g_textures_debug[4],
                 &g_textures_debug[5],
             };
-                dl->AddImage((ImTextureID)glow_textures[pose]->texture->GetTexture(), points[0], points[1], ImVec2(0.0f, 0.0f), ImVec2(1.0f,1.0f), oppacity);
+            dl->AddImage((ImTextureID)glow_textures[pose]->texture->GetTexture(), points[0], points[1], ImVec2(0.0f, 0.0f),
+                ImVec2(1.0f, 1.0f), oppacity);
 #else
-                dl->AddImage((ImTextureID)tex, points[0], points[1], glow_uvs[0], glow_uvs[1], oppacity);
+            dl->AddImage((ImTextureID)tex, points[0], points[1], glow_uvs[0], glow_uvs[1], oppacity);
 #endif // !HOT_RELOAD
 
-            //dl->AddImageQuad(tex, points[0], points[1], points[2], points[3], glow_uvs[0], glow_uvs[1], glow_uvs[2], glow_uvs[3], oppacity);
-            //dl->AddRectFilled(p0, p1, -1, 2.0f);
+            // dl->AddImageQuad(tex, points[0], points[1], points[2], points[3], glow_uvs[0], glow_uvs[1], glow_uvs[2], glow_uvs[3],
+            // oppacity); dl->AddRectFilled(p0, p1, -1, 2.0f);
 
 #ifdef HOT_RELOAD
             // NOTE(): load balancing :kappa:
@@ -894,15 +1563,13 @@ void StanceControl::on_frame() {
                     auto cwt = std::filesystem::last_write_time(tex.filepath);
                     if (cwt > tex.filetime) {
                         tex.texture.reset();
-                        tex.texture = std::make_unique<Texture2DD3D11>(tex.filename, g_framework->d3d11()->get_device());
+                        tex.texture  = std::make_unique<Texture2DD3D11>(tex.filename, g_framework->d3d11()->get_device());
                         tex.filetime = cwt;
                     }
                 }
-                
             }
 
 #endif // !HOT_RELOAD
-
 
 #if 0
 
@@ -948,7 +1615,7 @@ void StanceControl::on_frame() {
 #endif
             g_frame_counter += 1;
         }
-        
+
         g_kanae_drawcall = false;
     }
 }
@@ -956,12 +1623,11 @@ void StanceControl::on_frame() {
 static bool load_kanae_texture() {
 #ifdef HOT_RELOAD
     for (auto& tex : g_textures_debug) {
-        tex.texture = std::make_unique<Texture2DD3D11>(tex.filename, g_framework->d3d11()->get_device());
+        tex.texture  = std::make_unique<Texture2DD3D11>(tex.filename, g_framework->d3d11()->get_device());
         tex.filepath = std::filesystem::path(std::filesystem::current_path().string() + fmt::format("\\{}", tex.filename));
         try {
             tex.filetime = std::filesystem::last_write_time(tex.filepath);
-        }
-        catch (std::exception& e) {
+        } catch (std::exception& e) {
             OutputDebugStringA(e.what());
         }
     }
@@ -1045,36 +1711,40 @@ std::optional<std::string> StanceControl::on_initialize() {
 // during load
 void StanceControl::on_config_load(const utility::Config& cfg) {
     mod_enabled = cfg.get<bool>("stance_control").value_or(false);
-    if (mod_enabled) toggle(mod_enabled);
+    if (mod_enabled)
+        toggle(mod_enabled);
     invert_input = cfg.get<bool>("stance_control_invert").value_or(false);
-    show_new_ui = cfg.get<bool>("stance_control_ui").value_or(true);
-    edit_old_ui = cfg.get<bool>("stance_control_edit_old_ui").value_or(false);
-    if (edit_old_ui) toggle_display_edit(edit_old_ui);
-    invert_mid = cfg.get<bool>("stance_control_invert_mid").value_or(true);
-    highBound = cfg.get<float>("stance_control_high_bound").value_or(0.9f);
-    lowBound = cfg.get<float>("stance_control_low_bound").value_or(-0.9f);
+    show_new_ui  = cfg.get<bool>("stance_control_ui").value_or(true);
+    edit_old_ui  = cfg.get<bool>("stance_control_edit_old_ui").value_or(false);
+    if (edit_old_ui)
+        toggle_display_edit(edit_old_ui);
+    invert_mid     = cfg.get<bool>("stance_control_invert_mid").value_or(true);
+    highBound      = cfg.get<float>("stance_control_high_bound").value_or(0.9f);
+    lowBound       = cfg.get<float>("stance_control_low_bound").value_or(-0.9f);
     highBoundGuard = (highBound + 1.0f) / 2.0f;
-    lowBoundGuard = (lowBound + 1.0f) / 2.0f;
+    lowBoundGuard  = (lowBound + 1.0f) / 2.0f;
 
     swapIdleStances = cfg.get<bool>("swap_idle_stances").value_or(false);
-    if (swapIdleStances) toggleSwapIdleStances(swapIdleStances);
+    if (swapIdleStances)
+        toggleSwapIdleStances(swapIdleStances);
 
     mod_enabled_disable_combo_extend_speedup = cfg.get<bool>("disable_combo_extend_speedup").value_or(false);
-    if (mod_enabled_disable_combo_extend_speedup) toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
+    if (mod_enabled_disable_combo_extend_speedup)
+        toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
 
     mod_enabled_faster_nu_lows = cfg.get<bool>("faster_nu_lows").value_or(false);
 
     mod_enabled_gear_system = cfg.get<bool>("gear_system").value_or(false);
-    gear_system_holds = cfg.get<bool>("gear_system_holds").value_or(false);
+    gear_system_holds       = cfg.get<bool>("gear_system_holds").value_or(false);
     if (mod_enabled_gear_system) {
-        toggle(mod_enabled_gear_system); // disable stance switching when pressing face buttons
+        toggle(mod_enabled_gear_system);            // disable stance switching when pressing face buttons
         disable_cam_reset(mod_enabled_gear_system); // disable cam reset, we need the button
     }
 
     mod_enabled_stance_guards = cfg.get<bool>("stance_guards").value_or(false);
 }
 // during save
-void StanceControl::on_config_save(utility::Config &cfg) {
+void StanceControl::on_config_save(utility::Config& cfg) {
     cfg.set<bool>("stance_control", mod_enabled);
     cfg.set<bool>("stance_control_invert", invert_input);
     cfg.set<bool>("stance_control_ui", show_new_ui);
@@ -1096,6 +1766,6 @@ void StanceControl::on_config_save(utility::Config &cfg) {
 }
 
 // will show up in debug window, dump ImGui widgets you want here
-//void StanceControl::on_draw_debug_ui() {}
+// void StanceControl::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here
 #endif
