@@ -38,6 +38,7 @@ public:
   static uintptr_t hrScreenStatus;
 
   static float swordGlowAmount;
+  static glm::vec3 current_s_word_color;
 
   // mod name string for config
   std::string get_mod_name() const override { return "SwordColours"; }
