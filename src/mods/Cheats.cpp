@@ -24,6 +24,7 @@ std::unordered_map<std::string, std::string> cheat_passwords = {
     {"one_hit_kill", "FUCKHEAD"},
     {"spend_no_battery", "BANDANA"},
     {"enemies_dont_attack", "LEAVEMEALONE"},
+    {"disable_free_fight_timers", "TIMEISMONEY"},
     {"start_777", "JACKPOT"},
     {"start_bar", "WINDOWS"},
     {"start_bell", "BELLEND"},
@@ -178,6 +179,14 @@ void Cheats::toggleEnemiesDontAttack(bool enable) {
     }
 }
 
+void Cheats::toggleDisableFreeFightTimers(bool enable) {
+    if (enable) {
+        install_patch_offset(0x38D261, patchFreeFightTimers, "\xEB", 1); // jmp
+    } else {
+        patchFreeFightTimers.reset(); // jne
+    }
+}
+
 void Cheats::render_description() const {
     ImGui::TextWrapped(Cheats::hoveredDescription);
 }
@@ -239,6 +248,14 @@ void Cheats::on_draw_ui() {
         }
         if (ImGui::IsItemHovered()) Cheats::hoveredDescription = defaultDescription;
     }
+
+    if (is_cheat_unlocked("disable_free_fight_timers")) {
+        if (ImGui::Checkbox("Disable Free Fight Timers", &enemies_dont_attack)) {
+            toggleDisableFreeFightTimers(disable_free_fight_timers);
+        }
+        if (ImGui::IsItemHovered())
+            Cheats::hoveredDescription = defaultDescription;
+    }
     
     float combo_width = ImGui::CalcItemWidth();
     
@@ -298,6 +315,8 @@ void Cheats::on_config_load(const utility::Config &cfg) {
     enemies_dont_attack = cfg.get<bool>("enemies_dont_attack").value_or(false);
     if (enemies_dont_attack) toggleEnemiesDontAttack(enemies_dont_attack);
     invincible = cfg.get<bool>("invincible").value_or(false);
+    disable_free_fight_timers = cfg.get<bool>("disable_free_fight_timers").value_or(false);
+    if (disable_free_fight_timers) toggleDisableFreeFightTimers(disable_free_fight_timers);
     
     unlocked_cheats.clear();
     for (const auto& pair : cheat_passwords) {
@@ -315,6 +334,7 @@ void Cheats::on_config_save(utility::Config &cfg) {
     cfg.set<bool>("spend_no_battery", spend_no_battery);
     cfg.set<bool>("enemies_dont_attack", enemies_dont_attack);
     cfg.set<bool>("invincible", invincible);
+    cfg.set<bool>("disable_free_fight_timers", disable_free_fight_timers);
     
     for (const auto& pair : cheat_passwords) {
         bool is_unlocked = unlocked_cheats.find(pair.first) != unlocked_cheats.end();
