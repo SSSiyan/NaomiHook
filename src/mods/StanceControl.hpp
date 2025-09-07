@@ -41,6 +41,7 @@ public:
 
   static bool mod_enabled_disable_combo_extend_speedup;
   void toggle_disable_combo_extend_speedup(bool enable);
+  static bool mod_enabled_force_1_speed_anims;
 
   static bool mod_enabled_gear_system;
   static bool gear_system_holds;
@@ -83,6 +84,9 @@ private:
 	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3, m_hook4, m_hook5;
 	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3, m_patch4;
 	std::unique_ptr<Patch> patch_swap_idle_stance1, patch_swap_idle_stance2;
-	std::unique_ptr<Patch> patch_disable_combo_extend_speedup, patch_disable_combo_extend_speedup2;
+        std::unique_ptr<Patch> patch_disable_combo_extend_speedup,
+								patch_disable_combo_extend_speedup2,
+								patch_disable_combo_extend_speedup3,
+								patch_disable_combo_extend_speedup4;
 	std::unique_ptr<Patch> patch_disable_cam_reset;
 };

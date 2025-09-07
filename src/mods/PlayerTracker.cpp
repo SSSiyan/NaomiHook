@@ -893,7 +893,7 @@ if (ImGui::TreeNodeEx("HrGameTask", ImGuiTreeNodeFlags_DrawLinesFull)) {
                             ImGui::Text("pNodeMotionBuffer %d", i);
                             ImGui::Checkbox(("Valid##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Valid);
                             ImGui::Checkbox(("Play##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Play);
-                            ImGui::InputFloat3(("Position##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Pos.x);
+                            ImGui::InputFloat3(("Position##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Pos.x); // crashing here when I open this header
                             ImGui::InputFloat3(("Rotation##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Rot.x);
                             ImGui::InputFloat3(("Scale##" + std::to_string(i)).c_str(), &player->tagMain->pNodeMotionBuffer[i]->Scale.x);
                             if (player->tagMain->pNodeMotionBuffer[i]->Anm.pGmfNode) {

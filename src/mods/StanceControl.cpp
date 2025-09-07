@@ -41,6 +41,7 @@ uintptr_t StanceControl::clashing = NULL;
 bool StanceControl::swapIdleStances = false;
 
 bool StanceControl::mod_enabled_disable_combo_extend_speedup = false;
+bool StanceControl::mod_enabled_force_1_speed_anims          = false;
 
 bool StanceControl::mod_enabled_faster_nu_lows = false;
 uintptr_t StanceControl::jmp_ret4;
@@ -133,12 +134,20 @@ void StanceControl::toggle_display_edit(bool enable) {
 
 void StanceControl::toggle_disable_combo_extend_speedup(bool enable) {
     if (enable) {
-        install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup, "\xEB\x2A", 2); //
-        install_patch_offset(0x3C7295, patch_disable_combo_extend_speedup2, "\xEB", 1); //
+        //install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup, "\xEB\x2A", 2); //
+        //install_patch_offset(0x3C7295, patch_disable_combo_extend_speedup2, "\xEB", 1); //
+        //install_patch_offset(0x3C7258, patch_disable_combo_extend_speedup3, "\xEB", 1); //
+
+        install_patch_offset(0x3C7258, patch_disable_combo_extend_speedup, "\xEB", 1); // after call nmh.mHRPc::mGetWepCmbExtend
+        install_patch_offset(0x3C72A5, patch_disable_combo_extend_speedup2, "\xEB", 1); // after call nmh.mHRPc::mGetWepCmbExtend
+        install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup3, "\xEB", 1); // after call nmh.mHRPc::mGetWepCmbExtend
+        install_patch_offset(0xC733F, patch_disable_combo_extend_speedup4, "\xEB", 1);  // after call nmh.mHRPc::mGetWepCmbExtend
+
     } else {
-        //install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup, "\x75\x2A", 2); //
         patch_disable_combo_extend_speedup.reset();
         patch_disable_combo_extend_speedup2.reset();
+        patch_disable_combo_extend_speedup3.reset();
+        patch_disable_combo_extend_speedup4.reset();
     }
 }
 
@@ -682,22 +691,26 @@ void StanceControl::on_draw_ui() {
     if (ImGui::Checkbox("Swap Idle Stances", &swapIdleStances)) {
         toggleSwapIdleStances(swapIdleStances);
     }
-    if (ImGui::IsItemHovered())
-        StanceControl::hoveredDescription =
+    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription =
             "The High/Low stances are mistakenly inverted by default, forcing Travis to take on the incorrect stance. This setting "
             "corrects that issue. This is purely cosmetic.";
 
     if (ImGui::Checkbox("Disable Combo Speed Upgrade", &mod_enabled_disable_combo_extend_speedup)) {
+        mod_enabled_force_1_speed_anims = false;
         toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
     }
-    if (ImGui::IsItemHovered())
-        StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";
+    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";
+
+    if (ImGui::Checkbox("Force 1.0 speed during animations", &mod_enabled_force_1_speed_anims)) {
+        mod_enabled_disable_combo_extend_speedup = false;
+        toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
+    }
+    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";
 
     ImGui::SliderFloat("blendTickNotLockedOn", &blendTickNotLockedOn, 0.01f, 1.0f, "%.1f");
     ImGui::SliderFloat("blendTickLockedOn", &blendTickLockedOn, 0.01f, 1.0f, "%.1f");
     ImGui::Checkbox("Manual Guarding", &mod_enabled_stance_guards);
-    if (ImGui::IsItemHovered())
-        StanceControl::hoveredDescription = "Completely disables auto guarding in favor of manual, stance-dependent guarding.";
+    if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Completely disables auto guarding in favor of manual, stance-dependent guarding.";
 }
 
 void TextCentered(std::string text) {
@@ -1738,6 +1751,7 @@ void StanceControl::on_config_load(const utility::Config& cfg) {
     mod_enabled_disable_combo_extend_speedup = cfg.get<bool>("disable_combo_extend_speedup").value_or(false);
     if (mod_enabled_disable_combo_extend_speedup)
         toggle_disable_combo_extend_speedup(mod_enabled_disable_combo_extend_speedup);
+    mod_enabled_force_1_speed_anims = cfg.get<bool>("force_1_speed_anims").value_or(false);
 
     mod_enabled_faster_nu_lows = cfg.get<bool>("faster_nu_lows").value_or(false);
 
@@ -1763,6 +1777,7 @@ void StanceControl::on_config_save(utility::Config& cfg) {
     cfg.set<bool>("swap_idle_stances", swapIdleStances);
 
     cfg.set<bool>("disable_combo_extend_speedup", mod_enabled_disable_combo_extend_speedup);
+    cfg.set<bool>("force_1_speed_anims", mod_enabled_force_1_speed_anims);
 
     cfg.set<bool>("faster_nu_lows", mod_enabled_faster_nu_lows);
 

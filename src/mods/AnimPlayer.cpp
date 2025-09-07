@@ -5,6 +5,7 @@
 #include <algorithm> // move/insert/erase
 #include <cmath>     // fmodf, sinf, floorf
 #include <cstring>   // std::strstr
+#include "StanceControl.hpp" // for mod_enabled_disable_combo_extend_speedup
 
 bool AnimPlayer::imguiPopout             = false;
 float AnimPlayer::custom_anim_speed      = 1.0f;
@@ -626,12 +627,21 @@ void AnimPlayer::on_frame() {
 }
 
 // clang-format off
+static constexpr float oneFloat = 1.0f;
 naked void detour_anim_speed() { 
     __asm {
-        cmp byte ptr [isPlayingAnimPlaylist], 0
-        je originalcode
+        cmp byte ptr [isPlayingAnimPlaylist], 1
+        je animPlaylistCode
+        cmp byte ptr [StanceControl::mod_enabled_force_1_speed_anims], 1
+        je writeOne
+        jmp originalcode
 
+        animPlaylistCode:
         movss xmm0, [AnimPlayer::custom_anim_speed]
+        jmp retcode
+
+        writeOne:
+        movss xmm0, [oneFloat]
         jmp retcode
 
         originalcode:
