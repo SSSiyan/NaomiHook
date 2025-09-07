@@ -83,6 +83,6 @@ private:
 	std::unique_ptr<FunctionHook> m_hook1, m_hook2, m_hook3, m_hook4, m_hook5;
 	std::unique_ptr<Patch> m_patch1, m_patch2, m_patch3, m_patch4;
 	std::unique_ptr<Patch> patch_swap_idle_stance1, patch_swap_idle_stance2;
-	std::unique_ptr<Patch> patch_disable_combo_extend_speedup;
+	std::unique_ptr<Patch> patch_disable_combo_extend_speedup, patch_disable_combo_extend_speedup2;
 	std::unique_ptr<Patch> patch_disable_cam_reset;
 };

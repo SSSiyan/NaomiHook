@@ -103,8 +103,10 @@ void StanceControl::toggleSwapIdleStances(bool enable) {
         install_patch_offset(0x3D7D4A, patch_swap_idle_stance1, "\x75", 1); // jne nmh.exe+3D7D5B
         install_patch_offset(0x3D7D4F, patch_swap_idle_stance2, "\x75", 1); // jne nmh.exe+3D7D56
     } else {
-        install_patch_offset(0x3D7D4A, patch_swap_idle_stance1, "\x74", 1); // je nmh.exe+3D7D5B
-        install_patch_offset(0x3D7D4F, patch_swap_idle_stance2, "\x74", 1); // je nmh.exe+3D7D56
+        // install_patch_offset(0x3D7D4A, patch_swap_idle_stance1, "\x74", 1); // je nmh.exe+3D7D5B
+        // install_patch_offset(0x3D7D4F, patch_swap_idle_stance2, "\x74", 1); // je nmh.exe+3D7D56
+        patch_swap_idle_stance1.reset();
+        patch_swap_idle_stance2.reset();
     }
 }
 
@@ -124,15 +126,19 @@ void StanceControl::toggle_display_edit(bool enable) {
     if (enable) {
         install_patch_offset(0x409B70, m_patch4, "\x83\xE8\x01", 3); // sub eax,01
     } else {
-        install_patch_offset(0x409B70, m_patch4, "\x83\xE8\x02", 3); // sub eax,02
+        //install_patch_offset(0x409B70, m_patch4, "\x83\xE8\x02", 3); // sub eax,02
+        m_patch4.reset();
     }
 }
 
 void StanceControl::toggle_disable_combo_extend_speedup(bool enable) {
     if (enable) {
         install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup, "\xEB\x2A", 2); //
+        install_patch_offset(0x3C7295, patch_disable_combo_extend_speedup2, "\xEB", 1); //
     } else {
-        install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup, "\x75\x2A", 2); //
+        //install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup, "\x75\x2A", 2); //
+        patch_disable_combo_extend_speedup.reset();
+        patch_disable_combo_extend_speedup2.reset();
     }
 }
 
@@ -140,7 +146,8 @@ void StanceControl::disable_cam_reset(bool enable) {
     if (enable) {
         install_patch_offset(0x3D711D, patch_disable_cam_reset, "\xE9\xB8\x00\x00\x00\x00", 6); // jmp nmh.exe+3D71DA
     } else {
-        install_patch_offset(0x3D711D, patch_disable_cam_reset, "\x0F\x84\xB7\x00\x00\x00", 6); // je nmh.exe+3D71DA
+        //install_patch_offset(0x3D711D, patch_disable_cam_reset, "\x0F\x84\xB7\x00\x00\x00", 6); // je nmh.exe+3D71DA
+        patch_disable_cam_reset.reset();
     }
 }
 
