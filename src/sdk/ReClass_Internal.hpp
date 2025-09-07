@@ -2000,6 +2000,7 @@ public:
       /* 0x0020 */ float StartTick;
       /* 0x0024 */ float EndTick;
     }; /* size: 0x0028 */
+    tagMAIN Main;
 };
 
 class TGmf {

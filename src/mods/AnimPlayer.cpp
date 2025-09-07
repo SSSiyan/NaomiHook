@@ -149,6 +149,8 @@ void AnimPlayer::Stuff() {
     mHRPc* player = nmh_sdk::get_mHRPc();
     if (!player)
         return;
+    ImGui::SliderFloat("Current attack anim progress", &player->tagMain->Motion[0].MotionType3Anm[0].Main.PlayTick, 0.0f, player->tagMain->Motion[0].MotionType3Anm[0].Main.EndTick);
+    // you can also use player->tagMain->Motion[0].PlayMotionTick; for current frame, this also includes non attack anims and loops
 
     // Square scrollbars for this scope
     ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarRounding, 0.0f);
