@@ -141,7 +141,7 @@ void StanceControl::toggle_disable_combo_extend_speedup(bool enable) {
         install_patch_offset(0x3C7258, patch_disable_combo_extend_speedup, "\xEB", 1); // after call nmh.mHRPc::mGetWepCmbExtend
         install_patch_offset(0x3C72A5, patch_disable_combo_extend_speedup2, "\xEB", 1); // after call nmh.mHRPc::mGetWepCmbExtend
         install_patch_offset(0x3C72DA, patch_disable_combo_extend_speedup3, "\xEB", 1); // after call nmh.mHRPc::mGetWepCmbExtend
-        install_patch_offset(0xC733F, patch_disable_combo_extend_speedup4, "\xEB", 1);  // after call nmh.mHRPc::mGetWepCmbExtend
+        install_patch_offset(0x3C733F, patch_disable_combo_extend_speedup4, "\xEB", 1);  // after call nmh.mHRPc::mGetWepCmbExtend
 
     } else {
         patch_disable_combo_extend_speedup.reset();
