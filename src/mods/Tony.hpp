@@ -12,6 +12,7 @@ public:
   static uintptr_t jmp_ret3;
   static uintptr_t jmp_ret4;
   static uintptr_t jmp_ret5;
+  static uintptr_t jmp_ret6;
 
   // mod name string for config
   std::string get_mod_name() const override { return "Tony"; }
@@ -38,6 +39,7 @@ private:
 	std::unique_ptr<FunctionHook> m_hook3;
 	std::unique_ptr<FunctionHook> m_hook4;
 	std::unique_ptr<FunctionHook> m_hook5;
+	std::unique_ptr<FunctionHook> m_hook6;
 	// std::unique_ptr<Patch> m_patch;
 };
 

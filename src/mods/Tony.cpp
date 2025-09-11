@@ -786,6 +786,7 @@ uintptr_t Tony::jmp_ret2  = NULL;
 uintptr_t Tony::jmp_ret3  = NULL;
 uintptr_t Tony::jmp_ret4  = NULL;
 uintptr_t Tony::jmp_ret5  = NULL;
+uintptr_t Tony::jmp_ret6  = NULL;
 static uintptr_t gpBattle = NULL;
 
 static std::chrono::steady_clock::time_point lastRealTime = std::chrono::steady_clock::now();
@@ -1242,7 +1243,16 @@ static void AddTrickScore(int id, int money, bool isReward) {
         }
     }
 
-    std::string trickName = isReward ? "Kill Reward" : MoveNames[id];
+    constexpr int MOVE_NAMES_SIZE = sizeof(MoveNames) / sizeof(MoveNames[0]);
+    std::string trickName;
+    if (isReward) {
+        trickName = "Kill Reward";
+    } else if (id >= 0 && id < MOVE_NAMES_SIZE && MoveNames[id] != nullptr) {
+        trickName = MoveNames[id];
+    } else {
+        trickName = std::to_string(id);
+    }
+
     float now             = getGameTimeSeconds();
 
     bool foundExisting = false;
@@ -1597,6 +1607,30 @@ naked void detour5() {       // money rewards // player in edi
     }
 }
 
+static void CheckNonDamagingAnims(int moveID) {
+    // compare current moveid to a list of player anims that do not deal damage
+    // if it is the move id you want to display on tony, call AddTrickScore.
+    // if not, do not call AddTrickScore.
+    AddTrickScore(moveID, 0, false);
+}
+
+naked void detour6() { // money rewards // player in edi
+    __asm {
+        cmp byte ptr [Tony::mod_enabled], 0
+        je originalcode
+
+        pushad
+        push edx // moveID
+        call CheckNonDamagingAnims
+        add esp,4
+        popad
+
+    originalcode:
+        cmp edx, 0x000000CD
+        jmp dword ptr [Tony::jmp_ret6]
+    }
+}
+
 // ============================================================================
 // UI toggles (main menu panel) - keep simple and clear
 // ============================================================================
@@ -1636,6 +1670,11 @@ std::optional<std::string> Tony::on_initialize() {
     if (!install_hook_offset(0x3E1CD6, m_hook5, &detour5, &Tony::jmp_ret5, 6)) {
         spdlog::error("Failed to init Tony mod 5");
         return "Failed to init Tony mod 5";
+    }
+
+    if (!install_hook_offset(0x3D7F9C, m_hook6, &detour6, &Tony::jmp_ret6, 6)) {
+        spdlog::error("Failed to init Tony mod 6");
+        return "Failed to init Tony mod 6";
     }
 
     return Mod::on_initialize();
