@@ -17,6 +17,10 @@ namespace nmh_sdk {
 	void SetVisible(bool inVisible);
 	typedef bool(__thiscall* mPlayMotionFunc)(mHRPc* mHRPc, pcMotion inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate); // 0x402CF0
 	bool PlayMotion(pcMotion inMotNo, bool inLoop, int inStartFrame, bool inOverWrite, float inInterpolate);
+
+	typedef int(__thiscall* mZakoPlayMotionFunc)(HRZAKO* zako, int inMotNo, int inLoop, int inStartFrame, int inOverWrite, float inInterpolate);
+    int PlayZakoMotion(HRZAKO* zako, int inMotNo, int inLoop, int inStartFrame, int inOverWrite, float inInterpolate);
+
 	typedef char(__thiscall* mSetEquipFunc)(mHRPc* mHRPc, pcItem inID, bool inPowUp); // 0x3E2240
 	void SetEquip(pcItem inID, bool inPowUp);
 	typedef char(__thiscall* mSetEquipMk3Func)(mHRPc* mHRPc); // 0x3E29C0 

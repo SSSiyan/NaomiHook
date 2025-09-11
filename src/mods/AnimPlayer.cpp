@@ -561,6 +561,40 @@ void AnimPlayer::Stuff() {
     draw_connector_stem();
 
     ImGui::PopStyleVar(); // ScrollbarRounding
+
+    static mHRChara* lastLockedOnToNpc = nullptr;
+    if (player->mpLockOnNpc) {
+        lastLockedOnToNpc = player->mpLockOnNpc;
+    }
+
+    if (lastLockedOnToNpc) {
+        ImVec2 screenSize = ImGui::GetIO().DisplaySize;
+        Vec enemyPos      = lastLockedOnToNpc->mStatus.pos;
+        Vec screenEnemyPos{0.0f, 0.0f, 0.0f};
+        nmh_sdk::GetScreenPos(&enemyPos, &screenEnemyPos);
+        float scaleX = screenSize.x / 854.0f;
+        float scaleY = screenSize.y / 480.0f;
+        ImVec2 scaledPos(screenEnemyPos.x * scaleX, screenEnemyPos.y * scaleY);
+        ImGui::Begin("Zako Mot Player", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::SetWindowPos(ImVec2(scaledPos.x, scaledPos.y));
+        int charaType = lastLockedOnToNpc->mStatus.charaType;
+        if (charaType < 525) { // filter out non zakos here
+            static int motion = 0;
+            static bool loop = false;
+            static float startFrame   = 0.0f;
+            static bool overwrite = true;
+            static float interpolate = 0.1f;
+            ImGui::InputInt("Motion ID", &motion, 1, 10);
+            ImGui::Checkbox("Overwrite", &overwrite);
+            ImGui::SliderFloat("Interpolation", &interpolate, 0.0f, 1.0f);
+            ImGui::SliderFloat("Start Frame", &startFrame, 0.0f, 30.0f);
+            ImGui::Checkbox("Loop", &loop);
+            if (ImGui::Button("Play Zako Mot")) {
+                nmh_sdk::PlayZakoMotion((HRZAKO*)lastLockedOnToNpc, motion, loop, startFrame, overwrite, interpolate);
+            }
+        }
+        ImGui::End();
+    }
 }
 
 void AnimPlayer::on_draw_ui() {

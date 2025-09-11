@@ -93,6 +93,13 @@ namespace nmh_sdk {
         }
     }
 
+    // Play zako attack motion
+    int PlayZakoMotion(HRZAKO* zako, int inMotNo, int inLoop, int inStartFrame, int inOverWrite, float inInterpolate) {
+        uintptr_t playZakoMotionAddress = (g_framework->get_module().as<uintptr_t>() + 0x42D750);
+        mZakoPlayMotionFunc playZakoMotion = (mZakoPlayMotionFunc)playZakoMotionAddress;
+        return playZakoMotion(zako, inMotNo, inLoop, inStartFrame, inOverWrite, inInterpolate);
+    }
+
     // Set player weapon or clothing
     void SetEquip(pcItem inID, bool inPowUp) {
         uintptr_t setEquipAddress = (g_framework->get_module().as<uintptr_t>() + 0x3E2240);
