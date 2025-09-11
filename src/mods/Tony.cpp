@@ -36,7 +36,7 @@ static bool g_s_last_useNitro   = false;
 static constexpr float DONUT_SPINY_RATE_EPS = 0.005f; // donut detection
 
 // ============================================================================
-//  Assassin Experience (XP + Ranks) — minimal overlay (pretty text only)
+//  Assassin Experience (XP + Ranks) - minimal overlay (pretty text only)
 // ============================================================================
 static bool g_ae_open         = false; // compatibility no-op
 static uint64_t g_ae_total_xp = 0;     // persistent XP bucket
@@ -44,6 +44,10 @@ static uint64_t g_ae_total_xp = 0;     // persistent XP bucket
 // Rank CA trigger
 static int g_ae_last_level        = 1;
 static float g_ae_rank_ca_start_t = -1.0f; // <0 means inactive
+
+// Subtle CA accumulator (still used by oscilloscope bumps)
+static float g_ae_chip_ca_energy      = 0.0f; // 0..1 accumulated pulses
+static float g_ae_chip_ca_last_update = -1.0f;
 
 // Position (user-draggable) and persistence
 static float g_ae_pos_x = 560.0f; // defaults; saved/loaded
@@ -54,19 +58,33 @@ enum AESlideState { AE_Hidden = 0, AE_SlidingIn, AE_Visible, AE_SlidingOut };
 static int g_ae_slide_state = AE_Hidden;
 static float g_ae_slide_t   = 0.0f; // 0..1 per transition
 
-// Window metrics (shorter height: bar removed)
+// Window metrics
 static constexpr float AE_WINDOW_W = 520.0f;
 static constexpr float AE_WINDOW_H = 56.0f;
 
 static float getGameTimeSeconds(); // forward (implemented later)
 
-// ------------------- AE visual theme (chips lerp to lime) --------------------
+// ------------------- AE visual theme --------------------
 static constexpr ImU32 AE_BG_U32     = IM_COL32(10, 12, 10, 60);
 static constexpr ImU32 AE_BORDER_U32 = IM_COL32(0, 0, 0, 150);
 
-// Kill Reward gold (same as label) both start/end so chips stay gold
-static constexpr ImU32 AE_CHIP_START_U32 = IM_COL32(247, 205, 42, 255);
-static constexpr ImU32 AE_CHIP_END_U32   = IM_COL32(247, 205, 42, 255);
+// Kill Reward gold (label color)
+static constexpr ImU32 AE_CHIP_START_U32 = IM_COL32(247, 205, 42, 200);
+static constexpr ImU32 AE_CHIP_END_U32   = IM_COL32(247, 205, 42, 200);
+
+// -------- Stronger chromatic aberration for actual Rank-Up -------------------
+static constexpr float AE_CA_STRONG_DURATION     = 0.28f;
+static constexpr float AE_CA_STRONG_OFFSET_F     = 1.35f;
+static constexpr float AE_CA_STRONG_BASE_ALPHA   = 0.95f;
+static constexpr int AE_CA_STRONG_EXTRA_PASSES   = 2;
+static constexpr float AE_CA_STRONG_PASS_OFFSET  = 0.70f;
+static constexpr float AE_CA_STRONG_CENTER_NUDGE = 0.80f;
+
+// -------- Subtle CA for intake bumps ----------------------------------------
+static constexpr float AE_CHIP_CA_DECAY_RATE   = 4.0f;
+static constexpr float AE_CHIP_CA_MAX_OFFSET_F = 0.18f;
+static constexpr float AE_CHIP_CA_ALPHA        = 0.35f;
+static constexpr float AE_CHIP_CA_JITTER       = 0.45f;
 
 // Intake anchor (screen-space), updated every frame by AE overlay
 static ImVec2 g_ae_intake_anchor = ImVec2(0.0f, 0.0f);
@@ -89,7 +107,7 @@ static inline ImU32 u32_lerp(ImU32 a, ImU32 b, float t) {
     return IM_COL32(rr, gg, bb2, aa2);
 }
 
-// Rank curve: cumulative XP to reach level L (L>=1). L1 -> 0xp, L2 -> 2k, etc.
+// Rank curve helpers
 static inline uint64_t AE_TotalXPForLevel(int L) {
     if (L <= 1)
         return 0ULL;
@@ -116,53 +134,14 @@ static inline uint64_t AE_XPForNext(uint64_t xp, int lvl) {
     return next > base ? (next - base) : 1ULL;
 }
 
-// -------- Quick chromatic aberration for the RANK label (sharp + short) -----
-static constexpr float AE_CA_DURATION = 0.16f; // seconds
-static void AE_RenderRankCA(const char* text, ImVec2 pos, float fontPx) {
-    float now = getGameTimeSeconds();
-    float t0  = g_ae_rank_ca_start_t;
-    if (t0 < 0.0f)
-        return;
-    float dt = now - t0;
-    if (dt < 0.0f || dt > AE_CA_DURATION)
-        return;
-
-    float u   = dt / AE_CA_DURATION;            // 0..1
-    float e   = 1.0f - (1.0f - u) * (1.0f - u); // fast out
-    float off = (1.0f - e) * (fontPx * 0.85f);  // px offset shrinking to 0
-
-    ImDrawList* dl = ImGui::GetWindowDrawList();
-    ImFont* f      = g_framework->get_our_imgui_ctx()->tony_font;
-
-    float jy = (std::sin(now * 60.0f) * 0.5f); // tiny flicker
-    dl->AddText(f, fontPx, ImVec2(pos.x - off, pos.y + jy), IM_COL32(255, 64, 64, 210), text);
-    dl->AddText(f, fontPx, ImVec2(pos.x + off, pos.y - jy), IM_COL32(64, 255, 255, 210), text);
-}
-
 // ------------------------ Intake anchor getter -------------------------------
 static inline ImVec2 AE_GetIntakeAnchor() {
     return g_ae_intake_anchor;
 }
 
-// =========================== Kill Reward Chip System =========================
-// Particles use pause-safe time (getGameTimeSeconds). Drawn on foreground list.
-
-// Tweaked for long travel to lower-left UI without being clipped
-static constexpr int KB_MAX_CONCURRENT_BURSTS = 2;
-static constexpr int KB_TARGET_CHIP_COUNT     = 90;    // soft target
-static constexpr int KB_ABS_MAX_CHIPS         = 120;   // hard cap
-static constexpr float KB_PHASEA_MIN          = 0.08f; // shatter phase
-static constexpr float KB_PHASEA_MAX          = 0.12f;
-static constexpr float KB_TTL_MAX             = 3.50f;  // longer: allow cross-screen flights
-static constexpr float KB_INTake_RADIUS       = 7.0f;   // arrival radius
-static constexpr float KB_ATTRACT_K           = 36.0f;  // stronger pull
-static constexpr float KB_ATTRACT_DIST_MUL    = 0.06f;  // distance-based boost
-static constexpr float KB_DAMP                = 0.90f;  // velocity damping
-static constexpr float KB_SPEED_MIN           = 220.0f; // px/sec (min cruise)
-static constexpr float KB_SPEED_MAX           = 520.0f; // px/sec (base cap; rises with distance)
-// strict square sizes (integers) — slightly larger
-static constexpr int KB_SIZE_OPTIONS[2] = {3, 4};
-
+// ============================================================================
+//  Noise helpers (hash) used by oscilloscope
+// ============================================================================
 static inline float sc_fract(float x) {
     return x - std::floor(x);
 }
@@ -173,233 +152,229 @@ static inline float sc_hash21(float x, float y) {
     return sc_fract(std::sin(x * 12.9898f + y * 78.233f) * 43758.5453f);
 }
 
-struct KBChip {
-    ImVec2 pos;
-    ImVec2 vel;
-    float delay;    // start delay (stagger)
-    float age;      // time since activation (excludes delay)
-    float phaseA;   // shatter duration for this chip
-    int size;       // 3 or 4 px (integer)
-    bool delivered; // landed at intake
+// ============================================================================
+//  OSCILLOSCOPE XP VISUALIZER (replaces chip intake effect)
+//  - Draws a CRT-style scope near the AE overlay
+//  - Pulses on XP payouts (bigger pulses for larger rewards)
+//  - Pause-safe timing via getGameTimeSeconds()
+// ============================================================================
+static constexpr float OSC_PI        = 3.1415926535f;
+static constexpr float OSC_SAMPLE_HZ = 240.0f; // internal sample rate
+static constexpr int OSC_SAMPLES     = 260;    // width in samples
+static constexpr float OSC_W         = 260.0f; // pixels
+static constexpr float OSC_H         = 72.0f;  // pixels
+
+// Colors (green CRT-ish)
+static constexpr ImU32 OSC_BG       = IM_COL32(6, 8, 7, 160);
+static constexpr ImU32 OSC_GRID     = IM_COL32(84, 130, 98, 36);
+static constexpr ImU32 OSC_TRACE    = IM_COL32(140, 255, 180, 235);
+static constexpr ImU32 OSC_TRACE_G1 = IM_COL32(120, 255, 170, 70);
+static constexpr ImU32 OSC_TRACE_G2 = IM_COL32(120, 255, 170, 30);
+static constexpr ImU32 OSC_BEZEL    = IM_COL32(0, 0, 0, 170);
+static constexpr ImU32 OSC_TEXT     = IM_COL32(140, 255, 180, 180);
+
+struct OscPulse {
+    float t0;    // start time
+    float mag;   // amplitude (0..1)
+    float freq;  // Hz
+    float phase; // radians
+    float tau;   // decay constant (seconds)
 };
 
-struct KBBurst {
-    bool alive;
-    float startTime;
-    ImRect spawnRect;
-    int xpBudget; // total payout to deliver
-    int remainingBudget;
-    int xpPerChip;
-    std::vector<KBChip> chips;
-};
+static std::vector<OscPulse> g_osc_pulses;
+static std::deque<float> g_osc_samples;
+static float g_osc_last_sample_t = -1.0f;
+static float g_osc_flash_t       = -1.0f; // for brief screen glow on big hits
 
-static std::vector<KBBurst> g_kb_bursts;
-
-// Utility: spawn a burst (cap concurrent; if cannot spawn, flush budget immediately)
-static void KB_FlushBudget(int budget) {
-    if (budget > 0)
-        g_ae_total_xp += (uint64_t)budget;
+static inline float osc_clamp(float v, float lo, float hi) {
+    return v < lo ? lo : (v > hi ? hi : v);
 }
-static bool KB_SpawnBurst(const ImRect& spawn, int budget, float seedBase) {
+
+// Convert a "budget" (xp) to a pulse
+static void OSC_AddPulse(int budget) {
     if (budget <= 0)
-        return false;
-
-    // Enforce concurrent cap
-    if ((int)g_kb_bursts.size() >= KB_MAX_CONCURRENT_BURSTS) {
-        // No room: fail gracefully by paying XP instantly
-        KB_FlushBudget(budget);
-        return false;
-    }
-
-    KBBurst b{};
-    b.alive           = true;
-    b.startTime       = getGameTimeSeconds();
-    b.spawnRect       = spawn;
-    b.xpBudget        = budget;
-    b.remainingBudget = budget;
-
-    // Determine chip payout
-    int target  = KB_TARGET_CHIP_COUNT;
-    int per     = std::max(1, budget / std::max(1, target));
-    int count   = std::min(KB_ABS_MAX_CHIPS, std::max(1, budget / per));
-    b.xpPerChip = per;
-    b.chips.reserve((size_t)count);
-
-    ImVec2 sz(spawn.Max.x - spawn.Min.x, spawn.Max.y - spawn.Min.y);
-    float now = b.startTime;
-
-    for (int i = 0; i < count; ++i) {
-        float s = seedBase + (float)i * 19.19f;
-
-        // Jittered grid inside spawnRect
-        float jx = sc_hash21(s + 0.13f, now + 3.7f);
-        float jy = sc_hash21(s + 2.81f, now + 1.1f);
-        ImVec2 p(spawn.Min.x + jx * (sz.x > 1.f ? sz.x : 1.f), spawn.Min.y + jy * (sz.y > 1.f ? sz.y : 1.f));
-
-        // Outward pop with slight upward bias
-        float ang = sc_hash21(s + 9.31f, now + 7.77f) * 6.2831853f;
-        float spd = KB_SPEED_MIN + (KB_SPEED_MAX - KB_SPEED_MIN) * sc_hash21(s + 4.2f, now + 0.55f);
-        ImVec2 v(std::cos(ang) * spd, (std::sin(ang) * spd) - 30.0f);
-
-        // strict integer size (3 or 4 px)
-        int szpx = KB_SIZE_OPTIONS[(sc_hash21(s + 6.66f, now + 2.22f) < 0.5f) ? 0 : 1];
-
-        KBChip c{};
-        c.pos       = p;
-        c.vel       = v;
-        c.delay     = sc_hash21(s + 5.55f, now + 8.81f) * 0.08f; // up to 80ms stagger
-        c.age       = 0.0f;
-        c.phaseA    = KB_PHASEA_MIN + (KB_PHASEA_MAX - KB_PHASEA_MIN) * sc_hash21(s + 0.77f, now + 0.33f);
-        c.size      = szpx;
-        c.delivered = false;
-
-        b.chips.push_back(c);
-    }
-
-    g_kb_bursts.push_back(std::move(b));
-    return true;
-}
-
-// Snap to pixel grid and draw crisp squares (no rounding, integer edges)
-static inline void KB_DrawSquare(ImDrawList* dl, float cx, float cy, int size, ImU32 col) {
-    float x0 = std::floor(cx - (float)size * 0.5f);
-    float y0 = std::floor(cy - (float)size * 0.5f);
-    ImVec2 p0(x0, y0);
-    ImVec2 p1(x0 + (float)size, y0 + (float)size);
-    dl->AddRectFilled(p0, p1, col); // no rounding: perfect square
-}
-
-static void KB_UpdateAndDraw() {
-    if (g_kb_bursts.empty())
         return;
 
+    float now = getGameTimeSeconds();
+
+    // Map budget -> amplitude + decay with gentle compression
+    // small hits still visible, big hits punchy but not clipped
+    float b     = (float)budget;
+    float mag   = osc_clamp(0.12f + 0.015f * std::sqrt(b), 0.12f, 1.0f);
+    float tau   = 0.35f + 0.0018f * std::min(b, 8000.0f); // bigger reward -> longer decay, clamped
+    float seed  = sc_hash21(b, now) * 1000.0f;
+    float freq  = 5.0f + 6.0f * sc_hash11(seed + 7.3f); // 5..11 Hz
+    float phase = sc_hash11(seed + 1.7f) * 2.0f * OSC_PI;
+
+    g_osc_pulses.push_back({now, mag, freq, phase, tau});
+
+    // Brief flash and a subtle CA bump so the AE label shimmers on hits
+    g_osc_flash_t       = now;
+    g_ae_chip_ca_energy = std::min(1.0f, g_ae_chip_ca_energy + osc_clamp(mag * 0.35f, 0.05f, 0.35f));
+}
+
+// Produce one sample from active pulses (+ small instrumentation noise)
+static inline float OSC_SampleAt(float t) {
+    float y = 0.0f;
+
+    // Sum of exponentially decaying sines
+    for (size_t i = 0; i < g_osc_pulses.size(); ++i) {
+        const OscPulse& p = g_osc_pulses[i];
+        float u           = t - p.t0;
+        if (u < 0.0f)
+            continue;
+        float env = std::exp(-u / p.tau);
+        if (env < 0.002f)
+            continue;
+        y += p.mag * env * std::sin(2.0f * OSC_PI * p.freq * u + p.phase);
+    }
+
+    // Light noise + 60Hz hum for texture
+    y += 0.02f * std::sin(2.0f * OSC_PI * 60.0f * t + 0.8f);
+    y += (sc_hash11(t * 37.0f) - 0.5f) * 0.02f;
+
+    // Soft clip to avoid harsh corners
+    y = std::tanh(y * 1.7f);
+    return osc_clamp(y, -1.2f, 1.2f);
+}
+
+// Maintain sample buffer and prune dead pulses
+static void OSC_UpdateSamples(float now) {
+    if (g_osc_last_sample_t < 0.0f) {
+        g_osc_last_sample_t = now;
+        g_osc_samples.assign(OSC_SAMPLES, 0.0f);
+        return;
+    }
+    float dt = now - g_osc_last_sample_t;
+    if (dt < 0.0f)
+        dt = 0.0f;
+
+    int to_add = (int)std::floor(dt * OSC_SAMPLE_HZ);
+    if (to_add <= 0)
+        return;
+
+    float t = g_osc_last_sample_t;
+    for (int i = 0; i < to_add; ++i) {
+        t += 1.0f / OSC_SAMPLE_HZ;
+        float s = OSC_SampleAt(t);
+        g_osc_samples.push_back(s);
+        if ((int)g_osc_samples.size() > OSC_SAMPLES)
+            g_osc_samples.pop_front();
+    }
+    g_osc_last_sample_t = t;
+
+    // Cull finished pulses
+    g_osc_pulses.erase(
+        std::remove_if(g_osc_pulses.begin(), g_osc_pulses.end(), [now](const OscPulse& p) { return (now - p.t0) > (p.tau * 6.0f); }),
+        g_osc_pulses.end());
+}
+
+// Draw a small scope near the AE overlay (anchored to XP digits)
+static void OSC_DrawScope() {
     ImDrawList* dl = ImGui::GetForegroundDrawList();
-    float now      = getGameTimeSeconds();
+    ImVec2 vp      = ImGui::GetIO().DisplaySize;
 
-    // Ensure absolute full-screen clip while drawing chips (prevents any window clipping)
-    ImVec2 vp_sz = ImGui::GetIO().DisplaySize;
-    dl->PushClipRect(ImVec2(0.0f, 0.0f), ImVec2(vp_sz.x, vp_sz.y), false);
+    // Anchor scope to the XP "into" digits, offset a bit to the right and up
+    ImVec2 anchor = AE_GetIntakeAnchor();
+    ImVec2 tl     = ImVec2(anchor.x + 52.0f, anchor.y - OSC_H - 18.0f);
 
-    for (size_t bi = 0; bi < g_kb_bursts.size(); ++bi) {
-        KBBurst& b = g_kb_bursts[bi];
-        if (!b.alive)
-            continue;
+    // Clamp into screen so it never runs off
+    tl.x = osc_clamp(tl.x, 6.0f, vp.x - OSC_W - 6.0f);
+    tl.y = osc_clamp(tl.y, 6.0f, vp.y - OSC_H - 6.0f);
 
-        float life = now - b.startTime;
-        if (life > KB_TTL_MAX) {
-            // Safety flush on timeout
-            KB_FlushBudget(b.remainingBudget);
-            b.remainingBudget = 0;
-            b.alive           = false;
-            continue;
-        }
+    ImVec2 br = ImVec2(tl.x + OSC_W, tl.y + OSC_H);
 
-        ImVec2 anchor = AE_GetIntakeAnchor();
+    // Bezel + background
+    dl->AddRectFilled(ImVec2(tl.x - 2, tl.y - 2), ImVec2(br.x + 2, br.y + 2), OSC_BEZEL, 6.0f);
+    dl->AddRectFilled(tl, br, OSC_BG, 4.0f);
 
-        for (KBChip& c : b.chips) {
-            if (c.delivered)
-                continue;
+    // Grid (vert every 26px, horiz every 18px)
+    for (float x = tl.x + 26.0f; x < br.x; x += 26.0f)
+        dl->AddLine(ImVec2(x, tl.y), ImVec2(x, br.y), OSC_GRID, 1.0f);
+    for (float y = tl.y + 18.0f; y < br.y; y += 18.0f)
+        dl->AddLine(ImVec2(tl.x, y), ImVec2(br.x, y), OSC_GRID, 1.0f);
 
-            // Handle startup delay (stagger)
-            float ageGlobal = life;
-            if (ageGlobal < c.delay)
-                continue;
-            float dt = std::max(0.0f, (ageGlobal - c.age - c.delay)); // per-frame step in pause-safe time
-            c.age    = ageGlobal - c.delay;
-
-            if (dt <= 0.0f)
-                continue;
-
-            // Phase A: shatter motion
-            if (c.age < c.phaseA) {
-                c.pos.x += c.vel.x * dt;
-                c.pos.y += c.vel.y * dt;
-            } else {
-                // Phase B: magnet attraction with distance-based acceleration
-                ImVec2 to(anchor.x - c.pos.x, anchor.y - c.pos.y);
-                float len = std::sqrt(to.x * to.x + to.y * to.y);
-                if (len > 0.0001f) {
-                    ImVec2 dir(to.x / len, to.y / len);
-                    // Tiny perpendicular curl so the paths differ
-                    ImVec2 perp(-dir.y, dir.x);
-                    float curl = 4.0f * sc_hash21((float)(uintptr_t)&c, c.age + 1.23f) - 2.0f;
-
-                    // Distance-based pull boost: farther = stronger attraction and higher max cruise
-                    float dist_scale    = (len / (vp_sz.y + 1.0f)); // 0..~1 across screen height
-                    float K             = KB_ATTRACT_K * (1.0f + KB_ATTRACT_DIST_MUL * (dist_scale * 10.0f));
-                    float dyn_max_speed = KB_SPEED_MAX + (len * 0.60f); // allow faster cruise when far
-
-                    // Update velocity (damped)
-                    c.vel.x = (c.vel.x + (dir.x * K + perp.x * curl));
-                    c.vel.y = (c.vel.y + (dir.y * K + perp.y * curl));
-                    c.vel.x *= KB_DAMP;
-                    c.vel.y *= KB_DAMP;
-
-                    // Clamp speed into [min, dynamic max]
-                    float vlen = std::sqrt(c.vel.x * c.vel.x + c.vel.y * c.vel.y);
-                    if (vlen > 0.0001f) {
-                        float min_spd = KB_SPEED_MIN;
-                        float max_spd = dyn_max_speed;
-                        if (vlen < min_spd) {
-                            float s = min_spd / vlen;
-                            c.vel.x *= s;
-                            c.vel.y *= s;
-                        } else if (vlen > max_spd) {
-                            float s = max_spd / vlen;
-                            c.vel.x *= s;
-                            c.vel.y *= s;
-                        }
-                    }
-
-                    // Integrate
-                    c.pos.x += c.vel.x * dt;
-                    c.pos.y += c.vel.y * dt;
-                }
-            }
-
-            // Arrival test
-            ImVec2 d(anchor.x - c.pos.x, anchor.y - c.pos.y);
-            float dist2 = (d.x * d.x + d.y * d.y);
-            if (dist2 <= (KB_INTake_RADIUS * KB_INTake_RADIUS)) {
-                c.delivered = true;
-                if (b.remainingBudget > 0) {
-                    int pay = std::min(b.xpPerChip, b.remainingBudget);
-                    g_ae_total_xp += (uint64_t)pay;
-                    b.remainingBudget -= pay;
-                }
-            }
-
-            // Chip color (gold)
-            float dist = std::sqrt(dist2);
-            float tcol = (dist <= 1.0f) ? 1.0f : std::min(1.0f, 1.0f - (dist / 240.0f));
-            ImU32 col  = u32_lerp(AE_CHIP_START_U32, AE_CHIP_END_U32, tcol);
-
-            // Draw chip (full-screen clip ensures no cuts)
-            KB_DrawSquare(dl, c.pos.x, c.pos.y, c.size, col);
-        }
-
-        // If everyone delivered or budget exhausted, finish and flush remainder (should be 0)
-        bool anyAlive = false;
-        for (const KBChip& c : b.chips) {
-            if (!c.delivered) {
-                anyAlive = true;
-                break;
-            }
-        }
-        if (!anyAlive || b.remainingBudget <= 0) {
-            if (b.remainingBudget > 0) {
-                KB_FlushBudget(b.remainingBudget);
-                b.remainingBudget = 0;
-            }
-            b.alive = false;
+    // Scanline glow when a new pulse just happened
+    float now = getGameTimeSeconds();
+    if (g_osc_flash_t >= 0.0f) {
+        float age = now - g_osc_flash_t;
+        if (age < 0.18f) {
+            float a    = (1.0f - (age / 0.18f));
+            ImU32 glow = IM_COL32(140, 255, 180, (int)std::round(120.0f * a));
+            dl->AddRectFilled(tl, br, glow, 4.0f);
         }
     }
 
-    // Compact dead bursts
-    g_kb_bursts.erase(std::remove_if(g_kb_bursts.begin(), g_kb_bursts.end(), [](const KBBurst& b) { return !b.alive; }), g_kb_bursts.end());
+    // Build polyline from sample buffer
+    if (!g_osc_samples.empty()) {
+        const int n = (int)g_osc_samples.size();
+        std::vector<ImVec2> path;
+        path.reserve(n);
 
-    // Pop full-screen clip
-    dl->PopClipRect();
+        for (int i = 0; i < n; ++i) {
+            float x   = tl.x + (float)i * (OSC_W / (float)OSC_SAMPLES);
+            float y01 = (g_osc_samples[i] * 0.45f + 0.5f); // map -1..1 -> 0..1
+            float y   = tl.y + (1.0f - y01) * OSC_H;
+            path.emplace_back(x, y);
+        }
+
+        // Glow passes
+        dl->AddPolyline(path.data(), (int)path.size(), OSC_TRACE_G2, false, 6.0f);
+        dl->AddPolyline(path.data(), (int)path.size(), OSC_TRACE_G1, false, 3.5f);
+        // Main trace
+        dl->AddPolyline(path.data(), (int)path.size(), OSC_TRACE, false, 1.6f);
+
+        // Hot "beam" at the latest sample
+        ImVec2 tip = path.back();
+        dl->AddCircleFilled(tip, 2.0f, OSC_TRACE);
+    }
+
+    // Tiny label
+    ImFont* tf = g_framework->get_our_imgui_ctx()->tony_font;
+    dl->AddText(tf, 10.0f, ImVec2(tl.x + 6.0f, tl.y + 4.0f), OSC_TEXT, "XP-Scope");
+
+    // ---------------------------------------------------------------------
+    // Bottom-row: "RANK N    into / toNext" INSIDE the meter (no resize)
+    // ---------------------------------------------------------------------
+    int lvl         = AE_LevelFromXP(g_ae_total_xp);
+    uint64_t into   = AE_XPIntoLevel(g_ae_total_xp, lvl);
+    uint64_t toNext = AE_XPForNext(g_ae_total_xp, lvl);
+
+    char rankLine[160];
+    std::snprintf(rankLine, sizeof(rankLine), "RANK %d    %llu / %llu", lvl, (unsigned long long)into, (unsigned long long)toNext);
+
+    // Start from a comfortable size; downscale until it fits horizontally.
+    const float padX = 6.0f;
+    const float padY = 4.0f;
+    const float maxW = OSC_W - padX * 2.0f;
+
+    float uiScale     = ImGui::GetIO().DisplaySize.y / 1080.0f;
+    float sizePx      = std::max(10.0f, 12.0f * uiScale); // starting size
+    const float minPx = 8.0f;
+
+    ImVec2 tsize = tf->CalcTextSizeA(sizePx, FLT_MAX, 0.0f, rankLine);
+    while (tsize.x > maxW && sizePx > minPx) {
+        sizePx -= 0.25f;
+        tsize = tf->CalcTextSizeA(sizePx, FLT_MAX, 0.0f, rankLine);
+    }
+
+    // Center horizontally on the bottom row
+    float tx = tl.x + (OSC_W - tsize.x) * 0.5f;
+    float ty = br.y - padY - tsize.y;
+
+    // Shadow + main text for readability over the trace
+    dl->AddText(tf, sizePx, ImVec2(tx + 1.0f, ty + 1.0f), IM_COL32(0, 0, 0, 200), rankLine);
+    dl->AddText(tf, sizePx, ImVec2(tx, ty), OSC_TEXT, rankLine);
+}
+
+// Entry: update + draw
+static void OSC_UpdateAndDraw() {
+    // Only show when AE overlay is visible
+    if (g_ae_slide_state == AE_Hidden)
+        return;
+    float now = getGameTimeSeconds();
+    OSC_UpdateSamples(now);
+    OSC_DrawScope();
 }
 
 // ============================================================================
@@ -407,9 +382,74 @@ static void KB_UpdateAndDraw() {
 // ============================================================================
 static float AE_UpdateSlideAndGetOffsetX(float dt); // fwd
 
-// Rank+XP label only (no bar). Intake anchor set to the center of CURRENT XP digits.
+// --------- CA render helpers (strong rank-up and subtle chip-intake) --------
+static void AE_RenderRankCA_Strong(const char* text, ImVec2 pos, float fontPx) {
+    float now = getGameTimeSeconds();
+    float t0  = g_ae_rank_ca_start_t;
+    if (t0 < 0.0f)
+        return;
+    float dt = now - t0;
+    if (dt < 0.0f || dt > AE_CA_STRONG_DURATION)
+        return;
+
+    float u   = dt / AE_CA_STRONG_DURATION;     // 0..1
+    float e   = 1.0f - (1.0f - u) * (1.0f - u); // fast out
+    float off = (1.0f - e) * (fontPx * AE_CA_STRONG_OFFSET_F);
+
+    ImDrawList* dl = ImGui::GetWindowDrawList();
+    ImFont* f      = g_framework->get_our_imgui_ctx()->tony_font;
+
+    float jitterX = (std::sin(now * 73.0f) * AE_CA_STRONG_CENTER_NUDGE);
+    float jitterY = (std::cos(now * 61.0f) * AE_CA_STRONG_CENTER_NUDGE * 0.6f);
+
+    ImU32 cR = IM_COL32(255, 40, 40, (int)std::round(255.0f * AE_CA_STRONG_BASE_ALPHA));
+    ImU32 cC = IM_COL32(64, 255, 255, (int)std::round(255.0f * AE_CA_STRONG_BASE_ALPHA));
+
+    dl->AddText(f, fontPx, ImVec2(pos.x - off + jitterX, pos.y + jitterY), cR, text);
+    dl->AddText(f, fontPx, ImVec2(pos.x + off - jitterX, pos.y - jitterY), cC, text);
+
+    for (int p = 0; p < AE_CA_STRONG_EXTRA_PASSES; ++p) {
+        float o = (p + 1) * AE_CA_STRONG_PASS_OFFSET;
+        dl->AddText(f, fontPx, ImVec2(pos.x - off - o, pos.y), cR, text);
+        dl->AddText(f, fontPx, ImVec2(pos.x + off + o, pos.y), cC, text);
+    }
+}
+
+static void AE_RenderChipCA_Accum(const char* text, ImVec2 pos, float fontPx) {
+    float now = getGameTimeSeconds();
+    if (g_ae_chip_ca_last_update < 0.0f)
+        g_ae_chip_ca_last_update = now;
+    float dt = now - g_ae_chip_ca_last_update;
+    if (dt < 0.0f)
+        dt = 0.0f;
+    g_ae_chip_ca_last_update = now;
+
+    if (g_ae_chip_ca_energy > 0.0f) {
+        g_ae_chip_ca_energy = std::max(0.0f, g_ae_chip_ca_energy - AE_CHIP_CA_DECAY_RATE * dt);
+    }
+    float e = g_ae_chip_ca_energy;
+    if (e <= 0.001f)
+        return;
+
+    float s   = std::sqrt(std::min(1.0f, e));
+    float off = fontPx * AE_CHIP_CA_MAX_OFFSET_F * s;
+
+    float jx = (sc_hash21(e + 12.3f, now + 3.7f) - 0.5f) * 2.0f * AE_CHIP_CA_JITTER;
+    float jy = (sc_hash21(e + 7.7f, now + 5.1f) - 0.5f) * 2.0f * (AE_CHIP_CA_JITTER * 0.6f);
+
+    ImDrawList* dl = ImGui::GetWindowDrawList();
+    ImFont* f      = g_framework->get_our_imgui_ctx()->tony_font;
+
+    int a255 = (int)std::round(AE_CHIP_CA_ALPHA * 255.0f * s);
+    ImU32 cR = IM_COL32(255, 64, 64, a255);
+    ImU32 cC = IM_COL32(64, 255, 255, a255);
+
+    dl->AddText(f, fontPx, ImVec2(pos.x - off + jx, pos.y + jy), cR, text);
+    dl->AddText(f, fontPx, ImVec2(pos.x + off - jx, pos.y - jy), cC, text);
+}
+
+// Rank+XP label only (no bar). Intake anchor set to center of CURRENT XP digits.
 static void AE_DrawWindow() {
-    // Small dt from game time
     static float s_last_t = -1.0f;
     float now             = getGameTimeSeconds();
     if (s_last_t < 0.0f)
@@ -421,14 +461,12 @@ static void AE_DrawWindow() {
 
     float slideOffX = AE_UpdateSlideAndGetOffsetX(dt);
     if (g_ae_slide_state == AE_Hidden)
-        return; // not visible
+        return;
 
-    // Clamp window into the visible viewport so the intake anchor never sits offscreen
     ImVec2 vp  = ImGui::GetIO().DisplaySize;
     g_ae_pos_x = std::max(8.0f, std::min(g_ae_pos_x, vp.x - AE_WINDOW_W - 8.0f));
     g_ae_pos_y = std::max(8.0f, std::min(g_ae_pos_y, vp.y - AE_WINDOW_H - 8.0f));
 
-    // Window placement
     ImVec2 drawPos(g_ae_pos_x + slideOffX, g_ae_pos_y);
     ImGui::SetNextWindowPos(drawPos, ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(AE_WINDOW_W, AE_WINDOW_H), ImGuiCond_Always);
@@ -436,7 +474,6 @@ static void AE_DrawWindow() {
     if (ImGui::Begin("Assassin Experience", nullptr,
             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings)) {
 
-        // Drag handle
         ImGui::SetCursorPos(ImVec2(0, 0));
         ImGui::InvisibleButton("AE_DRAG", ImGui::GetWindowSize());
         if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0)) {
@@ -445,55 +482,46 @@ static void AE_DrawWindow() {
             g_ae_pos_y += d.y;
         }
 
-        // Content
         ImGui::SetCursorPos(ImVec2(0, 4.0f));
 
         int lvl         = AE_LevelFromXP(g_ae_total_xp);
         uint64_t into   = AE_XPIntoLevel(g_ae_total_xp, lvl);
         uint64_t toNext = AE_XPForNext(g_ae_total_xp, lvl);
 
-        // We draw one string, but compute the anchor using exact font metrics.
         char rankPrefix[64];
         std::snprintf(rankPrefix, sizeof(rankPrefix), "Rank %d    ", lvl);
-
         char intoStr[32];
         std::snprintf(intoStr, sizeof(intoStr), "%llu", (unsigned long long)into);
-
         const char* sepStr = " / ";
-
         char nextStr[32];
         std::snprintf(nextStr, sizeof(nextStr), "%llu", (unsigned long long)toNext);
 
-        // Full line for drawing/CA
-        char fullBuf[160];
-        std::snprintf(fullBuf, sizeof(fullBuf), "%s%s%s%s", rankPrefix, intoStr, sepStr, nextStr);
+        // NOTE: old composite label "fullBuf" and its rendering are disabled.
+        // Keeping the strings above so we can still compute the intake anchor.
+        // char fullBuf[160];
+        // std::snprintf(fullBuf, sizeof(fullBuf), "%s%s%s%s", rankPrefix, intoStr, sepStr, nextStr);
 
         float scale     = ImGui::GetIO().DisplaySize.y / 1080.0f;
         float labelSize = std::max(14.0f, 16.0f * scale);
 
         ImVec2 pos = ImGui::GetCursorScreenPos();
-        pos.x += 8.0f; // slight inset
+        pos.x += 8.0f;
 
-        ImDrawList* dl = ImGui::GetWindowDrawList();
-        ImFont* tf     = g_framework->get_our_imgui_ctx()->tony_font;
+        // ImDrawList* dl = ImGui::GetWindowDrawList(); // unused when label is disabled
+        ImFont* tf = g_framework->get_our_imgui_ctx()->tony_font;
 
-        // Shadow
-        dl->AddText(tf, labelSize, ImVec2(pos.x + 1, pos.y + 1), IM_COL32(0, 0, 0, 190), fullBuf);
-        // CA burst if active
-        AE_RenderRankCA(fullBuf, pos, labelSize);
-        // Main text
-        dl->AddText(tf, labelSize, pos, IM_COL32(255, 255, 255, 235), fullBuf);
+        // DISABLED: old on-screen rank/xp text and CA passes (now shown inside meter)
+        // dl->AddText(tf, labelSize, ImVec2(pos.x + 1, pos.y + 1), IM_COL32(0, 0, 0, 190), fullBuf);
+        // AE_RenderChipCA_Accum(fullBuf, pos, labelSize);
+        // AE_RenderRankCA_Strong(fullBuf, pos, labelSize);
+        // dl->AddText(tf, labelSize, pos, IM_COL32(255, 255, 255, 235), fullBuf);
 
-        // --- Compute intake anchor at the center of the CURRENT XP digits ---
-        ImVec2 wPrefix = tf->CalcTextSizeA(labelSize, FLT_MAX, 0.0f, rankPrefix);
-        ImVec2 wInto   = tf->CalcTextSizeA(labelSize, FLT_MAX, 0.0f, intoStr);
-        ImVec2 hDigit  = tf->CalcTextSizeA(labelSize, FLT_MAX, 0.0f, "0");
+        // We still compute the intake anchor based on the numeric widths
+        ImVec2 wPrefix     = tf->CalcTextSizeA(labelSize, FLT_MAX, 0.0f, rankPrefix);
+        ImVec2 wInto       = tf->CalcTextSizeA(labelSize, FLT_MAX, 0.0f, intoStr);
+        ImVec2 hDigit      = tf->CalcTextSizeA(labelSize, FLT_MAX, 0.0f, "0");
+        g_ae_intake_anchor = ImVec2(pos.x + wPrefix.x + (wInto.x * 0.5f), pos.y + (hDigit.y * 0.5f));
 
-        g_ae_intake_anchor = ImVec2(pos.x + wPrefix.x + (wInto.x * 0.5f), // center of the "into" substring (CURRENT XP)
-            pos.y + (hDigit.y * 0.5f)                                     // vertical center of the line
-        );
-
-        // Tiny bottom padding
         ImGui::Dummy(ImVec2(0, 4.0f));
     }
     ImGui::End();
@@ -592,7 +620,6 @@ static void UAA_LoadFromConfig(const utility::Config& cfg) {
     g_ae_pos_x = cfg.get<float>("Tony_AE_PosX").value_or(g_ae_pos_x);
     g_ae_pos_y = cfg.get<float>("Tony_AE_PosY").value_or(g_ae_pos_y);
 
-    // Initialize slide state based on current toggle
     g_ae_slide_state = g_uaa_enabled ? AE_Visible : AE_Hidden;
     g_ae_slide_t     = 0.0f;
 }
@@ -605,6 +632,7 @@ static void UAA_DrawReportWindow() {
     ImGui::SetNextWindowSize(ImVec2(900.0f, 600.0f), ImGuiCond_FirstUseEver);
     if (ImGui::Begin(
             "UAA Assassin Performance Report", &g_uaa_report_open, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings)) {
+
         ImGui::SetNextItemWidth(220.0f);
         ImGui::Combo("Category", &g_uaa_weapon_filter, UAA_CAT_LABELS, IM_ARRAYSIZE(UAA_CAT_LABELS));
 
@@ -710,7 +738,7 @@ static void UAA_DrawReportWindow() {
 }
 
 // ============================================================================
-// Existing Score Visualizer code (kept; now spawns chip bursts on Kill Reward)
+// Existing Score Visualizer code (unchanged UI; now triggers scope pulses)
 // ============================================================================
 static constexpr float DISPLAY_DURATION           = 2.0f;
 static constexpr float SLIDE_OUT_DURATION         = 0.3f;
@@ -809,9 +837,9 @@ struct TrickGroup {
     bool dbcaSoloBoost     = false;
     float labelCASeed      = 0.0f;
 
-    // Chip burst integration
-    bool rewardBurstSpawned    = false; // spawn only once per completed count
-    float rewardBurstStartTime = -1.0f; // used to fade the number after burst starts
+    // Scope pulse gating (fade numbers when we punch the scope)
+    bool rewardBurstSpawned    = false;
+    float rewardBurstStartTime = -1.0f;
 
     TrickGroup() = default;
     TrickGroup(const std::string& name, int moneyAmount, bool reward, float currentTime)
@@ -952,7 +980,7 @@ static int RewardDisplayValue(const TrickGroup& group, float now) {
     return value;
 }
 
-// ---------------------- Deathblow CA (unchanged behavior) --------------------
+// ---------------------- Deathblow CA -----------------------------------------
 static constexpr bool DBCA_ENABLED = true;
 static float DBCA_DURATION         = 0.22f;
 static float DBCA_OFFSET_F         = 0.75f;
@@ -1009,7 +1037,7 @@ static void RenderDeathblowLabelCA(const std::string& labelText, float leftAlign
     float posY[3] = {0.0f, jy, 0.0f};
 
     ImVec2 posBase(win.x + leftAlignX, win.y + yPos);
-    ImU32 cols[3] = {cR, cG, cB};
+    ImU32 cols[3] = {cR, IM_COL32(255, 255, 255, (int)std::round(255.0f * 0.9f * fade * alphaMul)), cB};
 
     for (int i = 0; i < 3; ++i) {
         int colorIdx = maps[permPick][i];
@@ -1029,7 +1057,6 @@ static void RenderGroupText(TrickGroup& group, float animationOffset, float yPos
     ImColor orangeCol = ImColor(0.970f, 0.803f, 0.165f, 1.00f);
     ImColor whiteCol  = ImColor(1.0f, 1.0f, 1.0f, 1.0f);
     ImVec4 textColor  = isRewardGroup ? (ImVec4)orangeCol : (ImVec4)whiteCol;
-    ImU32 scoreCol    = (ImU32)orangeCol;
 
     ImVec4 shadowColor(0.0f, 0.0f, 0.0f, 1.0f);
     float shadowOffsetX = 2.0f, shadowOffsetY = 2.0f;
@@ -1101,7 +1128,7 @@ static void RenderGroupText(TrickGroup& group, float animationOffset, float yPos
         }
     }
 
-    // Build the numeric text and compute its positions
+    // Numeric text
     char buf[64];
     int dispValue = 0;
     if (isRewardGroup) {
@@ -1115,12 +1142,11 @@ static void RenderGroupText(TrickGroup& group, float animationOffset, float yPos
     ImVec2 posShadow(win.x + scoreX + 2.0f + popOffset.x, win.y + yPos + 2.0f + popOffset.y);
     ImVec2 posMain(win.x + scoreX + popOffset.x, win.y + yPos + popOffset.y);
 
-    // If reward burst started, fade the number quickly to reduce overdraw
     float alphaMul = 1.0f;
     if (isRewardGroup && group.rewardBurstStartTime >= 0.0f) {
-        float dt = now - group.rewardBurstStartTime;
-        float t  = std::min(1.0f, std::max(0.0f, dt / 0.12f)); // 120ms to 30% alpha
-        alphaMul = 1.0f - 0.70f * t;
+        float dtf = now - group.rewardBurstStartTime;
+        float t   = std::min(1.0f, std::max(0.0f, dtf / 0.12f));
+        alphaMul  = 1.0f - 0.70f * t;
     }
     ImU32 mainCol = IM_COL32(247, 205, 42, (int)std::round(255.0f * alphaMul));
     ImU32 shadCol = IM_COL32(0, 0, 0, (int)std::round(255.0f * alphaMul));
@@ -1128,18 +1154,12 @@ static void RenderGroupText(TrickGroup& group, float animationOffset, float yPos
     dl->AddText(font, fontSize * popScale, posShadow, shadCol, buf);
     dl->AddText(font, fontSize * popScale, posMain, mainCol, buf);
 
-    // --- Spawn a chip burst exactly when the count finishes (and only once) ---
+    // Trigger an oscilloscope pulse when the count finishes (once)
     if (isRewardGroup) {
         bool finished = (dispValue == group.rewardEndValue) && (group.rewardEndValue > 0);
         if (finished && !group.rewardBurstSpawned) {
-            // Tight spawn rect around the number we just drew
-            ImVec2 numSize = ImGui::CalcTextSize(buf);
-            ImRect spawnRect(posMain, ImVec2(posMain.x + numSize.x, posMain.y + fontSize));
-
-            // Create a burst; if cap is reached, budget flushes immediately
             int budget = group.rewardEndValue;
-            float seed = (float)((uintptr_t)&group & 0xFFFF) + now;
-            KB_SpawnBurst(spawnRect, budget, seed);
+            OSC_AddPulse(budget); // replaces chip burst
 
             group.rewardBurstSpawned   = true;
             group.rewardBurstStartTime = now;
@@ -1191,7 +1211,6 @@ static void StartOrRestartRewardCount(TrickGroup& g, float now) {
     g.rewardEndValue       = g.money;
     g.rewardCountStartTime = now;
 
-    // Reset burst gate so a new burst can spawn when this count completes
     g.rewardBurstSpawned   = false;
     g.rewardBurstStartTime = -1.0f;
 }
@@ -1212,21 +1231,17 @@ static void AddTrickScore(int id, int money, bool isReward) {
     if (IsGamePaused())
         return;
 
-    // Assassin Experience feed:
     if (!isReward) {
         if (money > 0)
             g_ae_total_xp += (uint64_t)money; // per-hit XP stays immediate
     } else {
-        // Kill reward: if visualizer is enabled, deliver via chip budget.
-        // If not enabled, fall back to immediate add to avoid lost XP.
+        // If the visualizer itself is off, apply reward immediately
         if (!Tony::mod_enabled) {
             if (money > 0)
                 g_ae_total_xp += (uint64_t)money;
         }
-        // else: budget is handled by the chip burst when the count finishes
     }
 
-    // Existing visualizer behavior
     std::string trickName = isReward ? "Kill Reward" : MoveNames[id];
     float now             = getGameTimeSeconds();
 
@@ -1249,7 +1264,6 @@ static void AddTrickScore(int id, int money, bool isReward) {
                 } else {
                     StartOrRestartRewardCount(*it, now);
                 }
-
                 foundExisting = true;
                 break;
             }
@@ -1312,7 +1326,6 @@ static void AddTrickScore2(const char* trickName, int money, bool isReward) {
                 } else {
                     StartOrRestartRewardCount(*it, now);
                 }
-
                 foundExisting = true;
                 break;
             }
@@ -1343,7 +1356,6 @@ static void AddTrickScore2(const char* trickName, int money, bool isReward) {
 // Slide logic used by AE overlay
 // ============================================================================
 static float AE_UpdateSlideAndGetOffsetX(float dt) {
-    // Transitions triggered by g_uaa_enabled
     if (g_uaa_enabled) {
         if (g_ae_slide_state == AE_Hidden || g_ae_slide_state == AE_SlidingOut) {
             g_ae_slide_state = AE_SlidingIn;
@@ -1356,8 +1368,7 @@ static float AE_UpdateSlideAndGetOffsetX(float dt) {
         }
     }
 
-    // Advance animation
-    const float speed = 8.0f; // fast slide
+    const float speed = 8.0f;
     if (g_ae_slide_state == AE_SlidingIn || g_ae_slide_state == AE_SlidingOut) {
         g_ae_slide_t += dt * speed;
         if (g_ae_slide_t >= 1.0f) {
@@ -1366,23 +1377,20 @@ static float AE_UpdateSlideAndGetOffsetX(float dt) {
         }
     }
 
-    // Off-screen distances
     const float off = AE_WINDOW_W + 60.0f;
-
-    // Compute pixel offset
     if (g_ae_slide_state == AE_SlidingIn) {
-        float t = g_ae_slide_t;                   // 0..1
-        float e = 1.0f - (1.0f - t) * (1.0f - t); // ease out
-        return -(1.0f - e) * off;                 // from left (-off) -> 0
-    } else if (g_ae_slide_state == AE_SlidingOut) {
-        float t = g_ae_slide_t; // 0..1
-        float e = t * t;        // ease in a bit
-        return e * off;         // 0 -> +off (to right)
-    } else if (g_ae_slide_state == AE_Visible) {
-        return 0.0f;
-    } else { // hidden: keep it off-screen to the left so it is not visible
-        return -off;
+        float t = g_ae_slide_t;
+        float e = 1.0f - (1.0f - t) * (1.0f - t);
+        return -(1.0f - e) * off;
     }
+    if (g_ae_slide_state == AE_SlidingOut) {
+        float t = g_ae_slide_t;
+        float e = t * t;
+        return e * off;
+    }
+    if (g_ae_slide_state == AE_Visible)
+        return 0.0f;
+    return -off;
 }
 
 // ============================================================================
@@ -1487,29 +1495,27 @@ void Tony::on_frame() {
         }
     }
 
-    // Draw chip bursts over everything (foreground DL)
-    KB_UpdateAndDraw();
-
-    // Draw pop-outs LAST so they persist independently of the main menu
+    // Draw pop-outs and overlays
     UAA_DrawReportWindow();
-    AE_DrawWindow(); // minimal pretty text; anchor updated to the current number
+    AE_DrawWindow();     // updates intake anchor
+    OSC_UpdateAndDraw(); // draw scope after AE so anchor is fresh
 }
 
 // ============================================================================
-// Detours (unchanged except we rely on AddTrickScore feeding AE/bursts)
+// Detours (unchanged except we rely on AddTrickScore feeding AE/scope)
 // ============================================================================
 naked void detour1() { // most attacks // player in edi
     __asm {
         cmp byte ptr [Tony::mod_enabled], 0
         je originalcode
-    
+
         pushad
         push [esp+0x20+0xC] // damage
         push ecx       // moveID
         call AddTrickScore
         add esp, 8
         popad
-    
+
     originalcode:
         cmp ecx,0x000000AB
         jmp dword ptr [Tony::jmp_ret1]
@@ -1540,14 +1546,14 @@ naked void detour3() {   // throw input success // player in edi
         mov eax, [ecx+0x0000030C]
         cmp byte ptr [Tony::mod_enabled], 0
         je originalcode
-            
+
         pushad
         push 0 // is reward
         push 0 // money
         push [edi+0x18C] // moveID
         call AddTrickScore
         add esp, 0xC
-    
+
     popcode:
         popad
     originalcode:
@@ -1592,7 +1598,7 @@ naked void detour5() {       // money rewards // player in edi
 }
 
 // ============================================================================
-// UI toggles (main menu panel) — keep simple and clear
+// UI toggles (main menu panel) - keep simple and clear
 // ============================================================================
 void Tony::on_draw_ui() {
     ImGui::SeparatorText("UAA Assassin Evaluation");

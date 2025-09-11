@@ -254,7 +254,7 @@ void DrawEnemyStats() {
                 ImGui::InputInt("Long Attack Wait Count", &hrZako->mAi.mLongAtkWaitCount);
                 ImGui::InputInt("Mawari Kinshi Count", &hrZako->mAi.mMawariKinshiCount);
                 ImGui::Checkbox("Endurance", &hrZako->mAi.mEndurance);
-                help_marker("Endurance is the mechanic that gives enemies extra resistance to attacks and immunity to Death Blow insta-kills. While only applied to specific enemies by default, this can be ticked on any Zako type.");
+                help_marker("Endurance is the mechanic that gives enemies extra resistance to attacks. While only applied to specific enemies by default, this can be ticked on any Zako type.");
                 ImGui::InputFloat("Mawarikomi Direction", &hrZako->mAi.mMawarikomiDirec);
                 ImGui::Checkbox("Back Step Check", &hrZako->mAi.mBackStepChk);
                 ImGui::TreePop();
@@ -947,7 +947,7 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_SlashTex Ptr", (int*)&hrTyg->m_SlashTex);
                 ImGui::Checkbox("m_RetCamera", &hrTyg->m_RetCamera);
                 ImGui::Checkbox("m_SwingCamera", &hrTyg->m_SwingCamera);
-                ImGui::InputInt("m_BeforePcPose", (int*)&hrTyg->m_BeforePcPose);
+                ImGui::Combo("m_BeforePcPose", (int*)&hrTyg->m_BeforePcPose, "ePcPoseUpper\0ePcPoseMiddle\0ePcPoseBottom\0ePcPoseMax\0");
                 ImGui::InputInt("m_DemoNum", (int*)&hrTyg->m_DemoNum);
                 ImGui::Checkbox("m_BatFireFlag", &hrTyg->m_BatFireFlag);
                 ImGui::InputFloat("m_LampCount", &hrTyg->m_LampCount);
@@ -1036,7 +1036,7 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_MotionFrame", &hrTkl->m_MotionFrame);
                 ImGui::InputFloat3("m_MoveVec", &hrTkl->m_MoveVec.x);
                 ImGui::InputInt("m_ComboMode", (int*)&hrTkl->m_ComboMode);
-                ImGui::InputInt("m_BeforePcPose", (int*)&hrTkl->m_BeforePcPose);
+                ImGui::Combo("m_BeforePcPose", (int*)&hrTkl->m_BeforePcPose, "ePcPoseUpper\0ePcPoseMiddle\0ePcPoseBottom\0ePcPoseMax\0");
                 ImGui::Checkbox("m_BefGuard", &hrTkl->m_BefGuard);
                 for (int i = 0; i < 5; ++i) {
                     ImGui::InputInt(("m_pCatGmf Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTkl->m_pCatGmf[i]);

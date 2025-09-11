@@ -180,7 +180,32 @@ if (ImGui::TreeNodeEx("HrGameTask", ImGuiTreeNodeFlags_DrawLinesFull)) {
             ImGui::Checkbox("mSubMissionRun", &hrGameTask->mSubMissionRun);
             ImGui::InputInt("mSetSubMissionID", &hrGameTask->mSetSubMissionID);
 
-            ImGui::InputInt("mGameLevel", &hrGameTask->mGameLevel);
+{
+                HrGameTask* hrGameTask = nmh_sdk::get_HrGameTask();
+                if (hrGameTask && hrGameTask->mp_SaveData) {
+                    const char* kDiffNames[] = {"Sweet (0)", "Mild (1)", "Bitter (2)"};
+
+                    // Compute pointer: (mp_SaveData + 0x14B4)
+                    unsigned char* save_base = reinterpret_cast<unsigned char*>(hrGameTask->mp_SaveData);
+                    int* p_difficulty        = reinterpret_cast<int*>(save_base + 0x14B4);
+
+                    // Defensive clamp in case memory is noisy
+                    int cur = *p_difficulty;
+                    if (cur < 0 || cur > 2)
+                        cur = 1; // default to Mild
+
+                    if (ImGui::Combo("Difficulty", &cur, kDiffNames, IM_ARRAYSIZE(kDiffNames))) {
+                        // write back
+                        if (cur < 0)
+                            cur = 0;
+                        if (cur > 2)
+                            cur = 2;
+                        *p_difficulty = cur;
+                    }
+                } else {
+                    ImGui::Text("SaveData unavailable; cannot edit difficulty.");
+                }
+            }
 
             ImGui::Checkbox("mHomeButtonDisEnable", &hrGameTask->mHomeButtonDisEnable);
 

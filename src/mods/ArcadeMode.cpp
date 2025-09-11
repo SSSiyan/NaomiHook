@@ -1,19 +1,36 @@
 #if 1
 #include "ArcadeMode.hpp"
-#include "QuickBoot.hpp" // Quick boot uses this detour
-#include <shlobj.h> // for ShellExecuteA
 #include "ClothesSwitcher.hpp" // for pcItem names
-#include "PlayerTracker.hpp" // for throw names
-#include "WeaponSwitcher.hpp" // for giving weapons safely
+#include "PlayerTracker.hpp"   // for throw names
+#include "QuickBoot.hpp"       // Quick boot uses this detour
+#include "WeaponSwitcher.hpp"  // for giving weapons safely"
+#include <shlobj.h>            // for ShellExecuteA
 
-const char* ArcadeMode::defaultDescription = "Play through the entire game in one sitting while skipping all the stuff in between. Nothing but gameplay in this mode.";
+// -------------------- Practice Loop: single toggle --------------------
+static bool s_practice_loop_enabled = false;
+
+// If practice loop is enabled, return the current stage name (to reload it).
+// Otherwise return nullptr so normal routing applies.
+__declspec(noinline) const char* GetPracticeLoopStage() {
+    if (!s_practice_loop_enabled)
+        return nullptr;
+    auto bg = nmh_sdk::get_CBgCtrl();
+    if (!bg)
+        return nullptr;
+    const char* cur = bg->m_NowStageName;
+    return cur ? cur : nullptr; // engine-owned string; safe to pass back
+}
+// ----------------------------------------------------------------------
+
+const char* ArcadeMode::defaultDescription =
+    "Play through the entire game in one sitting while skipping all the stuff in between. Nothing but gameplay in this mode.";
 const char* ArcadeMode::hoveredDescription = defaultDescription;
 
-bool ArcadeMode::arcade_enabled = false;
+bool ArcadeMode::arcade_enabled    = false;
 bool ArcadeMode::boss_rush_enabled = false;
 
-uintptr_t ArcadeMode::jmp_ret1 = NULL;
-uintptr_t ArcadeMode::gpBattle = NULL;
+uintptr_t ArcadeMode::jmp_ret1    = NULL;
+uintptr_t ArcadeMode::gpBattle    = NULL;
 uintptr_t ArcadeMode::mSetVisible = NULL;
 
 static constexpr std::array<const char*, 27> arcadeMode = {
@@ -46,17 +63,17 @@ static constexpr std::array<const char*, 27> arcadeMode = {
 };
 
 static constexpr std::array<const char*, 11> bossRushMode = {
-    "STG500",   // Motel
-    "STG081",   // Deathmetal
-    "STG042",   // Dr.Peace
-    "STG013",   // Shinobu
-    "STG031",   // Destroyman
-    "STG0001",  // Holly Summers
-    "STG090",   // Harvey
-    "STG060",   // SpeedBuster
-    "STG020",   // Bad Girl
-    "STG103",   // Darkstar/Jeane
-    "STG0003",  // Henry
+    "STG500",  // Motel
+    "STG081",  // Deathmetal
+    "STG042",  // Dr.Peace
+    "STG013",  // Shinobu
+    "STG031",  // Destroyman
+    "STG0001", // Holly Summers
+    "STG090",  // Harvey
+    "STG060",  // SpeedBuster
+    "STG020",  // Bad Girl
+    "STG103",  // Darkstar/Jeane
+    "STG0003", // Henry
 };
 
 // cba to add hash lookups at this moment, sorry che
@@ -69,9 +86,7 @@ static const char* get_next_room_by_name(const char* currentName) {
 
     if (ArcadeMode::arcade_enabled) {
         auto it = std::find_if(arcadeMode.begin(), arcadeMode.end(),
-            [&currentName](const char* room) {
-                return room != nullptr && _stricmp(room, currentName) == 0;
-            });
+            [&currentName](const char* room) { return room != nullptr && _stricmp(room, currentName) == 0; });
 
         if (it != arcadeMode.end()) {
             auto next_it = std::next(it);
@@ -84,9 +99,7 @@ static const char* get_next_room_by_name(const char* currentName) {
 
     if (ArcadeMode::boss_rush_enabled) {
         auto it = std::find_if(bossRushMode.begin(), bossRushMode.end(),
-            [&currentName](const char* room) {
-                return room != nullptr && _stricmp(room, currentName) == 0;
-            });
+            [&currentName](const char* room) { return room != nullptr && _stricmp(room, currentName) == 0; });
 
         if (it != bossRushMode.end()) {
             auto next_it = std::next(it);
@@ -101,14 +114,18 @@ static const char* get_next_room_by_name(const char* currentName) {
 }
 
 const char* GetNextStage() {
-    if (const char* currentStage = nmh_sdk::get_CBgCtrl()->m_NowStageName){
+    if (const char* currentStage = nmh_sdk::get_CBgCtrl()->m_NowStageName) {
         return get_next_room_by_name(currentStage);
     }
+    return nullptr;
 }
 
 // clang-format off
 naked void detour1() {
     __asm {
+        // If any mode is active, or practice loop is enabled, take control path.
+        cmp byte ptr [s_practice_loop_enabled], 1
+        je newcode
         cmp byte ptr [ArcadeMode::arcade_enabled], 1
         je newcode
         cmp byte ptr [ArcadeMode::boss_rush_enabled], 1
@@ -132,11 +149,20 @@ naked void detour1() {
         mov dword ptr [ecx+0x1780], 0 // reset ikasamaSlot
         push 1
         call dword ptr [ArcadeMode::mSetVisible] // set char visible after cutscenes
-        call dword ptr GetNextStage // put nextStage* in eax
+
+        // --- Practice Loop has priority when enabled ---
+        call dword ptr GetPracticeLoopStage // eax = current stage name if we should loop
+        test eax, eax
+        jne applyStage // if we should loop, use current stage and skip next logic
+
+        // --- Otherwise QuickBoot / Arcade / BossRush ---
+        call dword ptr GetNextStage // put nextStage* in eax (or nullptr)
         test eax, eax
         je noStageEdit
+
+    applyStage:
         mov [esp+0xC+0x4], eax // stageName
-        mov [esp+0xC+0x8], 0 // force stagesToAdd
+        mov [esp+0xC+0x8], 0   // force stagesToAdd
     noStageEdit:
         pop edx
         pop ecx
@@ -151,8 +177,8 @@ naked void detour1() {
 // clang-format on
 
 std::optional<std::string> ArcadeMode::on_initialize() {
-    gpBattle = g_framework->get_module().as<uintptr_t>() + 0x843584;
-    mSetVisible = g_framework->get_module().as<uintptr_t>() + 0x3D6D90; 
+    gpBattle    = g_framework->get_module().as<uintptr_t>() + 0x843584;
+    mSetVisible = g_framework->get_module().as<uintptr_t>() + 0x3D6D90;
     if (!install_hook_offset(0x3FD690, m_hook1, &detour1, &ArcadeMode::jmp_ret1, 6)) {
         spdlog::error("Failed to init ArcadeMode mod\n");
         return "Failed to init ArcadeMode mod";
@@ -166,7 +192,9 @@ void ArcadeMode::render_description() const {
 
 bool BuyThing(int price) {
     mHRPc* player = nmh_sdk::get_mHRPc();
-    if (!player) { return false; }
+    if (!player) {
+        return false;
+    }
     if (player->mPcStatus.money < price) {
         return false;
     }
@@ -177,7 +205,9 @@ bool BuyThing(int price) {
 // returns true if already owned
 bool CheckIfPlayerAlreadyOwnsLockerItem(pcItem itemID) {
     mHRPc* player = nmh_sdk::get_mHRPc();
-    if (!player) { return false; }
+    if (!player) {
+        return false;
+    }
     // Check if player owns the item (either equipped or in locker)
     if (player->mPcStatus.equip[0].id == itemID || nmh_sdk::CheckLocker(itemID)) {
         return true;
@@ -188,91 +218,90 @@ bool CheckIfPlayerAlreadyOwnsLockerItem(pcItem itemID) {
 // returns true if already owned
 bool RenderShopLockerItem(pcItem itemID, int price) {
     bool isOwned = CheckIfPlayerAlreadyOwnsLockerItem(itemID);
-    
+
     if (isOwned) {
         ImGui::BeginDisabled();
     }
-    
+
     char buttonText[256];
     snprintf(buttonText, sizeof(buttonText), "%s ($%d)", clothing_items[itemID].name, price);
-    
+
     if (ImGui::Button(buttonText)) {
         if (BuyThing(price)) {
             // is this a sword?
             if ((int)itemID <= 15) {
                 WeaponSwitcher::ReplaceAllSwordVariants(itemID); // don't let the player buy multiple versions of one sword
-            }
-            else {
+            } else {
                 nmh_sdk::AddLocker(itemID);
             }
         }
     }
-    
+
     if (isOwned) {
         ImGui::EndDisabled();
         // ImGui::SameLine();
         // ImGui::Text("(Owned)");
     }
-    
+
     return isOwned;
 }
 
 // returns true if already owned
 bool RenderWrestlingUnlock(mHRPc* player, int wrestlingID, const char* wrestlingName, int price) {
     bool isOwned = player->mPcStatus.skillCatch[wrestlingID];
-    
+
     if (isOwned) {
         ImGui::BeginDisabled();
     }
-    
+
     char buttonText[256];
     snprintf(buttonText, sizeof(buttonText), "%s ($%d)", wrestlingNames[wrestlingID], price);
-    
+
     if (ImGui::Button(buttonText)) {
         if (BuyThing(price)) {
             player->mPcStatus.skillCatch[wrestlingID] = true;
         }
     }
-    
+
     if (isOwned) {
         ImGui::EndDisabled();
         // ImGui::SameLine();
         // ImGui::Text("(Owned)");
     }
-    
+
     return isOwned;
 }
 
 // returns true if already owned
 bool RenderK7Unlock(mHRPc* player, int id, const char* skillName, int price) {
     bool isOwned = player->mPcStatus.skillK7[id];
-    
+
     if (isOwned) {
         ImGui::BeginDisabled();
     }
-    
+
     char buttonText[256];
     snprintf(buttonText, sizeof(buttonText), "%s ($%d)", k7Names[id], price);
-    
+
     if (ImGui::Button(buttonText)) {
         if (BuyThing(price)) {
             player->mPcStatus.skillK7[id] = true;
         }
     }
-    
+
     if (isOwned) {
         ImGui::EndDisabled();
         // ImGui::SameLine();
         // ImGui::Text("(Owned)");
     }
-    
+
     return isOwned;
 }
 
 // returns true if already owned
 bool RenderCmbExtendUnlock(mHRPc* player, int section, const char* swordName, int price) {
     int baseIndex = section * 4;
-    
+
     bool isOwned = true;
     for (int i = 0; i < 4; i++) {
         if (!player->mPcStatus.wepInfo[baseIndex + i].cmbExtend) {
@@ -280,14 +309,14 @@ bool RenderCmbExtendUnlock(mHRPc* player, int section, const char* swordName, in
             break;
         }
     }
-    
+
     if (isOwned) {
         ImGui::BeginDisabled();
     }
-    
+
     char buttonText[256];
     snprintf(buttonText, sizeof(buttonText), "%s ($%d)", swordName, price);
-    
+
     if (ImGui::Button(buttonText)) {
         if (BuyThing(price)) {
             for (int i = 0; i < 4; i++) {
@@ -295,11 +324,11 @@ bool RenderCmbExtendUnlock(mHRPc* player, int section, const char* swordName, in
             }
         }
     }
-    
+
     if (isOwned) {
         ImGui::EndDisabled();
     }
-    
+
     return isOwned;
 }
 
@@ -331,24 +360,24 @@ void DisplayShop(mHRPc* player, bool toggle) {
     }
 
     if (ImGui::TreeNodeEx("Wrestling", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
-        static constexpr int num = 16;
+        static constexpr int num                  = 16;
         static constexpr int wrestlingPrices[num] = {
-            200, // "Dragon Suplex",           
-            200, // "Brain Buster",            
-            200, // "default##2",              
-            200, // "default##3",              
-            35000, // "Hurricanrana",            
-            35000, // "Power Bomb",              
-            35000, // "Brain Buster Slam",       
-            35000, // "Quebradora Con Giro",     
-            30000, // "German Suplex",           
-            30000, // "Tiger Suplex",            
-            30000, // "Belly To Belly",          
+            200,   // "Dragon Suplex",
+            200,   // "Brain Buster",
+            200,   // "default##2",
+            200,   // "default##3",
+            35000, // "Hurricanrana",
+            35000, // "Power Bomb",
+            35000, // "Brain Buster Slam",
+            35000, // "Quebradora Con Giro",
+            30000, // "German Suplex",
+            30000, // "Tiger Suplex",
+            30000, // "Belly To Belly",
             30000, // "Front Neck Chancery Drop",
-            30000, // "Captured",                
-            30000, // "Reverse Armsault",        
-            30000, // "Double Arm Suplex",       
-            30000  // "Double Wrist Armsault",   
+            30000, // "Captured",
+            30000, // "Reverse Armsault",
+            30000, // "Double Arm Suplex",
+            30000  // "Double Wrist Armsault",
         };
         for (int i = 0; i < num; ++i) {
             RenderWrestlingUnlock(player, i, wrestlingNames[i], wrestlingPrices[i]);
@@ -357,15 +386,15 @@ void DisplayShop(mHRPc* player, bool toggle) {
     }
 
     if (ImGui::TreeNodeEx("Skills", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesFull)) {
-        static constexpr int num = 7;
+        static constexpr int num           = 7;
         static constexpr int k7Prices[num] = {
-            35000,   // "Memory of Demon - Jumping Slash",      
-            2500,    // "Memory of Child - Sprint",             
-            1000,    // "Memory of Three - Mini Map",           
-            20000,   // "Memory of Woman - Darkside Extension", 
-            15000,   // "Memory of Mask - Wrestling Grab Range",
-            30000,   // "Memory of Tattoo - Total Rank Bonus",  
-            10000    // "Memory of White - Jumping Down Attack",
+            35000, // "Memory of Demon - Jumping Slash",
+            2500,  // "Memory of Child - Sprint",
+            1000,  // "Memory of Three - Mini Map",
+            20000, // "Memory of Woman - Darkside Extension",
+            15000, // "Memory of Mask - Wrestling Grab Range",
+            30000, // "Memory of Tattoo - Total Rank Bonus",
+            10000  // "Memory of White - Jumping Down Attack",
         };
         for (int i = 0; i < num; ++i) {
             RenderK7Unlock(player, i, k7Names[i], k7Prices[i]);
@@ -383,14 +412,19 @@ void DisplayShop(mHRPc* player, bool toggle) {
 }
 
 void ArcadeMode::on_draw_ui() {
-    if (!ImGui::IsAnyItemHovered()) ArcadeMode::hoveredDescription = defaultDescription;
+    if (!ImGui::IsAnyItemHovered())
+        ArcadeMode::hoveredDescription = defaultDescription;
 
     if (ImGui::Checkbox("Arcade Mode", &arcade_enabled)) {
         boss_rush_enabled = false;
     }
-    if (ImGui::IsItemHovered()) ArcadeMode::hoveredDescription = "Enable this option in the Motel then exit through the door to begin.\n"
-        "To function flawlessly this feature currently requires a savegame with no story progress or you will get stuck. We're working on it!\n"
-        "For now if you get stuck you can teleport to a new area in Stage Warp while this is ticked to jump to the next part. Please be aware that if your game save was created on the latest, official NMH1 exe, the file for your data will be found in a different directory.";
+    if (ImGui::IsItemHovered())
+        ArcadeMode::hoveredDescription = "Enable this option in the Motel then exit through the door to begin.\n"
+                                         "To function flawlessly this feature currently requires a savegame with no story progress or you "
+                                         "will get stuck. We're working on it!\n"
+                                         "For now if you get stuck you can teleport to a new area in Stage Warp while this is ticked to "
+                                         "jump to the next part. Please be aware that if your game save was created on the latest, "
+                                         "official NMH1 exe, the file for your data will be found in a different directory.";
     ImGui::Indent();
     if (ImGui::Button("Open Saved Games Folder")) {
         char savedGamesPath[MAX_PATH];
@@ -399,15 +433,22 @@ void ArcadeMode::on_draw_ui() {
             ShellExecuteA(NULL, "explore", folderPath.c_str(), NULL, NULL, SW_SHOWNORMAL);
         }
     }
-    if (ImGui::IsItemHovered()) ArcadeMode::hoveredDescription = "If you want to temporarily reset your save:\n"
-        "  - Rename the save found in this folder OR make a backup copy of it and delete the original\n"
-        "  - Restart the game\n"
-        "Once you're done, close the game and restore your save. The original name was hrSave.dat";
+    if (ImGui::IsItemHovered())
+        ArcadeMode::hoveredDescription = "If you want to temporarily reset your save:\n"
+                                         "  - Rename the save found in this folder OR make a backup copy of it and delete the original\n"
+                                         "  - Restart the game\n"
+                                         "Once you're done, close the game and restore your save. The original name was hrSave.dat";
     ImGui::Unindent();
     if (ImGui::Checkbox("Boss Rush Mode", &boss_rush_enabled)) {
         arcade_enabled = false;
     }
-    if (ImGui::IsItemHovered()) ArcadeMode::hoveredDescription = "Enable this option in the Motel then exit through the door to begin";
+    if (ImGui::IsItemHovered())
+        ArcadeMode::hoveredDescription = "Enable this option in the Motel then exit through the door to begin";
+
+    // ---------------- Practice Loop UI (single toggle) ----------------
+    ImGui::SeparatorText("Practice Loop");
+    ImGui::Checkbox("Practice Loop (reload current stage on exit)", &s_practice_loop_enabled);
+    // ------------------------------------------------------------------
 
     static bool arcadeModeShopToggle = false;
     ImGui::Checkbox("Display Arcade Shop", &arcadeModeShopToggle);
@@ -459,19 +500,23 @@ void ArcadeMode::on_draw_ui() {
 }
 
 // during load
-void ArcadeMode::on_config_load(const utility::Config &cfg) {
-    arcade_enabled = cfg.get<bool>("arcade_mode").value_or(false);
+void ArcadeMode::on_config_load(const utility::Config& cfg) {
+    arcade_enabled    = cfg.get<bool>("arcade_mode").value_or(false);
     boss_rush_enabled = cfg.get<bool>("boss_rush_mode").value_or(false);
+    // practice loop persistence
+    s_practice_loop_enabled = cfg.get<bool>("practice_loop_enabled").value_or(false);
 }
 // during save
-void ArcadeMode::on_config_save(utility::Config &cfg) {
+void ArcadeMode::on_config_save(utility::Config& cfg) {
     cfg.set<bool>("arcade_mode", arcade_enabled);
     cfg.set<bool>("boss_rush_mode", boss_rush_enabled);
+    // practice loop persistence
+    cfg.set<bool>("practice_loop_enabled", s_practice_loop_enabled);
 }
 
 // do something every frame
-//void ArcadeMode::on_frame() {}
+// void ArcadeMode::on_frame() {}
 // will show up in debug window, dump ImGui widgets you want here
-//void ArcadeMode::on_draw_debug_ui() {}
+// void ArcadeMode::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here
 #endif
