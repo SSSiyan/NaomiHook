@@ -1614,11 +1614,14 @@ static void CheckNonDamagingAnims(int moveID) {
     AddTrickScore(moveID, 0, false);
 }
 
+static bool displayEveryAnim = false;
 naked void detour6() { // money rewards // player in edi
     __asm {
         cmp byte ptr [Tony::mod_enabled], 0
         je originalcode
 
+        cmp byte ptr [displayEveryAnim], 1
+        jne originalcode
         pushad
         push edx // moveID
         call CheckNonDamagingAnims
@@ -1646,6 +1649,7 @@ void Tony::on_draw_ui() {
 
     ImGui::Separator();
     ImGui::Checkbox("Score Visualizer", &mod_enabled);
+    ImGui::Checkbox("[DEBUG] Show ALL animations", &displayEveryAnim);
 }
 
 std::optional<std::string> Tony::on_initialize() {
