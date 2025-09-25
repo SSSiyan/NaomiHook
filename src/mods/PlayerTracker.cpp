@@ -183,7 +183,7 @@ if (ImGui::TreeNodeEx("HrGameTask", ImGuiTreeNodeFlags_DrawLinesFull)) {
 {
                 HrGameTask* hrGameTask = nmh_sdk::get_HrGameTask();
                 if (hrGameTask && hrGameTask->mp_SaveData) {
-                    const char* kDiffNames[] = {"Sweet (0)", "Mild (1)", "Bitter (2)"};
+                    const char* kDiffNames[] = {"Sweet", "Mild", "Bitter"};
 
                     // Compute pointer: (mp_SaveData + 0x14B4)
                     unsigned char* save_base = reinterpret_cast<unsigned char*>(hrGameTask->mp_SaveData);

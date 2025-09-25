@@ -1,6 +1,7 @@
-﻿#include "BrainAge.hpp"
+﻿// ASCII-ONLY
+#include "BrainAge.hpp"
 #if 1
-#include <cmath> // expf, fabsf
+#include <cmath> // expf, fabsf, sqrtf, atan2f, sinf
 
 bool BrainAge::imguiPopout = false;
 
@@ -8,11 +9,31 @@ bool BrainAge::forceCameraMode = false;
 int BrainAge::forcedMode       = 0;
 
 bool BrainAge::guard_cooldown_enabled = false;
-static bool isGuardingNow             = false;
-static int justGuardCooldown          = 0;
-static int justGuardToggleCount       = 0;
-static int guardToggleWindow          = 0;
-static bool lastGuardState            = false;
+
+// ================== Guard Cooldown (press-burst -> timed lockout) ==================
+// Tunables
+static const int GC_PRESS_COUNT     = 3;    // number of presses required
+static const double GC_WINDOW_SEC   = 1.0;  // press window to trigger cooldown
+static const double GC_COOLDOWN_SEC = 1.50; // how long we keep parry disabled
+
+// State
+static bool gc_prev_down                     = false;           // last frame "lock-on" held?
+static bool gc_active                        = false;           // currently disabling parry
+static double gc_cooldown_end_time           = 0.0;             // when cooldown ends
+static double gc_press_times[GC_PRESS_COUNT] = {0.0, 0.0, 0.0}; // tiny ring buffer
+static int gc_press_idx                      = 0;               // next write slot
+static int gc_press_total                    = 0;               // total presses seen
+static bool gc_saved_flag_valid              = false;           // did we snapshot original flag?
+static bool gc_saved_justGuardDisEnable      = false;           // original value of justGuardDisEnable
+
+static inline bool gc_last_n_within(double now, int n, double window_sec) {
+    if (gc_press_total < n)
+        return false;
+    int oldest = (gc_press_total - n) % GC_PRESS_COUNT;
+    return (now - gc_press_times[oldest]) <= window_sec;
+}
+
+// ====================================================================================
 
 // -------------------- New Thing 3: BATTLE2 preset state --------------------
 static bool g_b2_lock_preset = false;   // public-facing checkbox
@@ -47,7 +68,7 @@ static const float kB2_Restore_TgtPos_X = -4.000f;
 static const float kB2_Restore_TgtPos_Y = 10.000f;
 static const float kB2_Restore_TgtPos_Z = 1.500f;
 
-// Tuning
+// Tuning (deathblow zoom)
 static const float kB2_Z_PULL_MAX     = 15.0f;
 static const float kB2_Z_EXTRA        = 6.0f;
 static const float kB2_LERP_IN        = 0.06f;
@@ -60,7 +81,45 @@ static const double kB2_EASE_IN_SEC   = 0.35;
 static const double kB2_SLOW_STALL_SEC = 1.25;
 static const double kB2_ZOOM_MAX_SEC   = 3.00;
 
-// -------------------- helpers (used by zoom; KEEP) --------------------
+// -------------------- Rails tuning --------------------
+// Z rail (depth) based on planar P-E distance
+static const float kB2_RAIL_DIST_NEAR = 4.0f;
+static const float kB2_RAIL_DIST_FAR  = 24.0f;
+static const float kB2_RAIL_Z_NEAR    = kB2_CamPos_Z_BASE - 8.0f;
+static const float kB2_RAIL_Z_FAR     = kB2_CamPos_Z_BASE + 6.0f;
+static const float kB2_RAIL_Z_LERP    = 0.08f;
+
+// Left/Right ARC rail (non-zoom only)
+// Map the signed angle between the base camera direction (Target->BaseCam) and the
+// current Target->Player vector into a yaw offset around the target. This creates a true
+// orbital left/right feel instead of just sliding in world X.
+static const float kB2_LR_YAW_MAX_DEG = 14.0f; // hard clamp for arc
+static const float kB2_LR_YAW_GAIN    = 0.55f; // scale from signed angle to target yaw
+static const float kB2_LR_LERP        = 0.12f; // smoothing for yaw response
+static float g_b2_lr_yaw_cur          = 0.0f;  // smoothed yaw (radians)
+
+// === NEW: Shinku Over-Shoulder, Rail 2.0, LR Player Bias (additive) ===
+// Shinku over-shoulder (applies only when shinku active AND PPosOffset is zero)
+static const float kB2_SHINKU_OVER_X = 0.35f;  // +right
+static const float kB2_SHINKU_OVER_Z = -0.80f; // toward enemy
+static const float kB2_SHINKU_OVER_Y = 0.15f;  // slight lift
+static const float kB2_SHINKU_BLEND  = 0.25f;  // blend toward shoulder
+static float g_b2_ppos_add_x         = 0.0f;   // persistent shoulder add
+static float g_b2_ppos_add_y         = 0.0f;
+static float g_b2_ppos_add_z         = 0.0f;
+
+// Rail 2.0 soft bands and hysteresis (adds on top of existing rail)
+static const float kB2_RAIL_SOFT_IN    = 6.0f;  // begin soft push-out near min
+static const float kB2_RAIL_SOFT_OUT   = 18.0f; // begin soft pull-in near max
+static const float kB2_RAIL_HYSTERESIS = 0.15f; // meters; ignore tiny target changes
+
+// LR orbit with player bias (multiplies yaw target when player is not facing enemy)
+static const float kB2_LR_BIAS_MULT = 1.75f; // 1.0 = none, 2.0 = strong
+static float g_b2_prev_ppos_x       = 0.0f;  // for movement-based forward estimate
+static float g_b2_prev_ppos_z       = 0.0f;
+static bool g_b2_prev_ppos_init     = false;
+
+// -------------------- helpers --------------------
 static inline float clamp01(float v) {
     return v < 0.0f ? 0.0f : (v > 1.0f ? 1.0f : v);
 }
@@ -71,71 +130,20 @@ static inline float smoothstep01(float t) {
     t = clamp01(t);
     return t * t * (3.0f - 2.0f * t);
 }
-
-// -------------------- BATTLE2 lag (adjustable) — DISABLED ------------------
-// Everything in this section is commented out to preserve code for later.
-// Uncomment to restore lag behavior.
-/*
-struct BA_Vec3 { float x, y, z; };
-
-static bool g_b2_lag_inited       = false;
-static bool g_b2_lag_enable       = true;
-static BA_Vec3 g_b2_smooth_player = {0.0f, 0.0f, 0.0f};
-static BA_Vec3 g_b2_smooth_enemy  = {0.0f, 0.0f, 0.0f};
-static BA_Vec3 g_b2_prev_player   = {0.0f, 0.0f, 0.0f};
-static BA_Vec3 g_b2_prev_enemy    = {0.0f, 0.0f, 0.0f};
-static bool g_b2_have_prev        = false;
-
-// Time-constant smoothing (ms) -> per-frame alpha = 1 - exp(-dt/tau)
-static float g_b2_tau_player_ms = 140.0f;
-static float g_b2_tau_enemy_ms  = 90.0f;
-
-// Split strengths (how much lag delta we apply)
-static float g_b2_player_scale_x = 0.60f;
-static float g_b2_player_scale_y = 0.45f;
-static float g_b2_enemy_scale_x  = 0.35f;
-static float g_b2_enemy_scale_y  = 0.30f;
-// NEW: Z strength + max clamp for target
-static float g_b2_enemy_scale_z = 0.20f;
-static float g_b2_max_tgt_z     = 4.0f;
-
-// Deadzone to kill world-space jitter
-static float g_b2_deadzone_xy = 0.02f;
-
-// Max XY offsets so we never drift too far
-static float g_b2_max_cam_xy = 3.0f;
-static float g_b2_max_tgt_xy = 3.0f;
-
-// Catch-up when far (snappier response)
-static bool  g_b2_catchup_enable = true;
-static float g_b2_far_thresh_xy  = 2.5f;
-static float g_b2_catchup_gain   = 2.0f;
-
-// Look-ahead (player and enemy amounts split)
-static float g_b2_lookahead_ms         = 60.0f;
-static float g_b2_lookahead_player_amt = 0.50f;
-static float g_b2_lookahead_enemy_amt  = 0.00f; // default 0 to avoid amplifying enemy jitter
-
-// Enemy angular deadzone and target slew limiter (to tame lock-on twitch)
-static float g_b2_enemy_ang_deadzone_deg    = 0.35f; // ignore enemy moves that would rotate camera less than this
-static float g_b2_target_slew_units_per_sec = 20.0f; // max target XYZ change per second (now XYZ)
-
-// helpers (lag-only)
-static inline void v3_lerp_inplace(BA_Vec3& a, const BA_Vec3& b, float t) {
-    a.x += (b.x - a.x) * t;
-    a.y += (b.y - a.y) * t;
-    a.z += (b.z - a.z) * t;
+static inline float deg2rad(float d) {
+    return d * 3.1415926535f / 180.0f;
 }
-static inline float clampf(float v, float mn, float mx) {
-    return v < mn ? mn : (v > mx ? mx : v);
+static inline float rad_wrap_pi(float a) {
+    // wrap to [-pi, pi]
+    while (a > 3.1415926535f)
+        a -= 6.283185307f;
+    while (a < -3.1415926535f)
+        a += 6.283185307f;
+    return a;
 }
-static inline float alpha_from_tau_ms(float tau_ms, float dt) {
-    if (tau_ms <= 1.0f) return 1.0f;
-    float k = -1000.0f * dt / tau_ms;
-    if (k < -50.0f) k = -50.0f;
-    return 1.0f - std::exp(k);
+static inline float deadband(float v, float band) {
+    return (fabsf(v) <= band) ? 0.0f : (v > 0.0f ? v - band : v + band);
 }
-*/
 
 // ---------------------------------------------------------------
 
@@ -143,9 +151,6 @@ static void ApplyBattle2PresetTick() {
     HrCamera* cam = nmh_sdk::get_HrCamera();
     if (!cam) {
         g_b2_prev_lock = g_b2_lock_preset;
-        // Lag state resets (disabled)
-        // g_b2_lag_inited = false;
-        // g_b2_have_prev  = false;
         return;
     }
 
@@ -158,7 +163,6 @@ static void ApplyBattle2PresetTick() {
     }
 
     const double now = ImGui::GetTime();
-    const float dt   = (float)ImGui::GetIO().DeltaTime > 0.0f ? (float)ImGui::GetIO().DeltaTime : (1.0f / 60.0f);
 
     if (slowTick != g_b2_prev_slow_tick) {
         g_b2_prev_slow_tick        = slowTick;
@@ -175,190 +179,33 @@ static void ApplyBattle2PresetTick() {
         cam->MAIN.bat2.DebugInfo.TargetPos.y = kB2_Restore_TgtPos_Y;
         cam->MAIN.bat2.DebugInfo.TargetPos.z = kB2_Restore_TgtPos_Z;
 
-        g_b2_campos_z              = kB2_CamPos_Z_BASE;
-        g_b2_zoom_armed            = false;
-        g_b2_zoom_active           = false;
-        g_b2_slow_seen             = false;
-        g_b2_prev_slow_tick        = slowTick;
-        g_b2_last_slow_change_time = now;
-
-        // Lag state resets (disabled)
-        // g_b2_lag_inited = false;
-        // g_b2_have_prev  = false;
+        g_b2_campos_z   = kB2_CamPos_Z_BASE;
+        g_b2_zoom_armed = g_b2_zoom_active = g_b2_slow_seen = false;
+        g_b2_prev_slow_tick                                 = slowTick;
+        g_b2_last_slow_change_time                          = now;
+        g_b2_lr_yaw_cur                                     = 0.0f;
     }
 
     if (!g_b2_lock_preset) {
-        g_b2_campos_z  = lerp(g_b2_campos_z, kB2_CamPos_Z_BASE, kB2_LERP_OUT);
-        g_b2_prev_lock = g_b2_lock_preset;
-        g_b2_sif_prev  = sif_now;
-
-        // Lag state resets (disabled)
-        // g_b2_lag_inited = false;
-        // g_b2_have_prev  = false;
+        g_b2_campos_z   = lerp(g_b2_campos_z, kB2_CamPos_Z_BASE, kB2_LERP_OUT);
+        g_b2_prev_lock  = g_b2_lock_preset;
+        g_b2_sif_prev   = sif_now;
+        g_b2_lr_yaw_cur = lerp(g_b2_lr_yaw_cur, 0.0f, 0.25f);
         return;
     }
 
     // Locked preset path
     cam->MAIN.bat2.DebugMode = true;
 
-    // Fixed XY; Z eased below
-    cam->MAIN.bat2.DebugInfo.CameraPos.x = kB2_CamPos_X;
-    cam->MAIN.bat2.DebugInfo.CameraPos.y = kB2_CamPos_Y;
+    // Base XY; Z driven below; X may be offset by LR arc when NOT zooming
+    float camPosX = kB2_CamPos_X;
+    float camPosY = kB2_CamPos_Y;
 
     cam->MAIN.bat2.DebugInfo.TargetPos.x = kB2_TgtPos_X;
     cam->MAIN.bat2.DebugInfo.TargetPos.y = kB2_TgtPos_Y;
     cam->MAIN.bat2.DebugInfo.TargetPos.z = kB2_TgtPos_Z;
 
-    // --- Lag with jitter suppression (ENTIRE BLOCK DISABLED) ---
-    /*
-    if (g_b2_lag_enable) {
-        // Live anchors from the game
-        BA_Vec3 curPlayerAnchor = {
-            cam->MAIN.bat2.PPos.x + cam->MAIN.bat2.PPosOffset.x,
-            cam->MAIN.bat2.PPos.y + cam->MAIN.bat2.PPosOffset.y,
-            cam->MAIN.bat2.PPos.z + cam->MAIN.bat2.PPosOffset.z
-        };
-        BA_Vec3 curEnemy = {
-            cam->MAIN.bat2.EPos.x,
-            cam->MAIN.bat2.EPos.y,
-            cam->MAIN.bat2.EPos.z
-        };
-
-        // Init smoothing and previous frames
-        if (!g_b2_lag_inited) {
-            g_b2_smooth_player = curPlayerAnchor;
-            g_b2_smooth_enemy  = curEnemy;
-            g_b2_lag_inited    = true;
-        }
-        if (!g_b2_have_prev) {
-            g_b2_prev_player = curPlayerAnchor;
-            g_b2_prev_enemy  = curEnemy;
-            g_b2_have_prev   = true;
-        }
-
-        // Alphas from time constants
-        float aP = alpha_from_tau_ms(g_b2_tau_player_ms, dt);
-        float aE = alpha_from_tau_ms(g_b2_tau_enemy_ms, dt);
-
-        // Catch-up when far
-        float pFar = std::fabs(g_b2_smooth_player.x - curPlayerAnchor.x)
-                   + std::fabs(g_b2_smooth_player.y - curPlayerAnchor.y);
-        float eFar = std::fabs(g_b2_smooth_enemy.x - curEnemy.x)
-                   + std::fabs(g_b2_smooth_enemy.y - curEnemy.y);
-        if (g_b2_catchup_enable) {
-            if (pFar > g_b2_far_thresh_xy) aP = clampf(aP * g_b2_catchup_gain, 0.0f, 1.0f);
-            if (eFar > g_b2_far_thresh_xy) aE = clampf(aE * g_b2_catchup_gain, 0.0f, 1.0f);
-        }
-
-        // Smooth toward anchors
-        v3_lerp_inplace(g_b2_smooth_player, curPlayerAnchor, aP);
-        v3_lerp_inplace(g_b2_smooth_enemy,  curEnemy,        aE);
-
-        // Velocities (now XYZ for enemy)
-        BA_Vec3 vPlayer = {
-            (curPlayerAnchor.x - g_b2_prev_player.x) / dt,
-            (curPlayerAnchor.y - g_b2_prev_player.y) / dt,
-            (curPlayerAnchor.z - g_b2_prev_player.z) / dt
-        };
-        BA_Vec3 vEnemy  = {
-            (curEnemy.x - g_b2_prev_enemy.x) / dt,
-            (curEnemy.y - g_b2_prev_enemy.y) / dt,
-            (curEnemy.z - g_b2_prev_enemy.z) / dt
-        };
-
-        // Look-ahead
-        const float leadSec = g_b2_lookahead_ms * 0.001f;
-        BA_Vec3 leadP = {
-            vPlayer.x * leadSec * g_b2_lookahead_player_amt,
-            vPlayer.y * leadSec * g_b2_lookahead_player_amt,
-            0.0f
-        };
-        BA_Vec3 leadE = {
-            vEnemy.x * leadSec * g_b2_lookahead_enemy_amt,
-            vEnemy.y * leadSec * g_b2_lookahead_enemy_amt,
-            vEnemy.z * leadSec * g_b2_lookahead_enemy_amt
-        };
-
-        // Lag deltas (now XYZ for enemy)
-        BA_Vec3 pLag = {
-            (g_b2_smooth_player.x - curPlayerAnchor.x),
-            (g_b2_smooth_player.y - curPlayerAnchor.y),
-            0.0f
-        };
-        BA_Vec3 eLag = {
-            (g_b2_smooth_enemy.x - curEnemy.x),
-            (g_b2_smooth_enemy.y - curEnemy.y),
-            (g_b2_smooth_enemy.z - curEnemy.z)
-        };
-
-        // Deadzone (world units) — reuse XY value for Z too
-        if (std::fabs(pLag.x) < g_b2_deadzone_xy) pLag.x = 0.0f;
-        if (std::fabs(pLag.y) < g_b2_deadzone_xy) pLag.y = 0.0f;
-        if (std::fabs(eLag.x) < g_b2_deadzone_xy) eLag.x = 0.0f;
-        if (std::fabs(eLag.y) < g_b2_deadzone_xy) eLag.y = 0.0f;
-        if (std::fabs(eLag.z) < g_b2_deadzone_xy) eLag.z = 0.0f;
-
-        // Apply strengths + look-ahead
-        float cam_dx = pLag.x * g_b2_player_scale_x + leadP.x;
-        float cam_dy = pLag.y * g_b2_player_scale_y + leadP.y;
-        float tgt_dx = eLag.x * g_b2_enemy_scale_x  + leadE.x;
-        float tgt_dy = eLag.y * g_b2_enemy_scale_y  + leadE.y;
-        float tgt_dz = eLag.z * g_b2_enemy_scale_z  + leadE.z; // NEW Z path
-
-        // Clamp ranges
-        cam_dx = clampf(cam_dx, -g_b2_max_cam_xy, g_b2_max_cam_xy);
-        cam_dy = clampf(cam_dy, -g_b2_max_cam_xy, g_b2_max_cam_xy);
-        tgt_dx = clampf(tgt_dx, -g_b2_max_tgt_xy, g_b2_max_tgt_xy);
-        tgt_dy = clampf(tgt_dy, -g_b2_max_tgt_xy, g_b2_max_tgt_xy);
-        tgt_dz = clampf(tgt_dz, -g_b2_max_tgt_z,  g_b2_max_tgt_z);
-
-        // -------- Lock-on jitter killers --------
-        // 1) Angular deadzone (XY only): ignore tiny rotations
-        {
-            const float cx = cam->MAIN.bat2.DebugInfo.CameraPos.x;
-            const float cy = cam->MAIN.bat2.DebugInfo.CameraPos.y;
-            const float tx = cam->MAIN.bat2.DebugInfo.TargetPos.x;
-            const float ty = cam->MAIN.bat2.DebugInfo.TargetPos.y;
-
-            const float dist = std::sqrt((tx - cx) * (tx - cx) + (ty - cy) * (ty - cy));
-            if (dist > 0.0001f) {
-                const float dlen   = std::sqrt(tgt_dx * tgt_dx + tgt_dy * tgt_dy);
-                const float angRad = std::atan2(dlen, dist);
-                const float angDeg = angRad * 57.2957795f;
-                if (angDeg < g_b2_enemy_ang_deadzone_deg) {
-                    tgt_dx = 0.0f;
-                    tgt_dy = 0.0f;
-                }
-            }
-        }
-
-        // 2) Slew rate limit for TargetPos — now XYZ
-        {
-            const float maxStep = g_b2_target_slew_units_per_sec * dt;
-            const float len3    = std::sqrt(tgt_dx * tgt_dx + tgt_dy * tgt_dy + tgt_dz * tgt_dz);
-            if (len3 > maxStep && len3 > 0.0f) {
-                const float s = maxStep / len3;
-                tgt_dx *= s;
-                tgt_dy *= s;
-                tgt_dz *= s;
-            }
-        }
-        // ----------------------------------------
-
-        cam->MAIN.bat2.DebugInfo.CameraPos.x += cam_dx;
-        cam->MAIN.bat2.DebugInfo.CameraPos.y += cam_dy;
-        cam->MAIN.bat2.DebugInfo.TargetPos.x += tgt_dx;
-        cam->MAIN.bat2.DebugInfo.TargetPos.y += tgt_dy;
-        cam->MAIN.bat2.DebugInfo.TargetPos.z += tgt_dz; // NEW: apply Z delta
-
-        // Update prevs
-        g_b2_prev_player = curPlayerAnchor;
-        g_b2_prev_enemy  = curEnemy;
-    }
-    */
-
-    // -------------------- Deathblow zoom logic (KEEP) --------------------
-    // Start condition (SIF)
+    // -------------------- Deathblow zoom logic (unchanged) --------------------
     if (sif_now && !g_b2_sif_prev) {
         g_b2_sif_time              = now;
         g_b2_zoom_armed            = true;
@@ -366,8 +213,6 @@ static void ApplyBattle2PresetTick() {
         g_b2_prev_slow_tick        = slowTick;
         g_b2_last_slow_change_time = now;
     }
-
-    // Arm -> active after delay
     if (g_b2_zoom_armed && !g_b2_zoom_active) {
         if ((now - g_b2_sif_time) >= kB2_SIF_DELAY_SEC) {
             g_b2_zoom_active           = true;
@@ -376,17 +221,12 @@ static void ApplyBattle2PresetTick() {
             g_b2_last_slow_change_time = now;
         }
     }
-
     if (slowTick > 0)
         g_b2_slow_seen = true;
-
-    // Finish when slow-mo started and then ended
     if (g_b2_slow_seen && slowTick <= 0) {
         g_b2_zoom_active = false;
         g_b2_zoom_armed  = false;
     }
-
-    // Safety nets
     if (g_b2_zoom_active) {
         if ((now - g_b2_last_slow_change_time) >= kB2_SLOW_STALL_SEC) {
             g_b2_zoom_active = false;
@@ -398,24 +238,167 @@ static void ApplyBattle2PresetTick() {
         }
     }
 
-    // Drive CameraPos.z
+    // -------------------- Z drive (zoom vs rail) --------------------
     if (g_b2_zoom_active) {
-        const double elapsed = now - g_b2_zoom_start_time;
-        const float tNorm    = (float)clamp01(elapsed / kB2_EASE_IN_SEC);
-        const float tEase    = smoothstep01(tNorm);
-
+        const double elapsed     = now - g_b2_zoom_start_time;
+        const float tNorm        = (float)clamp01(elapsed / kB2_EASE_IN_SEC);
+        const float tEase        = smoothstep01(tNorm);
         const float mainTargetZ  = kB2_CamPos_Z_BASE - (kB2_Z_PULL_MAX * tEase);
         const float creepTargetZ = kB2_CamPos_Z_BASE - (kB2_Z_PULL_MAX + kB2_Z_EXTRA);
-
-        if (tNorm < 1.0f)
-            g_b2_campos_z = lerp(g_b2_campos_z, mainTargetZ, kB2_LERP_IN);
-        else
-            g_b2_campos_z = lerp(g_b2_campos_z, creepTargetZ, kB2_LERP_CREEP);
+        g_b2_campos_z = (tNorm < 1.0f) ? lerp(g_b2_campos_z, mainTargetZ, kB2_LERP_IN) : lerp(g_b2_campos_z, creepTargetZ, kB2_LERP_CREEP);
     } else {
-        g_b2_campos_z = lerp(g_b2_campos_z, kB2_CamPos_Z_BASE, kB2_LERP_OUT);
+        // Rail based on planar P-E distance
+        const float dx          = cam->MAIN.bat2.PPos.x - cam->MAIN.bat2.EPos.x;
+        const float dz          = cam->MAIN.bat2.PPos.z - cam->MAIN.bat2.EPos.z;
+        const float dist        = sqrtf(dx * dx + dz * dz);
+        float tz                = (dist - kB2_RAIL_DIST_NEAR) / (kB2_RAIL_DIST_FAR - kB2_RAIL_DIST_NEAR);
+        tz                      = clamp01(tz);
+        const float railTargetZ = lerp(kB2_RAIL_Z_NEAR, kB2_RAIL_Z_FAR, smoothstep01(tz));
+        g_b2_campos_z           = lerp(g_b2_campos_z, railTargetZ, kB2_RAIL_Z_LERP);
+
+        // --- ADDITIVE Rail 2.0: soften edges + hysteresis (overrides prior lerp result) ---
+        {
+            const float centerZ = 0.5f * (kB2_RAIL_Z_NEAR + kB2_RAIL_Z_FAR);
+            const float tIn     = clamp01((dist - kB2_RAIL_DIST_NEAR) / (kB2_RAIL_SOFT_IN - kB2_RAIL_DIST_NEAR));
+            const float tOut    = clamp01((dist - kB2_RAIL_SOFT_OUT) / (kB2_RAIL_DIST_FAR - kB2_RAIL_SOFT_OUT));
+            const float biasIn  = 1.0f - tIn; // near min -> push outward
+            const float biasOut = tOut;       // near max -> pull inward
+            const float signedB = biasIn - biasOut;
+
+            float softTargetZ    = centerZ + signedB * ((kB2_RAIL_Z_FAR - kB2_RAIL_Z_NEAR) * 0.33f);
+            float blendedTargetZ = lerp(railTargetZ, softTargetZ, 0.5f);
+
+            float deltaZ   = blendedTargetZ - g_b2_campos_z;
+            deltaZ         = deadband(deltaZ, kB2_RAIL_HYSTERESIS);
+            blendedTargetZ = g_b2_campos_z + deltaZ;
+
+            g_b2_campos_z = lerp(g_b2_campos_z, blendedTargetZ, kB2_RAIL_Z_LERP);
+        }
     }
 
+    // Commit Z first
     cam->MAIN.bat2.DebugInfo.CameraPos.z = g_b2_campos_z;
+
+    // -------------------- NEW: True LR orbit (non-zoom only) --------------------
+    if (!g_b2_zoom_active) {
+        // Base reference vector: Target -> BaseCam (XZ)
+        const float refX   = (kB2_CamPos_X - kB2_TgtPos_X);
+        const float refZ   = (g_b2_campos_z - kB2_TgtPos_Z); // use current Z rail for radius
+        const float radius = sqrtf(refX * refX + refZ * refZ);
+        float refYaw       = atan2f(refZ, refX);
+
+        // Player vector: Target -> Player (XZ)
+        const float pX = cam->MAIN.bat2.PPos.x - kB2_TgtPos_X;
+        const float pZ = cam->MAIN.bat2.PPos.z - kB2_TgtPos_Z;
+        float pYaw     = atan2f(pZ, pX);
+
+        // Signed delta yaw, scaled and clamped
+        float dYaw         = rad_wrap_pi(pYaw - refYaw);
+        float yawTarget    = dYaw * kB2_LR_YAW_GAIN;
+        const float yawMax = deg2rad(kB2_LR_YAW_MAX_DEG);
+        if (yawTarget > yawMax)
+            yawTarget = yawMax;
+        if (yawTarget < -yawMax)
+            yawTarget = -yawMax;
+
+        // --- ADDITIVE: Player-bias multiplier using movement direction vs. toEN ---
+        {
+            float biasMult   = 1.0f;
+            const float curX = cam->MAIN.bat2.PPos.x;
+            const float curZ = cam->MAIN.bat2.PPos.z;
+            if (!g_b2_prev_ppos_init) {
+                g_b2_prev_ppos_x    = curX;
+                g_b2_prev_ppos_z    = curZ;
+                g_b2_prev_ppos_init = true;
+            }
+            const float vX   = curX - g_b2_prev_ppos_x;
+            const float vZ   = curZ - g_b2_prev_ppos_z;
+            const float vLen = sqrtf(vX * vX + vZ * vZ);
+
+            // toEN vector from player to enemy (XZ)
+            const float toX   = (kB2_TgtPos_X - curX);
+            const float toZ   = (kB2_TgtPos_Z - curZ);
+            const float toLen = sqrtf(toX * toX + toZ * toZ) + 1e-6f;
+
+            // Forward estimate: movement direction if moving, otherwise default toward enemy
+            float fx = toX / toLen, fz = toZ / toLen;
+            if (vLen > 0.01f) {
+                float inv = 1.0f / vLen;
+                fx        = vX * inv;
+                fz        = vZ * inv;
+            }
+
+            // Angle between forward estimate and toEN (0..pi) -> 0..1 bias
+            float c = ((fx * toX + fz * toZ) / (toLen));
+            if (c > 1.0f)
+                c = 1.0f;
+            if (c < -1.0f)
+                c = -1.0f;
+            float ang    = acosf(c);
+            float bias01 = ang / 3.1415926535f; // 0 facing enemy, 1 facing away
+
+            biasMult = lerp(1.0f, kB2_LR_BIAS_MULT, bias01);
+            yawTarget *= biasMult;
+
+            g_b2_prev_ppos_x = curX;
+            g_b2_prev_ppos_z = curZ;
+        }
+
+        // Smooth
+        g_b2_lr_yaw_cur = lerp(g_b2_lr_yaw_cur, yawTarget, kB2_LR_LERP);
+
+        // Convert yaw to X offset along orbit around target; keep Z fixed from the rail.
+        const float deltaX = radius * sinf(g_b2_lr_yaw_cur);
+        camPosX            = kB2_CamPos_X + deltaX;
+    } else {
+        // During zoom, freeze LR and recenter X so deathblow shot is unaffected
+        g_b2_lr_yaw_cur = lerp(g_b2_lr_yaw_cur, 0.0f, 0.25f);
+        camPosX         = kB2_CamPos_X;
+    }
+
+    // Commit XY
+    cam->MAIN.bat2.DebugInfo.CameraPos.x = camPosX;
+    cam->MAIN.bat2.DebugInfo.CameraPos.y = camPosY;
+
+    // === ADDITIVE: Shinku over-shoulder offset on PPosOffset (non-destructive) ===
+    {
+        const bool shinkuActive = (player && player->mPcStatus.shinkuTick > 0);
+        // Snapshot base (so we don't accumulate on already-modified values)
+        const float baseX       = cam->MAIN.bat2.PPosOffset.x;
+        const float baseY       = cam->MAIN.bat2.PPosOffset.y;
+        const float baseZ       = cam->MAIN.bat2.PPosOffset.z;
+        const bool offsetIsZero = (fabsf(baseX) < 1e-4f && fabsf(baseY) < 1e-4f && fabsf(baseZ) < 1e-4f);
+
+        if (shinkuActive && offsetIsZero) {
+            // Build shoulder offset from PC->EN direction on XZ
+            float fx   = cam->MAIN.bat2.EPos.x - cam->MAIN.bat2.PPos.x;
+            float fz   = cam->MAIN.bat2.EPos.z - cam->MAIN.bat2.PPos.z;
+            float fLen = sqrtf(fx * fx + fz * fz) + 1e-6f;
+            fx /= fLen;
+            fz /= fLen;
+
+            // right = cross(up, forward) on XZ -> (-fz, +fx)
+            float rx = -fz, rz = fx;
+
+            float addX = rx * kB2_SHINKU_OVER_X + fx * kB2_SHINKU_OVER_Z;
+            float addY = kB2_SHINKU_OVER_Y;
+            float addZ = rz * kB2_SHINKU_OVER_X + fz * kB2_SHINKU_OVER_Z;
+
+            g_b2_ppos_add_x = lerp(g_b2_ppos_add_x, addX, kB2_SHINKU_BLEND);
+            g_b2_ppos_add_y = lerp(g_b2_ppos_add_y, addY, kB2_SHINKU_BLEND);
+            g_b2_ppos_add_z = lerp(g_b2_ppos_add_z, addZ, kB2_SHINKU_BLEND);
+        } else {
+            // decay toward zero when not active or base offset is non-zero
+            g_b2_ppos_add_x = lerp(g_b2_ppos_add_x, 0.0f, 0.25f);
+            g_b2_ppos_add_y = lerp(g_b2_ppos_add_y, 0.0f, 0.25f);
+            g_b2_ppos_add_z = lerp(g_b2_ppos_add_z, 0.0f, 0.25f);
+        }
+
+        // Non-destructive write (base + addition)
+        cam->MAIN.bat2.PPosOffset.x = baseX + g_b2_ppos_add_x;
+        cam->MAIN.bat2.PPosOffset.y = baseY + g_b2_ppos_add_y;
+        cam->MAIN.bat2.PPosOffset.z = baseZ + g_b2_ppos_add_z;
+    }
 
     g_b2_prev_lock = g_b2_lock_preset;
     g_b2_sif_prev  = sif_now;
@@ -426,6 +409,7 @@ static void ApplyBattle2PresetTick() {
 template <typename T> bool getBit(T flags, int bit) {
     return (flags & (1 << bit)) != 0;
 }
+
 template <typename T> void setBit(T& flags, int bit, bool value) {
     if (value)
         flags |= (1 << bit);
@@ -546,85 +530,19 @@ void BrainAge::Stuff() {
             ImGui::InputInt("Just Atk Input Start Tick", &player->mPcStatus.justAtkInputStartTick);
             ImGui::InputInt("Just Atk Input End Tick", &player->mPcStatus.justAtkInputEndTick);
 
-            ImGui::Text("JustGuard Cooldown: %d", justGuardCooldown);
-            ImGui::Text("Toggle Count: %d", justGuardToggleCount);
-            ImGui::Text("Toggle Window: %d", guardToggleWindow);
+            const double now2 = ImGui::GetTime();
+            bool active       = gc_active && (now2 < gc_cooldown_end_time);
+            double remain     = active ? (gc_cooldown_end_time - now2) : 0.0;
+            ImGui::Text("Cooldown Active: %s", active ? "Yes" : "No");
+            if (active)
+                ImGui::Text("Time Remaining: %.2f sec", remain);
         }
     }
 
     if (ImGui::CollapsingHeader("New thing 3")) {
-        mHRPc* player = nmh_sdk::get_mHRPc();
-        if (player) {
+        mHRPc* player2 = nmh_sdk::get_mHRPc();
+        if (player2) {
             ImGui::Checkbox("Lock BATTLE2 Camera Preset", &g_b2_lock_preset);
-
-            // ------------- BATTLE2 Lag controls (DISABLED UI) -------------
-            /*
-            ImGui::SeparatorText("BATTLE2 Lag");
-            if (ImGui::BeginTable("b2_lag_table", 2, ImGuiTableFlags_SizingStretchSame)) {
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::Checkbox("Enable Lag", &g_b2_lag_enable);
-                ImGui::TableSetColumnIndex(1);
-                ImGui::Checkbox("Catch-up when far", &g_b2_catchup_enable);
-
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::SliderFloat("Player smooth (ms)", &g_b2_tau_player_ms, 10.0f, 600.0f, "%.0f");
-                ImGui::TableSetColumnIndex(1);
-                ImGui::SliderFloat("Enemy smooth (ms)", &g_b2_tau_enemy_ms, 10.0f, 600.0f, "%.0f");
-
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::SliderFloat("Deadzone", &g_b2_deadzone_xy, 0.0f, 0.20f, "%.3f");
-                ImGui::TableSetColumnIndex(1);
-                ImGui::SliderFloat("Far threshold", &g_b2_far_thresh_xy, 0.2f, 8.0f, "%.2f");
-
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::SliderFloat("Player strength X", &g_b2_player_scale_x, 0.0f, 2.0f, "%.2f");
-                ImGui::TableSetColumnIndex(1);
-                ImGui::SliderFloat("Enemy strength X", &g_b2_enemy_scale_x, 0.0f, 2.0f, "%.2f");
-
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::SliderFloat("Player strength Y", &g_b2_player_scale_y, 0.0f, 2.0f, "%.2f");
-                ImGui::TableSetColumnIndex(1);
-                ImGui::SliderFloat("Enemy strength Y", &g_b2_enemy_scale_y, 0.0f, 2.0f, "%.2f");
-
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::SliderFloat("Enemy strength Z", &g_b2_enemy_scale_z, 0.0f, 2.0f, "%.2f");
-                ImGui::TableSetColumnIndex(1);
-                ImGui::SliderFloat("Max tgt Z", &g_b2_max_tgt_z, 0.2f, 10.0f, "%.2f");
-
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::SliderFloat("Max cam XY", &g_b2_max_cam_xy, 0.2f, 10.0f, "%.2f");
-                ImGui::TableSetColumnIndex(1);
-                ImGui::SliderFloat("Max tgt XY", &g_b2_max_tgt_xy, 0.2f, 10.0f, "%.2f");
-
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::SliderFloat("Look-ahead (ms)", &g_b2_lookahead_ms, 0.0f, 200.0f, "%.0f");
-                ImGui::TableSetColumnIndex(1);
-                ImGui::SliderFloat("Enemy ang deadzone (deg)", &g_b2_enemy_ang_deadzone_deg, 0.0f, 2.0f, "%.2f");
-
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::SliderFloat("Look-ahead player amt", &g_b2_lookahead_player_amt, 0.0f, 2.0f, "%.2f");
-                ImGui::TableSetColumnIndex(1);
-                ImGui::SliderFloat("Look-ahead enemy amt", &g_b2_lookahead_enemy_amt, 0.0f, 2.0f, "%.2f");
-
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::SliderFloat("Target slew (u/s)", &g_b2_target_slew_units_per_sec, 1.0f, 60.0f, "%.1f");
-                ImGui::TableSetColumnIndex(1);
-                // reserved for future sliders
-
-                ImGui::EndTable();
-            }
-            */
-            // ---------------------------------------------------------------
         }
     }
 
@@ -642,31 +560,66 @@ void BrainAge::on_draw_ui() {
 
 void BrainAge::GuardCooldown() {
     mHRPc* player = nmh_sdk::get_mHRPc();
-    if (player) {
-        isGuardingNow = player->mPcStatus.justInputTick > 0;
-        if (isGuardingNow != lastGuardState) {
-            justGuardToggleCount++;
-            guardToggleWindow = 30;
+    if (!player) {
+        gc_active           = false;
+        gc_prev_down        = false;
+        gc_saved_flag_valid = false;
+        gc_press_idx        = 0;
+        gc_press_total      = 0;
+        for (int i = 0; i < GC_PRESS_COUNT; ++i)
+            gc_press_times[i] = 0.0;
+        return;
+    }
+
+    const double now = ImGui::GetTime();
+
+    if (!guard_cooldown_enabled) {
+        if (gc_active && gc_saved_flag_valid) {
+            player->mPcStatus.justGuardDisEnable = gc_saved_justGuardDisEnable;
         }
-        lastGuardState = isGuardingNow;
+        gc_active           = false;
+        gc_saved_flag_valid = false;
+        gc_prev_down        = (player->mPcStatus.justInputTick > 0);
+        return;
+    }
 
-        if (guardToggleWindow > 0)
-            guardToggleWindow--;
-        else
-            justGuardToggleCount = 0;
+    const bool down = (player->mPcStatus.justInputTick > 0);
 
-        if (justGuardToggleCount >= 4) {
-            justGuardCooldown    = 20;
-            justGuardToggleCount = 0;
-            guardToggleWindow    = 0;
-        }
-
-        if (justGuardCooldown > 0) {
-            justGuardCooldown--;
-            player->mPcStatus.justGuard     = false;
-            player->mPcStatus.justInputTick = nmh_sdk::GetJustGuardJudgeTick(player);
+    if (down && !gc_prev_down) {
+        if (gc_active && now < gc_cooldown_end_time) {
+            gc_cooldown_end_time = now + GC_COOLDOWN_SEC;
+        } else {
+            gc_press_times[gc_press_idx] = now;
+            gc_press_idx                 = (gc_press_idx + 1) % GC_PRESS_COUNT;
+            gc_press_total++;
+            if (gc_last_n_within(now, GC_PRESS_COUNT, GC_WINDOW_SEC)) {
+                gc_active                   = true;
+                gc_cooldown_end_time        = now + GC_COOLDOWN_SEC;
+                gc_saved_justGuardDisEnable = player->mPcStatus.justGuardDisEnable;
+                gc_saved_flag_valid         = true;
+                gc_press_idx                = 0;
+                gc_press_total              = 0;
+                for (int i = 0; i < GC_PRESS_COUNT; ++i)
+                    gc_press_times[i] = 0.0;
+            }
         }
     }
+
+    if (gc_active) {
+        if (now < gc_cooldown_end_time) {
+            player->mPcStatus.justGuardDisEnable = true;
+            player->mPcStatus.justGuard          = false;
+            player->mPcStatus.justInputTick      = 0;
+        } else {
+            gc_active = false;
+            if (gc_saved_flag_valid) {
+                player->mPcStatus.justGuardDisEnable = gc_saved_justGuardDisEnable;
+            }
+            gc_saved_flag_valid = false;
+        }
+    }
+
+    gc_prev_down = down;
 }
 
 void BrainAge::ForceCameraModes() {
