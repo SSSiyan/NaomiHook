@@ -6,7 +6,6 @@ public:
     DrawHitboxes() = default;
 
     ModCategory get_category() { return ModCategory::GAMEPLAY; };
-    static bool imguiPopout;
     // void custom_imgui_window();
     static void Stuff();
 

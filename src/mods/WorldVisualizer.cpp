@@ -44,6 +44,19 @@ void WorldVisualizer::DrawWorldLine(const Vec& start, const Vec& end, ImU32 colo
     }
 }
 
+void WorldVisualizer::DrawWorldTriangle(const Vec& p0, const Vec& p1, const Vec& p2, ImU32 color, float thickness) {
+    DrawWorldLine(p0, p1, color, thickness);
+    DrawWorldLine(p1, p2, color, thickness);
+    DrawWorldLine(p2, p0, color, thickness);
+}
+
+void WorldVisualizer::DrawWorldFilledTriangle(const Vec& p0, const Vec& p1, const Vec& p2, ImU32 color) {
+    ImVec2 screen0, screen1, screen2;
+    if (WorldToScreen(p0, screen0) && WorldToScreen(p1, screen1) && WorldToScreen(p2, screen2)) {
+        GetDrawList()->AddTriangleFilled(screen0, screen1, screen2, color);
+    }
+}
+
 void WorldVisualizer::DrawWorldSphere(const Vec& center, float radius, ImU32 color, int segments, float thickness) {
     const float angleStep = 2.0f * M_PI / segments;
 

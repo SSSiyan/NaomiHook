@@ -26,9 +26,14 @@ public:
     // Draw a line between two world positions
     static void DrawWorldLine(const Vec& start, const Vec& end, ImU32 color = IM_COL32(255, 255, 255, 255), float thickness = 1.0f);
 
+    // Draw a filled triangle in world space
+    static void DrawWorldTriangle(const Vec& p0, const Vec& p1, const Vec& p2, ImU32 color, float thickness);
+
+    // Draw a filled triangle
+    static void DrawWorldFilledTriangle(const Vec& p0, const Vec& p1, const Vec& p2, ImU32 color);
+
     // Draw a wireframe sphere
-    static void DrawWorldSphere(
-        const Vec& center, float radius, ImU32 color = IM_COL32(255, 255, 255, 255), int segments = 32, float thickness = 1.0f);
+    static void DrawWorldSphere(const Vec& center, float radius, ImU32 color = IM_COL32(255, 255, 255, 255), int segments = 32, float thickness = 1.0f);
 
     // Draw a filled sphere (using screen-space circle)
     static void DrawWorldFilledSphere(const Vec& center, float radius, ImU32 color = IM_COL32(255, 255, 255, 128));

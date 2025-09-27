@@ -2420,6 +2420,7 @@ class HROBJDummy
 
 class ghmTriangle
 {
+public:
   /* 0x0000 */ struct Vec mPoint[3];
 }; /* size: 0x0024 */
 
