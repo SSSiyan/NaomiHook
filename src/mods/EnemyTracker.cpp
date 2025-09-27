@@ -97,7 +97,35 @@ void DrawEnemyStats() {
             ImGui::InputInt("charaType", (int*)&mpLockOnNpc->mStatus.charaType);
             ImGui::InputScalar("zakoWepType", ImGuiDataType_S16, &mpLockOnNpc->mStatus.zakoWepType);
             ImGui::InputFloat("maxHp", &mpLockOnNpc->mStatus.maxHp);
-            ImGui::SliderFloat("hp", &mpLockOnNpc->mStatus.hp, 0.0f, mpLockOnNpc->mStatus.maxHp);
+            // Enemy Tracker UI
+            if (mpLockOnNpc) {
+                // Live slider (still useful when not frozen)
+                ImGui::SliderFloat("hp", &mpLockOnNpc->mStatus.hp, 0.0f, mpLockOnNpc->mStatus.maxHp);
+
+                // Freeze UI
+                static bool freeze_hp = false;
+                static float hp_lock  = 0.0f;
+
+                ImGui::Checkbox("Freeze HP", &freeze_hp);
+                ImGui::SameLine();
+                if (ImGui::Button("Capture")) {
+                    hp_lock = mpLockOnNpc->mStatus.hp; // grab current as lock value
+                }
+                ImGui::SameLine();
+                ImGui::SetNextItemWidth(120.0f);
+                ImGui::InputFloat("Target", &hp_lock);
+
+                // Apply freeze each frame
+                if (freeze_hp) {
+                    // keep the lock within valid bounds
+                    if (hp_lock < 0.0f)
+                        hp_lock = 0.0f;
+                    if (hp_lock > mpLockOnNpc->mStatus.maxHp)
+                        hp_lock = mpLockOnNpc->mStatus.maxHp;
+                    mpLockOnNpc->mStatus.hp = hp_lock;
+                }
+            }
+
             ImGui::InputScalar("money", ImGuiDataType_S16, &mpLockOnNpc->mStatus.money);
             ImGui::InputScalar("dropMoney", ImGuiDataType_S16, &mpLockOnNpc->mStatus.dropMoney);
             ImGui::InputFloat("tension", &mpLockOnNpc->mStatus.tension);
@@ -367,6 +395,95 @@ void DrawEnemyStats() {
     if (ImGui::TreeNodeEx("mpLockOnNpc mStatus.dmgInfo", ImGuiTreeNodeFlags_DrawLinesFull)) {
         if (mpLockOnNpc) {
             ImGui::SliderFloat("Damage", &mpLockOnNpc->mStatus.dmgInfo.dmg, 0.0f, 100.0f);
+            // ---- Damage history (auto-log last 10 changes) ------------------------------
+            // Records whenever the bound value changes (from game updates), not user edits.
+
+            // ring buffer state (persists across frames)
+            static float s_dmg_hist[10] = {0.0f};
+            static int s_dmg_count      = 0; // number of valid entries (<= 10)
+            static int s_dmg_head       = 0; // next write index
+
+            // change detection state
+            static bool s_dmg_inited = false;
+            static float s_dmg_last  = 0.0f;
+
+            // parameters (tweak if needed)
+            const float kDmgEpsilon   = 0.001f; // ignore tiny float noise
+            const double kMinInterval = 0.02;   // min seconds between logs (debounce)
+
+            static double s_last_push_t = 0.0;
+
+            // current value from the game
+            const float curDmg = mpLockOnNpc->mStatus.dmgInfo.dmg;
+
+            // initialize on first run
+            if (!s_dmg_inited) {
+                s_dmg_inited  = true;
+                s_dmg_last    = curDmg;
+                s_last_push_t = ImGui::GetTime();
+            }
+
+            // detect meaningful change (value changed beyond epsilon AND
+            // not spamming faster than kMinInterval)
+            const double now_t = ImGui::GetTime();
+            if (fabsf(curDmg - s_dmg_last) >= kDmgEpsilon && (now_t - s_last_push_t) >= kMinInterval) {
+                s_dmg_hist[s_dmg_head] = curDmg;
+                s_dmg_head             = (s_dmg_head + 1) % 10;
+                if (s_dmg_count < 10)
+                    s_dmg_count++;
+                s_dmg_last    = curDmg;
+                s_last_push_t = now_t;
+            }
+
+            // UI panel under the slider
+            if (s_dmg_count > 0) {
+                ImGui::BeginChild("##dmg_hist_panel", ImVec2(0, 120.0f), true);
+
+                // Build plot data in chronological order (oldest -> newest)
+                float plot[10];
+                int n = s_dmg_count;
+                for (int i = 0; i < n; ++i) {
+                    int idx = (s_dmg_head - n + i + 10) % 10;
+                    plot[i] = s_dmg_hist[idx];
+                }
+
+                // sparkline (match slider range 0..100)
+                ImGui::PlotLines("Last 10 Damage", plot, n, 0, NULL, 0.0f, 100.0f, ImVec2(0, 40.0f));
+
+                // actions: Copy / Clear
+                if (ImGui::SmallButton("Copy")) {
+                    // newest-first CSV to clipboard
+                    char buf[512];
+                    int off = 0;
+                    for (int i = 0; i < n; ++i) {
+                        int idx = (s_dmg_head - 1 - i + 10) % 10;
+                        off += snprintf(buf + off, (int)sizeof(buf) - off, (i ? ", %.3f" : "%.3f"), s_dmg_hist[idx]);
+                        if (off >= (int)sizeof(buf)) {
+                            off = (int)sizeof(buf) - 1;
+                            break;
+                        }
+                    }
+                    ImGui::SetClipboardText(buf);
+                }
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Clear")) {
+                    s_dmg_count = 0;
+                    s_dmg_head  = 0;
+                    for (int i = 0; i < 10; ++i)
+                        s_dmg_hist[i] = 0.0f;
+                }
+
+                // reverse-chronological list (latest at top)
+                ImGui::Separator();
+                for (int i = 0; i < n; ++i) {
+                    int idx = (s_dmg_head - 1 - i + 10) % 10;
+                    ImGui::Text("#%02d  %.3f", i + 1, s_dmg_hist[idx]);
+                }
+
+                ImGui::EndChild();
+            }
+            // -----------------------------------------------------------------------------
+
             ImGui::InputInt("Damage Motion", &mpLockOnNpc->mStatus.dmgInfo.dmgMot);
             ImGui::InputInt("Guard Motion", &mpLockOnNpc->mStatus.dmgInfo.grdMot);
             ImGui::InputInt("Attack Motion", &mpLockOnNpc->mStatus.dmgInfo.atkMot);
@@ -384,10 +501,199 @@ void DrawEnemyStats() {
             ImGui::Checkbox("Air Flag", &mpLockOnNpc->mStatus.dmgInfo.m_AirFlag);
             ImGui::SliderFloat("Gravity Acceleration", &mpLockOnNpc->mStatus.dmgInfo.m_GravAccele, 0.0f, 20.0f);
             ImGui::InputScalar("Piyo Request", ImGuiDataType_S8, &mpLockOnNpc->mStatus.dmgInfo.m_PiyoRequest);
+            // ===== Stored Damage (legacy sliders restored) =====
             ImGui::SliderFloat("Stored Damage", &mpLockOnNpc->mStatus.dmgInfo.storeDamage, 0.0f, 100.0f);
             ImGui::SliderFloat("Stored Damage Distance", &mpLockOnNpc->mStatus.dmgInfo.storeDamageDst, 0.0f, 100.0f);
-            ImGui::InputInt("Restore Damage Tick", &mpLockOnNpc->mStatus.dmgInfo.restoreDamegeTick);
-            ImGui::InputInt("Restore Damage Basic Tick", &mpLockOnNpc->mStatus.dmgInfo.restoreDamegeBasicTick);
+
+            // ===== Stored Damage Popout (Bad Girl / bosses) =====
+            // Put this inside your on_draw_ui() (or equivalent) where ImGui is active.
+
+            static bool showSDPopout_TYG = false; // manual toggle
+            ImGui::Checkbox("Stored Damage Popout##TYG", &showSDPopout_TYG);
+
+            if (showSDPopout_TYG && mpLockOnNpc) {
+                ImGui::PushID((void*)mpLockOnNpc); // unique scope
+
+                // Window
+                ImGuiWindowFlags winFlags = ImGuiWindowFlags_AlwaysAutoResize;
+                if (ImGui::Begin("Stored Damage Tracker##TYG", &showSDPopout_TYG, winFlags)) {
+
+                    // ---- Live pulls
+                    const float hpMax  = mpLockOnNpc->mStatus.maxHp;
+                    const float sdNow  = mpLockOnNpc->mStatus.dmgInfo.storeDamage;
+                    const float sdDst  = mpLockOnNpc->mStatus.dmgInfo.storeDamageDst; // percent bar total
+                    const int tick     = mpLockOnNpc->mStatus.dmgInfo.restoreDamegeTick;
+                    const int tickBase = mpLockOnNpc->mStatus.dmgInfo.restoreDamegeBasicTick;
+
+                    // FIX: DamageAcceptFrame is on mStatus (not dmgInfo) in your build
+                    const int daf_now = mpLockOnNpc->mStatus.DamageAcceptFrame;
+
+                    const float sdCap    = (hpMax > 0.0f) ? (0.20f * hpMax) : 0.0f; // DAZE threshold
+                    const float pctOfDst = (sdDst > 0.0f) ? (100.0f * sdNow / sdDst) : 0.0f;
+
+                    const ImGuiIO& io = ImGui::GetIO();
+
+                    // ---- Dazed! banner (rising-edge latch + fade timer)
+                    static bool dazedLatched = false;
+                    static float dazedTimer  = 0.0f;
+
+                    const bool dazedNow = (sdCap > 0.0f && sdNow >= sdCap);
+                    if (dazedNow && !dazedLatched) {
+                        dazedLatched = true;
+                        dazedTimer   = 2.0f;
+                    }
+                    if (dazedTimer > 0.0f)
+                        dazedTimer -= io.DeltaTime;
+                    if (dazedTimer <= 0.0f) {
+                        dazedTimer   = 0.0f;
+                        dazedLatched = false;
+                    }
+
+                    if (dazedNow || dazedTimer > 0.0f) {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.95f, 0.30f, 0.30f, 1.0f));
+                        ImGui::TextWrapped("Dazed!");
+                        ImGui::PopStyleColor();
+                    }
+
+                    // ---- Compact stats table
+                    if (ImGui::BeginTable("SDPopStats##TYG", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_BordersInnerV)) {
+                        ImGui::TableSetupColumn("L", ImGuiTableColumnFlags_WidthFixed, 140.0f);
+                        ImGui::TableSetupColumn("R", ImGuiTableColumnFlags_WidthStretch);
+
+                        ImGui::TableNextColumn();
+                        ImGui::TextUnformatted("Bucket");
+                        ImGui::TableNextColumn();
+                        ImGui::Text("%.1f", sdNow);
+
+                        ImGui::TableNextColumn();
+                        ImGui::TextUnformatted("Daze Cap (20%% HP)");
+                        ImGui::TableNextColumn();
+                        ImGui::Text("%.1f", sdCap);
+
+                        ImGui::TableNextColumn();
+                        ImGui::TextUnformatted("Distance (Dst)");
+                        ImGui::TableNextColumn();
+                        ImGui::Text("%.1f", sdDst);
+
+                        ImGui::TableNextColumn();
+                        ImGui::TextUnformatted("Engine Ticks");
+                        ImGui::TableNextColumn();
+                        ImGui::Text("tick=%d  base=%d", tick, tickBase);
+
+                        ImGui::TableNextColumn();
+                        ImGui::TextUnformatted("Enemy DAF");
+                        ImGui::TableNextColumn();
+                        ImGui::Text("%d", daf_now);
+
+                        ImGui::EndTable();
+                    }
+
+                    // ---- Flip likelihood indicator (enemy-side only, with short hysteresis)
+                    static bool assumeGuardable_TYG = true;
+                    static float daf_recent_timer   = 0.0f; // seconds
+                    ImGui::Checkbox("Assume Guardable Hit##TYG", &assumeGuardable_TYG);
+
+                    if (daf_now > 0)
+                        daf_recent_timer = 0.15f; // keep "recently active" for 150ms
+                    else if (daf_recent_timer > 0.0f) {
+                        daf_recent_timer -= io.DeltaTime;
+                        if (daf_recent_timer < 0.0f)
+                            daf_recent_timer = 0.0f;
+                    }
+
+                    const bool guardWindowActive = (daf_now > 0) || (daf_recent_timer > 0.0f);
+                    const bool flipLikely        = guardWindowActive && assumeGuardable_TYG;
+
+                    if (flipLikely) {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.95f, 0.70f, 0.20f, 1.0f));
+                        ImGui::TextUnformatted("Flip likely");
+                        ImGui::PopStyleColor();
+                    } else {
+                        ImGui::TextUnformatted("Flip unlikely");
+                    }
+
+                    // ---- Progress vs Distance (your requested reference)
+                    float progressDst = (sdDst > 0.0f) ? (sdNow / sdDst) : 0.0f;
+                    if (progressDst < 0.0f)
+                        progressDst = 0.0f;
+                    if (progressDst > 1.0f)
+                        progressDst = 1.0f;
+
+                    ImVec4 col = (progressDst >= 0.80f)   ? ImVec4(0.80f, 0.20f, 0.20f, 1.0f)
+                                 : (progressDst >= 0.50f) ? ImVec4(0.85f, 0.70f, 0.15f, 1.0f)
+                                                          : ImVec4(0.20f, 0.70f, 0.25f, 1.0f);
+                    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, col);
+                    char overlay[64];
+                    snprintf(overlay, sizeof(overlay), "%.1f%% of Distance", pctOfDst);
+                    ImGui::ProgressBar(progressDst, ImVec2(280, 0), overlay);
+                    ImGui::PopStyleColor();
+
+                    // ---- Decay measurement (per-sec / per-frame)
+                    static float sdPrev = -1.0f;
+                    static double tWin  = 0.0;
+                    static float decWin = 0.0f;
+                    static float ratePS = 0.0f;
+
+                    float dt = io.DeltaTime;
+                    if (sdPrev < 0.0f)
+                        sdPrev = sdNow;
+                    float d = sdPrev - sdNow; // positive when decaying
+                    if (dt > 0.0f) {
+                        tWin += dt;
+                        if (d > 0.0f)
+                            decWin += d;
+                        if (tWin >= 0.25f) {
+                            ratePS = (tWin > 0.0f) ? (decWin / (float)tWin) : 0.0f;
+                            tWin   = 0.0;
+                            decWin = 0.0f;
+                        }
+                    }
+                    sdPrev = sdNow;
+
+                    float fps    = (io.Framerate > 0.0f) ? io.Framerate : 60.0f;
+                    float ratePF = (ratePS > 0.0f) ? (ratePS / fps) : 0.0f;
+                    float eta    = (ratePS > 0.0f) ? (sdNow / ratePS) : -1.0f;
+
+                    if (ImGui::BeginTable("SDPopRates##TYG", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_BordersInnerV)) {
+                        ImGui::TableSetupColumn("L", ImGuiTableColumnFlags_WidthFixed, 140.0f);
+                        ImGui::TableSetupColumn("R", ImGuiTableColumnFlags_WidthStretch);
+
+                        ImGui::TableNextColumn();
+                        ImGui::TextUnformatted("Decay");
+                        ImGui::TableNextColumn();
+                        ImGui::Text("%.2f /sec  (%.4f /frame @ %.0f FPS)", ratePS, ratePF, fps);
+
+                        ImGui::TableNextColumn();
+                        ImGui::TextUnformatted("Time To Zero");
+                        ImGui::TableNextColumn();
+                        if (eta >= 0.0f)
+                            ImGui::Text("%.2f s", eta);
+                        else
+                            ImGui::TextUnformatted("collecting...");
+
+                        ImGui::EndTable();
+                    }
+
+                    // ---- History sparkline
+                    {
+                        static float hist[256] = {0};
+                        static int head        = 0;
+                        hist[head]             = sdNow;
+                        head                   = (head + 1) & 255;
+
+                        static float plotBuf[256];
+                        for (int i = 0; i < 256; ++i) {
+                            int idx    = (head + i) & 255;
+                            plotBuf[i] = hist[idx];
+                        }
+                        ImGui::TextUnformatted("History##TYG");
+                        ImGui::PlotLines("##SDSparkPopTYG", plotBuf, 256, 0, nullptr, 0.0f,
+                            (sdDst > 0.0f ? sdDst : (sdCap > 0.0f ? sdCap : 1.0f)), ImVec2(280, 48));
+                    }
+                }
+                ImGui::End(); // Stored Damage Tracker
+                ImGui::PopID();
+            }
             ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &mpLockOnNpc->mStatus.dmgInfo.m_BikeDeadRequest);
         }
         ImGui::TreePop();
@@ -638,10 +944,17 @@ void DrawEnemyStats() {
             ImGui::TreePop();
         }
     }
+    // ASCII-ONLY
+    // Paste-over replacement for your existing HRJST (Destroyman) Enemy Tracker block.
+    // It preserves ALL original fields and adds a derived AI overlay at the end.
+
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeJST) {
         if (ImGui::TreeNodeEx("mpLockOnNpc HRJST (Destroyman)", ImGuiTreeNodeFlags_DrawLinesFull)) {
-            HRJST* hrJst = (HRJST*)mpLockOnNpc;
+            HRJST* hrJst = (HRJST*)mpLockOnNpc; // keep your cast for JST-specific fields
             if (hrJst) {
+                // =====================
+                // Original fields (unchanged)
+                // =====================
                 ImGui::InputInt("Action Mode", &hrJst->m_ActionMode);
                 ImGui::InputFloat("Action Time", &hrJst->m_ActionTime);
                 ImGui::InputFloat("Rand Time", &hrJst->m_RandTime);
@@ -698,7 +1011,8 @@ void DrawEnemyStats() {
                 }
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < 4; j++) {
-                        ImGui::Text(("Line[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), ImGuiDataType_U32, &hrJst->m_Line[i][j]);
+                        ImGui::Text(("Line[" + std::to_string(i) + "][" + std::to_string(j) + "]").c_str(), ImGuiDataType_U32,
+                            &hrJst->m_Line[i][j]);
                     }
                 }
                 ImGui::Text("Demo Camera", ImGuiDataType_U32, &hrJst->m_DemoCamera);
@@ -714,6 +1028,96 @@ void DrawEnemyStats() {
                 ImGui::Text("Light Up", ImGuiDataType_U32, &hrJst->m_LightUp);
                 ImGui::Text("Light Loop", ImGuiDataType_U32, &hrJst->m_LightLoop);
                 ImGui::Text("Light Down", ImGuiDataType_U32, &hrJst->m_LightDown);
+
+                // =========================
+                // AI Overlay (derived, non-destructive)
+                // =========================
+                ImGui::Separator();
+                ImGui::Text("AI Preview (AttackSelect gates)");
+
+                // NOTE: hrJst may not expose mStatus; use the base pointer (mpLockOnNpc) for status values.
+                const float hp        = mpLockOnNpc->mStatus.hp;
+                const float maxHp     = mpLockOnNpc->mStatus.maxHp;
+                const float dist      = hrJst->m_PcDistance; // from HRJST
+                const float atkWait   = hrJst->m_AttackWait;
+                const bool camEndWait = (hrJst->m_CameraEndWait != 0);
+                const bool jumpFlag   = (hrJst->m_JumpFlag != 0);
+
+                const float one_third  = maxHp > 0.0f ? (maxHp / 3.0f) : 0.0f;
+                const float two_thirds = maxHp > 0.0f ? ((maxHp + maxHp) / 3.0f) : 0.0f;
+
+                const char* hpBand = "Unknown";
+                if (hp <= one_third)
+                    hpBand = "Low (<= 1/3)";
+                else if (hp <= two_thirds)
+                    hpBand = "Mid (<= 2/3)";
+                else
+                    hpBand = "High (> 2/3)";
+
+                const bool waitBlocked = camEndWait || (atkWait > 0.0f);
+                const bool veryClose   = (dist < 30.0f);
+                const bool farOver100  = (dist > 100.0f);
+                const bool nearOrLess  = !farOver100; // <= 100
+
+                ImGui::Text("HP: %.0f / %.0f (Band: %s)", hp, maxHp, hpBand);
+                ImGui::Text("PcDistance: %.1f  (veryClose<30=%s, far>100=%s)", dist, veryClose ? "Y" : "N", farOver100 ? "Y" : "N");
+                ImGui::Text("AttackWait: %.2f  CameraEndWait: %d  JumpFlag: %d", atkWait, (int)camEndWait, (int)jumpFlag);
+
+                if (waitBlocked) {
+                    ImGui::Separator();
+                    ImGui::Text("AI: Blocked by wait (CameraEndWait or AttackWait)");
+                } else if (jumpFlag) {
+                    // True function also checks camera mode; we only display the jump branch as possible here.
+                    ImGui::Separator();
+                    ImGui::Text("AI: Jump override possible");
+                    if (veryClose) {
+                        ImGui::BulletText("SetJumpTackle (distance < 30)");
+                    } else {
+                        ImGui::BulletText("SetKuHadoken (distance >= 30)");
+                    }
+                } else {
+                    ImGui::Separator();
+                    ImGui::Text("AI: Candidate move pool (RNG decides within)");
+
+                    if (hp <= one_third) {
+                        ImGui::BulletText("SetFinalFlash");
+                        ImGui::BulletText("SetHadoken");
+                        ImGui::BulletText("SetElect");
+                        ImGui::BulletText("SetEyeBeam");
+                        ImGui::BulletText("SetPaund");
+                    } else if (hp <= two_thirds) {
+                        if (nearOrLess) {
+                            ImGui::BulletText("SetElect");
+                            ImGui::BulletText("SetHadoken");
+                            ImGui::BulletText("SetEyeBeam");
+                            ImGui::BulletText("SetPaund");
+                        } else {
+                            ImGui::BulletText("SetHadoken");
+                            ImGui::BulletText("SetEyeBeam");
+                            ImGui::BulletText("SetProvo");
+                        }
+                    } else {
+                        if (farOver100) {
+                            ImGui::BulletText("SetHadoken");
+                            ImGui::BulletText("SetEyeBeam");
+                            ImGui::BulletText("SetProvo");
+                        } else {
+                            ImGui::BulletText("SetCombo");
+                            ImGui::BulletText("SetElect");
+                            ImGui::BulletText("SetHadoken");
+                            ImGui::BulletText("SetEyeBeam");
+                            ImGui::BulletText("SetPaund");
+                        }
+                    }
+
+                    ImGui::Separator();
+                    ImGui::Text("Notes:");
+                    ImGui::BulletText("RNG influences branches; this panel lists allowed actions for the current gates.");
+                    ImGui::BulletText("At High HP and <=100 distance, a 5-way RNG picks Combo/Elect/Hadoken/EyeBeam/Paund.");
+                }
+
+                ImGui::Separator();
+                ImGui::Text("RNG model: seed = 1566083941 * seed + 2531011 (HIWORD checks). Display only.");
             }
             ImGui::TreePop();
         }
@@ -742,6 +1146,7 @@ void DrawEnemyStats() {
                 ImGui::InputFloat3("m_MoveVec", &hrSff->m_MoveVec.x);
                 ImGui::InputInt("m_TargetHoleNum", &hrSff->m_TargetHoleNum);
                 ImGui::InputInt("m_TargetSafePos", &hrSff->m_TargetSafePos);
+                ImGui::Combo("Before PC Pose", (int*)&hrSff->m_BeforePcPose, "ePcPoseUpper\0ePcPoseMiddle\0ePcPoseBottom\0ePcPoseMax\0");
                 ImGui::Checkbox("m_ColHole", &hrSff->m_ColHole);
                 for (int i = 0; i < 14; ++i) {
                     ImGui::Checkbox(("m_HoleReq[" + std::to_string(i) + "]").c_str(), &hrSff->m_HoleReq[i]);
@@ -807,6 +1212,7 @@ void DrawEnemyStats() {
                 ImGui::InputFloat3("m_MoveVec", &hrTet->m_MoveVec.x);
                 ImGui::InputFloat3("m_BeforePos", &hrTet->m_BeforePos.x);
                 ImGui::InputFloat("m_BeforeRotY", &hrTet->m_BeforeRotY);
+                ImGui::Combo("Before PC Pose", (int*)&hrTet->m_BeforePcPose, "ePcPoseUpper\0ePcPoseMiddle\0ePcPoseBottom\0ePcPoseMax\0");
                 ImGui::InputFloat("m_ShowHitCount", &hrTet->m_ShowHitCount);
                 ImGui::InputInt("m_AmbCount", &hrTet->m_AmbCount);
                 ImGui::Checkbox("m_BossVisible", &hrTet->m_BossVisible);
@@ -921,10 +1327,17 @@ void DrawEnemyStats() {
             ImGui::TreePop();
         }
     }
+    // ASCII-ONLY
+    // Paste-over replacement for your existing HRTYG (Bad Girl) Enemy Tracker block.
+    // It preserves ALL original fields and adds a derived AI overlay at the end.
+
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeTYG) {
         if (ImGui::TreeNodeEx("mpLockOnNpc HRTYG (Bad Girl)", ImGuiTreeNodeFlags_DrawLinesFull)) {
             HRTYG* hrTyg = (HRTYG*)mpLockOnNpc;
             if (hrTyg) {
+                // =====================
+                // Original fields (unchanged)
+                // =====================
                 ImGui::InputInt("m_ActionMode", &hrTyg->m_ActionMode);
                 ImGui::InputFloat("m_ActionTime", &hrTyg->m_ActionTime);
                 ImGui::InputFloat("m_RandTime", &hrTyg->m_RandTime);
@@ -975,6 +1388,73 @@ void DrawEnemyStats() {
                 ImGui::InputInt("m_WaveCheck Ptr", (int*)&hrTyg->m_WaveCheck);
                 ImGui::InputInt("m_Close Ptr", (int*)&hrTyg->m_Close);
                 ImGui::InputInt("m_Belt Ptr", (int*)&hrTyg->m_Belt);
+
+                // =========================
+                // AI Overlay (derived from HRTYG::AttackSelect, non-destructive)
+                // =========================
+                ImGui::Separator();
+                ImGui::Text("AI Preview (AttackSelect gates)");
+
+                // HP lives on base mHRChara status
+                const float hp    = mpLockOnNpc->mStatus.hp;
+                const float maxHp = mpLockOnNpc->mStatus.maxHp;
+                const float dist  = hrTyg->m_PcDistance;
+
+                const float one_third  = maxHp > 0.0f ? (maxHp / 3.0f) : 0.0f;  // 33.3%
+                const float thirty_pct = maxHp > 0.0f ? (maxHp * 0.30f) : 0.0f; // 30% BatFire threshold
+
+                const char* hpBand = "Unknown";
+                if (hp < one_third)
+                    hpBand = "Low (< 1/3)";
+                else if (hp >= one_third && hp <= (one_third * 2.0f))
+                    hpBand = "Mid (1/3..2/3)";
+                else
+                    hpBand = "High (>= 1/3)";
+
+                ImGui::Text("HP: %.0f / %.0f (Band: %s)", hp, maxHp, hpBand);
+                ImGui::Text("PcDistance: %.1f", dist);
+
+                // One-time BatFire demo eligibility preview
+                ImGui::Separator();
+                ImGui::Text("Special one-time cinematic:");
+                if (!hrTyg->m_BatFireFlag && !hrTyg->m_ZakoTsuba && hp <= thirty_pct) {
+                    ImGui::BulletText("SetMiniDemo(..., BatFire) eligible now (subject to additional in-fight checks)");
+                } else {
+                    ImGui::BulletText("BatFire demo not eligible (already used or conditions not met)");
+                }
+
+                // Candidate move pool per HP band
+                ImGui::Separator();
+                ImGui::Text("AI: Candidate move pool (RNG decides within)");
+
+                if (hp >= one_third) {
+                    // High HP behavior (>= 1/3 max)
+                    ImGui::BulletText("SetCry (only if m_CryFirst == 0; one-time)");
+                    ImGui::BulletText("SetSwing (RNG)");
+                    ImGui::BulletText("SetTackle (RNG)");
+                    ImGui::BulletText("SetJumpShake (RNG; also appears when FirstFireAtk triggers)");
+                    ImGui::BulletText("SetFistCombo (RNG)");
+                } else {
+                    // Low HP behavior (< 1/3 max) tends to bias toward cry branches
+                    ImGui::BulletText("SetCry / SetRealCry (RNG + m_CryFirst gates)");
+                    ImGui::BulletText("SetTackle (RNG)");
+                    ImGui::BulletText("SetJumpShake (RNG; gated by BatFire in some paths)");
+                    ImGui::BulletText("SetFistCombo / Combo (RNG paths)");
+                    ImGui::BulletText("SetSwing (RNG)");
+                    ImGui::BulletText("SetCounter (RNG in mid-like branches)");
+                }
+
+                // Flag notes that affect branches
+                ImGui::Separator();
+                ImGui::Text("Flag gates (live state):");
+                ImGui::BulletText("m_CryFirst = %d (0 means initial Cry can trigger)", (int)hrTyg->m_CryFirst);
+                ImGui::BulletText("m_BatFireFlag = %d (0 means BatFire demo still available)", (int)hrTyg->m_BatFireFlag);
+                ImGui::BulletText("m_FirstFireAtk = %d (0 means JumpShake can get a scripted first-use)", (int)hrTyg->m_FirstFireAtk);
+                ImGui::BulletText("m_BattleClone = %d (alters RNG path selection in mid band)", (int)hrTyg->m_BattleClone);
+
+                // RNG model summary
+                ImGui::Separator();
+                ImGui::Text("RNG model: seed = 1566083941 * seed + 2531011 (HIWORD checks). Display only.");
             }
             ImGui::TreePop();
         }
@@ -1016,10 +1496,74 @@ void DrawEnemyStats() {
                 ImGui::InputFloat3("m_LHandPos", &hrGen->m_LHandPos.x);
                 ImGui::InputFloat3("m_RFootPos", &hrGen->m_RFootPos.x);
                 ImGui::InputFloat3("m_LFootPos", &hrGen->m_LFootPos.x);
+
+                // =========================
+                // AI Overlay (derived from HRGEN::AttackSelect, non-destructive)
+                // =========================
+                ImGui::Separator();
+                ImGui::Text("AI Preview (AttackSelect gates)");
+
+                // Base hp lives on mHRChara
+                const float hp    = mpLockOnNpc->mStatus.hp;
+                const float maxHp = mpLockOnNpc->mStatus.maxHp;
+                const float dist  = hrGen->m_PcDistance;
+                const int stage   = hrGen->m_Stage;
+
+                const bool farOver150 = (dist > 150.0f);
+
+                ImGui::Text("HP: %.0f / %.0f | Stage: %d | PcDistance: %.1f (far>150=%s)", hp, maxHp, stage, dist, farOver150 ? "Y" : "N");
+
+                // Wall check note (function begins with a wall handler)
+                ImGui::Separator();
+                ImGui::Text("Environment gate:");
+                ImGui::BulletText("CheckWall() branch can force Recovery or Provo (not evaluated in this panel)");
+
+                // Stage-dependent candidate pools
+                ImGui::Separator();
+                ImGui::Text("AI: Candidate move pool (RNG decides within)");
+
+                if (stage == 2) {
+                    // Stage 2: five-move pool
+                    if (farOver150) {
+                        ImGui::BulletText("SetProvo possible at distance > 150 (RNG gate)");
+                    }
+                    ImGui::BulletText("SetCombo");
+                    ImGui::BulletText("SetUniKick");
+                    ImGui::BulletText("SetBackFist");
+                    ImGui::BulletText("Set3Ren");
+                    ImGui::BulletText("SetShout");
+                } else if (stage == 1) {
+                    // Stage 1: similar to Stage 2 but with StrFist fallback
+                    if (farOver150) {
+                        ImGui::BulletText("SetProvo possible at distance > 150 (RNG gate)");
+                    }
+                    ImGui::BulletText("SetCombo");
+                    ImGui::BulletText("SetUniKick");
+                    ImGui::BulletText("SetBackFist");
+                    ImGui::BulletText("Set3Ren");
+                    ImGui::BulletText("SetShout");
+                    ImGui::BulletText("SetStrFist (fallback if nothing else triggers)");
+                } else {
+                    // Stage 0 / default
+                    if (farOver150) {
+                        ImGui::BulletText("SetProvo possible at distance > 150 (RNG gate)");
+                    }
+                    ImGui::BulletText("SetCombo (fallback if nothing else triggers)");
+                    ImGui::BulletText("SetUniKick");
+                    ImGui::BulletText("SetBackFist");
+                }
+
+                // RNG model summary
+                ImGui::Separator();
+                ImGui::Text("RNG: seed = 1566083941 * seed + 2531011 (HIWORD checks). Display only.");
             }
             ImGui::TreePop();
         }
     }
+    // ASCII-ONLY
+    // Paste-over replacement for your existing HRTKL (Henry) Enemy Tracker block.
+    // It preserves ALL original fields and adds a derived AI overlay at the end.
+
     if (mpLockOnNpc && mpLockOnNpc->mStatus.charaType == eCharaTypeTKL) {
         if (ImGui::TreeNodeEx("mpLockOnNpc HRTKL (Henry)", ImGuiTreeNodeFlags_DrawLinesFull)) {
             HRTKL* hrTkl = (HRTKL*)mpLockOnNpc;
@@ -1030,6 +1574,9 @@ void DrawEnemyStats() {
             // uintptr_t offsetDifference = targetAddress - baseAddress;
             // ImGui::Text("Offset difference: 0x%08X", offsetDifference);
             if (hrTkl) {
+                // =====================
+                // Original fields (unchanged)
+                // =====================
                 ImGui::InputInt("m_ActionMode", &hrTkl->m_ActionMode);
                 ImGui::InputFloat("m_ActionTime", &hrTkl->m_ActionTime);
                 ImGui::InputFloat("m_RandTime", &hrTkl->m_RandTime);
@@ -1041,7 +1588,6 @@ void DrawEnemyStats() {
                 for (int i = 0; i < 5; ++i) {
                     ImGui::InputInt(("m_pCatGmf Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTkl->m_pCatGmf[i]);
                     ImGui::InputInt(("m_pCatGan Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTkl->m_pCatGan[i]);
-
                 }
                 ImGui::InputFloat3("m_PcPosition", &hrTkl->m_PcPosition.x);
                 ImGui::InputFloat3("m_PcFrontPos", &hrTkl->m_PcFrontPos.x);
@@ -1053,12 +1599,11 @@ void DrawEnemyStats() {
                 ImGui::InputFloat("m_PcDistance", &hrTkl->m_PcDistance);
                 ImGui::InputFloat("m_HitWait", &hrTkl->m_HitWait);
                 ImGui::Checkbox("m_PcShare", &hrTkl->m_PcShare);
-                ImGui::InputInt("m_PcMotionNo", &hrTkl->m_PcMotionNo);
+                ImGui::InputInt("m_PcMotion No", &hrTkl->m_PcMotionNo);
                 ImGui::InputFloat("m_PcRandTime", &hrTkl->m_PcRandTime);
                 for (int i = 0; i < 5; ++i) {
                     ImGui::InputInt(("m_pPlasma Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTkl->m_pPlasma[i]);
                     ImGui::InputInt(("m_PlasmaCheck Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTkl->m_PlasmaCheck[i]);
-
                 }
                 ImGui::InputFloat3("m_SlashPos", &hrTkl->m_SlashPos.x);
                 ImGui::InputFloat3("m_OldSlashPos", &hrTkl->m_OldSlashPos.x);
@@ -1069,6 +1614,70 @@ void DrawEnemyStats() {
                 for (int i = 0; i < 5; ++i) {
                     ImGui::InputInt(("m_pSwordEff Ptr[" + std::to_string(i) + "]").c_str(), (int*)&hrTkl->m_pSwordEff[i]);
                 }
+
+                // =========================
+                // AI Overlay (derived from HRTKL::AttackSelect, non-destructive)
+                // =========================
+                ImGui::Separator();
+                ImGui::Text("AI Preview (AttackSelect gates)");
+
+                // Henry uses base mHRChara status for hp/maxHp
+                const float hp    = mpLockOnNpc->mStatus.hp;
+                const float maxHp = mpLockOnNpc->mStatus.maxHp;
+                const float dist  = hrTkl->m_PcDistance; // distance gate lives on HRTKL
+
+                const float one_third  = maxHp > 0.0f ? (maxHp / 3.0f) : 0.0f;
+                const float two_thirds = maxHp > 0.0f ? ((maxHp + maxHp) / 3.0f) : 0.0f;
+
+                const char* hpBand = "Unknown";
+                if (hp <= one_third)
+                    hpBand = "Low (<= 1/3)";
+                else if (hp <= two_thirds)
+                    hpBand = "Mid (<= 2/3)";
+                else
+                    hpBand = "High (> 2/3)";
+
+                const bool farOver50 = (dist > 50.0f);
+
+                ImGui::Text("HP: %.0f / %.0f (Band: %s)", hp, maxHp, hpBand);
+                ImGui::Text("PcDistance: %.1f  (far>50=%s)", dist, farOver50 ? "Y" : "N");
+
+                // Candidate move pool per band (RNG decides within)
+                ImGui::Separator();
+                ImGui::Text("AI: Candidate move pool (RNG decides within)");
+
+                if (hp <= one_third) {
+                    // Low HP: chance for Special; RotAttack also possible via RNG
+                    ImGui::BulletText("SetSpecial (RNG-gated)");
+                    ImGui::BulletText("SetRotAttack (RNG-gated)");
+                } else if (hp > two_thirds) {
+                    // High HP: chance for RotAttack via RNG
+                    ImGui::BulletText("SetRotAttack (RNG-gated)");
+                } else {
+                    // Mid HP: both Special and RotAttack via RNG
+                    ImGui::BulletText("SetSpecial (RNG-gated)");
+                    ImGui::BulletText("SetRotAttack (RNG-gated)");
+                }
+
+                // Distance-gated long-range strike
+                ImGui::Separator();
+                ImGui::Text("Distance gate:");
+                if (farOver50) {
+                    ImGui::BulletText("SetLange (when RNG gate opens and distance > 50)");
+                } else {
+                    ImGui::BulletText("SetLange not eligible (distance <= 50)");
+                }
+
+                // Final fallback pool (always one of these if nothing else triggers)
+                ImGui::Separator();
+                ImGui::Text("Fallback pool (3-way RNG):");
+                ImGui::BulletText("SetCombo");
+                ImGui::BulletText("SetSliding");
+                ImGui::BulletText("SetCounter");
+
+                // RNG model summary
+                ImGui::Separator();
+                ImGui::Text("RNG model: seed = 1566083941 * seed + 2531011 (HIWORD checks). Display only.");
             }
             ImGui::TreePop();
         }

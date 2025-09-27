@@ -1,19 +1,20 @@
 ﻿#include "AnimPlayer.hpp"
 #if 1
+#include "StanceControl.hpp" // for mod_enabled_disable_combo_extend_speedup
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <algorithm> // move/insert/erase
 #include <cmath>     // fmodf, sinf, floorf
 #include <cstring>   // std::strstr
-#include "StanceControl.hpp" // for mod_enabled_disable_combo_extend_speedup
 
-bool AnimPlayer::imguiPopout             = false;
-float AnimPlayer::custom_anim_speed      = 1.0f;
-static bool isPlayingAnimPlaylist        = false;
-uintptr_t AnimPlayer::anim_speed_jmp_ret = NULL;
-static bool enemyMotPlayer               = false;
+bool AnimPlayer::imguiPopout              = false;
+float AnimPlayer::custom_anim_speed       = 1.0f;
+static bool isPlayingAnimPlaylist         = false;
+uintptr_t AnimPlayer::anim_speed_jmp_ret  = NULL;
+static bool enemyMotPlayer                = false;
 static int currentSelectedEnemy           = 0;
 static bool useCurrentSelectedEnemySlider = true;
+static bool pinEnemyWindow                = true; // pin toggle
 
 static std::unordered_map<std::string, std::vector<AnimationEntry>> animationPlaylists;
 static size_t currentIndex       = 0;
@@ -153,7 +154,8 @@ void AnimPlayer::Stuff() {
     mHRPc* player = nmh_sdk::get_mHRPc();
     if (!player)
         return;
-    ImGui::SliderFloat("Current attack anim progress", &player->tagMain->Motion[0].MotionType3Anm[0].Main.PlayTick, 0.0f, player->tagMain->Motion[0].MotionType3Anm[0].Main.EndTick);
+    ImGui::SliderFloat("Current attack anim progress", &player->tagMain->Motion[0].MotionType3Anm[0].Main.PlayTick, 0.0f,
+        player->tagMain->Motion[0].MotionType3Anm[0].Main.EndTick);
     // you can also use player->tagMain->Motion[0].PlayMotionTick; for current frame, this also includes non attack anims and loops
 
     // Square scrollbars for this scope
@@ -280,7 +282,7 @@ void AnimPlayer::Stuff() {
                         ImGui::TextDisabled(" | ");
                         ImGui::SameLine();
                         if (isPlayingAnimPlaylist && currentIndex < playlist.size()) {
-                            const AnimationEntry& now = playlist[currentIndex];
+                            const AnimationEntry& now = playlist[currentIndex]; // FIX: index vector directly
                             float remain              = maxf(0.0f, now.delay - timeSinceLast);
                             int next_i                = (int)currentIndex + 1;
                             if (next_i < (int)playlist.size()) {
@@ -437,7 +439,7 @@ void AnimPlayer::Stuff() {
                         // Base + border (square)
                         ImU32 base_col = (i % 2 == 0) ? IM_COL32(255, 255, 255, 30) : IM_COL32(255, 255, 255, 18);
                         dl->AddRectFilled(bmin, bmax, base_col, 0.0f);
-                        dl->AddRect(bmin, bmax, IM_COL32(180, 180, 180, 220), 0.0f, 0, cue_border_thk);
+                        dl->AddRect(bmin, bmax, IM_COL32(180, 180, 180, 220), 0.0f, 0, 3.0f);
 
                         // Fill state
                         if ((size_t)i < currentIndex) {
@@ -475,7 +477,7 @@ void AnimPlayer::Stuff() {
                         ImGui::PushID(i);
 
                         // Right-edge resize handle
-                        ImVec2 edge_min = ImVec2(bmax.x - cue_resize_zone, bmin.y);
+                        ImVec2 edge_min = ImVec2(bmax.x - 14.0f, bmin.y);
                         ImVec2 edge_max = ImVec2(bmax.x, bmax.y);
                         ImGui::SetCursorScreenPos(edge_min);
                         ImGui::InvisibleButton("##cue_edge", ImVec2(edge_max.x - edge_min.x, edge_max.y - edge_min.y));
@@ -495,7 +497,7 @@ void AnimPlayer::Stuff() {
 
                         // Body click to jump (excluding resize zone)
                         ImVec2 body_min = ImVec2(bmin.x, bmin.y);
-                        ImVec2 body_max = ImVec2(bmax.x - cue_resize_zone, bmax.y);
+                        ImVec2 body_max = ImVec2(bmax.x - 14.0f, bmax.y);
                         if (body_max.x < body_min.x)
                             body_max.x = body_min.x;
                         ImGui::SetCursorScreenPos(body_min);
@@ -576,9 +578,19 @@ static void EnemyMotPlayerDisplay(mHRChara* currentNPC, int it) {
         float scaleX = screenSize.x / 854.0f;
         float scaleY = screenSize.y / 480.0f;
         ImVec2 scaledPos(screenEnemyPos.x * scaleX, screenEnemyPos.y * scaleY);
+
+        if (pinEnemyWindow) {
+            ImGui::SetNextWindowPos(ImVec2(scaledPos.x, scaledPos.y), ImGuiCond_Always, ImVec2(0.5f, 1.05f));
+        }
+
+        ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize;
+        if (pinEnemyWindow) {
+            flags |= ImGuiWindowFlags_NoMove;
+        }
+
         std::string imguiWindowName = "Mot Player##" + std::to_string(it);
-        ImGui::Begin(imguiWindowName.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize);
-        ImGui::SetWindowPos(ImVec2(scaledPos.x, scaledPos.y));
+        ImGui::Begin(imguiWindowName.c_str(), NULL, flags);
+
         int charaType = currentNPC->mStatus.charaType;
         if (charaType < 525) { // filter out non zakos here
             static int motion        = 0;
@@ -597,7 +609,10 @@ static void EnemyMotPlayerDisplay(mHRChara* currentNPC, int it) {
                 nmh_sdk::PlayZakoMotion((HRZAKO*)currentNPC, motion, loop, startFrame, overwrite, interpolate);
             }
             ImGui::PopItemWidth();
+        } else {
+            ImGui::TextDisabled("Unsupported enemy type: %d", charaType);
         }
+
         ImGui::End();
     }
 }
@@ -611,6 +626,7 @@ void AnimPlayer::on_draw_ui() {
     ImGui::Checkbox("Enemy Mot Player", &enemyMotPlayer);
     if (enemyMotPlayer) {
         ImGui::Indent();
+        ImGui::Checkbox("Pin Window To Enemy", &pinEnemyWindow);
         ImGui::Checkbox("Select Enemy With Slider", &useCurrentSelectedEnemySlider);
         if (useCurrentSelectedEnemySlider) {
             ImGui::Indent();

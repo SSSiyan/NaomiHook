@@ -1,10 +1,13 @@
+// ASCII-ONLY
 #if 1
 #include "ArcadeMode.hpp"
 #include "ClothesSwitcher.hpp" // for pcItem names
 #include "PlayerTracker.hpp"   // for throw names
 #include "QuickBoot.hpp"       // Quick boot uses this detour
 #include "WeaponSwitcher.hpp"  // for giving weapons safely"
-#include <shlobj.h>            // for ShellExecuteA
+#include <imgui.h>
+#include <shlobj.h> // for ShellExecuteA
+#include <string>
 
 // -------------------- Practice Loop: single toggle --------------------
 static bool s_practice_loop_enabled = false;
@@ -145,7 +148,7 @@ naked void detour1() {
         je noStageEdit
         cmp byte ptr [ecx+0x29a2], 1 // if mDeadPause, do not edit teleport
         je noStageEdit
-        mov byte ptr [ecx+0x1704], 0 // reset rouletteHitRate
+        mov byte ptr [ecx+0x1704], 1 // reset rouletteHitRate
         mov dword ptr [ecx+0x1780], 0 // reset ikasamaSlot
         push 1
         call dword ptr [ArcadeMode::mSetVisible] // set char visible after cutscenes
@@ -447,7 +450,7 @@ void ArcadeMode::on_draw_ui() {
 
     // ---------------- Practice Loop UI (single toggle) ----------------
     ImGui::SeparatorText("Practice Loop");
-    ImGui::Checkbox("Practice Loop (reload current stage on exit)", &s_practice_loop_enabled);
+    ImGui::Checkbox("Practice Loop", &s_practice_loop_enabled);
     // ------------------------------------------------------------------
 
     static bool arcadeModeShopToggle = false;
@@ -456,46 +459,77 @@ void ArcadeMode::on_draw_ui() {
     if (arcadeModeShopToggle && player) {
         DisplayShop(player, arcadeModeShopToggle);
 
-        static bool shouldDisplayDebugShop = false; // change this to false to hide the debug shop
+        // ---------------- Pretty Debug Shop (dependency-light) ----------------
+        static bool shouldDisplayDebugShop = false; // set true to expose debug helpers
         if (shouldDisplayDebugShop) {
             if (ImGui::CollapsingHeader("Debug Shop")) {
-                if (ImGui::TreeNodeEx("Locker Items", ImGuiTreeNodeFlags_DrawLinesFull)) {
-                    ImGui::Text("Current Money:");
-                    ImGui::InputInt("##Current Money InputInt", &player->mPcStatus.money);
-                    static int giveItemID = 0;
-                    ImGui::Text("Desired Item ID:");
-                    ImGui::InputInt("##Give Item InputInt", &giveItemID);
-                    ImGui::Text(clothing_items[giveItemID].name);
-                    if (ImGui::Button("Give Item")) {
-                        nmh_sdk::AddLocker(pcItem(giveItemID));
-                    }
-                    bool alreadyOwnsItem = CheckIfPlayerAlreadyOwnsLockerItem(pcItem(giveItemID));
-                    ImGui::Checkbox("Is this item in your locker or your hand?", &alreadyOwnsItem);
-                    ImGui::TreePop();
+                // Compact styling
+                ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(6, 6));
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(6, 4));
+
+                // Wallet
+                ImGui::SeparatorText("Wallet");
+                ImGui::SetNextItemWidth(140.0f);
+                if (ImGui::InputInt("Money", &player->mPcStatus.money)) {
+                    if (player->mPcStatus.money < 0)
+                        player->mPcStatus.money = 0;
                 }
-                if (ImGui::TreeNodeEx("Wrestling Moves", ImGuiTreeNodeFlags_DrawLinesFull)) {
-                    for (int i = 0; i < 16; i++) {
-                        ImGui::Checkbox(wrestlingNames[i], &player->mPcStatus.skillCatch[i]);
-                    }
-                    ImGui::TreePop();
+                ImGui::SameLine();
+                if (ImGui::Button("-100")) {
+                    player->mPcStatus.money = std::max(0, player->mPcStatus.money - 100);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("-1000")) {
+                    player->mPcStatus.money = std::max(0, player->mPcStatus.money - 1000);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("+100")) {
+                    player->mPcStatus.money += 100;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("+1000")) {
+                    player->mPcStatus.money += 1000;
                 }
 
-                if (ImGui::TreeNodeEx("Skills", ImGuiTreeNodeFlags_DrawLinesFull)) {
-                    for (int i = 0; i < 7; i++) {
-                        ImGui::Checkbox(k7Names[i], &player->mPcStatus.skillK7[i]);
-                    }
-                    ImGui::TreePop();
+                // Locker Items
+                ImGui::SeparatorText("Locker Items");
+                static int giveItemID = 0;
+                ImGui::SetNextItemWidth(160.0f);
+                ImGui::InputInt("Desired Item ID", &giveItemID);
+                if (giveItemID < 0)
+                    giveItemID = 0; // no dependency on count symbol
+                const char* itemName = clothing_items[giveItemID].name;
+                ImGui::Text("Selected: %s", itemName ? itemName : "(null)");
+
+                bool alreadyOwnsItem = CheckIfPlayerAlreadyOwnsLockerItem(pcItem(giveItemID));
+                ImGui::Checkbox("Owns this item", &alreadyOwnsItem); // display only
+                if (ImGui::Button("Give Item")) {
+                    nmh_sdk::AddLocker(pcItem(giveItemID));
                 }
 
-                if (ImGui::TreeNodeEx("cmbExtend", ImGuiTreeNodeFlags_DrawLinesFull)) {
-                    for (int i = 0; i < 16; i++) {
-                        int id = player->mPcStatus.wepInfo[i].id;
-                        ImGui::Checkbox(clothing_items[id].name, &player->mPcStatus.wepInfo[i].cmbExtend);
-                    }
-                    ImGui::TreePop();
+                // Wrestling Moves
+                ImGui::SeparatorText("Wrestling Moves");
+                for (int i = 0; i < 16; i++) {
+                    ImGui::Checkbox(wrestlingNames[i], &player->mPcStatus.skillCatch[i]);
                 }
+
+                // Skills
+                ImGui::SeparatorText("Skills");
+                for (int i = 0; i < 7; i++) {
+                    ImGui::Checkbox(k7Names[i], &player->mPcStatus.skillK7[i]);
+                }
+
+                // Combo Extend
+                ImGui::SeparatorText("Combo Extend");
+                for (int i = 0; i < 16; i++) {
+                    int id = player->mPcStatus.wepInfo[i].id;
+                    ImGui::Checkbox(clothing_items[id].name, &player->mPcStatus.wepInfo[i].cmbExtend);
+                }
+
+                ImGui::PopStyleVar(2);
             }
         }
+        // ----------------------------------------------------------------------
     }
 }
 
