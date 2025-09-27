@@ -42,6 +42,8 @@
 #include "mods/BrainAge.hpp"
 #include "mods/AnimPlayer.hpp"
 #include "mods/SoundEffects.hpp"
+#include "mods/WorldVisualizer.hpp"
+#include "mods/DrawHitboxes.hpp"
 
 #define ADD_MOD(name)                                  \
     do {                                               \
@@ -92,6 +94,8 @@ Mods::Mods()
     ADD_MOD(BrainAge);
     ADD_MOD(AnimPlayer);
     ADD_MOD(SoundEffects);
+    ADD_MOD(WorldVisualizer);
+    ADD_MOD(DrawHitboxes);
     // Shader edit stuffs
     // need to construct it in a special way :shrug:
     m_mods.emplace_back(g_framework->m_shader_editor_mod);

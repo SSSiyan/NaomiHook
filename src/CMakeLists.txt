@@ -1,4 +1,8 @@
 set(MODS_SRC
+    mods/DrawHitboxes.hpp
+    mods/DrawHitboxes.cpp
+    mods/WorldToScreen.hpp
+    mods/WorldToScreen.cpp
     mods/SoundEffects.hpp
     mods/SoundEffects.cpp
     mods/AnimPlayer.hpp

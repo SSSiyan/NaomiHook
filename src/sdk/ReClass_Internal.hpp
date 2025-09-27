@@ -2606,6 +2606,7 @@ struct stDamageInfo
 
 class ghmRectangle
 {
+public:
   /* 0x0000 */ struct Vec mCenter;
   /* 0x000c */ struct Vec mAxis[2];
   /* 0x0024 */ float mExtent[2];
@@ -2613,12 +2614,14 @@ class ghmRectangle
 
 class ghmLozenge
 {
+public:
   /* 0x0000 */ class ghmRectangle mRectangle;
   /* 0x002c */ float mRadius;
 }; /* size: 0x0030 */
 
 class ghmSegment
 {
+public:
   /* 0x0000 */ struct Vec mCenter;
   /* 0x000c */ struct Vec mDir;
   /* 0x0018 */ float mExtent;
@@ -2626,12 +2629,14 @@ class ghmSegment
 
 class ghmCapsule
 {
+public:
   /* 0x0000 */ class ghmSegment mAxis;
   /* 0x001c */ float mRadius;
 }; /* size: 0x0020 */
 
 class ghmGcCollObjCapsule
 {
+public:
   /* 0x0000 */ class ghmLozenge mMoveShape;
   /* 0x0030 */ char Padding_152[0x10];
   /* 0x0040 */ class ghmCapsule mShape;

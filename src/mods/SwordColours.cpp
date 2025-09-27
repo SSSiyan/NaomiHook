@@ -1090,6 +1090,14 @@ void SwordColours::render_description() const {
 }
 
 void SwordColours::on_draw_ui() {
+    mHRPc* player = nmh_sdk::get_mHRPc();
+    if (!player) {
+        mHRChara* mpLockOnNpc = player->mpLockOnNpc;
+        if (mpLockOnNpc) {
+            ImGui::InputInt("DamageAcceptFrame", &mpLockOnNpc->mStatus.DamageAcceptFrame);
+            ImGui::InputFloat("mAiDamageCount", &mpLockOnNpc->mStatus.mAiDamageCount);
+        }
+    }
     if (!ImGui::IsAnyItemHovered())
         SwordColours::hoveredDescription = defaultDescription;
     float fontSize = ImGui::GetFontSize();
