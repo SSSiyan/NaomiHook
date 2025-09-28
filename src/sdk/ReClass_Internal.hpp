@@ -2546,6 +2546,7 @@ struct Quaternion
 
 class ghmListObj
 {
+public:
   /* 0x0000 */ int Padding_9;
   /* 0x0004 */ class ghmListObj* mpPrev;
   /* 0x0008 */ class ghmListObj* mpNext;
@@ -3533,6 +3534,7 @@ enum ComboMode
 
 class stCharaFileData
 {
+public:
   /* 0x0000 */ class ghmGcFile* file;
   /* 0x0004 */ void* pData;
   /* 0x0008 */ class ghmResGroup* pRsl;
@@ -3676,14 +3678,15 @@ class mHRChara
 public:
   // union
   // {
-    /* 0x0000 */ // class ghmListObj mCharaAnchor;
+    /* 0x0000 */ class ghmListObj mCharaAnchor;
     /* 0x0000 */ // int mOldCameraMode;
     /* 0x0000 */ // class TGan** mpGan;
     /* 0x0000 */ // short mZakoStdMotionNumMax;
     /* 0x0000 */ // class TGan** mpZakoWepGan[18];
     struct
     {
-      /* 0x0000 */ short mZakoWepMotionNumMax[8]; // edited, mStatus was at +24
+      /* class ghmListObj mCharaAnchor; // lets imagine this is at 0x00 and takes up to 0x10
+      /* 0x0000 */ //short mZakoWepMotionNumMax[6]; // edited, mStatus was at +24
       /* 0x0010 */ struct stCharaStatus mStatus;
       /* 0x0314 */ class stCharaFileData mResource;
       /* 0x0350 */ struct stCharaEffect mEffect;

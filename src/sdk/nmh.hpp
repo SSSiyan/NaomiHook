@@ -84,4 +84,6 @@ namespace nmh_sdk {
 	int GetJustGuardJudgeTick(mHRPc* mHRPc);
 	typedef TGan*(__thiscall* mGetAtkMotPtrFunc)(mHRPc* mHRPc, int inMotNo);
 	TGan* GetAtkMotPtr(mHRPc* mHRPc, int inMotNo);
+	int GetAtkNo(mHRPc* mHRPc, int inMotionNo);
+    typedef int (__thiscall* mGetAtkNoFunc)(mHRPc* mHRPc, int inMotionNo);
 };
