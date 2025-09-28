@@ -164,7 +164,7 @@ public:
         // Draw line-of-sight check for certain character types
         if (ShouldCheckLineOfSight(motionNo)) {
             // This would draw lines to potential targets to show LOS blocking
-            DrawLineOfSightChecks(player, attackData.range);
+            // DrawLineOfSightChecks(player, attackData.range);
         }
 
         // Display motion info
