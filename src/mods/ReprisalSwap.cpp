@@ -1,51 +1,62 @@
 #include "ReprisalSwap.hpp"
-#include "StanceControl.hpp"
 #include "ChargeSubsBattery.hpp"
+#include "StanceControl.hpp"
 #if 1
-bool ReprisalSwap::mod_enabled = false;
+bool ReprisalSwap::mod_enabled        = false;
 bool ReprisalSwap::mid_stance_enabled = false;
-uintptr_t ReprisalSwap::jmp_ret1 = NULL;
-uintptr_t ReprisalSwap::gpPadUni = NULL;
+uintptr_t ReprisalSwap::jmp_ret1      = NULL;
+uintptr_t ReprisalSwap::gpPadUni      = NULL;
 
-uintptr_t ReprisalSwap::jmp_ret2 = NULL;
+uintptr_t ReprisalSwap::jmp_ret2  = NULL;
 uintptr_t ReprisalSwap::detour2je = NULL;
 
 // clang-format off
 naked void detour1() { // player in ecx
     __asm {
-        cmp dword ptr [ecx+0x1350], 2 // mid
-        jne highchargecheck
-        mov eax, ePcMtBtAtkChg // mid charge
-        jmp originalcode
-
-    highchargecheck:
+        // If both toggles are off, pass-through (do not touch EAX)
         cmp byte ptr [ReprisalSwap::mod_enabled], 0
-        je originalcode
-
-    // if any 3 stance mod is enabled, don't check for input
-        cmp dword ptr [ecx+0x1350], 0 // high
-        jne originalcode // this leaves only low
-        cmp byte ptr [StanceControl::mod_enabled], 1
-        je skipInputCheck
-        cmp byte ptr [StanceControl::mod_enabled_gear_system], 1
-        je skipInputCheck
-
-    // no 3 stance mods are enabled, check for input
-        push eax
-        mov eax, [ReprisalSwap::gpPadUni]
-        mov eax, [eax]
-        cmp byte ptr [eax+0x1CC], 1 // high attack // From nmh.PC_INPUT_ATTACK+99
-        pop eax
-        jne originalcode
-    skipInputCheck:
+        jne _check_mid_toggle
         cmp byte ptr [ReprisalSwap::mid_stance_enabled], 0
-        je highCharge
-    // midCheck:
+        je  _call_orig
 
-    highcharge:
-        mov eax, ePcMtBtAtkChgUp // high charge
-    originalcode:
-        push eax // default eax
+    _check_mid_toggle:
+        // MID stance override only when explicitly enabled
+        cmp byte ptr [ReprisalSwap::mid_stance_enabled], 0
+        je  _check_high_path
+        cmp dword ptr [ecx+0x1350], 2              // 2 = MID
+        jne _check_high_path
+        mov eax, ePcMtBtAtkChg                     // MID charged slash
+        jmp _call_orig
+
+    _check_high_path:
+        // HIGH stance path requires mod_enabled
+        cmp byte ptr [ReprisalSwap::mod_enabled], 0
+        je  _call_orig
+
+        // Only affect HIGH stance (leave LOW alone)
+        cmp dword ptr [ecx+0x1350], 0              // 0 = HIGH
+        jne _call_orig
+
+        // If any 3-stance mod active, skip input check
+        cmp byte ptr [StanceControl::mod_enabled], 1
+        je  _set_high
+        cmp byte ptr [StanceControl::mod_enabled_gear_system], 1
+        je  _set_high
+
+        // Otherwise require high-attack input
+        push eax
+        mov  eax, [ReprisalSwap::gpPadUni]
+        mov  eax, [eax]
+        cmp  byte ptr [eax+0x1CC], 1               // PC_INPUT_ATTACK+99 (high attack)
+        pop  eax
+        jne  _call_orig
+
+    _set_high:
+        mov eax, ePcMtBtAtkChgUp                   // HIGH charged slash
+        // fall through to call
+
+    _call_orig:
+        push eax                                   // preserve whatever EAX currently is
         call esi
         movss xmm3, [edi+0x40]
         jmp dword ptr [ReprisalSwap::jmp_ret1]
@@ -77,10 +88,10 @@ naked void detour2() { // disable clashes on new reprisals // disable clashes on
         jmp dword ptr [ReprisalSwap::detour2je]
     }
 }
- // clang-format on
+// clang-format on
 
 std::optional<std::string> ReprisalSwap::on_initialize() {
-    gpPadUni = g_framework->get_module().as<uintptr_t>() + 0x843588; 
+    gpPadUni = g_framework->get_module().as<uintptr_t>() + 0x843588;
     if (!install_hook_offset(0x3CE22E, m_hook1, &detour1, &ReprisalSwap::jmp_ret1, 8)) {
         spdlog::error("Failed to init ReprisalSwap mod\n");
         return "Failed to init ReprisalSwap mod";
@@ -97,33 +108,38 @@ void ReprisalSwap::render_description() const {
     ImGui::TextWrapped(ReprisalSwap::hoveredDescription);
 }
 
-const char* ReprisalSwap::defaultDescription = "Reworks parry reprisals by assigning a new attack to each stance. Restores the original Low charge attack and repurposes it as the Mid charge.";
+const char* ReprisalSwap::defaultDescription = "Reworks parry reprisals by assigning a new attack to each stance. Restores the original "
+                                               "Low charge attack and repurposes it as the Mid charge.";
 const char* ReprisalSwap::hoveredDescription = defaultDescription;
 
 void ReprisalSwap::on_draw_ui() {
-    if (!ImGui::IsAnyItemHovered()) ReprisalSwap::hoveredDescription = defaultDescription;
+    if (!ImGui::IsAnyItemHovered())
+        ReprisalSwap::hoveredDescription = defaultDescription;
 
     ImGui::Checkbox("High Charge Reprisal", &mod_enabled); // high is pressed after gold block
-    if (ImGui::IsItemHovered()) ReprisalSwap::hoveredDescription = "Changes the parry reprisal to HIGH Charged Slash when performed in HIGH stance.";
+    if (ImGui::IsItemHovered())
+        ReprisalSwap::hoveredDescription = "Changes the parry reprisal to HIGH Charged Slash when performed in HIGH stance.";
 
     ImGui::Checkbox("Mid Charge Reprisal", &mid_stance_enabled); // high is pressed after gold block while in mid stance
-    if (ImGui::IsItemHovered()) ReprisalSwap::hoveredDescription = "Changes the parry reprisal to MID Charged Slash when performed in MID stance.";
+    if (ImGui::IsItemHovered())
+        ReprisalSwap::hoveredDescription = "Changes the parry reprisal to MID Charged Slash when performed in MID stance.";
 }
 
 // during load
-void ReprisalSwap::on_config_load(const utility::Config &cfg) {
-    mod_enabled = cfg.get<bool>("reprisal_swap").value_or(false);
+void ReprisalSwap::on_config_load(const utility::Config& cfg) {
+    mod_enabled        = cfg.get<bool>("reprisal_swap").value_or(false);
     mid_stance_enabled = cfg.get<bool>("reprisal_mid_stance").value_or(false);
 }
+
 // during save
-void ReprisalSwap::on_config_save(utility::Config &cfg) {
+void ReprisalSwap::on_config_save(utility::Config& cfg) {
     cfg.set<bool>("reprisal_swap", mod_enabled);
     cfg.set<bool>("reprisal_mid_stance", mid_stance_enabled);
 }
 
 // do something every frame
-//void ReprisalSwap::on_frame() {}
+// void ReprisalSwap::on_frame() {}
 // will show up in debug window, dump ImGui widgets you want here
-//void ReprisalSwap::on_draw_debug_ui() {}
+// void ReprisalSwap::on_draw_debug_ui() {}
 // will show up in main window, dump ImGui widgets you want here
 #endif

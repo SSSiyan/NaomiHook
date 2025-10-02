@@ -1,9 +1,9 @@
 #include "DrawHitboxes.hpp"
 #include "WorldVisualizer.hpp"
 #if 1
-bool drawHitboxes = true;
+bool drawHitboxes = false;
 bool drawBullshit              = false;
-bool drawWeaponAttempt         = true;
+bool drawWeaponAttempt         = false;
 uintptr_t gPcCommonTable       = NULL;
 
 std::optional<std::string> DrawHitboxes::on_initialize() {

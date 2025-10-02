@@ -1,3 +1,4 @@
+// ASCII-ONLY
 #include "FreeCam.hpp"
 #include "GuiFunctions.hpp" // for g_framework
 #include "KbmControls.hpp"  // for gamepad button structs
@@ -15,7 +16,7 @@ float FreeCam::modifierSens        = 0.0f;
 float FreeCam::deadZone            = 0.0f;
 bool FreeCam::toggle_pause_enabled = false;
 
-// frame-advance state 
+// frame-advance state
 static bool g_step_pending             = false;
 static bool g_step_unpaused_this_frame = false;
 static bool g_step_restore_pause       = false;
@@ -189,7 +190,7 @@ static void draw_guides_and_hud(HrCamera* cam) {
             dl->AddLine(ImVec2(cx, cy - len), ImVec2(cx, cy + len), col, 1.0f);
         }
 
-        // Golden ratio grid (I think back to that Calibur meme everytime)
+        // Golden ratio grid
         if (g_guide_golden) {
             const float phi = 1.6180339887f;
             float gx        = W / phi; // vertical division
@@ -242,8 +243,9 @@ static void draw_guides_and_hud(HrCamera* cam) {
         float box_w = 260.0f;
         float box_h = line_h * 7 + pad.y * 2.0f;
 
-        dl->AddRectFilled(pos, ImVec2(pos.x + box_w, pos.y + box_h), bg, 6.0f);
-        dl->AddRect(pos, ImVec2(pos.x + box_w, pos.y + box_h), br, 6.0f);
+        ImDrawList* dl2 = dl;
+        dl2->AddRectFilled(pos, ImVec2(pos.x + box_w, pos.y + box_h), bg, 6.0f);
+        dl2->AddRect(pos, ImVec2(pos.x + box_w, pos.y + box_h), br, 6.0f);
 
         // Text origin = pos + pad
         ImVec2 text_pos(pos.x + pad.x, pos.y + pad.y);
@@ -251,20 +253,20 @@ static void draw_guides_and_hud(HrCamera* cam) {
 
         // Lines
         snprintf(buf, sizeof(buf), "Pos:  %.2f  %.2f  %.2f", p.x, p.y, p.z);
-        dl->AddText(cur, IM_COL32_WHITE, buf);
+        dl2->AddText(cur, IM_COL32_WHITE, buf);
         cur.y += line_h;
 
         snprintf(buf, sizeof(buf), "Yaw/Pitch/Roll:  %.1f  %.1f  %.1f", rad_to_deg(yaw), rad_to_deg(pitch), rad_to_deg(roll));
-        dl->AddText(cur, IM_COL32_WHITE, buf);
+        dl2->AddText(cur, IM_COL32_WHITE, buf);
         cur.y += line_h;
 
         float curSpeed = FreeCam::sens;
         snprintf(buf, sizeof(buf), "Speed:  %.2f  (Mod: %.2f)", curSpeed, FreeCam::modifierSens);
-        dl->AddText(cur, IM_COL32_WHITE, buf);
+        dl2->AddText(cur, IM_COL32_WHITE, buf);
         cur.y += line_h;
 
         snprintf(buf, sizeof(buf), "Look-Lock: %s  (%.2f)", g_look_enabled ? "ON" : "OFF", g_look_strength);
-        dl->AddText(cur, IM_COL32_WHITE, buf);
+        dl2->AddText(cur, IM_COL32_WHITE, buf);
         cur.y += line_h;
 
         // show follow state
@@ -272,15 +274,15 @@ static void draw_guides_and_hud(HrCamera* cam) {
             sqrtf(g_look_follow_offset.x * g_look_follow_offset.x + g_look_follow_offset.y * g_look_follow_offset.y +
                   g_look_follow_offset.z * g_look_follow_offset.z),
             g_look_follow_damp_hz);
-        dl->AddText(cur, IM_COL32_WHITE, buf);
+        dl2->AddText(cur, IM_COL32_WHITE, buf);
         cur.y += line_h;
 
         snprintf(buf, sizeof(buf), "Orbit: %s  r=%.1f  s=%.0f deg/s", g_orbit_enabled ? "ON" : "OFF", g_orbit_radius, g_orbit_speed_deg);
-        dl->AddText(cur, IM_COL32_WHITE, buf);
+        dl2->AddText(cur, IM_COL32_WHITE, buf);
         cur.y += line_h;
 
         snprintf(buf, sizeof(buf), "Guides: %s   HUD: %s", g_guides_enabled ? "ON" : "OFF", g_hud_enabled ? "ON" : "OFF");
-        dl->AddText(cur, IM_COL32_WHITE, buf);
+        dl2->AddText(cur, IM_COL32_WHITE, buf);
     }
 }
 
@@ -306,6 +308,12 @@ void FreeCam::toggle(bool enable) {
         battle_freecam_patch.reset();
         bike_freecam_patch.reset();
     }
+
+    // keep NPCs paused in sync with Free Cam enable/disable
+    mHRPc* player = nmh_sdk::get_mHRPc();
+    if (player) {
+        player->mPauseNpc = enable ? true : false;
+    }
 }
 
 void FreeCam::togglePause(bool enable) {
@@ -313,6 +321,12 @@ void FreeCam::togglePause(bool enable) {
         install_patch_offset(0x3B643B, pause_all_patch, "\xEB", 1); // jmp nmh.exe+3B649F
     } else {
         pause_all_patch.reset(); // je nmh.exe+3B649F
+    }
+
+    // mirror to NPC pause so F2/F3 flows tick/untick this as well
+    mHRPc* player = nmh_sdk::get_mHRPc();
+    if (player) {
+        player->mPauseNpc = enable ? true : false;
     }
 }
 
@@ -415,7 +429,7 @@ void FreeCam::on_frame() {
         apply_turntable_orbit(cam, center, dt);
     }
 
-    // Movement (disabled while orbiting so they don't fight)
+    // Movement (disabled while orbiting so they do not fight)
     if (!g_orbit_enabled) {
         // triggers up/down
         if (buttons & KEY_LT) {
@@ -554,6 +568,11 @@ void FreeCam::on_draw_ui() {
         ImGui::Checkbox("Enable Inputs To Player", &player->mOperate);
         if (ImGui::IsItemHovered())
             FreeCam::hoveredDescription = "Disable player movement/actions";
+
+        // Expose the NPC pause toggle in the UI (auto-synced with Free Cam and global freeze)
+        ImGui::Checkbox("mPauseNpc", &player->mPauseNpc);
+        if (ImGui::IsItemHovered())
+            FreeCam::hoveredDescription = "Pause/unpause NPCs (synced with Free Cam and F2/F3).";
     }
 
     // Look-At Lock
@@ -581,7 +600,7 @@ void FreeCam::on_draw_ui() {
         ImGui::SliderFloat("Responsiveness (Hz)", &g_look_responsiveness, 1.0f, 30.0f, "%.1f");
         ImGui::SliderFloat("Max Pitch (rad)", &g_look_max_pitch, 0.2f, 1.5f, "%.2f");
 
-        // Aim offset sliders (X/Y) This is so you can orbit something other than Travis's Velcro light-up Skechers
+        // Aim offset sliders (X/Y)
         ImGui::Separator();
         ImGui::SliderFloat("Aim Offset X (world)", &g_look_aim_offset_x, -50.0f, 50.0f, "%.2f");
         ImGui::SliderFloat("Aim Offset Y (world)", &g_look_aim_offset_y, -50.0f, 50.0f, "%.2f");

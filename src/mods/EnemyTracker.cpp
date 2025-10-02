@@ -151,7 +151,52 @@ void DrawEnemyStats() {
             ImGui::InputInt("mAiDefBaseTick", &mpLockOnNpc->mStatus.mAiDefBaseTick);
             ImGui::InputFloat("mAiDamageCount", &mpLockOnNpc->mStatus.mAiDamageCount);
             ImGui::InputInt("tsubazeriNum", &mpLockOnNpc->mStatus.tsubazeriNum);
-            ImGui::InputInt("DamageAcceptFrame", &mpLockOnNpc->mStatus.DamageAcceptFrame);
+
+            // DamageAcceptFrame (live) + freezer (keeps the live display; optionally forces a value)
+            {
+                ImGui::PushID((void*)mpLockOnNpc); // ensure unique widgets per target
+
+                // Reference to the live game value
+                int& dafRef = mpLockOnNpc->mStatus.DamageAcceptFrame;
+
+                // Per-session freezer state (static so it persists while the menu is open)
+                static bool freezeDAF = false;
+                static int dafFrozen  = 0;
+
+                // Always show the live field so you can see and even edit it directly
+                ImGui::InputInt("DamageAcceptFrame (live)##DAF", &dafRef);
+
+                // Freeze toggle
+                ImGui::SameLine();
+                if (ImGui::Checkbox("Freeze##DAF", &freezeDAF)) {
+                    if (freezeDAF) {
+                        // Latch the current value when freezing is turned on
+                        dafFrozen = dafRef;
+                    }
+                }
+
+                // When frozen: allow editing the frozen value and force-write it every frame
+                if (freezeDAF) {
+                    ImGui::SameLine();
+                    if (ImGui::Button("Grab##DAF")) {
+                        // Grab current live value into the freezer
+                        dafFrozen = dafRef;
+                    }
+
+                    // Edit the frozen value (use SliderInt if you prefer a bounded range)
+                    ImGui::InputInt("Frozen DAF##DAF", &dafFrozen);
+
+                    // Enforce the freeze by writing back to the game struct each frame
+                    dafRef = dafFrozen;
+
+                    ImGui::TextDisabled("Freezing: writing %d each frame", dafFrozen);
+                } else {
+                    ImGui::TextDisabled("Live: engine controls this value");
+                }
+
+                ImGui::PopID();
+            }
+
             ImGui::InputInt("motionNo", (int*)&mpLockOnNpc->mStatus.motionNo);
             ImGui::InputScalar("motionBrendNum", ImGuiDataType_S8, &mpLockOnNpc->mStatus.motionBrendNum);
             ImGui::InputFloat("motSpd", &mpLockOnNpc->mStatus.motSpd);
@@ -501,200 +546,141 @@ void DrawEnemyStats() {
             ImGui::Checkbox("Air Flag", &mpLockOnNpc->mStatus.dmgInfo.m_AirFlag);
             ImGui::SliderFloat("Gravity Acceleration", &mpLockOnNpc->mStatus.dmgInfo.m_GravAccele, 0.0f, 20.0f);
             ImGui::InputScalar("Piyo Request", ImGuiDataType_S8, &mpLockOnNpc->mStatus.dmgInfo.m_PiyoRequest);
-            // ===== Stored Damage (legacy sliders restored) =====
-            ImGui::SliderFloat("Stored Damage", &mpLockOnNpc->mStatus.dmgInfo.storeDamage, 0.0f, 100.0f);
-            ImGui::SliderFloat("Stored Damage Distance", &mpLockOnNpc->mStatus.dmgInfo.storeDamageDst, 0.0f, 100.0f);
 
-            // ===== Stored Damage Popout (Bad Girl / bosses) =====
-            // Put this inside your on_draw_ui() (or equivalent) where ImGui is active.
+// ===== Stored Damage (legacy sliders restored) =====
+            ImGui::SliderFloat("Stored Damage##SD", &mpLockOnNpc->mStatus.dmgInfo.storeDamage, 0.0f, 100.0f);
+            ImGui::SliderFloat("Stored Damage Distance##SD", &mpLockOnNpc->mStatus.dmgInfo.storeDamageDst, 0.0f, 100.0f);
 
-            static bool showSDPopout_TYG = false; // manual toggle
-            ImGui::Checkbox("Stored Damage Popout##TYG", &showSDPopout_TYG);
+            // Stored Damage 
+            if (mpLockOnNpc) {
+                ImGui::PushID((void*)mpLockOnNpc); // unique scope per-NPC
 
-            if (showSDPopout_TYG && mpLockOnNpc) {
-                ImGui::PushID((void*)mpLockOnNpc); // unique scope
+                // Live pulls
+                const float hpMax  = mpLockOnNpc->mStatus.maxHp;
+                const float sdNow  = mpLockOnNpc->mStatus.dmgInfo.storeDamage;
+                const float sdDst  = mpLockOnNpc->mStatus.dmgInfo.storeDamageDst; // percent bar total
+                const int tick     = mpLockOnNpc->mStatus.dmgInfo.restoreDamegeTick;
+                const int tickBase = mpLockOnNpc->mStatus.dmgInfo.restoreDamegeBasicTick;
+                const int daf_now  = mpLockOnNpc->mStatus.DamageAcceptFrame; // lives on mStatus
 
-                // Window
-                ImGuiWindowFlags winFlags = ImGuiWindowFlags_AlwaysAutoResize;
-                if (ImGui::Begin("Stored Damage Tracker##TYG", &showSDPopout_TYG, winFlags)) {
+                const float sdCap    = (hpMax > 0.0f) ? (0.20f * hpMax) : 0.0f; // DAZE threshold
+                const float pctOfDst = (sdDst > 0.0f) ? (100.0f * sdNow / sdDst) : 0.0f;
 
-                    // ---- Live pulls
-                    const float hpMax  = mpLockOnNpc->mStatus.maxHp;
-                    const float sdNow  = mpLockOnNpc->mStatus.dmgInfo.storeDamage;
-                    const float sdDst  = mpLockOnNpc->mStatus.dmgInfo.storeDamageDst; // percent bar total
-                    const int tick     = mpLockOnNpc->mStatus.dmgInfo.restoreDamegeTick;
-                    const int tickBase = mpLockOnNpc->mStatus.dmgInfo.restoreDamegeBasicTick;
+                const ImGuiIO& io = ImGui::GetIO();
 
-                    // FIX: DamageAcceptFrame is on mStatus (not dmgInfo) in your build
-                    const int daf_now = mpLockOnNpc->mStatus.DamageAcceptFrame;
+                // Dazed! banner (rising-edge latch + fade timer)
+                static bool dazedLatched = false;
+                static float dazedTimer  = 0.0f;
 
-                    const float sdCap    = (hpMax > 0.0f) ? (0.20f * hpMax) : 0.0f; // DAZE threshold
-                    const float pctOfDst = (sdDst > 0.0f) ? (100.0f * sdNow / sdDst) : 0.0f;
+                const bool dazedNow = (sdCap > 0.0f && sdNow >= sdCap);
+                if (dazedNow && !dazedLatched) {
+                    dazedLatched = true;
+                    dazedTimer   = 2.0f;
+                }
+                if (dazedTimer > 0.0f) {
+                    dazedTimer -= io.DeltaTime;
+                }
+                if (dazedTimer <= 0.0f) {
+                    dazedTimer   = 0.0f;
+                    dazedLatched = false;
+                }
 
-                    const ImGuiIO& io = ImGui::GetIO();
-
-                    // ---- Dazed! banner (rising-edge latch + fade timer)
-                    static bool dazedLatched = false;
-                    static float dazedTimer  = 0.0f;
-
-                    const bool dazedNow = (sdCap > 0.0f && sdNow >= sdCap);
-                    if (dazedNow && !dazedLatched) {
-                        dazedLatched = true;
-                        dazedTimer   = 2.0f;
-                    }
-                    if (dazedTimer > 0.0f)
-                        dazedTimer -= io.DeltaTime;
-                    if (dazedTimer <= 0.0f) {
-                        dazedTimer   = 0.0f;
-                        dazedLatched = false;
-                    }
-
-                    if (dazedNow || dazedTimer > 0.0f) {
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.95f, 0.30f, 0.30f, 1.0f));
-                        ImGui::TextWrapped("Dazed!");
-                        ImGui::PopStyleColor();
-                    }
-
-                    // ---- Compact stats table
-                    if (ImGui::BeginTable("SDPopStats##TYG", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_BordersInnerV)) {
-                        ImGui::TableSetupColumn("L", ImGuiTableColumnFlags_WidthFixed, 140.0f);
-                        ImGui::TableSetupColumn("R", ImGuiTableColumnFlags_WidthStretch);
-
-                        ImGui::TableNextColumn();
-                        ImGui::TextUnformatted("Bucket");
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%.1f", sdNow);
-
-                        ImGui::TableNextColumn();
-                        ImGui::TextUnformatted("Daze Cap (20%% HP)");
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%.1f", sdCap);
-
-                        ImGui::TableNextColumn();
-                        ImGui::TextUnformatted("Distance (Dst)");
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%.1f", sdDst);
-
-                        ImGui::TableNextColumn();
-                        ImGui::TextUnformatted("Engine Ticks");
-                        ImGui::TableNextColumn();
-                        ImGui::Text("tick=%d  base=%d", tick, tickBase);
-
-                        ImGui::TableNextColumn();
-                        ImGui::TextUnformatted("Enemy DAF");
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%d", daf_now);
-
-                        ImGui::EndTable();
-                    }
-
-                    // ---- Flip likelihood indicator (enemy-side only, with short hysteresis)
-                    static bool assumeGuardable_TYG = true;
-                    static float daf_recent_timer   = 0.0f; // seconds
-                    ImGui::Checkbox("Assume Guardable Hit##TYG", &assumeGuardable_TYG);
-
-                    if (daf_now > 0)
-                        daf_recent_timer = 0.15f; // keep "recently active" for 150ms
-                    else if (daf_recent_timer > 0.0f) {
-                        daf_recent_timer -= io.DeltaTime;
-                        if (daf_recent_timer < 0.0f)
-                            daf_recent_timer = 0.0f;
-                    }
-
-                    const bool guardWindowActive = (daf_now > 0) || (daf_recent_timer > 0.0f);
-                    const bool flipLikely        = guardWindowActive && assumeGuardable_TYG;
-
-                    if (flipLikely) {
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.95f, 0.70f, 0.20f, 1.0f));
-                        ImGui::TextUnformatted("Flip likely");
-                        ImGui::PopStyleColor();
-                    } else {
-                        ImGui::TextUnformatted("Flip unlikely");
-                    }
-
-                    // ---- Progress vs Distance (your requested reference)
-                    float progressDst = (sdDst > 0.0f) ? (sdNow / sdDst) : 0.0f;
-                    if (progressDst < 0.0f)
-                        progressDst = 0.0f;
-                    if (progressDst > 1.0f)
-                        progressDst = 1.0f;
-
-                    ImVec4 col = (progressDst >= 0.80f)   ? ImVec4(0.80f, 0.20f, 0.20f, 1.0f)
-                                 : (progressDst >= 0.50f) ? ImVec4(0.85f, 0.70f, 0.15f, 1.0f)
-                                                          : ImVec4(0.20f, 0.70f, 0.25f, 1.0f);
-                    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, col);
-                    char overlay[64];
-                    snprintf(overlay, sizeof(overlay), "%.1f%% of Distance", pctOfDst);
-                    ImGui::ProgressBar(progressDst, ImVec2(280, 0), overlay);
+                if (dazedNow || dazedTimer > 0.0f) {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.95f, 0.30f, 0.30f, 1.0f));
+                    ImGui::TextWrapped("Dazed!##SD");
                     ImGui::PopStyleColor();
+                }
 
-                    // ---- Decay measurement (per-sec / per-frame)
-                    static float sdPrev = -1.0f;
-                    static double tWin  = 0.0;
-                    static float decWin = 0.0f;
-                    static float ratePS = 0.0f;
+                // ---- Compact stats table
+                if (ImGui::BeginTable("SDPopStats##SD", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_BordersInnerV)) {
+                    ImGui::TableSetupColumn("L", ImGuiTableColumnFlags_WidthFixed, 140.0f);
+                    ImGui::TableSetupColumn("R", ImGuiTableColumnFlags_WidthStretch);
 
-                    float dt = io.DeltaTime;
-                    if (sdPrev < 0.0f)
-                        sdPrev = sdNow;
-                    float d = sdPrev - sdNow; // positive when decaying
-                    if (dt > 0.0f) {
-                        tWin += dt;
-                        if (d > 0.0f)
-                            decWin += d;
-                        if (tWin >= 0.25f) {
-                            ratePS = (tWin > 0.0f) ? (decWin / (float)tWin) : 0.0f;
-                            tWin   = 0.0;
-                            decWin = 0.0f;
-                        }
-                    }
+                    ImGui::TableNextColumn();
+                    ImGui::TextUnformatted("Bucket##SD");
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%.1f", sdNow);
+
+                    ImGui::TableNextColumn();
+                    ImGui::TextUnformatted("Daze Cap (20% HP)##SD");
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%.1f", sdCap);
+
+                    ImGui::TableNextColumn();
+                    ImGui::TextUnformatted("Distance (Dst)##SD");
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%.1f", sdDst);
+
+                    ImGui::TableNextColumn();
+                    ImGui::TextUnformatted("Engine Ticks##SD");
+                    ImGui::TableNextColumn();
+                    ImGui::Text("tick=%d  base=%d", tick, tickBase);
+
+                    ImGui::TableNextColumn();
+                    ImGui::TextUnformatted("Enemy DAF##SD");
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%d", daf_now);
+
+                    ImGui::EndTable();
+                }
+
+                // ---- Progress vs Distance (reference)
+                float progressDst = (sdDst > 0.0f) ? (sdNow / sdDst) : 0.0f;
+                if (progressDst < 0.0f)
+                    progressDst = 0.0f;
+                if (progressDst > 1.0f)
+                    progressDst = 1.0f;
+
+                ImVec4 col = (progressDst >= 0.80f)   ? ImVec4(0.80f, 0.20f, 0.20f, 1.0f)
+                             : (progressDst >= 0.50f) ? ImVec4(0.85f, 0.70f, 0.15f, 1.0f)
+                                                      : ImVec4(0.20f, 0.70f, 0.25f, 1.0f);
+                ImGui::PushStyleColor(ImGuiCol_PlotHistogram, col);
+                char overlay[64];
+                snprintf(overlay, sizeof(overlay), "%.1f%% of Distance", pctOfDst);
+                ImGui::ProgressBar(progressDst, ImVec2(280, 0), overlay);
+                ImGui::PopStyleColor();
+
+                // ---- Decay measurement (per-sec / per-frame)
+                static float sdPrev = -1.0f;
+                static double tWin  = 0.0;
+                static float decWin = 0.0f;
+                static float ratePS = 0.0f;
+
+                float dt = io.DeltaTime;
+                if (sdPrev < 0.0f)
                     sdPrev = sdNow;
-
-                    float fps    = (io.Framerate > 0.0f) ? io.Framerate : 60.0f;
-                    float ratePF = (ratePS > 0.0f) ? (ratePS / fps) : 0.0f;
-                    float eta    = (ratePS > 0.0f) ? (sdNow / ratePS) : -1.0f;
-
-                    if (ImGui::BeginTable("SDPopRates##TYG", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_BordersInnerV)) {
-                        ImGui::TableSetupColumn("L", ImGuiTableColumnFlags_WidthFixed, 140.0f);
-                        ImGui::TableSetupColumn("R", ImGuiTableColumnFlags_WidthStretch);
-
-                        ImGui::TableNextColumn();
-                        ImGui::TextUnformatted("Decay");
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%.2f /sec  (%.4f /frame @ %.0f FPS)", ratePS, ratePF, fps);
-
-                        ImGui::TableNextColumn();
-                        ImGui::TextUnformatted("Time To Zero");
-                        ImGui::TableNextColumn();
-                        if (eta >= 0.0f)
-                            ImGui::Text("%.2f s", eta);
-                        else
-                            ImGui::TextUnformatted("collecting...");
-
-                        ImGui::EndTable();
-                    }
-
-                    // ---- History sparkline
-                    {
-                        static float hist[256] = {0};
-                        static int head        = 0;
-                        hist[head]             = sdNow;
-                        head                   = (head + 1) & 255;
-
-                        static float plotBuf[256];
-                        for (int i = 0; i < 256; ++i) {
-                            int idx    = (head + i) & 255;
-                            plotBuf[i] = hist[idx];
-                        }
-                        ImGui::TextUnformatted("History##TYG");
-                        ImGui::PlotLines("##SDSparkPopTYG", plotBuf, 256, 0, nullptr, 0.0f,
-                            (sdDst > 0.0f ? sdDst : (sdCap > 0.0f ? sdCap : 1.0f)), ImVec2(280, 48));
+                float d = sdPrev - sdNow; // positive when decaying
+                if (dt > 0.0f) {
+                    tWin += dt;
+                    if (d > 0.0f)
+                        decWin += d;
+                    if (tWin >= 0.25f) {
+                        ratePS = (tWin > 0.0f) ? (decWin / (float)tWin) : 0.0f;
+                        tWin   = 0.0;
+                        decWin = 0.0f;
                     }
                 }
-                ImGui::End(); // Stored Damage Tracker
-                ImGui::PopID();
+                sdPrev = sdNow;
+
+                float fps    = (io.Framerate > 0.0f) ? io.Framerate : 60.0f;
+                float ratePF = (ratePS > 0.0f) ? (ratePS / fps) : 0.0f;
+
+                if (ImGui::BeginTable("SDPopRates##SD", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_BordersInnerV)) {
+                    ImGui::TableSetupColumn("L", ImGuiTableColumnFlags_WidthFixed, 140.0f);
+                    ImGui::TableSetupColumn("R", ImGuiTableColumnFlags_WidthStretch);
+
+                    ImGui::TableNextColumn();
+                    ImGui::TextUnformatted("Decay##SD");
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%.2f /sec  (%.4f /frame @ %.0f FPS)", ratePS, ratePF, fps);
+
+                    ImGui::EndTable();
+                }
+
+                ImGui::PopID(); // end per-NPC scope
             }
-            ImGui::InputScalar("Bike Dead Request", ImGuiDataType_S8, &mpLockOnNpc->mStatus.dmgInfo.m_BikeDeadRequest);
+            ImGui::InputScalar("Bike Dead Request##SD", ImGuiDataType_S8, &mpLockOnNpc->mStatus.dmgInfo.m_BikeDeadRequest);
+
         }
         ImGui::TreePop();
     }
