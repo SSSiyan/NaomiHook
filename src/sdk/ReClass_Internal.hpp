@@ -3167,7 +3167,7 @@ enum RandKey
   AButton = 2,
   NonKey = 3,
 };
-  /* 0x0000 */ char Padding_0[0x3f8];
+  /* 0x0000 */ long Padding_1558[0x3f8];
   /* 0x03f8 */ struct Vec m_HolePos[14];
   /* 0x04a0 */ enum HRSFF::HoleState m_HoleState[14];
   /* 0x04d8 */ struct Vec m_SafePos[6];
@@ -3449,7 +3449,7 @@ enum DemoEnum
   DragonC = 3,
 };
 
-  /* 0x0000 */ char Padding_1609[0x3f8];
+  /* 0x0000 */ long Padding_1609[254];
   /* 0x03f8 */ int m_ActionMode;
   /* 0x03fc */ float m_ActionTime;
   /* 0x0400 */ float m_RandTime;
