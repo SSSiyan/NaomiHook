@@ -62,6 +62,7 @@ namespace nmh_sdk {
     void SetStage(const char* _StgName, int _StgAdd, int _Arg1, int _Arg2, bool inBossInfoDisp, int inFadeType, __int64 inSetVolRate, bool inPause, unsigned int a10) {
         uintptr_t setStageAddress = (g_framework->get_module().as<uintptr_t>() + 0x3FD690);
         setStageFunc setStage = (setStageFunc)setStageAddress;
+        TermAllNPC(); // remove all NPCs before changing stage
         // jump to stage
         if (CBgCtrl* cBgCtrl = get_CBgCtrl()) {
             setStage(cBgCtrl, _StgName, _StgAdd, _Arg1, _Arg2, inBossInfoDisp, inFadeType, inSetVolRate, inPause, a10);
@@ -392,6 +393,20 @@ namespace nmh_sdk {
             return getAtkNo(mHRPc, inMotionNo);
         }
         return 0;
+    }
+
+    void TermStageChange(mHRPc* mHRPc) {
+        uintptr_t termStageChangeAddr      = (g_framework->get_module().as<uintptr_t>() + 0x3E1520);
+        mTermStageChangeFunc termStageChange = (mTermStageChangeFunc)termStageChangeAddr;
+        if (mHRPc) {
+            termStageChange(mHRPc);
+        }
+    }
+
+    bool TermAllNPC() {
+        uintptr_t termAllNpcAddr = (g_framework->get_module().as<uintptr_t>() + 0x404560);
+        mTermAllNpcFunc termAllNpc = (mTermAllNpcFunc)termAllNpcAddr;
+        return termAllNpc();
     }
 
     // Spawn enemies

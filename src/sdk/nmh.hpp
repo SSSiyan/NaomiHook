@@ -86,4 +86,9 @@ namespace nmh_sdk {
 	TGan* GetAtkMotPtr(mHRPc* mHRPc, int inMotNo);
 	int GetAtkNo(mHRPc* mHRPc, int inMotionNo);
     typedef int (__thiscall* mGetAtkNoFunc)(mHRPc* mHRPc, int inMotionNo);
-};
+
+	typedef bool(__thiscall* mTermStageChangeFunc)(mHRPc* mHRPc);
+    void TermStageChange(mHRPc* mHRPc);
+	typedef bool(__thiscall* mTermAllNpcFunc)();
+    bool TermAllNPC();
+    };
