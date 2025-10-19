@@ -409,6 +409,12 @@ namespace nmh_sdk {
         return termAllNpc();
     }
 
+    void KillNPC(mHRChara* npc) {
+        uintptr_t killNpcAddr = (g_framework->get_module().as<uintptr_t>() + 0x3FE710); 
+        mKillNPCFunc killNpc  = (mKillNPCFunc)killNpcAddr;
+        killNpc(npc);
+    }
+
     // Spawn enemies
     int setInitNpcDat(int inResNo, enCharaType inChType, int inRepop, const Vec* inPos, const Vec* inRot, enPopReqType inPopType, bool inDisEnableCollision) {
         uintptr_t mSetInitNpcDatAddress = (g_framework->get_module().as<uintptr_t>() + 0x3B6B30);

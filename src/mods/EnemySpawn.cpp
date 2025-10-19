@@ -161,6 +161,16 @@ void EnemySpawn::on_draw_ui() {
             nmh_sdk::setInitNpcDat(inResNo, (enCharaType)inChType, inRepop, &inPos, &inRot, (enPopReqType)inPopType, inDisEnableCollision);
     }
     if (ImGui::IsItemHovered()) EnemySpawn::hoveredDescription = "Spawn an enemy with the above parameters";
+
+    if (ImGui::Button("Kill Locked On Enemy")) {
+        mHRPc* player = nmh_sdk::get_mHRPc();
+        if (player) {
+            mHRChara* lockOnTarget = player->mpLockOnNpc;
+            if (lockOnTarget) {
+                nmh_sdk::KillNPC(lockOnTarget);
+            }
+        }
+    }
 }
 
 // during load

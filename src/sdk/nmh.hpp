@@ -91,4 +91,6 @@ namespace nmh_sdk {
     void TermStageChange(mHRPc* mHRPc);
 	typedef bool(__thiscall* mTermAllNpcFunc)();
     bool TermAllNPC();
+    typedef void(__thiscall* mKillNPCFunc)(mHRChara* npc); //mHRChara::mSetDeath
+    void KillNPC(mHRChara* npc);
     };
