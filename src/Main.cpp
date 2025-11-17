@@ -4,6 +4,7 @@
 #include "ModFramework.hpp"
 
 #include "utility/ExceptionHandler.hpp"
+#include "utility/Thread.hpp"
 
 #include "mods/ResolutionScaleFix.hpp"
 #include "mods/ShaderEdit.hpp"
@@ -70,12 +71,7 @@ BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
 #ifndef NDEBUG
         MessageBox(NULL, "Debug attach opportunity", "NMH1", MB_ICONINFORMATION);
 #endif
-        // Load NMHFix if it's not already
-        HMODULE nmhfix_handle = GetModuleHandleA("NMHFix");
-        if(!nmhfix_handle) {
-            g_nmhfix_handle = LoadLibraryA("NMHFix.asi");
-        }
-        CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)startup_thread, nullptr, 0, nullptr);
+        std::queue<DWORD> threads = utility::suspend_all_other_threads();
         g_dpi_fix_mod = new ResolutionScaleFix();
         auto maybe_error = g_dpi_fix_mod->on_initialize();
         if (maybe_error.has_value()) {
@@ -91,6 +87,14 @@ BOOL APIENTRY DllMain(HMODULE handle, DWORD reason, LPVOID reserved) {
             sprintf(buffer, "Failed to initialize ResoultionScaleFix: %s", maybe_error.value().c_str() );
             MessageBox(NULL, buffer, "NMH1", MB_ICONINFORMATION);
         }
+        utility::resume_threads(threads);
+
+        // Load NMHFix if it's not already
+        HMODULE nmhfix_handle = GetModuleHandleA("NMHFix");
+        if (!nmhfix_handle) {
+            g_nmhfix_handle = LoadLibraryA("NMHFix.asi");
+        }
+        CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)startup_thread, nullptr, 0, nullptr);
 
     }
     if (reason == DLL_PROCESS_DETACH) {

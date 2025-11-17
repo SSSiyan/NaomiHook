@@ -139,6 +139,7 @@ set(UTILITY_SRC
 
 
 set(IMGUI_SRC
+    fw-imgui/RadialBlurAnim.cpp
     fw-imgui/SwordsTextureAtlas.cpp
     fw-imgui/SwordSwitchAtlas.cpp
     fw-imgui/StageWarpAtlas.cpp

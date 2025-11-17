@@ -1,7 +1,8 @@
 #include "ShaderEdit.hpp"
 #include "SwordColours.hpp"
-#include <atomic>
 #include <d3dcompiler.h>
+
+#define BLENDOR_SYNC 0
 
 const ModToggle::Ptr g_mod_enabled{ModToggle::create("shader_edit_swap_shader_toggle", false)};
 
@@ -12,44 +13,40 @@ struct CompileTimeShaderDefines {
     int radial_blur_samples;
     bool radial_blur_speed_lines;
     float radial_blur_speed_lines_factor;
+    float radial_blur_strength_pixels;
 };
 
 static CompileTimeShaderDefines g_comptime_shader_defs{
-#ifndef NDEBUG
     .disable_cc                     = false,
     .contrast_fix                   = true,
     .radial_blur_fix                = true,
     .radial_blur_samples            = 12,
     .radial_blur_speed_lines        = true,
     .radial_blur_speed_lines_factor = 0.17f,
-#else
-    0
-#endif
+    .radial_blur_strength_pixels    = 160.0f,
 };
 
 static int recreate_shader(ID3D11Device* device, CompileTimeShaderDefines& defs);
 static ID3D11Device* g_d3d11_device{NULL};
 
 inline const uint32_t hash_32_fnv1a(const void* key, const uint32_t len) {
-    const char* data = (const char*)key;
+
+    const char* data = (char*)key;
     uint32_t hash    = 0x811c9dc5;
     uint32_t prime   = 0x1000193;
+
     for (uint32_t i = 0; i < len; ++i) {
-        uint8_t value = (uint8_t)data[i];
+        uint8_t value = data[i];
         hash          = hash ^ value;
         hash *= prime;
     }
-    return hash;
-}
 
-/* ===========================================================
-   Replacement HLSL (ASCII safe)
-   Adds:
-     - kFx (0..1) master intensity
-     - runtime CA toggle via kChromaOn (0/1)
-     - derives strength/mix/speedlines from base values
-   =========================================================== */
-static const char* replace_test = R"(// ---- 3Dmigoto template (with kFx + CA toggle)
+    return hash;
+
+} // hash_32_fnv1a
+
+static const char* replace_test = R"(
+// ---- Created with 3Dmigoto v1.3.16 on Tue Aug 19 17:26:44 2025
 
 cbuffer PixelShaderConsts : register(b0)
 {
@@ -68,27 +65,18 @@ cbuffer ContrastCB : register(b1)
     float4 kSMHDarkening;
 }
 
-/* b2 layout (16-byte packing):
-   12 floats (48 bytes) + float3 (12) = 64 bytes total
-*/
 cbuffer RadialUserCB : register(b2)
 {
-    float kStrengthBase;      // c0.x
-    float kChroma;            // c0.y  (amount when CA is on)
-    float kInner;             // c0.z
-    float kOuter;             // c0.w
-
-    float kFalloff;           // c1.x
-    float kMixBase;           // c1.y
-    float kTwistDeg;          // c1.z
-    float kTime;              // c1.w
-
-    float kSpeedLinesBase;    // c2.x
-    float kFx;                // c2.y (0..1)
-    float kChromaOn;          // c2.z (0/1)
-    float _pad0;              // c2.w
-
-    float3 kSpeedLinesColor;  // c3.xyz
+    float kStrengthPx; // pixels at outer radius
+    float kChroma;
+    float kInner;
+    float kOuter;
+    float kFalloff;
+    float kMix;
+    float kTwistDeg;
+    float kTime;
+    float kSpeedLinesScale;
+    float3 kSpeedLinesColor;
 }
 
 SamplerState texSampler0_s : register(s0);
@@ -98,17 +86,24 @@ Texture2D<float4> tex0 : register(t0);
 Texture2D<float4> tex1 : register(t1);
 Texture2D<float4> tex2 : register(t2);
 
-static const float kGammaOn = 1.0;
-static const float kGamma = 1.0;
+// Gamma controls (shared toggle)
+static const float kGammaOn = 1.0; // 0 or 1
+static const float kGamma = 1.0; // 0.1..3.0
 static const float2 kCenterUV = float2(0.5,0.5);
 
+// Compile-time sample count
+
 #define DISABLE_CC %d
+
 #define CONTRAST_FIX %d
+
 #define RADIAL_BLUR_FIX %d
 #define RADIAL_BLUR_SAMPLES %d
+
 #define ANIME_SPEED_LINES %d
 #define ANIME_SPEED_BLOOM %f
 
+// 3Dmigoto declarations
 #define cmp -
 
 #if ANIME_SPEED_LINES
@@ -123,11 +118,14 @@ float snoise2D(float2 x)
 {
     float2 i = floor(x);
     float2 f = frac(x);
+
     float a = hash21(i);
     float b = hash21(i + float2(1.0, 0.0));
     float c = hash21(i + float2(0.0, 1.0));
     float d = hash21(i + float2(1.0, 1.0));
+
     float2 u = f * f * (3.0 - 2.0 * f);
+
     return lerp(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
@@ -161,40 +159,46 @@ float radial_noise(float t, float d)
 float3 colorize(float x)
 {
     x = clamp(x, 0.0, 1.0);
-    float3 c = kSpeedLinesColor.rgb;
+    float3 c = float3(0.78, 0.78, 0.78); //kSpeedLinesColor.rgb;
     c = lerp(c, float3(1.0, 1.0, 1.0), x * 4.0 - 3.0) * x;
     c = max(c, float3(0.0, 0.0, 0.0));
     c = lerp(c, float3(1.0, 0.25, 1.0), smoothstep(1.0, 0.2, x) * smoothstep(0.15, 0.9, x));
-    return c;
+    return c * kSpeedLinesColor.rgb;
 }
 
-float3 speed_lines(float2 uv, float slScale)
+float3 speed_lines(float2 uv)
 {
     float d = dot(uv, uv);
     float t = atan2(uv.y, uv.x) / 6.28318530718;
     float v = radial_noise(t, d);
     v = v * 2.5 - 1.4;
-    v = lerp(0.0, v, 0.8 * smoothstep(0.0, 2.7, d) * slScale);
+    v = lerp(0.0, v, 0.8 * smoothstep(0.0, 2.7, d) * kSpeedLinesScale);
     return colorize(v);
 }
 #endif
 
 #if RADIAL_BLUR_FIX
+
 float2 rot2(float2 v, float a)
 {
     float s = sin(a), c = cos(a);
     return float2(c * v.x - s * v.y, s * v.x + c * v.y);
 }
-
-float4 radial_blur(float2 uvs, float strengthPx, float mixVal)
+#if !(DISABLE_CC)
+// can't pass texture here i think so have to do this cringe
+float4 radial_blur_bw(float2 uvs)
 {
     float2 uv = uvs;
-    float4 base = tex0.Sample(texSampler0_s, uv);
 
+    // Base color
+    float4 base = tex1.Sample(texSampler0_s, uv);
+
+    // Estimate texel size from derivatives (fullscreen triangle should give 1/width,1/height)
     float2 dudx = ddx(uv);
     float2 dudy = ddy(uv);
     float texel = max((abs(dudx.x) + abs(dudy.y)) * 0.5, 1e-6);
 
+    // Compute radial info
     float2 toC = uv - kCenterUV;
     float r = length(toC);
     float r01 = 0.0;
@@ -204,16 +208,25 @@ float4 radial_blur(float2 uvs, float strengthPx, float mixVal)
     }
     else
     {
-        r01 = 1.0;
+        r01 = 1.0; // if outer == inner, apply everywhere
     }
 
     float2 dir = (r > 1e-6) ? (toC / r) : float2(0.0, 0.0);
-    float angTotal = radians(kTwistDeg) * r01;
-    float stepUV = strengthPx * texel * r01;
+    //float2 st = float2(atan2(dir.x, dir.y), length(dir.y));
+    //float c = frac( sin( * 100.0) * 5670.0);
+    //return float4(c.xxxx);
 
+    // Twist grows toward edge
+    float angTotal = radians(kTwistDeg) * r01;
+
+    // Convert pixel strength to UV and scale by r01 so it is zero at center band
+    float stepUV = kStrengthPx * texel * r01;
+
+    // Accumulate taps
     float3 acc = 0.0.xxx;
     float wsum = 0.0;
 
+    // Include the base pixel to keep energy stable
     float baseW = pow(1.0 - 0.0, kFalloff);
     acc += base.rgb * baseW;
     wsum += baseW;
@@ -221,37 +234,117 @@ float4 radial_blur(float2 uvs, float strengthPx, float mixVal)
     [unroll]
     for (int i = 1; i <= RADIAL_BLUR_SAMPLES; ++i)
     {
-        float t = (float)i / (float)RADIAL_BLUR_SAMPLES;
-        float w = pow(1.0 - t, kFalloff);
-        float a = angTotal * t;
+        float t = (float) i / (float) RADIAL_BLUR_SAMPLES; // 0..1
+        float w = pow(1.0 - t, kFalloff); // near center gets more weight
+        float a = angTotal * t; // progressive twist
+
         float2 stepDir = rot2(dir, a);
         float2 ofs = stepDir * stepUV * t;
 
-        if (kChromaOn > 0.5)
-        {
-            float2 uvR = uv + ofs * (1.0 + kChroma);
-            float2 uvG = uv + ofs;
-            float2 uvB = uv + ofs * (1.0 - kChroma);
+        float2 uvR = uv + ofs;
+        float2 uvG = uv + ofs;
+        float2 uvB = uv + ofs;
 
-            float3 s;
-            s.r = tex0.Sample(texSampler0_s, uvR).r;
-            s.g = tex0.Sample(texSampler0_s, uvG).g;
-            s.b = tex0.Sample(texSampler0_s, uvB).b;
+        float3 s;
+        s.r = tex1.Sample(texSampler0_s, uvR).r;
+        s.g = tex1.Sample(texSampler0_s, uvG).g;
+        s.b = tex1.Sample(texSampler0_s, uvB).b;
 
-            acc += s * w;
-        }
-        else
-        {
-            float3 s = tex0.Sample(texSampler0_s, uv + ofs).rgb;
-            acc += s * w;
-        }
-
+        acc += s * w;
         wsum += w;
     }
 
     float3 blur = acc / max(wsum, 1e-6);
-    float3 outRGB = lerp(base.rgb, blur, saturate(mixVal) * r01);
 
+    // Screen-space mix with original, scaled by r01 (fade toward center band)
+    float3 outRGB = lerp(base.rgb, blur, saturate(kMix) * r01);
+
+    // Optional gamma after effect
+    if (kGammaOn > 0.5)
+    {
+        float g = max(kGamma, 1e-3);
+        outRGB = pow(saturate(outRGB), 1.0 / g);
+    }
+
+    return float4(outRGB, base.a);
+}
+#endif
+
+float4 radial_blur_rgb(float2 uvs)
+{
+    float2 uv = uvs;
+
+    // Base color
+    float4 base = tex0.Sample(texSampler0_s, uv);
+
+    // Estimate texel size from derivatives (fullscreen triangle should give 1/width,1/height)
+    float2 dudx = ddx(uv);
+    float2 dudy = ddy(uv);
+    float texel = max((abs(dudx.x) + abs(dudy.y)) * 0.5, 1e-6);
+
+    // Compute radial info
+    float2 toC = uv - kCenterUV;
+    float r = length(toC);
+    float r01 = 0.0;
+    if (kOuter > kInner + 1e-6)
+    {
+        r01 = saturate((r - kInner) / (kOuter - kInner));
+    }
+    else
+    {
+        r01 = 1.0; // if outer == inner, apply everywhere
+    }
+
+    float2 dir = (r > 1e-6) ? (toC / r) : float2(0.0, 0.0);
+    //float2 st = float2(atan2(dir.x, dir.y), length(dir.y));
+    //float c = frac( sin( * 100.0) * 5670.0);
+    //return float4(c.xxxx);
+
+    // Twist grows toward edge
+    float angTotal = radians(kTwistDeg) * r01;
+
+    // Convert pixel strength to UV and scale by r01 so it is zero at center band
+    float stepUV = kStrengthPx * texel * r01;
+
+    // Accumulate taps
+    float3 acc = 0.0.xxx;
+    float wsum = 0.0;
+
+    // Include the base pixel to keep energy stable
+    float baseW = pow(1.0 - 0.0, kFalloff);
+    acc += base.rgb * baseW;
+    wsum += baseW;
+
+    [unroll]
+    for (int i = 1; i <= RADIAL_BLUR_SAMPLES; ++i)
+    {
+        float t = (float) i / (float) RADIAL_BLUR_SAMPLES; // 0..1
+        float w = pow(1.0 - t, kFalloff); // near center gets more weight
+        float a = angTotal * t; // progressive twist
+
+        float2 stepDir = rot2(dir, a);
+        float2 ofs = stepDir * stepUV * t;
+
+        // Chromatic fringing: slight per-channel radius difference
+        float2 uvR = uv + ofs * (1.0 + kChroma);
+        float2 uvG = uv + ofs;
+        float2 uvB = uv + ofs * (1.0 - kChroma);
+
+        float3 s;
+        s.r = tex0.Sample(texSampler0_s, uvR).r;
+        s.g = tex0.Sample(texSampler0_s, uvG).g;
+        s.b = tex0.Sample(texSampler0_s, uvB).b;
+
+        acc += s * w;
+        wsum += w;
+    }
+
+    float3 blur = acc / max(wsum, 1e-6);
+
+    // Screen-space mix with original, scaled by r01 (fade toward center band)
+    float3 outRGB = lerp(base.rgb, blur, saturate(kMix) * r01);
+
+    // Optional gamma after effect
     if (kGammaOn > 0.5)
     {
         float g = max(kGamma, 1e-3);
@@ -263,34 +356,49 @@ float4 radial_blur(float2 uvs, float strengthPx, float mixVal)
 #endif
 
 #if CONTRAST_FIX
+
 float luminance(float3 color) {
     return dot(color, float3(0.299, 0.587, 0.114));
 }
+
 float3 adjustLevels(float3 color, float shadow, float midtone, float highlight) {
     float lum = luminance(color);
     float3 result = color;
+
+    // Shadows
     if (lum < 0.333) {
         float factor = smoothstep(0.0, 0.333, lum);
         factor = lerp(shadow, 1.0, factor);
         result *= factor;
-    } else if (lum < 0.666) {
+    }
+    // Midtones
+    else if (lum < 0.666) {
         float factor = smoothstep(0.333, 0.666, lum);
         factor = lerp(midtone, 1.0, factor);
         result *= factor;
-    } else {
+    }
+    // Highlights
+    else {
         float factor = smoothstep(0.666, 1.0, lum);
         factor = lerp(highlight, 1.0, factor);
         result *= factor;
     }
     return result;
 }
+
 float3 contrast_fix_cc(float3 col)
 {
+    // Apply per-channel contrast
     float3 contrast = kContrast.xyz;
     col.rgb = (col.rgb - 0.5) * contrast + 0.5;
+
+    // Apply saturation
     float gray = luminance(col.rgb);
     col.rgb = lerp(float3(gray, gray, gray), col.rgb, kContrast.w);
+
+    // Apply shadows, midtones, highlights darkening
     col.rgb = adjustLevels(col.rgb, kSMHDarkening.r, kSMHDarkening.g, kSMHDarkening.b);
+
     return col;
 }
 #endif
@@ -309,30 +417,28 @@ void main(
     uint4 bitmask, uiDest;
     float4 fDest;
 
-    // Derive per-frame values from base + kFx
-    float fx01 = saturate(kFx);
-    float strengthPx = kStrengthBase * pow(fx01, 0.8);
-    float mixVal     = kMixBase * smoothstep(0.0, 1.0, fx01);
-    float slScale    = kSpeedLinesBase * smoothstep(0.15, 0.85, fx01);
-
 #if DISABLE_CC
+
     r0.w = cmp(v3.z != 0.000000);
     r1.xy = v3.xy / v3.zz;
     r1.xy = r0.ww ? r1.xy : v3.xy;
     float2 uv = r1.xy;
 
 #if RADIAL_BLUR_FIX
-    r1.xyz = radial_blur(uv, strengthPx, mixVal).xyz;
+    // radial blur
+    r1.xyz = radial_blur_rgb(r1.xy).xyz;
 #else
-    r1.xyz = tex0.Sample(texSampler0_s, uv).xyz;
+    r1.xyz = tex0.Sample(texSampler0_s, r1.xy).xyz;
 #endif
 
 #if CONTRAST_FIX
+    // contrast fix
     r1.xyz = contrast_fix_cc(r1.xyz);
 #endif
 
 #if ANIME_SPEED_LINES
-    float3 sl = speed_lines(uv - 0.5, slScale);
+    // speed lines
+    float3 sl = speed_lines(uv - 0.5);
     r1.xyz += sl;
 #endif
 
@@ -341,24 +447,29 @@ void main(
     o1.w = saturate(konstColor[0].w);
     return;
 #else
+
     r0.x = cmp(v4.z != 0.000000);
     r0.yz = v4.xy / v4.zz;
     r0.xy = r0.xx ? r0.yz : v4.xy;
+#if RADIAL_BLUR_FIX
+    r0.xyz = radial_blur_bw(r0.xy).xyz;
+#else
     r0.xyz = tex1.Sample(texSampler1_s, r0.xy).xyz;
+#endif
     r0.xyz = saturate(konstColor[0].xyz * r0.xyz);
     r0.xyz = konstColor[0].www * r0.xyz;
     r0.w = cmp(v3.z != 0.000000);
     r1.xy = v3.xy / v3.zz;
     r1.xy = r0.ww ? r1.xy : v3.xy;
     float2 uv = r1.xy;
-
 #if RADIAL_BLUR_FIX
-    r1.xyz = radial_blur(uv, strengthPx, mixVal).xyz;
+    r1.xyz = radial_blur_rgb(uv).xyz;
 #else
-    r1.xyz = tex0.Sample(texSampler0_s, uv).xyz;
+    r1.xyz = tex0.Sample(texSampler0_s, r1.xy).xyz;
 #endif
 
 #if CONTRAST_FIX
+    // contrast fix
     r1.xyz = contrast_fix_cc(r1.xyz);
 #endif
 
@@ -374,10 +485,13 @@ void main(
     o0.xyz = saturate(r0.xyz * r0.www + r1.xyz);
 
 #if ANIME_SPEED_LINES
-    float3 sl = speed_lines(uv - 0.5, slScale);
+    // speed lines
+    float3 sl = speed_lines(uv - 0.5);
     o0.xyz += sl;
 #endif
-
+    // radial blur
+    //r0.xyz = radial_blur_rgb(v3.xy).xyz;
+    //o0.xyz = lerp(r0.xyz, o0.xyz, 0.0);
     o0.w = misc.x;
     o1.xyz = float3(0.0, 0.0, 0.0);
     o1.w = saturate(konstColor[0].w);
@@ -386,26 +500,31 @@ void main(
 }
 )";
 
-/* ===========================================================
-   Engine hooks (same as before)
-   =========================================================== */
 static std::unique_ptr<FunctionHook> g_pipeline_create_shader_hook;
 
-static ID3D11PixelShader* g_paper_cc_pixel_shader_game = nullptr;
-static ID3D11PixelShader* g_paper_cc_pixel_shader_ours = nullptr;
+static ID3D11PixelShader* g_paper_cc_pixel_shader_game;
+static ID3D11PixelShader* g_paper_cc_pixel_shader_ours;
 
 HRESULT __stdcall d3d11_create_ps(ID3D11Device* device, const void* pshader_bytecode, SIZE_T bytecode_length,
     ID3D11ClassLinkage* p_class_linkage, ID3D11PixelShader** p_pixel_shader_out) {
     if (bytecode_length == 2384) {
-        std::uint32_t hash = hash_32_fnv1a(pshader_bytecode, (uint32_t)bytecode_length);
-        spdlog::info("[ShaderEdit] CreatePixelShader hash=%u", hash);
-        if (hash == 0x52BFE5DF) {
-            (void)recreate_shader(device, g_comptime_shader_defs);
-            HRESULT ret = device->CreatePixelShader(pshader_bytecode, bytecode_length, p_class_linkage, p_pixel_shader_out);
-            g_paper_cc_pixel_shader_game = (*p_pixel_shader_out);
-            return ret;
+
+        std::uint32_t hash = hash_32_fnv1a(pshader_bytecode, bytecode_length);
+        spdlog::info("[ShaderEdit]: [CreatePixelShader] shader hashed to {}\n", hash);
+        if (hash != 0x52BFE5DF) {
+            goto early_exit;
         }
+
+        int sret = recreate_shader(device, g_comptime_shader_defs);
+        if (sret < 0) {
+            spdlog::error("[ShaderEdit]: Failed to create our replacement shader!");
+        }
+        HRESULT ret                  = device->CreatePixelShader(pshader_bytecode, bytecode_length, p_class_linkage, p_pixel_shader_out);
+        g_paper_cc_pixel_shader_game = (*p_pixel_shader_out);
+        return ret;
     }
+
+early_exit:
     return device->CreatePixelShader(pshader_bytecode, bytecode_length, p_class_linkage, p_pixel_shader_out);
 }
 
@@ -420,110 +539,101 @@ naked void pipeline_cache_create_ps_detour() {
 }
 // clang-format on
 
-/* ===========================================================
-   Constant buffers and runtime data
-   =========================================================== */
 static ID3D11Buffer* g_radial_cb = nullptr;
 static ID3D11Buffer* g_ccsfix_cb = nullptr;
 
 class RadialCB {
 public:
-    // Base values the shader scales by kFx
-    float kStrengthBase; // 0x00
-    float kChroma;       // 0x04
-    float kInner;        // 0x08
-    float kOuter;        // 0x0C
-
-    float kFalloff;  // 0x10
-    float kMixBase;  // 0x14
-    float kTwistDeg; // 0x18
-    float kTime;     // 0x1C
-
-    float kSpeedLinesBase; // 0x20
-    float kFx;             // 0x24
-    float kChromaOn;       // 0x28   // 0 or 1
-    float _pad0;           // 0x2C   // align to 16
-
-    glm::vec3 kSpeedLinesColor; // 0x30
-};                              // total 0x3C, but D3D cbuffer rounds up to 0x40
-static_assert(sizeof(RadialCB) == 0x3C || sizeof(RadialCB) == 0x40, "RadialCB layout");
-static RadialCB g_radial_cb_data{};
+    float kStrengthPx;          // 0x0000
+    float kChroma;              // 0x0004
+    float kInner;               // 0x0008
+    float kOuter;               // 0x000C
+    float kFalloff;             // 0x0010
+    float kMix;                 // 0x0014
+    float kTwistDeg;            // 0x0018
+    float kTime;                // 0x001C
+    float kSpeedLinesScale;     // 0x0020
+    glm::vec3 kSpeedLinesColor; // 0x0024
+}; // Size: 0x0030
+static_assert(sizeof(RadialCB) == 0x30);
 
 struct ContrastCB {
-    glm::vec4 kContrast;
-    glm::vec4 kSMHDarkening;
-};
-static_assert(sizeof(ContrastCB) == 0x20, "ContrastCB must be 0x20 bytes");
+    glm::vec4 kContrast;     // 0x0000
+    glm::vec4 kSMHDarkening; // 0x000c
+}; // Size: 0x0020
+static_assert(sizeof(ContrastCB) == 0x20);
+
+static RadialCB g_radial_cb_data{};
 static ContrastCB g_ccsfix_cb_data{};
 
+// to preview changes in imgoo window
 static bool g_preview_flag{false};
 
-/* Easing state */
-static float g_fx_value   = 0.0f;   // current eased intensity (0..1)
-static double g_fx_last_t = 0.0;    // last time sample
-static float g_tau_in_ms  = 100.0f; // ease-in time constant (ms)
-static float g_tau_out_ms = 180.0f; // ease-out time constant (ms)
+#if BLENDOR_SYNC
 
-/* ===========================================================
-   Update/bind constant buffers
-   =========================================================== */
+#define SHM_NAME "Local\\BlenderToC_SharedMem"
+#define SHM_SIZE sizeof(RadialCB)
+
+#define EVENT_DATA_READY "Local\\Blender_DataReady"
+#define EVENT_FRAME_DONE "Local\\CApp_FrameDone"
+
+static RadialCB* g_shared_data = nullptr;
+
+HANDLE h_data_ready = NULL;
+HANDLE h_frame_done = NULL;
+#endif
+
+static void animate_stuff(RadialCB* cb);
+
 static void update_constant_buffers() {
-    if (!g_radial_cb || !g_ccsfix_cb)
+    if (!g_radial_cb)
         return;
+    if (!g_ccsfix_cb)
+        return;
+
+    assert(g_d3d11_device);
     auto device = g_d3d11_device;
-    if (!device)
-        return;
-
-    ID3D11DeviceContext* ctx = nullptr;
+    static ID3D11DeviceContext* ctx;
     device->GetImmediateContext(&ctx);
-    if (!ctx)
-        return;
+    assert(ctx);
 
-    // Contrast CB
-    ctx->UpdateSubresource(g_ccsfix_cb, 0, nullptr, &g_ccsfix_cb_data, 0, 0);
+#if BLENDOR_SYNC
+    WaitForSingleObject(h_data_ready, INFINITE);
+    CopyMemory(&g_radial_cb_data, g_shared_data, sizeof(RadialCB));
+#endif
 
-    // Radial CB + EASING
+    // update contrast stuff
     {
-        double now  = ImGui::GetTime();
-        double dt   = (g_fx_last_t > 0.0) ? (now - g_fx_last_t) : 0.0;
-        g_fx_last_t = now;
+        ctx->UpdateSubresource(g_ccsfix_cb, 0, nullptr, &g_ccsfix_cb_data, 0, 0);
+    }
 
-        // Gameplay target: if deathblow timer > 0 => full on, else off
-        float timer  = (float)SwordColours::deathblowTimer;
-        float target = (timer > 0.0f) ? 1.0f : 0.0f;
-
-        // Allow preview to override target with slider-like behavior
-        if (g_preview_flag) {
-            // When previewing, we keep target as-is (use kFx already set via UI if needed)
-            // Here we just keep easing toward whatever target is (still 0/1 by default).
+    // update radial stuff
+    {
+#if !BLENDOR_SYNC
+        float timer = (float)SwordColours::deathblowTimer;
+        if (!g_preview_flag) {
+#if 0
+            g_radial_cb_data.kStrengthPx      = (float)timer * 3.0f;
+            g_radial_cb_data.kChroma          = glm::smoothstep(0.0f, 50.0f, timer) * 1.4f;
+            g_radial_cb_data.kTime            = (float)ImGui::GetTime();
+            // TODO(deep): thread safe finish bonus, cant access HRPc stuff here ;_;
+            g_radial_cb_data.kSpeedLinesScale = timer > 0.0f ? 1.0f : 0.0f;
+            g_radial_cb_data.kSpeedLinesColor = SwordColours::current_s_word_color;
+#endif
+            animate_stuff(&g_radial_cb_data);
         }
-
-        // Time constants
-        float tau = (target > g_fx_value) ? (g_tau_in_ms * 0.001f) : (g_tau_out_ms * 0.001f);
-        float a   = 0.0f;
-        if (tau > 0.0001f && dt > 0.0) {
-            a = 1.0f - (float)exp(-(float)dt / tau);
-        } else {
-            a = 1.0f; // immediate if no time has passed or tau ~ 0
-        }
-        g_fx_value += (target - g_fx_value) * a;
-        if (g_fx_value < 0.0f)
-            g_fx_value = 0.0f;
-        if (g_fx_value > 1.0f)
-            g_fx_value = 1.0f;
-
-        // Stamp time for the shader noise
-        g_radial_cb_data.kTime = (float)now;
-
-        // Write current eased intensity
-        g_radial_cb_data.kFx = g_fx_value;
-
+#endif
         ctx->UpdateSubresource(g_radial_cb, 0, nullptr, &g_radial_cb_data, 0, 0);
     }
 
-    // Let engine bind; or bind explicitly if you prefer:
+    // Bind contrast fix to PS slot b1
     ctx->PSSetConstantBuffers(1, 1, &g_ccsfix_cb);
+    // Bind radial stuff to PS slot b2
     ctx->PSSetConstantBuffers(2, 1, &g_radial_cb);
+
+#if BLENDOR_SYNC
+    SetEvent(h_frame_done);
+#endif
 }
 
 static void ensure_constant_buffers_exist() {
@@ -531,42 +641,46 @@ static void ensure_constant_buffers_exist() {
         update_constant_buffers();
         return;
     }
+    assert(g_d3d11_device);
     auto device = g_d3d11_device;
-    if (!device)
-        return;
 
-    int ok = 0;
-
-    { // Contrast
-        D3D11_BUFFER_DESC desc{};
-        desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        desc.Usage     = D3D11_USAGE_DEFAULT;
-        desc.ByteWidth = (UINT)sizeof(ContrastCB);
-        if (SUCCEEDED(device->CreateBuffer(&desc, nullptr, &g_ccsfix_cb)))
-            ok += 1;
+    int update = 0;
+    // Contrast CB
+    {
+        D3D11_BUFFER_DESC desc;
+        ZeroMemory(&desc, sizeof(desc));
+        desc.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
+        desc.Usage          = D3D11_USAGE_DEFAULT;
+        desc.ByteWidth      = sizeof(ContrastCB);
+        desc.CPUAccessFlags = 0;
+        desc.MiscFlags      = 0;
+        if (SUCCEEDED(device->CreateBuffer(&desc, nullptr, &g_ccsfix_cb))) {
+            update += 1;
+        }
     }
-    { // Radial
-        D3D11_BUFFER_DESC desc{};
-        desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        desc.Usage     = D3D11_USAGE_DEFAULT;
-        // Round up to 16-byte multiple for safety
-        desc.ByteWidth = ((UINT)sizeof(RadialCB) + 15u) & ~15u;
-        if (SUCCEEDED(device->CreateBuffer(&desc, nullptr, &g_radial_cb)))
-            ok += 1;
+    // Radial CB
+    {
+        D3D11_BUFFER_DESC desc;
+        ZeroMemory(&desc, sizeof(desc));
+        desc.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
+        desc.Usage          = D3D11_USAGE_DEFAULT;
+        desc.ByteWidth      = sizeof(RadialCB);
+        desc.CPUAccessFlags = 0;
+        desc.MiscFlags      = 0;
+        if (SUCCEEDED(device->CreateBuffer(&desc, nullptr, &g_radial_cb))) {
+            update += 1;
+        }
     }
 
-    if (ok == 2)
+    if (update == 2) {
         update_constant_buffers();
+    }
 }
 
 static void update_shader_constants() {
     ensure_constant_buffers_exist();
 }
 
-/* ===========================================================
-   PS bind hook
-   =========================================================== */
-static uintptr_t set_ps_shader_jmp_back{NULL};
 static void __stdcall ps_set_shader_ours(ID3D11DeviceContext* ctx, ID3D11PixelShader* ps, ID3D11ClassInstance* const* cl, UINT cls) {
     if (g_mod_enabled->value() && (ps == g_paper_cc_pixel_shader_game)) {
         ctx->PSSetShader(g_paper_cc_pixel_shader_ours, cl, cls);
@@ -577,6 +691,7 @@ static void __stdcall ps_set_shader_ours(ID3D11DeviceContext* ctx, ID3D11PixelSh
 }
 
 // clang-format off
+static uintptr_t set_ps_shader_jmp_back{NULL};
 naked void set_ps_shader_detour() {
     __asm {
         call ps_set_shader_ours
@@ -587,60 +702,81 @@ naked void set_ps_shader_detour() {
 }
 // clang-format on
 
-/* ===========================================================
-   Shader (re)creation
-   =========================================================== */
 static int recreate_shader(ID3D11Device* device, CompileTimeShaderDefines& defs) {
-    static char local_buf[65536];
+
+    std::vector<char> buffer = {};
+    buffer.reserve(32768);
     int samples = defs.radial_blur_samples;
     if (samples < 4)
         samples = 4;
     if (samples > 64)
         samples = 64;
 
-    if (!g_d3d11_device)
+    // grabbing this one just in case since d3d11 hook one can still be uninitialized :shrug:
+    if (!g_d3d11_device) {
         g_d3d11_device = device;
-
-    int n = snprintf(local_buf, sizeof(local_buf), replace_test, (int)defs.disable_cc, (int)defs.contrast_fix, (int)defs.radial_blur_fix,
-        samples, (int)defs.radial_blur_speed_lines, defs.radial_blur_speed_lines_factor);
-    if (n <= 0) {
-        spdlog::error("[ShaderEdit] snprintf failed");
-        return -1;
     }
 
-    ID3DBlob* pBlob = nullptr;
-    ID3DBlob* pErr  = nullptr;
+    // NOLINTBEGIN
+    // dude idc
+    sprintf(buffer.data(), replace_test, (int)defs.disable_cc, (int)defs.contrast_fix, (int)defs.radial_blur_fix, defs.radial_blur_samples,
+        (int)defs.radial_blur_speed_lines, defs.radial_blur_speed_lines_factor);
+    // NOLINTEND
 
-    HRESULT hr = D3DCompile(local_buf, (SIZE_T)strlen(local_buf), nullptr, nullptr, nullptr, "main", "ps_5_0", 0, 0, &pBlob, &pErr);
+    ID3DBlob* pBlob      = nullptr;
+    ID3DBlob* pErrorBlob = nullptr;
+
+    HRESULT hr = D3DCompile(buffer.data(), ::strlen(buffer.data()), nullptr, nullptr, nullptr, "main", "ps_5_0", 0, 0, &pBlob, &pErrorBlob);
     if (FAILED(hr)) {
-        if (pErr) {
-            OutputDebugStringA((char*)pErr->GetBufferPointer());
-            pErr->Release();
+        if (pErrorBlob) {
+            OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
+            pErrorBlob->Release();
         }
         return -1;
     }
 
     if (g_paper_cc_pixel_shader_ours) {
         g_paper_cc_pixel_shader_ours->Release();
-        g_paper_cc_pixel_shader_ours = nullptr;
     }
-
     HRESULT ret = device->CreatePixelShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &g_paper_cc_pixel_shader_ours);
     if (FAILED(ret)) {
-        spdlog::error("[ShaderEdit] CreatePixelShader failed for replacement");
+        spdlog::error("[ShaderEdit]: Failed to create our replacement shader!");
         return -1;
     }
+
     return 1;
 }
 
-/* ===========================================================
-   Mod lifecycle
-   =========================================================== */
 std::optional<std::string> ShaderEdit::on_initialize() {
     static bool initialized = false;
-    if (initialized)
+    if (initialized) {
         return Mod::on_initialize();
+    }
 
+#if BLENDOR_SYNC
+    // HANDLE hmap_file = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, SHM_NAME);
+    HANDLE hmap_file = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, SHM_SIZE, SHM_NAME);
+    if (!hmap_file) {
+        auto error = GetLastError();
+        return "Failed to CreateFileMappingA";
+    }
+
+    auto value    = FILE_MAP_ALL_ACCESS;
+    g_shared_data = (RadialCB*)MapViewOfFile(hmap_file, FILE_MAP_ALL_ACCESS, 0, 0, SHM_SIZE);
+    if (!g_shared_data) {
+        CloseHandle(hmap_file);
+        return "Failed to MapViewOfFile";
+    }
+
+    h_data_ready = CreateEventA(NULL, FALSE, FALSE, EVENT_DATA_READY);
+    h_frame_done = CreateEventA(NULL, FALSE, FALSE, EVENT_FRAME_DONE);
+
+    if (!h_data_ready || !h_frame_done) {
+        UnmapViewOfFile(g_shared_data);
+        CloseHandle(hmap_file);
+        return "Failed to CreateEvent";
+    }
+#endif
     if (!install_hook_offset(
             0x36A3B, g_pipeline_create_shader_hook, pipeline_cache_create_ps_detour, &pipeline_cache_create_ps_jmp_back, 6)) {
         return "Failed to install create ps hook";
@@ -654,49 +790,29 @@ std::optional<std::string> ShaderEdit::on_initialize() {
     return Mod::on_initialize();
 }
 
-/* ===========================================================
-   Config load/save (defaults and UI)
-   =========================================================== */
 void ShaderEdit::on_config_load(const utility::Config& cfg) {
-    // Contrast defaults
-    g_ccsfix_cb_data.kContrast =
-        glm::vec4(cfg.get<float>("shaderContrastR").value_or(1.09f), cfg.get<float>("shaderContrastG").value_or(1.09f),
-            cfg.get<float>("shaderContrastB").value_or(1.09f), cfg.get<float>("shaderSaturation").value_or(1.0f));
-    g_ccsfix_cb_data.kSMHDarkening = glm::vec4(cfg.get<float>("shadowDarkening").value_or(1.0f),
-        cfg.get<float>("midtoneDarkening").value_or(1.0f), cfg.get<float>("highlightDarkening").value_or(1.0f), 0.0f);
+    g_ccsfix_cb_data.kContrast.r     = cfg.get<float>("shaderContrastR").value_or(1.09f);
+    g_ccsfix_cb_data.kContrast.g     = cfg.get<float>("shaderContrastG").value_or(1.09f);
+    g_ccsfix_cb_data.kContrast.b     = cfg.get<float>("shaderContrastB").value_or(1.09f);
+    g_ccsfix_cb_data.kContrast.w     = cfg.get<float>("shaderSaturation").value_or(1.0f);
+    g_ccsfix_cb_data.kSMHDarkening.r = cfg.get<float>("shadowDarkening").value_or(1.0f);
+    g_ccsfix_cb_data.kSMHDarkening.g = cfg.get<float>("midtoneDarkening").value_or(1.0f);
+    g_ccsfix_cb_data.kSMHDarkening.b = cfg.get<float>("highlightDarkening").value_or(1.0f);
 
-    // Compile-time toggles
     g_comptime_shader_defs.contrast_fix                   = cfg.get<bool>("shaderContrastFixEnabled").value_or(true);
     g_comptime_shader_defs.disable_cc                     = cfg.get<bool>("shaderColorCorectionDisabled").value_or(false);
     g_comptime_shader_defs.radial_blur_fix                = cfg.get<bool>("shaderRadialBlurFix").value_or(true);
     g_comptime_shader_defs.radial_blur_samples            = cfg.get<int>("shaderRadialBlurSamples").value_or(12);
     g_comptime_shader_defs.radial_blur_speed_lines        = cfg.get<bool>("shaderRadialBlurAnimeSpeedLines").value_or(true);
     g_comptime_shader_defs.radial_blur_speed_lines_factor = cfg.get<float>("shaderRadialBlurSpeedLinesFactor").value_or(0.18f);
+    g_comptime_shader_defs.radial_blur_strength_pixels    = cfg.get<float>("shaderRadialBlurStrengthPixels").value_or(160.0f);
 
-    // Radial base defaults (tunable)
-    g_radial_cb_data.kStrengthBase    = cfg.get<float>("shaderRadialStrengthBase").value_or(160.0f);
-    g_radial_cb_data.kMixBase         = cfg.get<float>("shaderRadialMixBase").value_or(1.00f);
-    g_radial_cb_data.kInner           = cfg.get<float>("shaderRadialInner").value_or(0.00f);
-    g_radial_cb_data.kOuter           = cfg.get<float>("shaderRadialOuter").value_or(0.24f);
-    g_radial_cb_data.kFalloff         = cfg.get<float>("shaderRadialFalloff").value_or(3.54f);
-    g_radial_cb_data.kTwistDeg        = cfg.get<float>("shaderRadialTwistDeg").value_or(0.0f);
-    g_radial_cb_data.kChroma          = cfg.get<float>("shaderRadialChromaAmount").value_or(0.00f);
-    g_radial_cb_data.kSpeedLinesBase  = cfg.get<float>("shaderRadialSpeedLinesBase").value_or(1.0f);
-    g_radial_cb_data.kChromaOn        = cfg.get<bool>("shaderRadialChromaOn").value_or(false) ? 1.0f : 0.0f;
-    g_radial_cb_data.kSpeedLinesColor = glm::vec3(1.0f, 1.0f, 1.0f);
-    g_radial_cb_data.kTime            = 0.0f;
-    g_radial_cb_data.kFx              = 0.0f;
-    g_radial_cb_data._pad0            = 0.0f;
-
-    // Easing constants
-    g_tau_in_ms  = cfg.get<float>("shaderFxTauInMs").value_or(100.0f);
-    g_tau_out_ms = cfg.get<float>("shaderFxTauOutMs").value_or(180.0f);
+    recreate_shader(g_d3d11_device, g_comptime_shader_defs);
 
     g_mod_enabled->config_load(cfg);
 }
 
 void ShaderEdit::on_config_save(utility::Config& cfg) {
-    // Contrast
     cfg.set<float>("shaderContrastR", g_ccsfix_cb_data.kContrast.r);
     cfg.set<float>("shaderContrastG", g_ccsfix_cb_data.kContrast.g);
     cfg.set<float>("shaderContrastB", g_ccsfix_cb_data.kContrast.b);
@@ -705,123 +821,156 @@ void ShaderEdit::on_config_save(utility::Config& cfg) {
     cfg.set<float>("midtoneDarkening", g_ccsfix_cb_data.kSMHDarkening.g);
     cfg.set<float>("highlightDarkening", g_ccsfix_cb_data.kSMHDarkening.b);
 
-    // Compile-time toggles
     cfg.set<bool>("shaderContrastFixEnabled", g_comptime_shader_defs.contrast_fix);
     cfg.set<bool>("shaderColorCorectionDisabled", g_comptime_shader_defs.disable_cc);
     cfg.set<bool>("shaderRadialBlurFix", g_comptime_shader_defs.radial_blur_fix);
     cfg.set<int>("shaderRadialBlurSamples", g_comptime_shader_defs.radial_blur_samples);
     cfg.set<bool>("shaderRadialBlurAnimeSpeedLines", g_comptime_shader_defs.radial_blur_speed_lines);
-    cfg.set<float>("shaderRadialBlurSpeedLinesFactor", g_comptime_shader_defs.radial_blur_speed_lines_factor);
-
-    // Radial base
-    cfg.set<float>("shaderRadialStrengthBase", g_radial_cb_data.kStrengthBase);
-    cfg.set<float>("shaderRadialMixBase", g_radial_cb_data.kMixBase);
-    cfg.set<float>("shaderRadialInner", g_radial_cb_data.kInner);
-    cfg.set<float>("shaderRadialOuter", g_radial_cb_data.kOuter);
-    cfg.set<float>("shaderRadialFalloff", g_radial_cb_data.kFalloff);
-    cfg.set<float>("shaderRadialTwistDeg", g_radial_cb_data.kTwistDeg);
-    cfg.set<float>("shaderRadialChromaAmount", g_radial_cb_data.kChroma);
-    cfg.set<float>("shaderRadialSpeedLinesBase", g_radial_cb_data.kSpeedLinesBase);
-    cfg.set<bool>("shaderRadialChromaOn", g_radial_cb_data.kChromaOn > 0.5f);
-    cfg.set<float>("shaderFxTauInMs", g_tau_in_ms);
-    cfg.set<float>("shaderFxTauOutMs", g_tau_out_ms);
+    cfg.set<float>("shaderRadialBlurAnimeSpeedLinesFactor", g_comptime_shader_defs.radial_blur_speed_lines_factor);
+    cfg.set<float>("shaderRadialBlurStrengthPixels", g_comptime_shader_defs.radial_blur_strength_pixels);
 
     g_mod_enabled->config_save(cfg);
 }
 
-/* ===========================================================
-   UI
-   =========================================================== */
-static inline void PushRuntimeCBs() {
-    update_shader_constants();
+#if 0
+namespace blender {
+
+    enum class MapRangeInterpolation {
+        Linear,
+        SteppedLinear,
+        SmoothStep,
+        SmootherStep
+    };
+
+    struct MapRangeNode {
+        float value        = 0.0f;
+        float from_min     = 0.0f;
+        float from_max     = 1.0f;
+        float to_min       = 0.0f;
+        float to_max       = 1.0f;
+        int   steps        = 4;
+        MapRangeInterpolation mode = MapRangeInterpolation::Linear;
+        bool  clamp        = false;
+
+        float operator()() const noexcept {
+            float t = (value - from_min) / (from_max - from_min);
+            if (clamp) t = std::clamp(t, 0.0f, 1.0f);
+
+            switch (mode) {
+            case MapRangeInterpolation::Linear:        break;
+            case MapRangeInterpolation::SteppedLinear: t = std::floor(t * steps) / steps; break;
+            case MapRangeInterpolation::SmoothStep:    t = t*t*(3.0f - 2.0f*t); break;
+            case MapRangeInterpolation::SmootherStep:  t = t*t*t*(t*(t*6.0f - 15.0f) + 10.0f); break;
+            }
+
+            return to_min + t * (to_max - to_min);
+        }
+    };
+
+} // namespace blender
+#endif
+
+#include "fw-imgui/RadialBlurAnim.cpp"
+static constexpr RadialAnimationData rdata;
+
+static bool animating = false;
+static void animate_stuff(RadialCB* cb) {
+    static int anim_frame = 0;
+
+    int timer = SwordColours::deathblowTimer;
+    if (timer > 0) {
+        animating = true;
+    }
+
+    if (animating) {
+        int frame = anim_frame;
+        // int frame = timer;
+        if (frame >= rdata.k_frames) {
+            animating = false;
+            memset(cb, 0, sizeof(RadialCB));
+            anim_frame = 0;
+            return;
+        }
+        append_ui_log(fmt::format("timer: {}; anim_frames: = {}", timer, frame));
+        cb->kStrengthPx      = rdata.k_strengths[frame] * 160.0f;
+        cb->kInner           = 0.02f;
+        cb->kOuter           = rdata.k_outers[frame];
+        cb->kFalloff         = rdata.k_falloffs[frame];
+        cb->kSpeedLinesScale = rdata.k_speed_lines[frame];
+        cb->kChroma          = rdata.k_chromas[frame];
+        cb->kTime            = (float)ImGui::GetTime();
+        cb->kMix             = 1.0f;
+        cb->kSpeedLinesColor = SwordColours::current_s_word_color;
+        anim_frame += 1;
+    }
 }
 
-static void ImGoo_CCheckbox(const char* label, bool* v) {
+void ImGoo_CCheckbox(const char* label, bool* v) {
     if (ImGui::Checkbox(label, v)) {
         recreate_shader(g_d3d11_device, g_comptime_shader_defs);
-        PushRuntimeCBs();
     }
 }
-static void ImGoo_CInt(const char* label, int* v) {
+
+void ImGoo_CInt(const char* label, int* v) {
     if (ImGui::SliderInt(label, v, 4, 64)) {
         recreate_shader(g_d3d11_device, g_comptime_shader_defs);
-        PushRuntimeCBs();
     }
 }
-static void ImGoo_CFloat(const char* label, float* v, float lo = 0.0f, float hi = 1.8f, const char* fmt = "%.3f") {
-    if (ImGui::SliderFloat(label, v, lo, hi, fmt)) {
-        PushRuntimeCBs();
+
+void ImGoo_CFloat(const char* label, float* v) {
+    if (ImGui::SliderFloat(label, v, 0.0f, 1.8f)) {
+        recreate_shader(g_d3d11_device, g_comptime_shader_defs);
     }
 }
 
 void ShaderEdit::on_draw_ui() {
     g_mod_enabled->draw("Enable the thing?");
-    if (!g_mod_enabled->value())
+
+    if (!g_mod_enabled->value()) {
         return;
+    }
 
     if (ImGui::TreeNode("Compile time shader settings")) {
+
         ImGoo_CCheckbox("Diable Color Correction?", &g_comptime_shader_defs.disable_cc);
         ImGoo_CCheckbox("Enable contrast fix?", &g_comptime_shader_defs.contrast_fix);
         ImGoo_CCheckbox("Enable radial blur fix?", &g_comptime_shader_defs.radial_blur_fix);
         if (g_comptime_shader_defs.radial_blur_fix) {
             ImGoo_CInt("Number of samples [4-64]", &g_comptime_shader_defs.radial_blur_samples);
         }
+
         ImGoo_CCheckbox("Enable speed lines?", &g_comptime_shader_defs.radial_blur_speed_lines);
         if (g_comptime_shader_defs.radial_blur_speed_lines) {
-            ImGoo_CFloat("Speed lines factor", &g_comptime_shader_defs.radial_blur_speed_lines_factor, 0.0f, 1.8f, "%.3f");
+            ImGoo_CFloat("Speed lines factor", &g_comptime_shader_defs.radial_blur_speed_lines_factor);
         }
         ImGui::TreePop();
     }
 
     if (ImGui::TreeNode("Contrast settings")) {
-        if (ImGui::SliderFloat3("Contrast (RGB)", (float*)&g_ccsfix_cb_data.kContrast, 0.0f, 3.0f))
-            PushRuntimeCBs();
-        if (ImGui::SliderFloat3("Shadows/Midtones/Highlights", (float*)&g_ccsfix_cb_data.kSMHDarkening, 0.0f, 3.0f))
-            PushRuntimeCBs();
-        if (ImGui::SliderFloat("Saturation", (float*)&g_ccsfix_cb_data.kContrast.w, 0.0f, 3.0f))
-            PushRuntimeCBs();
+        ImGui::SliderFloat3("Contrast", (float*)&g_ccsfix_cb_data.kContrast, 0.0f, 3.0f);
+        ImGui::SliderFloat3("Shadows\\Midtones\\Highlights", (float*)&g_ccsfix_cb_data.kSMHDarkening, 0.0f, 3.0f);
+        ImGui::SliderFloat("Saturation", (float*)&g_ccsfix_cb_data.kContrast.w, 0.0f, 3.0f);
         ImGui::TreePop();
     }
 
     if (ImGui::TreeNode("Radial Blur Settings")) {
-        ImGui::Checkbox("Preview mode (hold state)", &g_preview_flag);
 
-        // Base values (shader scales them by kFx)
-        ImGoo_CFloat("Strength base (px)", &g_radial_cb_data.kStrengthBase, 0.0f, 300.0f, "%.1f");
-        ImGoo_CFloat("Mix base (0..1)", &g_radial_cb_data.kMixBase, 0.0f, 1.0f, "%.2f");
-        ImGoo_CFloat("Inner radius", &g_radial_cb_data.kInner, 0.0f, 1.0f, "%.2f");
-        ImGoo_CFloat("Outer radius", &g_radial_cb_data.kOuter, 0.0f, 1.0f, "%.2f");
-        ImGoo_CFloat("Falloff (shape)", &g_radial_cb_data.kFalloff, 0.1f, 8.0f, "%.2f");
-        ImGoo_CFloat("Twist at edge (deg)", &g_radial_cb_data.kTwistDeg, -360.0f, 360.0f, "%.1f");
-
-        // Chromatic aberration toggle + amount
-        {
-            bool on = (g_radial_cb_data.kChromaOn > 0.5f);
-            if (ImGui::Checkbox("Chromatic aberration ON", &on)) {
-                g_radial_cb_data.kChromaOn = on ? 1.0f : 0.0f;
-                PushRuntimeCBs();
-            }
-            if (on) {
-                ImGoo_CFloat("CA Amount", &g_radial_cb_data.kChroma, 0.0f, 0.5f, "%.3f");
-            }
+        ImGui::Checkbox("Preview mode", &g_preview_flag);
+        if (ImGui::SliderFloat("strength px: ", &g_radial_cb_data.kStrengthPx, 0.0f, 300.0f)) {
+            g_comptime_shader_defs.radial_blur_strength_pixels = g_radial_cb_data.kStrengthPx;
         }
-
-        // Speed lines base scale + color
-        ImGoo_CFloat("Speed lines base scale", &g_radial_cb_data.kSpeedLinesBase, 0.0f, 1.0f, "%.2f");
-        if (ImGui::ColorEdit3("Speed lines color", (float*)&g_radial_cb_data.kSpeedLinesColor))
-            PushRuntimeCBs();
-
-        // Easing controls
-        if (ImGui::TreeNode("Easing")) {
-            ImGoo_CFloat("Tau in (ms)", &g_tau_in_ms, 10.0f, 500.0f, "%.0f");
-            ImGoo_CFloat("Tau out (ms)", &g_tau_out_ms, 10.0f, 500.0f, "%.0f");
-            ImGui::Text("kFx eased: %.3f", g_fx_value);
-            ImGui::TreePop();
+        ImGui::SliderFloat("Mix (0=Off,1=Full)", &g_radial_cb_data.kMix, 0.0f, 1.0f, "%.2f");
+        ImGui::SliderFloat("Inner radius", &g_radial_cb_data.kInner, 0.0f, 1.0f, "%.2f");
+        ImGui::SliderFloat("Outer radius", &g_radial_cb_data.kOuter, 0.0f, 1.0f, "%.2f");
+        ImGui::SliderFloat("Falloff (shape)", &g_radial_cb_data.kFalloff, 0.1f, 8.0f, "%.2f");
+        ImGui::SliderFloat("Twist at edge (deg)", &g_radial_cb_data.kTwistDeg, -360.0f, 360.0f, "%.1f");
+        ImGui::SliderFloat("Chromatic fringing", &g_radial_cb_data.kChroma, 0.0f, 0.5f, "%.2f");
+        if (g_preview_flag) {
+            ImGui::SliderFloat("Anime speed lines", &g_radial_cb_data.kSpeedLinesScale, 0.0f, 1.0f);
+            ImGui::SliderFloat("Anime speed lines time", &g_radial_cb_data.kTime, 1.0f, 130.0f);
+            ImGui::ColorEdit3("Anime speed lines color", (float*)&g_radial_cb_data.kSpeedLinesColor);
         }
 
         ImGui::TreePop();
     }
-
-    // live push
-    PushRuntimeCBs();
 }

@@ -39,7 +39,7 @@ static UINT g_bb_height{};
 
 static KbmControls* g_kbm_controls {nullptr};
 
-std::vector<std::string> g_ui_log;
+static std::vector<std::string> g_ui_log;
 
 struct WMEvent {
     HWND handle;
