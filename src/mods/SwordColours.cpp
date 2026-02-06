@@ -578,8 +578,8 @@ naked void detour2() { // trails, player in ebx
 
 naked void detour3() { // set deathblow timer, player in ebx
     __asm {
-            cmp byte ptr [SwordColours::mod_enabled], 0
-            je originalcode
+            // cmp byte ptr [SwordColours::mod_enabled], 0 // currently always active - deep needs it for ShaderEdit.cpp
+            // je originalcode
             cmp dword ptr [ebx+0x198], eGood // condition // 0 = not taking damage
             jne originalcode
 

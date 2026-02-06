@@ -891,7 +891,7 @@ static void animate_stuff(RadialCB* cb) {
             anim_frame = 0;
             return;
         }
-        append_ui_log(fmt::format("timer: {}; anim_frames: = {}", timer, frame));
+        // append_ui_log(fmt::format("timer: {}; anim_frames: = {}", timer, frame));
         cb->kStrengthPx      = rdata.k_strengths[frame] * 160.0f;
         cb->kInner           = 0.02f;
         cb->kOuter           = rdata.k_outers[frame];
