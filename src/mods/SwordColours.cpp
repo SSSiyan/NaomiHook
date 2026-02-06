@@ -294,143 +294,150 @@ static constexpr float frameTime = 0.0125;
 // clang-format off
 naked void detour1() { // swords, player in ebx
     __asm {
-            push eax
-            mov al, [SwordColours::heart_colours]
-            or  al, [SwordColours::mod_enabled]
-            cmp eax, 0
-            pop eax
-            je originalcode
         // check this is player
-            push eax
-            mov eax, [SwordColours::gpBattle]
-            mov eax, [eax]
-            mov eax, [eax+0x164]
-            cmp eax, ebx
-            pop eax
-            jne originalcode
-            
-            cmp byte ptr [SwordColours::heart_colours], 1
-            je heartColours
-            cmp byte ptr [SwordColours::mod_enabled], 0
-            je originalcode
-            cmp dword ptr [SwordColours::deathblowTimer], 100
-            jbe deathblowColour
-            jmp getSwordID
+        push eax
+        mov eax, [SwordColours::gpBattle]
+        mov eax, [eax]
+        mov eax, [eax+0x164]
+        cmp eax, ebx
+        pop eax
+        jne originalcode
 
-        heartColours:
-            push eax // 4
-            mov eax,[heart_colour_rgbaInt]
-            mov [esp+0x4+0x4],eax
-            mov eax,[heart_colour_rgbaInt+0x4]
-            mov [esp+0x4+0x8],eax
-            mov eax,[heart_colour_rgbaInt+0x8]
-            mov [esp+0x4+0xC],eax
-            pop eax
-            jmp originalcode
+        // always dec timer
+        cmp dword ptr [SwordColours::deathblowTimer], 0
+        je skip_deathblow_dec
+        dec dword ptr [SwordColours::deathblowTimer]
+    skip_deathblow_dec:
+        push eax
+        mov al, [SwordColours::heart_colours]
+        or  al, [SwordColours::mod_enabled]
+        cmp al, 0
+        pop eax
+        je originalcode
 
-        getSwordID:
-            cmp dword ptr [ebx+0x42C], BLOOD_BERRY
-            je berryColour
-            cmp dword ptr [ebx+0x42C], BLOOD_BERRY_BATTERY
-            je berryColour
-            cmp dword ptr [ebx+0x42C], BLOOD_BERRY_DAMAGE
-            je berryColour
-            cmp dword ptr [ebx+0x42C], BLOOD_BERRY_BATTERY_DAMAGE
-            je berryColour
+        cmp byte ptr [SwordColours::heart_colours], 1
+        je heartColours
 
-            cmp dword ptr [ebx+0x42C], TSUBAKI_MK3
-            je mk3Colour
-            cmp dword ptr [ebx+0x42C], TSUBAKI_MK3_BATTERY
-            je mk3Colour
-            cmp dword ptr [ebx+0x42C], TSUBAKI_MK3_DAMAGE
-            je mk3Colour
-            cmp dword ptr [ebx+0x42C], TSUBAKI_MK3_BATTERY_DAMAGE
-            je mk3Colour
+        cmp byte ptr [SwordColours::mod_enabled], 0
+        je originalcode
 
-            cmp dword ptr [ebx+0x42C], TSUBAKI_MK1
-            je mk1Colour
-            cmp dword ptr [ebx+0x42C], TSUBAKI_MK1_BATTERY
-            je mk1Colour
-            cmp dword ptr [ebx+0x42C], TSUBAKI_MK1_DAMAGE
-            je mk1Colour
-            cmp dword ptr [ebx+0x42C], TSUBAKI_MK1_BATTERY_DAMAGE
-            je mk1Colour
+        cmp dword ptr [SwordColours::deathblowTimer], 100
+        jbe deathblowColour
+        jmp getSwordID
 
-            cmp dword ptr [ebx+0x42C], TSUBAKI_MK2
-            je mk2Colour
-            cmp dword ptr [ebx+0x42C], TSUBAKI_MK2_BATTERY
-            je mk2Colour
-            cmp dword ptr [ebx+0x42C], TSUBAKI_MK2_DAMAGE
-            je mk2Colour
-            cmp dword ptr [ebx+0x42C], TSUBAKI_MK2_BATTERY_DAMAGE
-            je mk2Colour
+    heartColours:
+        push eax
+        mov eax,[heart_colour_rgbaInt]
+        mov [esp+0x4+0x4],eax
+        mov eax,[heart_colour_rgbaInt+0x4]
+        mov [esp+0x4+0x8],eax
+        mov eax,[heart_colour_rgbaInt+0x8]
+        mov [esp+0x4+0xC],eax
+        pop eax
+        jmp originalcode
 
-            jmp originalcode
+    getSwordID:
+        cmp dword ptr [ebx+0x42C], BLOOD_BERRY
+        je berryColour
+        cmp dword ptr [ebx+0x42C], BLOOD_BERRY_BATTERY
+        je berryColour
+        cmp dword ptr [ebx+0x42C], BLOOD_BERRY_DAMAGE
+        je berryColour
+        cmp dword ptr [ebx+0x42C], BLOOD_BERRY_BATTERY_DAMAGE
+        je berryColour
 
-        berryColour: // [0]
-            push eax // 4
-            mov eax,[colours_picked_rgbaInt]
-            mov [esp+0x4+0x4],eax
-            mov eax,[colours_picked_rgbaInt+0x4]
-            mov [esp+0x4+0x8],eax
-            mov eax,[colours_picked_rgbaInt+0x8]
-            mov [esp+0x4+0xC],eax
-            pop eax
-            jmp originalcode
+        cmp dword ptr [ebx+0x42C], TSUBAKI_MK3
+        je mk3Colour
+        cmp dword ptr [ebx+0x42C], TSUBAKI_MK3_BATTERY
+        je mk3Colour
+        cmp dword ptr [ebx+0x42C], TSUBAKI_MK3_DAMAGE
+        je mk3Colour
+        cmp dword ptr [ebx+0x42C], TSUBAKI_MK3_BATTERY_DAMAGE
+        je mk3Colour
 
-        mk3Colour: // [1]
-            push eax // 4
-            mov eax,[colours_picked_rgbaInt+0x10]
-            mov [esp+0x4+0x4],eax
-            mov eax,[colours_picked_rgbaInt+0x10+0x4]
-            mov [esp+0x4+0x8],eax
-            mov eax,[colours_picked_rgbaInt+0x10+0x8]
-            mov [esp+0x4+0xC],eax
-            pop eax
-            jmp originalcode
+        cmp dword ptr [ebx+0x42C], TSUBAKI_MK1
+        je mk1Colour
+        cmp dword ptr [ebx+0x42C], TSUBAKI_MK1_BATTERY
+        je mk1Colour
+        cmp dword ptr [ebx+0x42C], TSUBAKI_MK1_DAMAGE
+        je mk1Colour
+        cmp dword ptr [ebx+0x42C], TSUBAKI_MK1_BATTERY_DAMAGE
+        je mk1Colour
 
-        mk1Colour: // [2]
-            push eax // 4
-            mov eax,[colours_picked_rgbaInt+0x20]
-            mov [esp+0x4+0x4],eax
-            mov eax,[colours_picked_rgbaInt+0x20+0x4]
-            mov [esp+0x4+0x8],eax
-            mov eax,[colours_picked_rgbaInt+0x20+0x8]
-            mov [esp+0x4+0xC],eax
-            pop eax
-            jmp originalcode
+        cmp dword ptr [ebx+0x42C], TSUBAKI_MK2
+        je mk2Colour
+        cmp dword ptr [ebx+0x42C], TSUBAKI_MK2_BATTERY
+        je mk2Colour
+        cmp dword ptr [ebx+0x42C], TSUBAKI_MK2_DAMAGE
+        je mk2Colour
+        cmp dword ptr [ebx+0x42C], TSUBAKI_MK2_BATTERY_DAMAGE
+        je mk2Colour
 
-        mk2Colour: // [3]
-            push eax // 4
-            mov eax,[colours_picked_rgbaInt+0x30]
-            mov [esp+0x4+0x4],eax
-            mov eax,[colours_picked_rgbaInt+0x30+0x4]
-            mov [esp+0x4+0x8],eax
-            mov eax,[colours_picked_rgbaInt+0x30+0x8]
-            mov [esp+0x4+0xC],eax
-            pop eax
-            jmp originalcode
+        jmp originalcode
 
-        deathblowColour: // [4]
-            cmp dword ptr [SwordColours::deathblowTimer], 0
-            je getSwordID
-            dec dword ptr [SwordColours::deathblowTimer]
-            push eax // 4
-            mov eax,[colours_picked_rgbaInt+0x40]
-            mov [esp+0x4+0x4],eax
-            mov eax,[colours_picked_rgbaInt+0x40+0x4]
-            mov [esp+0x4+0x8],eax
-            mov eax,[colours_picked_rgbaInt+0x40+0x8]
-            mov [esp+0x4+0xC],eax
-            pop eax
-            jmp originalcode
+    berryColour: // [0]
+        push eax
+        mov eax,[colours_picked_rgbaInt]
+        mov [esp+0x4+0x4],eax
+        mov eax,[colours_picked_rgbaInt+0x4]
+        mov [esp+0x4+0x8],eax
+        mov eax,[colours_picked_rgbaInt+0x8]
+        mov [esp+0x4+0xC],eax
+        pop eax
+        jmp originalcode
 
-        originalcode:
-            push ebp
-            mov ebp, esp
-            mov edx, ecx
-        retcode:
-            jmp dword ptr [SwordColours::jmp_ret1]
+    mk3Colour: // [1]
+        push eax
+        mov eax,[colours_picked_rgbaInt+0x10]
+        mov [esp+0x4+0x4],eax
+        mov eax,[colours_picked_rgbaInt+0x10+0x4]
+        mov [esp+0x4+0x8],eax
+        mov eax,[colours_picked_rgbaInt+0x10+0x8]
+        mov [esp+0x4+0xC],eax
+        pop eax
+        jmp originalcode
+
+    mk1Colour: // [2]
+        push eax
+        mov eax,[colours_picked_rgbaInt+0x20]
+        mov [esp+0x4+0x4],eax
+        mov eax,[colours_picked_rgbaInt+0x20+0x4]
+        mov [esp+0x4+0x8],eax
+        mov eax,[colours_picked_rgbaInt+0x20+0x8]
+        mov [esp+0x4+0xC],eax
+        pop eax
+        jmp originalcode
+
+    mk2Colour: // [3]
+        push eax
+        mov eax,[colours_picked_rgbaInt+0x30]
+        mov [esp+0x4+0x4],eax
+        mov eax,[colours_picked_rgbaInt+0x30+0x4]
+        mov [esp+0x4+0x8],eax
+        mov eax,[colours_picked_rgbaInt+0x30+0x8]
+        mov [esp+0x4+0xC],eax
+        pop eax
+        jmp originalcode
+
+    deathblowColour: // [4]
+        cmp dword ptr [SwordColours::deathblowTimer], 0
+        je getSwordID
+        push eax
+        mov eax,[colours_picked_rgbaInt+0x40]
+        mov [esp+0x4+0x4],eax
+        mov eax,[colours_picked_rgbaInt+0x40+0x4]
+        mov [esp+0x4+0x8],eax
+        mov eax,[colours_picked_rgbaInt+0x40+0x8]
+        mov [esp+0x4+0xC],eax
+        pop eax
+        jmp originalcode
+
+    originalcode:
+        push ebp
+        mov ebp, esp
+        mov edx, ecx
+    retcode:
+        jmp dword ptr [SwordColours::jmp_ret1]
     }
 }
 
