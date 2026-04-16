@@ -1765,8 +1765,8 @@ void StanceControl::on_config_load(const utility::Config& cfg) {
     }
 
     mod_enabled_stance_guards = cfg.get<bool>("stance_guards").value_or(false);
-    blendTickNotLockedOn      = cfg.get<bool>("blend_tick_not_locked_on").value_or(false);
-    blendTickLockedOn         = cfg.get<bool>("blend_tick_locked_on").value_or(false);
+    blendTickNotLockedOn      = cfg.get<float>("blend_tick_not_locked_on").value_or(0.2f);
+    blendTickLockedOn         = cfg.get<float>("blend_tick_locked_on").value_or(0.2f);
 }
 // during save
 void StanceControl::on_config_save(utility::Config& cfg) {
@@ -1789,8 +1789,8 @@ void StanceControl::on_config_save(utility::Config& cfg) {
     cfg.set<bool>("gear_system_holds", gear_system_holds);
 
     cfg.set<bool>("stance_guards", mod_enabled_stance_guards);
-    cfg.set<bool>("blend_tick_not_locked_on", blendTickNotLockedOn);
-    cfg.set<bool>("blend_tick_locked_on", blendTickLockedOn);
+    cfg.set<float>("blend_tick_not_locked_on", blendTickNotLockedOn);
+    cfg.set<float>("blend_tick_locked_on", blendTickLockedOn);
 }
 
 // will show up in debug window, dump ImGui widgets you want here
