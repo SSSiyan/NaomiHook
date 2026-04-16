@@ -448,10 +448,9 @@ void ArcadeMode::on_draw_ui() {
     if (ImGui::IsItemHovered())
         ArcadeMode::hoveredDescription = "Enable this option in the Motel then exit through the door to begin";
 
-    // ---------------- Practice Loop UI (single toggle) ----------------
+    // Practice Loop UI (single toggle)
     ImGui::SeparatorText("Practice Loop");
     ImGui::Checkbox("Practice Loop", &s_practice_loop_enabled);
-    // ------------------------------------------------------------------
 
     static bool arcadeModeShopToggle = false;
     ImGui::Checkbox("Display Arcade Shop", &arcadeModeShopToggle);
@@ -459,7 +458,7 @@ void ArcadeMode::on_draw_ui() {
     if (arcadeModeShopToggle && player) {
         DisplayShop(player, arcadeModeShopToggle);
 
-        // ---------------- Pretty Debug Shop (dependency-light) ----------------
+        // Pretty Debug Shop
         static bool shouldDisplayDebugShop = false; // set true to expose debug helpers
         if (shouldDisplayDebugShop) {
             if (ImGui::CollapsingHeader("Debug Shop")) {

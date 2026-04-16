@@ -34,7 +34,7 @@ static int find_room_index_by_id(int id) {
     return (int)std::distance(clothing_items.begin(), it);
 };
 
-// -------------------------- Simple Toast (top-right, single) --------------------------
+// Simple Toast
 struct ToastItem {
     std::string text;
     float age = 0.0f;
@@ -58,7 +58,7 @@ static void push_toast(const std::string& txt) {
     s_toastQueue.emplace_back(txt);
 }
 
-// --- Improved random selection: avoid recent repeats ---
+// Improved random selection: avoid recent repeats
 static std::string pick_nonrepeating_toast()
 {
     static const char* k_toast_msgs[] = {
@@ -84,6 +84,12 @@ static std::string pick_nonrepeating_toast()
         "Rangers lead the way!",
         "HIDEO", 
         "Cool Trasition"
+        "Don't Copy That Floppy!"
+        "CATCH A RIIIIIIDE!"
+        "Feelin' Pretty!"
+        "Steppin' on the beach doo doo doo doooo"
+        "THE MOVIE'S ON"
+        "The man is killing us, man!"
     };
 
     const int N = (int)(sizeof(k_toast_msgs) / sizeof(k_toast_msgs[0]));

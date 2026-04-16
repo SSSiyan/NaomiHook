@@ -1,4 +1,3 @@
-// ASCII-ONLY
 #include "DrawHitboxes.hpp"
 #include "WorldVisualizer.hpp"
 #if 1

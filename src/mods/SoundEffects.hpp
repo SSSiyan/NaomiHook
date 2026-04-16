@@ -17,8 +17,8 @@ public:
 
   // mod name string for config
   std::string get_mod_name() const override { return "SoundEffects"; }
-  std::string get_human_readable_name() const { return "SoundEffects"; }
-  const char* get_description() const override { return R"(SoundsEffects.)"; };
+  std::string get_human_readable_name() const { return "Sound Effects"; }
+  const char* get_description() const override { return R"(Various sound settings. Ranges from basic volume sliders to more intricate debugging options.)"; };
 
   // called by m_mods->init() you'd want to override this
   std::optional<std::string> on_initialize() override;

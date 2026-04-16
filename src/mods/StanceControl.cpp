@@ -707,8 +707,8 @@ void StanceControl::on_draw_ui() {
     }
     if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";
 
-    ImGui::SliderFloat("blendTickNotLockedOn", &blendTickNotLockedOn, 0.01f, 1.0f, "%.1f");
-    ImGui::SliderFloat("blendTickLockedOn", &blendTickLockedOn, 0.01f, 1.0f, "%.1f");
+    ImGui::SliderFloat("Blend Speed Without Lock On", &blendTickNotLockedOn, 0.01f, 1.0f, "%.1f");
+    ImGui::SliderFloat("Blend Speed With Lock On", &blendTickLockedOn, 0.01f, 1.0f, "%.1f");
     ImGui::Checkbox("Manual Guarding", &mod_enabled_stance_guards);
     if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Completely disables auto guarding in favor of manual, stance-dependent guarding.";
 }

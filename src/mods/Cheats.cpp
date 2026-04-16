@@ -22,7 +22,7 @@ bool Cheats::disable_free_fight_timers    = false; // added state
 const char* Cheats::defaultDescription = "Cheats";
 const char* Cheats::hoveredDescription = defaultDescription;
 
-// =================== Visual FX helpers/state ===================
+// Visual FX helpers/state
 #define JACKPOT_LIME IM_COL32(40, 254, 32, 255)
 #define FLASH_RED IM_COL32(255, 64, 64, 255)
 #define JACKPOT_STAMP_ENABLED 1 // set to 0 to disable the "UNLOCKED!" stamp
@@ -45,7 +45,7 @@ static inline ImU32 _with_alpha(ImU32 c, int a) {
     return ImGui::ColorConvertFloat4ToU32(v);
 }
 
-// --- Cheats-panel (this window) red flash + shake ---
+// Cheats-panel (this window) red flash + shake
 static bool g_cheats_panel_flash        = false;
 static double g_cheats_panel_t0         = 0.0;
 static const float kCheatsPanelFlashSec = 0.25f;
@@ -56,7 +56,7 @@ static ImVec2 g_shake_base_pos  = ImVec2(0, 0);
 static const float kShakeAmpPx  = 5.0f;  // peak pixels
 static const float kShakeFreqHz = 32.0f; // tight buzz
 
-// --- Sequenced lime glow (Cheats -> Info -> Main), repeat twice ---
+// Sequenced lime glow (Cheats -> Info -> Main), repeat twice
 static bool g_seq_active        = false;
 static double g_seq_t0          = 0.0;
 static int g_seq_step           = 0;     // 0: Cheats, 1: Info, 2: Main
@@ -441,7 +441,7 @@ void Cheats::on_draw_ui() {
             Cheats::hoveredDescription = defaultDescription;
     }
 
-    // ----------------- Draw flashes & overlays -----------------
+    // Draw flashes & overlays
 
     // Red flash overlay (stays constrained to this settings window)
     if (g_cheats_panel_flash) {

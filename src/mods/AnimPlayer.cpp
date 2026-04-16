@@ -24,9 +24,8 @@ static int lastMotionNo          = -1;
 static float motionCheckDelay    = 0.0f;
 static std::string currentWeapon = "Berry";
 
-// ------------------------------
+
 // Small math helpers
-// ------------------------------
 static inline float clampf(float v, float mn, float mx) {
     return v < mn ? mn : (v > mx ? mx : v);
 }
@@ -47,15 +46,13 @@ static inline ImVec2 bezier_cubic(const ImVec2& p0, const ImVec2& c1, const ImVe
     return ImVec2(a * p0.x + b * c1.x + c * c2.x + d * p1.x, a * p0.y + b * c1.y + c * c2.y + d * p1.y);
 }
 
-// ------------------------------
+
 // Drag-reorder support (handle in first column)
-// ------------------------------
 static const char* kDragPayloadType = "AP_ROW";
 static int g_drag_source_index      = -1;
 
-// ------------------------------
+
 // Connector stem animation
-// ------------------------------
 struct ConnectorStemAnim {
     bool active       = false;
     bool target_ready = false;
@@ -67,9 +64,8 @@ struct ConnectorStemAnim {
 };
 static ConnectorStemAnim g_connector;
 
-// ------------------------------
+
 // Cue Strip state
-// ------------------------------
 static bool g_timeline_scrubbing = false; // retained to freeze clock if needed
 static float g_scrub_time_accum  = 0.0f;
 
@@ -92,9 +88,8 @@ struct CueResizeState {
 };
 static CueResizeState g_cue_resize;
 
-// ---------------------------------------------
+
 // Helper: move vector element (src -> dst)
-// ---------------------------------------------
 template <class T> static inline void move_item(std::vector<T>& v, int src, int dst) {
     if (src == dst || src < 0 || dst < 0 || src >= (int)v.size() || dst > (int)v.size())
         return;
@@ -108,9 +103,8 @@ template <class T> static inline void move_item(std::vector<T>& v, int src, int 
     }
 }
 
-// ---------------------------------------------
+
 // Draw connector stem if animating
-// ---------------------------------------------
 static void draw_connector_stem() {
     if (!g_connector.active)
         return;
@@ -179,9 +173,8 @@ void AnimPlayer::Stuff() {
             if (ImGui::BeginTabItem(weaponData.name)) {
                 currentWeapon = weaponData.name;
 
-                // ------------------------------------------------------------
-                // Compute left panel width: slightly larger than longest label
-                // ------------------------------------------------------------
+                
+                // Compute left panel width: slightly larger than longest label               
                 float max_label_px = 0.0f;
                 for (const auto& anim : weaponData.animations) {
                     std::string label = std::string(anim.first) + " (" + std::to_string(anim.second) + ")";
@@ -197,26 +190,23 @@ void AnimPlayer::Stuff() {
                 if (list_width > max_cap)
                     list_width = max_cap;
 
-                // -------------------------
+
                 // Search bar (always visible)
-                // -------------------------
                 static char filterBuf[96] = {};
                 ImGui::SetNextItemWidth(list_width);
                 ImGui::InputTextWithHint("##filter", "Search...", filterBuf, IM_ARRAYSIZE(filterBuf));
                 bool hasFilter = filterBuf[0] != 0;
 
-                // ------------------------------------------------------------
+
                 // Compute remaining height AFTER drawing the search line,
                 // then reserve a fixed slice at the BOTTOM for the cue panel.
-                // ------------------------------------------------------------
                 float avail_h      = ImGui::GetContentRegionAvail().y;
                 float panes_height = avail_h - cue_total_h - style.ItemSpacing.y; // leave spacing above bottom child
                 if (panes_height < 80.0f)
                     panes_height = 80.0f; // minimum workable area
 
-                // -------------------------
+
                 // LEFT: Catalog (fixed width, non-scaling)
-                // -------------------------
                 ImGui::BeginChild("##anim_buttons", ImVec2(list_width, panes_height), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
                 ImGui::Separator();
                 for (const auto& anim : weaponData.animations) {
@@ -242,9 +232,8 @@ void AnimPlayer::Stuff() {
 
                 ImGui::SameLine();
 
-                // -------------------------
+
                 // RIGHT: Playlist + controls
-                // -------------------------
                 ImGui::BeginChild("##playlist_right", ImVec2(0, panes_height), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
                 auto& playlist = animationPlaylists[currentWeapon];
@@ -384,9 +373,8 @@ void AnimPlayer::Stuff() {
 
                 ImGui::EndChild(); // playlist_right
 
-                // -------------------------
+
                 // BOTTOM: Cue Panel in its own fixed-height child
-                // -------------------------
                 ImGui::Dummy(ImVec2(0, style.ItemSpacing.y)); // spacing above bottom bar
                 ImGui::BeginChild(
                     "##cue_panel", ImVec2(0, cue_total_h), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);

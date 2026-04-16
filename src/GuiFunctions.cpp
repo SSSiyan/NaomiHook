@@ -15,7 +15,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
-#define GUI_VERSION "- Vol.1"
+#define GUI_VERSION "- Vol.2"
 #define IMGUI_WINDOW_PADDING 10.0f
 
 #define IMGUI_WINDOW_BG_COLOR IM_COL32(22, 22, 22, 170)    // background
@@ -24,13 +24,13 @@
 
 #define IMGUI_WINDOW_ST_MODNAME_COLOR 0xffbfe6ff // mod title at top right
 
-// --- hold-to-save state ---
+// hold-to-save state
 static bool g_save_hold_tracking     = false;
 static bool g_save_hold_done         = false;
 static double g_save_hold_t0         = 0.0;
 static const float SAVE_HOLD_SECONDS = 1.0f;
 
-// --- SAVE PULSE ---
+// SAVE PULSE
 // Color sampled from the provided green swatch (RGB 40, 254, 32)
 #define SAVE_PULSE_COLOR IM_COL32(40, 254, 32, 255)
 static bool g_save_pulse_active   = false;
@@ -38,7 +38,7 @@ static double g_save_pulse_t0     = 0.0;
 static const float kSavePulseSec  = 0.55f;
 static bool g_save_btn_was_active = false; // to detect release of the save button
 
-// --- folder slide animation state ---
+// folder slide animation state
 static const float kFolderSlideSec = 0.12f; // seconds
 struct TreeAnimState {
     double t0      = 0.0;    // when current anim started
@@ -49,7 +49,7 @@ struct TreeAnimState {
 };
 static std::unordered_map<ImGuiID, TreeAnimState> g_treeAnim;
 
-// --- category header slide-in on selection/collapse ---
+// category header slide-in on selection/collapse
 static const float kCategorySlideSec = 0.14f;
 static const float kCategorySlidePx  = 12.0f;
 struct CategorySlideState {
@@ -59,12 +59,12 @@ struct CategorySlideState {
 };
 static std::unordered_map<ImGuiID, CategorySlideState> g_catSlide;
 
-// --- infobox content fade-in state ---
+// infobox content fade-in state
 static const float kInfoFadeSec   = 0.10f; // quick fade (seconds)
 static ImGuiID g_info_last_mod_id = 0;
 static double g_info_fade_t0      = 0.0;
 
-// --- helper eases ---
+// helper eases 
 static inline float ease_smoothstep(float t) {
     if (t < 0.0f)
         t = 0.0f;
@@ -78,7 +78,7 @@ static float linear_map(float edge0, float edge1, float x) {
     return glm::clamp(x, 0.0f, 1.0f);
 }
 
-// --- Smooth scroll (per-window) ---
+// Smooth scroll (per-window)
 struct SmoothScrollState {
     float target = 0.0f;
     float last   = 0.0f;
@@ -128,13 +128,13 @@ static void apply_smooth_scroll_for_current_window(float lines_per_notch = 6.0f,
 }
 
 // ============================================================================
-// Row FX: Hover fade -> lime, and "Sticker-Slap" click burst overlays
+// Row FX: Hover fade -> lime, and "Sticker Slap" click burst overlays
 // ============================================================================
 static const float kRow_HoverFadeSec = 0.11f; // quick but visible
 static const ImU32 kRow_BaseTextCol  = IM_COL32(240, 240, 240, 255);
 static const ImU32 kRow_LimeTextCol  = IM_COL32(40, 255, 33, 255);
 
-// Sticker-Slap (misregistered lime + white pop with a tiny overshoot)
+// Sticker Slap (misregistered lime + white pop with a tiny overshoot)
 static const float kSS_DurSec      = 0.16f;
 static const float kSS_MaxOffsetPx = 2.5f;  // starting offset magnitude
 static const float kSS_MaxAlpha    = 0.85f; // overlay alpha peak (multiplied by decay)

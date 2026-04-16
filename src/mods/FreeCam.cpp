@@ -1,4 +1,3 @@
-// ASCII-ONLY
 #include "FreeCam.hpp"
 #include "GuiFunctions.hpp" // for g_framework
 #include "KbmControls.hpp"  // for gamepad button structs
@@ -492,7 +491,7 @@ void FreeCam::on_frame() {
         }
     }
 
-    // --- Build a single target ---
+    // Build a single target
     Vec base_tgt = g_look_custom;
     if (g_look_target_player && player_for_centers) {
         base_tgt.x = player_for_centers->mCharaStatus.pos.x;
