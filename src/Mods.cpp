@@ -39,7 +39,7 @@
 #include "mods/HudSettings.hpp"
 #include "mods/FreeCam.hpp"
 #include "mods/ShaderEdit.hpp"
-#include "mods/BrainAge.hpp"
+// #include "mods/BrainAge.hpp"
 #include "mods/AnimPlayer.hpp"
 #include "mods/SoundEffects.hpp"
 #include "mods/WorldVisualizer.hpp"
@@ -91,7 +91,7 @@ Mods::Mods()
     ADD_MOD(KbmControls);
     ADD_MOD(HudSettings);
     ADD_MOD(FreeCam);
-    ADD_MOD(BrainAge);
+    // ADD_MOD(BrainAge);
     ADD_MOD(AnimPlayer);
     ADD_MOD(SoundEffects);
     ADD_MOD(WorldVisualizer);

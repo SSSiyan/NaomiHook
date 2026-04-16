@@ -11,7 +11,7 @@
 class WorldVisualizer : public Mod {
 public:
     WorldVisualizer() = default;
-    ModCategory get_category() { return ModCategory::SYSTEM; };
+    ModCategory get_category() { return ModCategory::MAX; };
     std::string get_mod_name() const override { return "WorldVisualizer"; }
     std::string get_human_readable_name() const { return "WorldVisualizer"; }
     const char* get_description() const override { return R"(WorldVisualizer)"; };

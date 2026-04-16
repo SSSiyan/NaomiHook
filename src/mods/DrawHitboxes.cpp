@@ -1,9 +1,10 @@
 #include "DrawHitboxes.hpp"
 #include "WorldVisualizer.hpp"
 #if 1
-bool drawHitboxes        = false;
-bool drawBullshit        = false;
-bool drawWeaponAttempt   = false;
+bool DrawHitboxes::mod_enabled     = false;
+bool DrawHitboxes::drawMotionInfo = false;
+    // bool drawBullshit        = false;
+// bool drawWeaponAttempt   = false;
 uintptr_t gPcCommonTable = NULL;
 
 std::optional<std::string> DrawHitboxes::on_initialize() {
@@ -152,7 +153,9 @@ public:
         if (motionNo == 172)
             WorldVisualizer::DrawWorldSphere(pos, 28.0f, IM_COL32(255, 0, 255, 128));
 
-        DrawMotionInfo(player, motionNo, atk, active);
+        if (DrawHitboxes::drawMotionInfo) {
+            DrawMotionInfo(player, motionNo, atk, active);
+        }
     }
 
 private:
@@ -171,10 +174,10 @@ private:
     }
 };
 
-void UpdateAttackVisualization(mHRPc* player) {
+/*void UpdateAttackVisualization(mHRPc* player) {
     static AttackRangeVisualizer vis;
     vis.VisualizeAttackRange(player);
-}
+}*/
 
 void DrawHitboxes::Stuff() {
     ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -186,7 +189,10 @@ void DrawHitboxes::Stuff() {
 
     mHRPc* pc = nmh_sdk::get_mHRPc();
     if (pc) {
-        if (drawBullshit) {
+        static AttackRangeVisualizer vis;
+        vis.VisualizeAttackRange(pc);
+
+        /*if (drawBullshit) {
             Vec pos = pc->mCharaStatus.pos;
             Vec tgt = pc->mLockOnPos;
             WorldVisualizer::DrawWorldSphere(pos, 28.0f, IM_COL32(0, 255, 0, 255));
@@ -198,23 +204,34 @@ void DrawHitboxes::Stuff() {
             WorldVisualizer::DrawWorldText(txt, "Target");
             Vec grid = {0, 0, 0};
             WorldVisualizer::DrawWorldGrid(grid, 200.0f, 10, IM_COL32(64, 64, 64, 255));
-        }
-        if (drawWeaponAttempt) {
-            static AttackRangeVisualizer vis;
-            vis.VisualizeAttackRange(pc);
-        }
+        }*/
     }
     ImGui::End();
 }
 
 void DrawHitboxes::on_draw_ui() {
-    ImGui::Checkbox("Draw Hitboxes", &drawHitboxes);
-    ImGui::Checkbox("Draw Weapon Attempt", &drawWeaponAttempt);
-    ImGui::Checkbox("Draw Bullshit", &drawBullshit);
+    ImGui::Checkbox("Draw Hitboxes", &mod_enabled);
+    if (mod_enabled) {
+        ImGui::Indent();
+        ImGui::Checkbox("Draw Debug Motion Info", &drawMotionInfo);
+        ImGui::Unindent();
+    }
+    // ImGui::Checkbox("Draw Weapon Attempt", &drawWeaponAttempt);
+    // ImGui::Checkbox("Draw Bullshit", &drawBullshit);
 }
 
 void DrawHitboxes::on_frame() {
-    if (drawHitboxes)
-        DrawHitboxes::Stuff();
+    if (mod_enabled) { DrawHitboxes::Stuff(); }
 }
+
+void DrawHitboxes::on_config_load(const utility::Config& cfg) {
+    mod_enabled = cfg.get<bool>("draw_hitboxes").value_or(false);
+    drawMotionInfo = cfg.get<bool>("draw_hitbox_motion_info").value_or(false);
+}
+// during save
+void DrawHitboxes::on_config_save(utility::Config& cfg) {
+    cfg.set<bool>("draw_hitboxes", mod_enabled);
+    cfg.set<bool>("draw_hitbox_motion_info", drawMotionInfo);
+}
+
 #endif

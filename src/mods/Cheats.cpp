@@ -134,10 +134,20 @@ static double total_seq_duration() {
 
 static char password_input[64] = "";
 std::unordered_set<std::string> unlocked_cheats;
-std::unordered_map<std::string, std::string> cheat_passwords = {{"invincible", "SUNDOWNER"}, {"take_no_damage", "HESOYAM"},
-    {"deal_no_damage", "JUSTAPRANK"}, {"one_hit_kill", "FUCKHEAD"}, {"spend_no_battery", "BANDANA"},
-    {"enemies_dont_attack", "LEAVEMEALONE"}, {"disable_free_fight_timers", "OUTOFTOUCH"}, {"start_777", "JACKPOT"},
-    {"start_bar", "WINDOWS"}, {"start_bell", "BELLEND"}, {"start_hopper", "GYARU"}, {"start_cherry", "MRWHOOPEE"}};
+std::unordered_map<std::string, std::string> cheat_passwords = {
+    {"invincible", "SUNDOWNER"},
+    {"take_no_damage", "HESOYAM"},
+    {"deal_no_damage", "JUSTAPRANK"},
+    {"one_hit_kill", "FUCKHEAD"},
+    {"spend_no_battery", "BANDANA"},
+    {"enemies_dont_attack", "LEAVEMEALONE"},
+    {"disable_free_fight_timers", "OUTOFTOUCH"},
+    {"start_777", "JACKPOT"},
+    {"start_bar", "WINDOWS"}, 
+    {"start_bell", "BELLEND"},
+    {"start_hopper", "GYARU"},
+    {"start_cherry", "MRWHOOPEE"}
+};
 
 void save_unlocked_cheats() {
     utility::Config cfg;
@@ -337,7 +347,8 @@ void Cheats::on_draw_ui() {
 
     // Password entry
     ImGui::Text("Enter cheat password:");
-    ImGui::SetNextItemWidth(200);
+    float fontSize = ImGui::GetFontSize();
+    ImGui::SetNextItemWidth(fontSize * 8.0f);
     if (ImGui::InputText("##password", password_input, sizeof(password_input),
             ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsUppercase)) {
         check_password();
