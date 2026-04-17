@@ -708,8 +708,8 @@ void StanceControl::on_draw_ui() {
     if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "This takes priority over \"Combo Extend Speedup On Low Attacks\"";
     float fontSize = ImGui::GetFontSize();
     ImGui::PushItemWidth(fontSize * 5.0f);
-    ImGui::SliderFloat("Blend Speed Without Lock On", &blendTickNotLockedOn, 0.01f, 1.0f, "%.1f");
-    ImGui::SliderFloat("Blend Speed With Lock On", &blendTickLockedOn, 0.01f, 1.0f, "%.1f");
+    //ImGui::SliderFloat("Blend Speed Without Lock On", &blendTickNotLockedOn, 0.01f, 1.0f, "%.1f");
+    //ImGui::SliderFloat("Blend Speed With Lock On", &blendTickLockedOn, 0.01f, 1.0f, "%.1f");
     ImGui::PopItemWidth();
     ImGui::Checkbox("Manual Guarding", &mod_enabled_stance_guards);
     if (ImGui::IsItemHovered()) StanceControl::hoveredDescription = "Completely disables auto guarding in favor of manual, stance-dependent guarding.";
@@ -1789,8 +1789,8 @@ void StanceControl::on_config_save(utility::Config& cfg) {
     cfg.set<bool>("gear_system_holds", gear_system_holds);
 
     cfg.set<bool>("stance_guards", mod_enabled_stance_guards);
-    cfg.set<float>("blend_tick_not_locked_on", blendTickNotLockedOn);
-    cfg.set<float>("blend_tick_locked_on", blendTickLockedOn);
+    //cfg.set<float>("blend_tick_not_locked_on", blendTickNotLockedOn);
+    //cfg.set<float>("blend_tick_locked_on", blendTickLockedOn);
 }
 
 // will show up in debug window, dump ImGui widgets you want here
