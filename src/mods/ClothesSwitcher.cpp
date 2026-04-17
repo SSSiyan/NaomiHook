@@ -83,13 +83,13 @@ static std::string pick_nonrepeating_toast()
         "Secured C!",
         "Rangers lead the way!",
         "HIDEO", 
-        "Cool Trasition"
-        "Don't Copy That Floppy!"
-        "CATCH A RIIIIIIDE!"
-        "Feelin' Pretty!"
-        "Steppin' on the beach doo doo doo doooo"
-        "THE MOVIE'S ON"
-        "The man is killing us, man!"
+        "Cool Transition",
+        "Don't Copy That Floppy!",
+        "CATCH A RIIIIIIDE!",
+        "Feelin' Pretty!",
+        "Steppin' on the beach doo doo doo doooo",
+        "THE MOVIE'S ON",
+        "The man is killing us, man!",
     };
 
     const int N = (int)(sizeof(k_toast_msgs) / sizeof(k_toast_msgs[0]));

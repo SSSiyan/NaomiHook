@@ -924,7 +924,7 @@ void ImGoo_CFloat(const char* label, float* v) {
 }
 
 void ShaderEdit::on_draw_ui() {
-    g_mod_enabled->draw("Enable the thing?");
+    g_mod_enabled->draw("Enable Shader Tweaks");
 
     if (!g_mod_enabled->value()) {
         return;
@@ -955,7 +955,7 @@ void ShaderEdit::on_draw_ui() {
 
     if (ImGui::TreeNode("Radial Blur Settings")) {
 
-        ImGui::Checkbox("Preview mode", &g_preview_flag);
+        //ImGui::Checkbox("Preview mode", &g_preview_flag);
         if (ImGui::SliderFloat("strength px: ", &g_radial_cb_data.kStrengthPx, 0.0f, 300.0f)) {
             g_comptime_shader_defs.radial_blur_strength_pixels = g_radial_cb_data.kStrengthPx;
         }
