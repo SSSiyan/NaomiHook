@@ -1789,8 +1789,8 @@ void StanceControl::on_config_save(utility::Config& cfg) {
     cfg.set<bool>("gear_system_holds", gear_system_holds);
 
     cfg.set<bool>("stance_guards", mod_enabled_stance_guards);
-    cfg.set<float>("blend_tick_not_locked_on", blendTickNotLockedOn);
-    cfg.set<float>("blend_tick_locked_on", blendTickLockedOn);
+    //cfg.set<float>("blend_tick_not_locked_on", blendTickNotLockedOn);
+    //cfg.set<float>("blend_tick_locked_on", blendTickLockedOn);
 }
 
 // will show up in debug window, dump ImGui widgets you want here
