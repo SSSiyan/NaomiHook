@@ -204,6 +204,10 @@ static void render_toast() {
 }
 // ----------------------------------------------------------------------
 
+void ClothesSwitcher::on_frame() {
+    render_toast();
+}
+
 void ClothesSwitcher::on_draw_ui() {
     if (mHRPc* player = nmh_sdk::get_mHRPc()) {
         std::vector<int> selected_indices(combo_boxes.size(), 0);
@@ -267,9 +271,6 @@ void ClothesSwitcher::on_draw_ui() {
         ImGui::PopStyleVar();
         ImGui::PopStyleColor();
         // -------------------------------------------------------------------------------
-
-        // Draw the toast (top-right)
-        render_toast();
 
         if (ImGui::BeginTabBar("##clothes switcher")) {
             for (size_t i = 0; i < combo_boxes.size(); ++i) {
