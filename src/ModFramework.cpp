@@ -421,7 +421,8 @@ bool ModFramework::initialize() {
         spdlog::info("Starting game data initialization thread");
 
         // Game specific initialization stuff
-        std::thread init_thread([this]() {
+        //std::thread init_thread([this]() {
+        {
             m_mods = std::make_unique<Mods>();
 
             auto e = m_mods->on_initialize();
@@ -441,9 +442,10 @@ bool ModFramework::initialize() {
                 g_kbm_controls->register_raw_input_mouse(m_wnd);
             }
             m_game_data_initialized = true;
-        });
+        }
+        //});
 
-        init_thread.detach();
+        //init_thread.detach();
     }
 
 
